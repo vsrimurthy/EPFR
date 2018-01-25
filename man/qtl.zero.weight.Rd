@@ -18,4 +18,10 @@ qtl.zero.weight(x, y, n, w)
 \description{
 assigns the members of <x> to bins
 }
+\seealso{
+Other qtl: \code{\link{qtl.eq}},
+  \code{\link{qtl.single.grp}},
+  \code{\link{qtl.underlying}}, \code{\link{qtl.weighted}},
+  \code{\link{qtl}}
+}
 \keyword{qtl.zero.weight}

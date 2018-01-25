@@ -12,4 +12,9 @@ day.to.int(x)
 \description{
 Number of days since Monday, 1/1/18
 }
+\seealso{
+Other day: \code{\link{day.ex.date}},
+  \code{\link{day.ex.int}}, \code{\link{day.lag}},
+  \code{\link{day.seq}}, \code{\link{day.to.weekday}}
+}
 \keyword{day.to.int}

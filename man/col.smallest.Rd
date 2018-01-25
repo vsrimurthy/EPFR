@@ -12,4 +12,8 @@ col.smallest(x)
 \description{
 returns the column name of the smallest non-NA column for each row
 }
+\seealso{
+Other col: \code{\link{col.ex.int}},
+  \code{\link{col.offset}}, \code{\link{col.to.int}}
+}
 \keyword{col.smallest}

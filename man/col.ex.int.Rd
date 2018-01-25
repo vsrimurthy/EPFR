@@ -12,4 +12,8 @@ col.ex.int(x)
 \description{
 Returns the relevant excel column (1 = "A", 2 = "B", etc.)
 }
+\seealso{
+Other col: \code{\link{col.offset}},
+  \code{\link{col.smallest}}, \code{\link{col.to.int}}
+}
 \keyword{col.ex.int}

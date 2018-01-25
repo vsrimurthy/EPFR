@@ -12,4 +12,19 @@ yyyymmdd.to.int(x)
 \description{
 Number of week days since Monday, 12/30/46
 }
+\seealso{
+Other yyyymmdd: \code{\link{yyyymmdd.bulk}},
+  \code{\link{yyyymmdd.ex.AllocMo}},
+  \code{\link{yyyymmdd.ex.day}},
+  \code{\link{yyyymmdd.ex.int}},
+  \code{\link{yyyymmdd.ex.txt}},
+  \code{\link{yyyymmdd.ex.yyyymm}},
+  \code{\link{yyyymmdd.exists}},
+  \code{\link{yyyymmdd.lag}}, \code{\link{yyyymmdd.seq}},
+  \code{\link{yyyymmdd.to.AllocMo}},
+  \code{\link{yyyymmdd.to.CalYrDyOfWk}},
+  \code{\link{yyyymmdd.to.unity}},
+  \code{\link{yyyymmdd.to.weekofmonth}},
+  \code{\link{yyyymmdd.to.yyyymm}}
+}
 \keyword{yyyymmdd.to.int}

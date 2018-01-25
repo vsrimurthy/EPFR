@@ -12,4 +12,9 @@ dir.make(x)
 \description{
 Creates a folder in the location(s) specified by <x>
 }
+\seealso{
+Other dir: \code{\link{dir.all.files}},
+  \code{\link{dir.ensure}}, \code{\link{dir.parameters}},
+  \code{\link{dir.parent}}
+}
 \keyword{dir.make}

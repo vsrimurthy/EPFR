@@ -16,4 +16,10 @@ Ctry.msci.members.rng(x, y, n)
 \description{
 lists countries that were ever in an index between <y> and <n>
 }
+\seealso{
+Other Ctry: \code{\link{Ctry.info}},
+  \code{\link{Ctry.msci.index.changes}},
+  \code{\link{Ctry.msci.members}}, \code{\link{Ctry.msci}},
+  \code{\link{Ctry.to.CtryGrp}}
+}
 \keyword{Ctry.msci.members.rng}

@@ -16,4 +16,11 @@ vec.zScore(x, y, n)
 \description{
 zScores <x>
 }
+\seealso{
+Other vec: \code{\link{vec.cat}}, \code{\link{vec.count}},
+  \code{\link{vec.max}}, \code{\link{vec.min}},
+  \code{\link{vec.named}}, \code{\link{vec.read}},
+  \code{\link{vec.same}}, \code{\link{vec.to.lags}},
+  \code{\link{vec.to.list}}, \code{\link{vec.unique}}
+}
 \keyword{vec.zScore}

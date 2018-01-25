@@ -14,4 +14,8 @@ strategy.file(x, y)
 \description{
 Returns the file in which the factor lives
 }
+\seealso{
+Other strategy: \code{\link{strategy.dir}},
+  \code{\link{strategy.path}}
+}
 \keyword{strategy.file}

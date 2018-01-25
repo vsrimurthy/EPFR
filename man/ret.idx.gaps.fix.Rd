@@ -12,4 +12,8 @@ ret.idx.gaps.fix(x)
 \description{
 replaces NA's by latest available total return index (i.e. zero return over that period)
 }
+\seealso{
+Other ret: \code{\link{ret.ex.idx}},
+  \code{\link{ret.outliers}}, \code{\link{ret.to.idx}}
+}
 \keyword{ret.idx.gaps.fix}

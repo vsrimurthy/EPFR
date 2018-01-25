@@ -20,4 +20,13 @@ bbk.bin.xRet(x, y, n = 5, w = F, h = F)
 \description{
 Returns equal weight bin returns through time
 }
+\seealso{
+Other bbk: \code{\link{bbk.bin.rets.geom.summ}},
+  \code{\link{bbk.bin.rets.prd.summ}},
+  \code{\link{bbk.bin.rets.summ}}, \code{\link{bbk.data}},
+  \code{\link{bbk.doW.bulk}}, \code{\link{bbk.drawdown}},
+  \code{\link{bbk.fwdRet}}, \code{\link{bbk.holidays}},
+  \code{\link{bbk.summ}}, \code{\link{bbk.turnover}},
+  \code{\link{bbk}}
+}
 \keyword{bbk.bin.xRet}

@@ -18,4 +18,21 @@ mat.to.xlModel(x, y = 2, n = 5, w = F)
 \description{
 prepends the trade open and close dates and re-indexes by data date (as needed)
 }
+\seealso{
+Other mat: \code{\link{mat.combine}},
+  \code{\link{mat.compound}}, \code{\link{mat.correl}},
+  \code{\link{mat.count}},
+  \code{\link{mat.daily.to.monthly}},
+  \code{\link{mat.ex.array3d}}, \code{\link{mat.ex.array}},
+  \code{\link{mat.ex.matrix}}, \code{\link{mat.ex.qtl}},
+  \code{\link{mat.fake}}, \code{\link{mat.index}},
+  \code{\link{mat.lag.cols}}, \code{\link{mat.lag}},
+  \code{\link{mat.last.to.first}}, \code{\link{mat.rank}},
+  \code{\link{mat.read}}, \code{\link{mat.same}},
+  \code{\link{mat.subset}},
+  \code{\link{mat.to.first.data.row}},
+  \code{\link{mat.to.lags}}, \code{\link{mat.to.last.Idx}},
+  \code{\link{mat.to.matrix}}, \code{\link{mat.to.obs}},
+  \code{\link{mat.write}}
+}
 \keyword{mat.to.xlModel}

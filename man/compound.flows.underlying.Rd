@@ -20,4 +20,10 @@ compound.flows.underlying(fcn, x, y, n, w)
 \description{
 compounded flows over <y> trailing periods indexed by last day in the flow window
 }
+\seealso{
+Other compound: \code{\link{compound.flows.initial}},
+  \code{\link{compound.flows}},
+  \code{\link{compound.stock.flows}},
+  \code{\link{compound}}
+}
 \keyword{compound.flows.underlying}

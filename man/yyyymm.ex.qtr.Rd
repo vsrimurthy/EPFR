@@ -12,4 +12,11 @@ yyyymm.ex.qtr(x)
 \description{
 returns quarter end in yyyymm
 }
+\seealso{
+Other yyyymm: \code{\link{yyyymm.diff}},
+  \code{\link{yyyymm.ex.int}}, \code{\link{yyyymm.lag}},
+  \code{\link{yyyymm.seq}}, \code{\link{yyyymm.to.day}},
+  \code{\link{yyyymm.to.int}}, \code{\link{yyyymm.to.qtr}},
+  \code{\link{yyyymm.to.yyyy}}
+}
 \keyword{yyyymm.ex.qtr}

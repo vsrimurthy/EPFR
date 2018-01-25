@@ -14,4 +14,8 @@ ret.outliers(x, y = 1.5)
 \description{
 Sets big ones to NA (a way to control for splits)
 }
+\seealso{
+Other ret: \code{\link{ret.ex.idx}},
+  \code{\link{ret.idx.gaps.fix}}, \code{\link{ret.to.idx}}
+}
 \keyword{ret.outliers}

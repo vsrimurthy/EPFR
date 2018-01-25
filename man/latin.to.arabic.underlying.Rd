@@ -9,4 +9,8 @@ latin.to.arabic.underlying()
 \description{
 basic map of latin to arabic numerals
 }
+\seealso{
+Other latin: \code{\link{latin.ex.arabic}},
+  \code{\link{latin.to.arabic}}
+}
 \keyword{latin.to.arabic.underlying}

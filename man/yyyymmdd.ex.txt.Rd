@@ -16,4 +16,19 @@ yyyymmdd.ex.txt(x, y = "/", n = "MDY")
 \description{
 returns a vector of YYYYMMDD (formerly UIDate2yyyymmdd)
 }
+\seealso{
+Other yyyymmdd: \code{\link{yyyymmdd.bulk}},
+  \code{\link{yyyymmdd.ex.AllocMo}},
+  \code{\link{yyyymmdd.ex.day}},
+  \code{\link{yyyymmdd.ex.int}},
+  \code{\link{yyyymmdd.ex.yyyymm}},
+  \code{\link{yyyymmdd.exists}},
+  \code{\link{yyyymmdd.lag}}, \code{\link{yyyymmdd.seq}},
+  \code{\link{yyyymmdd.to.AllocMo}},
+  \code{\link{yyyymmdd.to.CalYrDyOfWk}},
+  \code{\link{yyyymmdd.to.int}},
+  \code{\link{yyyymmdd.to.unity}},
+  \code{\link{yyyymmdd.to.weekofmonth}},
+  \code{\link{yyyymmdd.to.yyyymm}}
+}
 \keyword{yyyymmdd.ex.txt}

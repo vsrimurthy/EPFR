@@ -18,4 +18,10 @@ qtl(x, y, n, w)
 \description{
 performs an equal-weight binning on <x> so that the members of <mem> are divided into <n> equal bins within each group <w>
 }
+\seealso{
+Other qtl: \code{\link{qtl.eq}},
+  \code{\link{qtl.single.grp}},
+  \code{\link{qtl.underlying}}, \code{\link{qtl.weighted}},
+  \code{\link{qtl.zero.weight}}
+}
 \keyword{qtl}

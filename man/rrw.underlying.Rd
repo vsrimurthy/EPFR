@@ -26,4 +26,7 @@ rrw.underlying(prd, vbls, univ, grp.nm, ret.nm, fldr, orth.factor, classif)
 \description{
 Runs regressions
 }
+\seealso{
+Other rrw: \code{\link{rrw.factors}}, \code{\link{rrw}}
+}
 \keyword{rrw.underlying}

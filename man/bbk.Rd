@@ -33,4 +33,13 @@ bbk(x, y, floW = 20, retW = 5, nBin = 5, doW = 4, sum.flows = F,
 \description{
 standard model output
 }
+\seealso{
+Other bbk: \code{\link{bbk.bin.rets.geom.summ}},
+  \code{\link{bbk.bin.rets.prd.summ}},
+  \code{\link{bbk.bin.rets.summ}},
+  \code{\link{bbk.bin.xRet}}, \code{\link{bbk.data}},
+  \code{\link{bbk.doW.bulk}}, \code{\link{bbk.drawdown}},
+  \code{\link{bbk.fwdRet}}, \code{\link{bbk.holidays}},
+  \code{\link{bbk.summ}}, \code{\link{bbk.turnover}}
+}
 \keyword{bbk}

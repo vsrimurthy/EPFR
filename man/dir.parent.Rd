@@ -12,4 +12,9 @@ dir.parent(x)
 \description{
 returns paths to the parent directory
 }
+\seealso{
+Other dir: \code{\link{dir.all.files}},
+  \code{\link{dir.ensure}}, \code{\link{dir.make}},
+  \code{\link{dir.parameters}}
+}
 \keyword{dir.parent}

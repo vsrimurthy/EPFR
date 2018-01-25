@@ -12,4 +12,8 @@ latin.to.arabic(x)
 \description{
 returns <x> expressed as an integer
 }
+\seealso{
+Other latin: \code{\link{latin.ex.arabic}},
+  \code{\link{latin.to.arabic.underlying}}
+}
 \keyword{latin.to.arabic}

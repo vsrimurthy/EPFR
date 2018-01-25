@@ -20,4 +20,11 @@ fop.IC(x, y, n, w, h)
 \description{
 Summarizes bin excess returns by sub-periods of interest (as defined by <vec>)
 }
+\seealso{
+Other fop: \code{\link{fop.Bin}},
+  \code{\link{fop.IC.summ}}, \code{\link{fop.grp.map}},
+  \code{\link{fop.rank.xRet}}, \code{\link{fop.stats}},
+  \code{\link{fop.subset}}, \code{\link{fop.underlying}},
+  \code{\link{fop}}
+}
 \keyword{fop.IC}

@@ -14,4 +14,8 @@ isin.ex.cusip(x, y)
 \description{
 a string of isin's
 }
+\seealso{
+Other isin: \code{\link{isin.check.digit}},
+  \code{\link{isin.ex.sedol}}
+}
 \keyword{isin.ex.cusip}

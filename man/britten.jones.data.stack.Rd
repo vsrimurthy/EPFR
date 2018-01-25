@@ -22,4 +22,8 @@ britten.jones.data.stack(rslt, df, retHz, prd.ret, n.beg, entity)
 \description{
 applies the Britten-Jones transformation to a subset and then stacks
 }
+\seealso{
+Other britten: \code{\link{britten.jones.data}},
+  \code{\link{britten.jones}}
+}
 \keyword{britten.jones.data.stack}

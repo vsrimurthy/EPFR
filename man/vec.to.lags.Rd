@@ -14,4 +14,11 @@ vec.to.lags(x, y)
 \description{
 a data frame of <x> together with itself lagged 1, ..., <y> - 1 times
 }
+\seealso{
+Other vec: \code{\link{vec.cat}}, \code{\link{vec.count}},
+  \code{\link{vec.max}}, \code{\link{vec.min}},
+  \code{\link{vec.named}}, \code{\link{vec.read}},
+  \code{\link{vec.same}}, \code{\link{vec.to.list}},
+  \code{\link{vec.unique}}, \code{\link{vec.zScore}}
+}
 \keyword{vec.to.lags}

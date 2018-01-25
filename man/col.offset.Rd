@@ -14,4 +14,8 @@ col.offset(x, y)
 \description{
 Offsets <x> by <y> columns
 }
+\seealso{
+Other col: \code{\link{col.ex.int}},
+  \code{\link{col.smallest}}, \code{\link{col.to.int}}
+}
 \keyword{col.offset}

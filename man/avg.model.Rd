@@ -14,4 +14,8 @@ avg.model(x, y = 0)
 \description{
 constant-only (zero-variable) regression model
 }
+\seealso{
+Other avg: \code{\link{avg.winsorized}},
+  \code{\link{avg.wtd}}
+}
 \keyword{avg.model}

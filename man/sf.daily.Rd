@@ -35,4 +35,12 @@ sf.daily(prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trails, sum.flows, fldr,
 \description{
 runs stock-flows simulation
 }
+\seealso{
+Other sf: \code{\link{sf.bin.nms}},
+  \code{\link{sf.daily.summ}},
+  \code{\link{sf.single.bsim}}, \code{\link{sf.subset}},
+  \code{\link{sf.summ}}, \code{\link{sf.underlying.data}},
+  \code{\link{sf.underlying.summ}},
+  \code{\link{sf.underlying}}, \code{\link{sf}}
+}
 \keyword{sf.daily}

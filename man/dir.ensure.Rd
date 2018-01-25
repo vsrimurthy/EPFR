@@ -12,4 +12,9 @@ dir.ensure(x)
 \description{
 Creates necessary folders so files can be copied to <x>
 }
+\seealso{
+Other dir: \code{\link{dir.all.files}},
+  \code{\link{dir.make}}, \code{\link{dir.parameters}},
+  \code{\link{dir.parent}}
+}
 \keyword{dir.ensure}

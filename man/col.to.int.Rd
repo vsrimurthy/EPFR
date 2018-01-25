@@ -12,4 +12,8 @@ col.to.int(x)
 \description{
 Returns the relevant associated integer (1 = "A", 2 = "B", etc.)
 }
+\seealso{
+Other col: \code{\link{col.ex.int}},
+  \code{\link{col.offset}}, \code{\link{col.smallest}}
+}
 \keyword{col.to.int}

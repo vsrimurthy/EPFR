@@ -16,4 +16,11 @@ fop.stats(x, y, n)
 \description{
 puts all the entries corresponding to <y> on one row
 }
+\seealso{
+Other fop: \code{\link{fop.Bin}},
+  \code{\link{fop.IC.summ}}, \code{\link{fop.IC}},
+  \code{\link{fop.grp.map}}, \code{\link{fop.rank.xRet}},
+  \code{\link{fop.subset}}, \code{\link{fop.underlying}},
+  \code{\link{fop}}
+}
 \keyword{fop.stats}

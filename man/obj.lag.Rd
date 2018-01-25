@@ -18,4 +18,8 @@ obj.lag(x, y, n, w)
 \description{
 lags <x> by <y>
 }
+\seealso{
+Other obj: \code{\link{obj.diff}}, \code{\link{obj.list}},
+  \code{\link{obj.seq}}
+}
 \keyword{obj.lag}

@@ -8,6 +8,7 @@
 #' @param w = T/F variable depending on whether <x> has a header
 #' @keywords mat.read
 #' @export
+#' @family mat
 #' @import utils
 
 mat.read <- function (x = "C:\\temp\\write.csv", y = ",", n = 1, w = T) 
@@ -23,6 +24,7 @@ mat.read <- function (x = "C:\\temp\\write.csv", y = ",", n = 1, w = T)
 #' @param y = outlier threshold
 #' @keywords ret.outliers
 #' @export
+#' @family ret
 #' @import stats
 
 ret.outliers <- function (x, y = 1.5) 
@@ -42,6 +44,7 @@ ret.outliers <- function (x, y = 1.5)
 #' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) uiconn - a connection to EPFRUI, the output of odbcDriverConnect d) DB - any of StockFlows/Japan/CSI300/Energy
 #' @keywords mk.1mPerfTrend
 #' @export
+#' @family mk
 #' @import RODBC
 
 mk.1mPerfTrend <- function (x, y, n) 
@@ -141,6 +144,7 @@ email <- function (x, y, n, w = "")
 #' @param y = lag length (to handle overlapping returns)     When using N-period returns, y is N - 1. So for     annual or qtrly periods of monthly data, y is 11 or 2.
 #' @keywords avg.model
 #' @export
+#' @family avg
 #' @import sandwich
 
 avg.model <- function (x, y = 0) 
@@ -223,6 +227,7 @@ avail <- function (x)
 #' @param y = number of quantiles
 #' @keywords avg.winsorized
 #' @export
+#' @family avg
 
 avg.winsorized <- function (x, y = 100) 
 {
@@ -241,6 +246,7 @@ avg.winsorized <- function (x, y = 100)
 #' @param y = a numeric vector of weights
 #' @keywords avg.wtd
 #' @export
+#' @family avg
 
 avg.wtd <- function (x, y) 
 {
@@ -256,6 +262,7 @@ avg.wtd <- function (x, y)
 #' @param y = a positive integer
 #' @keywords base.ex.int
 #' @export
+#' @family base
 
 base.ex.int <- function (x, y) 
 {
@@ -276,6 +283,7 @@ base.ex.int <- function (x, y)
 #' @param y = a positive integer
 #' @keywords base.to.int
 #' @export
+#' @family base
 
 base.to.int <- function (x, y) 
 {
@@ -301,6 +309,7 @@ base.to.int <- function (x, y)
 #' @param prd.size = size of each period in days or months depending on whether <x> is YYYYMMDD or YYYYMM
 #' @keywords bbk
 #' @export
+#' @family bbk
 
 bbk <- function (x, y, floW = 20, retW = 5, nBin = 5, doW = 4, sum.flows = F, 
     lag = 0, delay = 2, idx = NULL, prd.size = 1) 
@@ -340,6 +349,7 @@ bbk <- function (x, y, floW = 20, retW = 5, nBin = 5, doW = 4, sum.flows = F,
 #' @param y = number of rows of <x> needed to cover an entire calendar year
 #' @keywords bbk.bin.rets.geom.summ
 #' @export
+#' @family bbk
 
 bbk.bin.rets.geom.summ <- function (x, y) 
 {
@@ -376,6 +386,7 @@ bbk.bin.rets.geom.summ <- function (x, y)
 #' @param n = number of rows of <x> needed to cover an entire calendar year
 #' @keywords bbk.bin.rets.prd.summ
 #' @export
+#' @family bbk
 
 bbk.bin.rets.prd.summ <- function (fcn, x, y, n) 
 {
@@ -404,6 +415,7 @@ bbk.bin.rets.prd.summ <- function (fcn, x, y, n)
 #' @param y = number of rows of <x> needed to cover an entire calendar year
 #' @keywords bbk.bin.rets.summ
 #' @export
+#' @family bbk
 
 bbk.bin.rets.summ <- function (x, y) 
 {
@@ -445,6 +457,7 @@ bbk.bin.rets.summ <- function (x, y)
 #' @param h = T/F depending on whether full detail or bin returns are needed
 #' @keywords bbk.bin.xRet
 #' @export
+#' @family bbk
 
 bbk.bin.xRet <- function (x, y, n = 5, w = F, h = F) 
 {
@@ -496,6 +509,7 @@ bbk.bin.xRet <- function (x, y, n = 5, w = F, h = F)
 #' @param prd.size = size of each period in days or months depending on whether <x> is YYYYMMDD or YYYYMM
 #' @keywords bbk.data
 #' @export
+#' @family bbk
 
 bbk.data <- function (x, y, floW, sum.flows, lag, delay, doW, retW, idx, 
     prd.size) 
@@ -534,6 +548,7 @@ bbk.data <- function (x, y, floW, sum.flows, lag, delay, doW, retW, idx,
 #' @param n = an essential column that cannot be NA
 #' @keywords bbk.doW.bulk
 #' @export
+#' @family bbk
 
 bbk.doW.bulk <- function (x, y, n) 
 {
@@ -574,6 +589,7 @@ bbk.doW.bulk <- function (x, y, n)
 #' @param x = a numeric vector
 #' @keywords bbk.drawdown
 #' @export
+#' @family bbk
 
 bbk.drawdown <- function (x) 
 {
@@ -600,6 +616,7 @@ bbk.drawdown <- function (x)
 #' @param h = the number of days needed for the predictors to be known
 #' @keywords bbk.fwdRet
 #' @export
+#' @family bbk
 
 bbk.fwdRet <- function (x, y, n, w, h) 
 {
@@ -621,6 +638,7 @@ bbk.fwdRet <- function (x, y, n, w, h)
 #' @param y = a matrix/df of the same dimensions as <x> containing associated forward returns
 #' @keywords bbk.holidays
 #' @export
+#' @family bbk
 
 bbk.holidays <- function (x, y) 
 {
@@ -637,6 +655,7 @@ bbk.holidays <- function (x, y)
 #' @param n = return window in days or months depending on whether <x> is YYYYMMDD or YYYYMM
 #' @keywords bbk.summ
 #' @export
+#' @family bbk
 
 bbk.summ <- function (x, y, n) 
 {
@@ -667,6 +686,7 @@ bbk.summ <- function (x, y, n)
 #' @param x = a matrix/df of positive integers
 #' @keywords bbk.turnover
 #' @export
+#' @family bbk
 
 bbk.turnover <- function (x) 
 {
@@ -730,6 +750,7 @@ binomial.trial <- function (x, y, n, w)
 #' @param y = constitutent lagged returns that go into the first period
 #' @keywords britten.jones
 #' @export
+#' @family britten
 
 britten.jones <- function (x, y) 
 {
@@ -758,6 +779,7 @@ britten.jones <- function (x, y)
 #' @param w = the index within which you are trading
 #' @keywords britten.jones.data
 #' @export
+#' @family britten
 
 britten.jones.data <- function (x, y, n, w = NULL) 
 {
@@ -870,6 +892,7 @@ britten.jones.data <- function (x, y, n, w = NULL)
 #' @param entity =
 #' @keywords britten.jones.data.stack
 #' @export
+#' @family britten
 
 britten.jones.data.stack <- function (rslt, df, retHz, prd.ret, n.beg, entity) 
 {
@@ -910,6 +933,7 @@ britten.jones.data.stack <- function (rslt, df, retHz, prd.ret, n.beg, entity)
 #' @param x = a string of integers
 #' @keywords char.ex.int
 #' @export
+#' @family char
 
 char.ex.int <- function (x) 
 {
@@ -926,6 +950,7 @@ char.ex.int <- function (x)
 #' @param n = quantum size
 #' @keywords char.seq
 #' @export
+#' @family char
 
 char.seq <- function (x, y, n = 1) 
 {
@@ -938,6 +963,7 @@ char.seq <- function (x, y, n = 1)
 #' @param x = a string of single characters
 #' @keywords char.to.int
 #' @export
+#' @family char
 
 char.to.int <- function (x) 
 {
@@ -952,6 +978,7 @@ char.to.int <- function (x)
 #' @param x = a vector of strings
 #' @keywords char.to.num
 #' @export
+#' @family char
 
 char.to.num <- function (x) 
 {
@@ -967,6 +994,7 @@ char.to.num <- function (x)
 #' @param x = a positive integer
 #' @keywords col.ex.int
 #' @export
+#' @family col
 
 col.ex.int <- function (x) 
 {
@@ -985,6 +1013,7 @@ col.ex.int <- function (x)
 #' @param y = an integer representing the desired column offset
 #' @keywords col.offset
 #' @export
+#' @family col
 
 col.offset <- function (x, y) 
 {
@@ -997,6 +1026,7 @@ col.offset <- function (x, y)
 #' @param x = a numeric matrix
 #' @keywords col.smallest
 #' @export
+#' @family col
 
 col.smallest <- function (x) 
 {
@@ -1020,6 +1050,7 @@ col.smallest <- function (x)
 #' @param x = a SINGLE string representation of an excel column
 #' @keywords col.to.int
 #' @export
+#' @family col
 
 col.to.int <- function (x) 
 {
@@ -1080,6 +1111,7 @@ combinations.next <- function (x)
 #' @param x = a vector of percentage returns
 #' @keywords compound
 #' @export
+#' @family compound
 
 compound <- function (x) 
 {
@@ -1095,6 +1127,7 @@ compound <- function (x)
 #' @param w = if T, flows get summed. Otherwise they get compounded.
 #' @keywords compound.flows
 #' @export
+#' @family compound
 
 compound.flows <- function (x, y, n, w = F) 
 {
@@ -1116,6 +1149,7 @@ compound.flows <- function (x, y, n, w = F)
 #' @param y = an integer representing the size of the window needed
 #' @keywords compound.flows.initial
 #' @export
+#' @family compound
 
 compound.flows.initial <- function (x, y) 
 {
@@ -1136,6 +1170,7 @@ compound.flows.initial <- function (x, y)
 #' @param w = size of each period in terms of days if the rows of <x> are yyyymmdd or months otherwise
 #' @keywords compound.flows.underlying
 #' @export
+#' @family compound
 
 compound.flows.underlying <- function (fcn, x, y, n, w) 
 {
@@ -1156,6 +1191,7 @@ compound.flows.underlying <- function (fcn, x, y, n, w)
 #' @param y = if T, flows get summed. Otherwise they get compounded.
 #' @keywords compound.stock.flows
 #' @export
+#' @family compound
 
 compound.stock.flows <- function (x, y) 
 {
@@ -1247,6 +1283,7 @@ covar <- function (x, y, n = F)
 #' @param x = factor folder
 #' @keywords cpt.FloAlphaLt.Ctry
 #' @export
+#' @family cpt
 
 cpt.FloAlphaLt.Ctry <- function (x) 
 {
@@ -1292,6 +1329,7 @@ cpt.FloAlphaLt.Ctry <- function (x)
 #' @param y = a vector of country codes
 #' @keywords cpt.RgnSec
 #' @export
+#' @family cpt
 
 cpt.RgnSec <- function (x, y) 
 {
@@ -1334,6 +1372,7 @@ cptRollingAverageWeights <- function (x = 4, y = 100, n = 0)
 #' @param y = a column in the classif-ctry file
 #' @keywords Ctry.info
 #' @export
+#' @family Ctry
 #' @examples
 #' Ctry.info("PK", "CtryNm")
 
@@ -1350,6 +1389,7 @@ Ctry.info <- function (x, y)
 #' @param x = an index name such as ACWI/EAFE/EM
 #' @keywords Ctry.msci
 #' @export
+#' @family Ctry
 
 Ctry.msci <- function (x) 
 {
@@ -1388,6 +1428,7 @@ Ctry.msci <- function (x)
 #' @param y = an MSCI index such as ACWI/EAFE/EM
 #' @keywords Ctry.msci.index.changes
 #' @export
+#' @family Ctry
 
 Ctry.msci.index.changes <- function (x, y) 
 {
@@ -1438,6 +1479,7 @@ Ctry.msci.index.changes <- function (x, y)
 #' @param y = one of the following: (a) a YYYYMM date (b) a YYYYMMDD date (c) "" for a static series
 #' @keywords Ctry.msci.members
 #' @export
+#' @family Ctry
 
 Ctry.msci.members <- function (x, y) 
 {
@@ -1490,6 +1532,7 @@ Ctry.msci.members <- function (x, y)
 #' @param n = after <y> and of the same date type
 #' @keywords Ctry.msci.members.rng
 #' @export
+#' @family Ctry
 
 Ctry.msci.members.rng <- function (x, y, n) 
 {
@@ -1513,6 +1556,7 @@ Ctry.msci.members.rng <- function (x, y, n)
 #' @param x = a vector of country codes
 #' @keywords Ctry.to.CtryGrp
 #' @export
+#' @family Ctry
 
 Ctry.to.CtryGrp <- function (x) 
 {
@@ -1528,6 +1572,7 @@ Ctry.to.CtryGrp <- function (x)
 #' @param x = a vector of R dates
 #' @keywords day.ex.date
 #' @export
+#' @family day
 
 day.ex.date <- function (x) 
 {
@@ -1540,6 +1585,7 @@ day.ex.date <- function (x)
 #' @param x = an integer or vector of integers
 #' @keywords day.ex.int
 #' @export
+#' @family day
 
 day.ex.int <- function (x) 
 {
@@ -1553,6 +1599,7 @@ day.ex.int <- function (x)
 #' @param y = an integer or vector of integers (if <x> and <y> are vectors then <y> isomekic)
 #' @keywords day.lag
 #' @export
+#' @family day
 
 day.lag <- function (x, y) 
 {
@@ -1567,6 +1614,7 @@ day.lag <- function (x, y)
 #' @param n = quantum size in calendar date
 #' @keywords day.seq
 #' @export
+#' @family day
 
 day.seq <- function (x, y, n = 1) 
 {
@@ -1579,6 +1627,7 @@ day.seq <- function (x, y, n = 1)
 #' @param x = a vector of calendar dates
 #' @keywords day.to.int
 #' @export
+#' @family day
 
 day.to.int <- function (x) 
 {
@@ -1594,6 +1643,7 @@ day.to.int <- function (x)
 #' @param x = a vector of calendar dates
 #' @keywords day.to.weekday
 #' @export
+#' @family day
 
 day.to.weekday <- function (x) 
 {
@@ -1610,6 +1660,7 @@ day.to.weekday <- function (x)
 #' @param y = a string such as "*.txt"
 #' @keywords dir.all.files
 #' @export
+#' @family dir
 
 dir.all.files <- function (x, y) 
 {
@@ -1625,6 +1676,7 @@ dir.all.files <- function (x, y)
 #' @param x = a string of full paths
 #' @keywords dir.ensure
 #' @export
+#' @family dir
 
 dir.ensure <- function (x) 
 {
@@ -1650,6 +1702,7 @@ dir.ensure <- function (x)
 #' @param x = a vector of full paths to folder
 #' @keywords dir.make
 #' @export
+#' @family dir
 
 dir.make <- function (x) 
 {
@@ -1663,6 +1716,7 @@ dir.make <- function (x)
 #' @param x = desired sub-folder
 #' @keywords dir.parameters
 #' @export
+#' @family dir
 
 dir.parameters <- function (x) 
 {
@@ -1675,6 +1729,7 @@ dir.parameters <- function (x)
 #' @param x = a string of full paths
 #' @keywords dir.parent
 #' @export
+#' @family dir
 
 dir.parent <- function (x) 
 {
@@ -1729,6 +1784,7 @@ excise.zeroes <- function (x)
 #' @param y = a string which must be one of AnnMn/AnnSd/Sharp/HitRate
 #' @keywords extract.AnnMn.stock.flows
 #' @export
+#' @family extract
 
 extract.AnnMn.stock.flows <- function (x, y = "AnnMn") 
 {
@@ -1750,6 +1806,7 @@ extract.AnnMn.stock.flows <- function (x, y = "AnnMn")
 #' @param y = a string which must be one of AnnMn/AnnSd/Sharp/HitRate
 #' @keywords extract.AnnMn.stock.flows.wrapper
 #' @export
+#' @family extract
 
 extract.AnnMn.stock.flows.wrapper <- function (x, y = "AnnMn") 
 {
@@ -1782,6 +1839,7 @@ extract.AnnMn.stock.flows.wrapper <- function (x, y = "AnnMn")
 #' Checks all functions are in standard form
 #' @keywords fcn.all.canonical
 #' @export
+#' @family fcn
 
 fcn.all.canonical <- function () 
 {
@@ -1802,18 +1860,25 @@ fcn.all.canonical <- function ()
 #' @param x = path to output file
 #' @keywords fcn.all.roxygenize
 #' @export
+#' @family fcn
 
 fcn.all.roxygenize <- function (x) 
 {
+    n <- obj.list(T)
+    n <- txt.parse(n, ".")
+    n <- n[n[, 2] != "", 1]
+    n <- vec.count(n)
+    n <- names(n)[n > 1]
     y <- vec.named("mat.read", "utils")
     y["stats"] <- "ret.outliers"
     y["RODBC"] <- "mk.1mPerfTrend"
     y["RDCOMClient"] <- "email"
     y["sandwich"] <- "avg.model"
     z <- NULL
-    for (w in names(y)) z <- c(z, "", fcn.roxygenize(y[w], w))
+    for (w in names(y)) z <- c(z, "", fcn.roxygenize(y[w], w, 
+        n))
     y <- setdiff(obj.list(T), y)
-    for (w in y) z <- c(z, "", fcn.roxygenize(w))
+    for (w in y) z <- c(z, "", fcn.roxygenize(w, , n))
     cat(z, file = x, sep = "\n")
     invisible()
 }
@@ -1824,6 +1889,7 @@ fcn.all.roxygenize <- function (x)
 #' @param x = a vector of function names
 #' @keywords fcn.all.sub
 #' @export
+#' @family fcn
 
 fcn.all.sub <- function (x) 
 {
@@ -1836,6 +1902,7 @@ fcn.all.sub <- function (x)
 #' @param x = a vector of function names
 #' @keywords fcn.all.super
 #' @export
+#' @family fcn
 
 fcn.all.super <- function (x) 
 {
@@ -1848,6 +1915,7 @@ fcn.all.super <- function (x)
 #' @param x = a SINGLE function name
 #' @keywords fcn.args.actual
 #' @export
+#' @family fcn
 
 fcn.args.actual <- function (x) 
 {
@@ -1860,6 +1928,7 @@ fcn.args.actual <- function (x)
 #' @param x = a SINGLE function name
 #' @keywords fcn.canonical
 #' @export
+#' @family fcn
 
 fcn.canonical <- function (x) 
 {
@@ -1910,6 +1979,7 @@ fcn.canonical <- function (x)
 #' removes trailing spaces and tabs
 #' @keywords fcn.clean
 #' @export
+#' @family fcn
 
 fcn.clean <- function () 
 {
@@ -1943,6 +2013,7 @@ fcn.clean <- function ()
 #' @param x = comments section of a function
 #' @keywords fcn.comments.parse
 #' @export
+#' @family fcn
 
 fcn.comments.parse <- function (x) 
 {
@@ -2053,6 +2124,7 @@ fcn.comments.parse <- function (x)
 #' @param x = a SINGLE function name
 #' @keywords fcn.date
 #' @export
+#' @family fcn
 
 fcn.date <- function (x) 
 {
@@ -2065,6 +2137,7 @@ fcn.date <- function (x)
 #' @param x = date item from fcn.comments.parse
 #' @keywords fcn.dates.parse
 #' @export
+#' @family fcn
 
 fcn.dates.parse <- function (x) 
 {
@@ -2086,6 +2159,7 @@ fcn.dates.parse <- function (x)
 #' folder of function source file
 #' @keywords fcn.dir
 #' @export
+#' @family fcn
 
 fcn.dir <- function () 
 {
@@ -2099,6 +2173,7 @@ fcn.dir <- function ()
 #' @param x = a SINGLE function name
 #' @keywords fcn.direct.sub
 #' @export
+#' @family fcn
 
 fcn.direct.sub <- function (x) 
 {
@@ -2120,6 +2195,7 @@ fcn.direct.sub <- function (x)
 #' @param x = a SINGLE function name
 #' @keywords fcn.direct.super
 #' @export
+#' @family fcn
 
 fcn.direct.super <- function (x) 
 {
@@ -2143,6 +2219,7 @@ fcn.direct.super <- function (x)
 #' @param x = string vector representing argument section of comments
 #' @keywords fcn.extract.args
 #' @export
+#' @family fcn
 
 fcn.extract.args <- function (x) 
 {
@@ -2175,6 +2252,7 @@ fcn.extract.args <- function (x)
 #' @param x = string vector representing output section of comments
 #' @keywords fcn.extract.out
 #' @export
+#' @family fcn
 
 fcn.extract.out <- function (x) 
 {
@@ -2191,6 +2269,7 @@ fcn.extract.out <- function (x)
 #' @param x = vector of function names
 #' @keywords fcn.indirect
 #' @export
+#' @family fcn
 
 fcn.indirect <- function (fcn, x) 
 {
@@ -2211,6 +2290,7 @@ fcn.indirect <- function (fcn, x)
 #' @param x = a SINGLE function name
 #' @keywords fcn.lines.count
 #' @export
+#' @family fcn
 
 fcn.lines.count <- function (x) 
 {
@@ -2227,6 +2307,7 @@ fcn.lines.count <- function (x)
 #' @param n = T/F depending on whether inputs should be ranked
 #' @keywords fcn.mat.col
 #' @export
+#' @family fcn
 
 fcn.mat.col <- function (fcn, x, y, n) 
 {
@@ -2256,6 +2337,7 @@ fcn.mat.col <- function (fcn, x, y, n)
 #' @param n = T/F depending on whether you want <fcn> applied to columns or rows
 #' @keywords fcn.mat.num
 #' @export
+#' @family fcn
 
 fcn.mat.num <- function (fcn, x, y, n) 
 {
@@ -2302,6 +2384,7 @@ fcn.mat.num <- function (fcn, x, y, n)
 #' @param n = T/F depending on whether you want <fcn> applied to columns or rows
 #' @keywords fcn.mat.vec
 #' @export
+#' @family fcn
 
 fcn.mat.vec <- function (fcn, x, y, n) 
 {
@@ -2343,6 +2426,7 @@ fcn.mat.vec <- function (fcn, x, y, n)
 #' @param y = missing, isomekic vector, or isomekic isoplatic matrix/df
 #' @keywords fcn.matrix
 #' @export
+#' @family fcn
 
 fcn.matrix <- function (fcn, x, y) 
 {
@@ -2360,6 +2444,7 @@ fcn.matrix <- function (fcn, x, y)
 #' @param x = a vector
 #' @keywords fcn.nonNA
 #' @export
+#' @family fcn
 
 fcn.nonNA <- function (fcn, x) 
 {
@@ -2379,6 +2464,7 @@ fcn.nonNA <- function (fcn, x)
 #' @param n = T/F depending on whether inputs should be ranked
 #' @keywords fcn.num.nonNA
 #' @export
+#' @family fcn
 
 fcn.num.nonNA <- function (fcn, x, y, n) 
 {
@@ -2408,6 +2494,7 @@ fcn.num.nonNA <- function (fcn, x, y, n)
 #' functions in alphabetical order
 #' @keywords fcn.order
 #' @export
+#' @family fcn
 
 fcn.order <- function () 
 {
@@ -2428,6 +2515,7 @@ fcn.order <- function ()
 #' path to function source file
 #' @keywords fcn.path
 #' @export
+#' @family fcn
 
 fcn.path <- function () 
 {
@@ -2439,10 +2527,12 @@ fcn.path <- function ()
 #' roxygenized function format
 #' @param x = function name
 #' @param y = library to import
+#' @param n = vector of function families
 #' @keywords fcn.roxygenize
 #' @export
+#' @family fcn
 
-fcn.roxygenize <- function (x, y) 
+fcn.roxygenize <- function (x, y, n) 
 {
     w <- fcn.to.comments(x)
     w <- txt.replace(w, "%", "\\%")
@@ -2451,6 +2541,12 @@ fcn.roxygenize <- function (x, y)
     if (any(names(w) == "args")) 
         z <- c(z, paste("@param", w$detl.args))
     z <- c(z, paste("@keywords", w$name), "@export")
+    if (!missing(n)) {
+        if (any(x == n) | any(txt.left(x, nchar(n) + 1) == paste(n, 
+            ".", sep = ""))) {
+            z <- c(z, paste("@family", txt.parse(x, ".")[1]))
+        }
+    }
     if (!missing(y)) 
         z <- c(z, paste("@import", y))
     else if (any(names(w) == "import")) 
@@ -2470,6 +2566,7 @@ fcn.roxygenize <- function (x, y)
 #' @param x = a SINGLE function name
 #' @keywords fcn.sho
 #' @export
+#' @family fcn
 
 fcn.sho <- function (x) 
 {
@@ -2484,6 +2581,7 @@ fcn.sho <- function (x)
 #' @param x = a SINGLE function name
 #' @keywords fcn.to.comments
 #' @export
+#' @family fcn
 
 fcn.to.comments <- function (x) 
 {
@@ -2534,6 +2632,7 @@ fcn.to.comments <- function (x)
 #' @param n = T/F vbl controlling whether output is a string vector
 #' @keywords fcn.to.txt
 #' @export
+#' @family fcn
 
 fcn.to.txt <- function (x, y = F, n = F) 
 {
@@ -2554,6 +2653,7 @@ fcn.to.txt <- function (x, y = F, n = F)
 #' @param y = an element or isomekic vector
 #' @keywords fcn.vec.num
 #' @export
+#' @family fcn
 
 fcn.vec.num <- function (fcn, x, y) 
 {
@@ -2648,6 +2748,7 @@ fetch <- function (x, y, n, w, h)
 #' @param y = an isomekic string of full paths
 #' @keywords file.bkp
 #' @export
+#' @family file
 
 file.bkp <- function (x, y) 
 {
@@ -2670,6 +2771,7 @@ file.bkp <- function (x, y)
 #' @param x = a vector of full file paths
 #' @keywords file.date
 #' @export
+#' @family file
 
 file.date <- function (x) 
 {
@@ -2684,6 +2786,7 @@ file.date <- function (x)
 #' @param x = a string of full paths
 #' @keywords file.kill
 #' @export
+#' @family file
 
 file.kill <- function (x) 
 {
@@ -2697,6 +2800,7 @@ file.kill <- function (x)
 #' @param x = a vector of dates
 #' @keywords file.mtime.to.time
 #' @export
+#' @family file
 
 file.mtime.to.time <- function (x) 
 {
@@ -2709,6 +2813,7 @@ file.mtime.to.time <- function (x)
 #' @param x = a vector of full file paths
 #' @keywords file.time
 #' @export
+#' @family file
 
 file.time <- function (x) 
 {
@@ -2723,6 +2828,7 @@ file.time <- function (x)
 #' @param x = csv file containing the predictors
 #' @keywords file.to.last
 #' @export
+#' @family file
 
 file.to.last <- function (x) 
 {
@@ -2740,6 +2846,7 @@ file.to.last <- function (x)
 #' @param y = T/F depending on whether the position of the first/last true value of x is desired
 #' @keywords find.data
 #' @export
+#' @family find
 
 find.data <- function (x, y = T) 
 {
@@ -2757,6 +2864,7 @@ find.data <- function (x, y = T)
 #' @param x = a logical vector
 #' @keywords find.gaps
 #' @export
+#' @family find
 
 find.gaps <- function (x) 
 {
@@ -2815,6 +2923,7 @@ fix.gaps <- function (x)
 #' @param resample = F/T depending on whether you want one simulation or the median across simulations run by removing one universe element
 #' @keywords fop
 #' @export
+#' @family fop
 
 fop <- function (x, y, delay, lags = 0:6, floWind = 1:10, retWind = 1:4, 
     nBins = c(3:7, 10), grp.fcn = day.to.weekday, convert2df = T, 
@@ -2876,6 +2985,7 @@ fop <- function (x, y, delay, lags = 0:6, floWind = 1:10, retWind = 1:4,
 #' @param h = number of bins into which you are going to divide your predictors
 #' @keywords fop.Bin
 #' @export
+#' @family fop
 
 fop.Bin <- function (x, y, n, w, h) 
 {
@@ -2898,6 +3008,7 @@ fop.Bin <- function (x, y, n, w, h)
 #' @param w = if F <fcn> is applied to formation dates. Otherwise it is applied to the first day in forward the return window.
 #' @keywords fop.grp.map
 #' @export
+#' @family fop
 
 fop.grp.map <- function (fcn, x, y, n, w) 
 {
@@ -2918,6 +3029,7 @@ fop.grp.map <- function (fcn, x, y, n, w)
 #' @param h = an argument which is not used
 #' @keywords fop.IC
 #' @export
+#' @family fop
 
 fop.IC <- function (x, y, n, w, h) 
 {
@@ -2936,6 +3048,7 @@ fop.IC <- function (x, y, n, w, h)
 #' @param y = an argument which is not used
 #' @keywords fop.IC.summ
 #' @export
+#' @family fop
 
 fop.IC.summ <- function (x, y) 
 {
@@ -2953,6 +3066,7 @@ fop.IC.summ <- function (x, y)
 #' @param y = an isomekic isoplatic matrix/df containing associated forward returns
 #' @keywords fop.rank.xRet
 #' @export
+#' @family fop
 
 fop.rank.xRet <- function (x, y) 
 {
@@ -2969,6 +3083,7 @@ fop.rank.xRet <- function (x, y)
 #' @param n = another column in <x> containing values of interest
 #' @keywords fop.stats
 #' @export
+#' @family fop
 
 fop.stats <- function (x, y, n) 
 {
@@ -2995,6 +3110,7 @@ fop.stats <- function (x, y, n)
 #' @param y = number
 #' @keywords fop.subset
 #' @export
+#' @family fop
 
 fop.subset <- function (x, y = 100) 
 {
@@ -3053,6 +3169,7 @@ fop.subset <- function (x, y = 100)
 #' @param resample = F/T depending on whether you want one simulation or the median across simulations run by removing one universe element
 #' @keywords fop.underlying
 #' @export
+#' @family fop
 
 fop.underlying <- function (x, y, n, lag, delay, nBins, grp.map, findOptimalParametersFcn, 
     resample) 
@@ -3086,6 +3203,7 @@ fop.underlying <- function (x, y, n, lag, delay, nBins, grp.map, findOptimalPara
 #' @param w = password
 #' @keywords ftp.all.files.in.dir
 #' @export
+#' @family ftp
 
 ftp.all.files.in.dir <- function (x, y, n, w) 
 {
@@ -3115,6 +3233,7 @@ ftp.all.files.in.dir <- function (x, y, n, w)
 #' @param w = password
 #' @keywords ftp.dir
 #' @export
+#' @family ftp
 
 ftp.dir <- function (x, y, n, w) 
 {
@@ -3131,6 +3250,7 @@ ftp.dir <- function (x, y, n, w)
 #' @param x = output from ftp directory listing
 #' @keywords ftp.dir.excise.crap
 #' @export
+#' @family ftp
 
 ftp.dir.excise.crap <- function (x) 
 {
@@ -3158,6 +3278,7 @@ ftp.dir.excise.crap <- function (x)
 #' @param w = password
 #' @keywords ftp.dir.ftp.code
 #' @export
+#' @family ftp
 
 ftp.dir.ftp.code <- function (x, y, n, w) 
 {
@@ -3177,6 +3298,7 @@ ftp.dir.ftp.code <- function (x, y, n, w)
 #' @param h = password
 #' @keywords ftp.download.script
 #' @export
+#' @family ftp
 
 ftp.download.script <- function (x, y, n, w, h) 
 {
@@ -3226,6 +3348,7 @@ ftp.download.script <- function (x, y, n, w, h)
 #' @param w = password
 #' @keywords ftp.file.size
 #' @export
+#' @family ftp
 
 ftp.file.size <- function (x, y, n, w) 
 {
@@ -3251,6 +3374,7 @@ ftp.file.size <- function (x, y, n, w)
 #' @param n = location of the folder on the ftp server
 #' @keywords ftp.put
 #' @export
+#' @family ftp
 
 ftp.put <- function (x, y, n) 
 {
@@ -3268,6 +3392,7 @@ ftp.put <- function (x, y, n)
 #' @param n = password
 #' @keywords ftp.txt
 #' @export
+#' @family ftp
 
 ftp.txt <- function (x, y, n) 
 {
@@ -3289,6 +3414,7 @@ ftp.txt <- function (x, y, n)
 #' @param prd.size = size of each period in terms of days if the rows of <x> are yyyymmdd or months otherwise
 #' @keywords fwd.probs
 #' @export
+#' @family fwd
 
 fwd.probs <- function (x, y, floW, sum.flows, lag, delay, doW, retW, idx, 
     prd.size) 
@@ -3327,6 +3453,7 @@ fwd.probs <- function (x, y, floW, sum.flows, lag, delay, doW, retW, idx,
 #' @param prd.size = size of each period in terms of days if the rows of <x> are yyyymmdd or months otherwise
 #' @keywords fwd.probs.wrapper
 #' @export
+#' @family fwd
 
 fwd.probs.wrapper <- function (x, y, floW, sum.flows, lags, delay, doW, hz, idx, prd.size) 
 {
@@ -3381,6 +3508,7 @@ GSec.to.GSgrp <- function (x)
 #' @param y = the code of the country of origin
 #' @keywords isin.check.digit
 #' @export
+#' @family isin
 
 isin.check.digit <- function (x, y) 
 {
@@ -3435,6 +3563,7 @@ isin.check.digit <- function (x, y)
 #' @param y = the country of origin (either "CA" or "US")
 #' @keywords isin.ex.cusip
 #' @export
+#' @family isin
 
 isin.ex.cusip <- function (x, y) 
 {
@@ -3452,6 +3581,7 @@ isin.ex.cusip <- function (x, y)
 #' @param y = the country of origin
 #' @keywords isin.ex.sedol
 #' @export
+#' @family isin
 
 isin.ex.sedol <- function (x, y) 
 {
@@ -3469,6 +3599,7 @@ isin.ex.sedol <- function (x, y)
 #' @param x = a numeric vector
 #' @keywords latin.ex.arabic
 #' @export
+#' @family latin
 
 latin.ex.arabic <- function (x) 
 {
@@ -3496,6 +3627,7 @@ latin.ex.arabic <- function (x)
 #' @param x = a character vector of latin numerals
 #' @keywords latin.to.arabic
 #' @export
+#' @family latin
 
 latin.to.arabic <- function (x) 
 {
@@ -3531,6 +3663,7 @@ latin.to.arabic <- function (x)
 #' basic map of latin to arabic numerals
 #' @keywords latin.to.arabic.underlying
 #' @export
+#' @family latin
 
 latin.to.arabic.underlying <- function () 
 {
@@ -3585,6 +3718,7 @@ lead.lag.effects <- function (fcn, x, y, n = seq(-10, 10))
 #' @param env = stock-flows environment
 #' @keywords load.dy.vbl
 #' @export
+#' @family load
 
 load.dy.vbl <- function (beg, end, mk.fcn, optional.args, vbl.name, out.fldr, 
     env) 
@@ -3612,6 +3746,7 @@ load.dy.vbl <- function (beg, end, mk.fcn, optional.args, vbl.name, out.fldr,
 #' @param env = stock-flows environment
 #' @keywords load.dy.vbl.1obj
 #' @export
+#' @family load
 
 load.dy.vbl.1obj <- function (beg, end, mk.fcn, optional.args, vbl.name, mo, env) 
 {
@@ -3643,6 +3778,7 @@ load.dy.vbl.1obj <- function (beg, end, mk.fcn, optional.args, vbl.name, mo, env
 #' @param env = stock-flows environment
 #' @keywords load.mo.vbl
 #' @export
+#' @family load
 
 load.mo.vbl <- function (beg, end, mk.fcn, optional.args, vbl.name, out.fldr, 
     env) 
@@ -3670,6 +3806,7 @@ load.mo.vbl <- function (beg, end, mk.fcn, optional.args, vbl.name, out.fldr,
 #' @param env = stock-flows environment
 #' @keywords load.mo.vbl.1obj
 #' @export
+#' @family load
 
 load.mo.vbl.1obj <- function (beg, end, mk.fcn, optional.args, vbl.name, yyyy, env) 
 {
@@ -3696,6 +3833,7 @@ load.mo.vbl.1obj <- function (beg, end, mk.fcn, optional.args, vbl.name, yyyy, e
 #' @param n = something like "isin" or "HSId"
 #' @keywords map.classif
 #' @export
+#' @family map
 
 map.classif <- function (x, y, n) 
 {
@@ -3714,6 +3852,7 @@ map.classif <- function (x, y, n)
 #' @param y = a vector (usually string)
 #' @keywords map.rname
 #' @export
+#' @family map
 
 map.rname <- function (x, y) 
 {
@@ -3746,6 +3885,7 @@ map.rname <- function (x, y)
 #' @param y = a matrix/df
 #' @keywords mat.combine
 #' @export
+#' @family mat
 
 mat.combine <- function (fcn, x, y) 
 {
@@ -3763,6 +3903,7 @@ mat.combine <- function (fcn, x, y)
 #' @param x = a matrix/df of percentage returns
 #' @keywords mat.compound
 #' @export
+#' @family mat
 
 mat.compound <- function (x) 
 {
@@ -3776,6 +3917,7 @@ mat.compound <- function (x)
 #' @param y = an isomekic vector or isomekic isoplatic matrix/data-frame
 #' @keywords mat.correl
 #' @export
+#' @family mat
 
 mat.correl <- function (x, y) 
 {
@@ -3788,6 +3930,7 @@ mat.correl <- function (x, y)
 #' @param x = a matrix/df
 #' @keywords mat.count
 #' @export
+#' @family mat
 
 mat.count <- function (x) 
 {
@@ -3806,6 +3949,7 @@ mat.count <- function (x)
 #' @param y = T/F depending on whether data points must be from month ends
 #' @keywords mat.daily.to.monthly
 #' @export
+#' @family mat
 
 mat.daily.to.monthly <- function (x, y = F) 
 {
@@ -3831,6 +3975,7 @@ mat.daily.to.monthly <- function (x, y = F)
 #' @param y = a vector of names for the columns of the output corresponding to the dimensions of <x>
 #' @keywords mat.ex.array
 #' @export
+#' @family mat
 
 mat.ex.array <- function (x, y) 
 {
@@ -3860,6 +4005,7 @@ mat.ex.array <- function (x, y)
 #' @param n = dimension which forms the rows
 #' @keywords mat.ex.array3d
 #' @export
+#' @family mat
 
 mat.ex.array3d <- function (x, y = "C", n = "A") 
 {
@@ -3886,6 +4032,7 @@ mat.ex.array3d <- function (x, y = "C", n = "A")
 #' @param x = a matrix
 #' @keywords mat.ex.matrix
 #' @export
+#' @family mat
 
 mat.ex.matrix <- function (x) 
 {
@@ -3899,6 +4046,7 @@ mat.ex.matrix <- function (x)
 #' @param y = an isomekic vector
 #' @keywords mat.ex.qtl
 #' @export
+#' @family mat
 
 mat.ex.qtl <- function (x, y) 
 {
@@ -3925,6 +4073,7 @@ mat.ex.qtl <- function (x, y)
 #' Returns a data frame for testing purposes
 #' @keywords mat.fake
 #' @export
+#' @family mat
 
 mat.fake <- function () 
 {
@@ -3943,6 +4092,7 @@ mat.fake <- function ()
 #' @param x = a matrix/df
 #' @keywords mat.index
 #' @export
+#' @family mat
 
 mat.index <- function (x) 
 {
@@ -3969,6 +4119,7 @@ mat.index <- function (x)
 #' @param w = used only when !n. Maps to the original row space of <x>
 #' @keywords mat.lag
 #' @export
+#' @family mat
 
 mat.lag <- function (x, y, n, w = T) 
 {
@@ -4000,6 +4151,7 @@ mat.lag <- function (x, y, n, w = T)
 #' @param y = a vector of lags corresponding to each column
 #' @keywords mat.lag.cols
 #' @export
+#' @family mat
 
 mat.lag.cols <- function (x, y) 
 {
@@ -4021,6 +4173,7 @@ mat.lag.cols <- function (x, y)
 #' @param x = a matrix/df
 #' @keywords mat.last.to.first
 #' @export
+#' @family mat
 
 mat.last.to.first <- function (x) 
 {
@@ -4033,6 +4186,7 @@ mat.last.to.first <- function (x)
 #' @param x = a vector/matrix/data-frame
 #' @keywords mat.rank
 #' @export
+#' @family mat
 
 mat.rank <- function (x) 
 {
@@ -4048,6 +4202,7 @@ mat.rank <- function (x)
 #' @param y = an isomekic isoplatic matrix/df
 #' @keywords mat.same
 #' @export
+#' @family mat
 
 mat.same <- function (x, y) 
 {
@@ -4061,6 +4216,7 @@ mat.same <- function (x, y)
 #' @param y = a vector
 #' @keywords mat.subset
 #' @export
+#' @family mat
 
 mat.subset <- function (x, y) 
 {
@@ -4079,6 +4235,7 @@ mat.subset <- function (x, y)
 #' @param x = a matrix/data-frame
 #' @keywords mat.to.first.data.row
 #' @export
+#' @family mat
 
 mat.to.first.data.row <- function (x) 
 {
@@ -4096,6 +4253,7 @@ mat.to.first.data.row <- function (x)
 #' @param w = size of each period in terms of YYYYMMDD or YYYYMM depending on the rows of <x>
 #' @keywords mat.to.lags
 #' @export
+#' @family mat
 
 mat.to.lags <- function (x, y, n = T, w = 1) 
 {
@@ -4112,6 +4270,7 @@ mat.to.lags <- function (x, y, n = T, w = 1)
 #' @param x = a matrix/df
 #' @keywords mat.to.last.Idx
 #' @export
+#' @family mat
 
 mat.to.last.Idx <- function (x) 
 {
@@ -4127,6 +4286,7 @@ mat.to.last.Idx <- function (x)
 #' @param x = a matrix/data-frame with 3 columns corresponding respectively with the rows, columns and entries of the resulting matrix
 #' @keywords mat.to.matrix
 #' @export
+#' @family mat
 
 mat.to.matrix <- function (x) 
 {
@@ -4148,6 +4308,7 @@ mat.to.matrix <- function (x)
 #' @param x = a vector/matrix/dataframe
 #' @keywords mat.to.obs
 #' @export
+#' @family mat
 
 mat.to.obs <- function (x) 
 {
@@ -4165,6 +4326,7 @@ mat.to.obs <- function (x)
 #' @param w = T/F depending on whether the index is data or trade-open date
 #' @keywords mat.to.xlModel
 #' @export
+#' @family mat
 
 mat.to.xlModel <- function (x, y = 2, n = 5, w = F) 
 {
@@ -4198,6 +4360,7 @@ mat.to.xlModel <- function (x, y = 2, n = 5, w = F)
 #' @param n = the separator
 #' @keywords mat.write
 #' @export
+#' @family mat
 
 mat.write <- function (x, y = "C:\\temp\\write.csv", n = ",") 
 {
@@ -4213,6 +4376,7 @@ mat.write <- function (x, y = "C:\\temp\\write.csv", n = ",")
 #' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) DB - any of StockFlows/Japan/CSI300/Energy
 #' @keywords mk.1dFloMo
 #' @export
+#' @family mk
 
 mk.1dFloMo <- function (x, y, n) 
 {
@@ -4256,6 +4420,7 @@ mk.1dFloMo <- function (x, y, n)
 #' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) DB - any of StockFlows/Japan/CSI300/Energy
 #' @keywords mk.1mAllocMo
 #' @export
+#' @family mk
 
 mk.1mAllocMo <- function (x, y, n) 
 {
@@ -4285,6 +4450,7 @@ mk.1mAllocMo <- function (x, y, n)
 #' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
 #' @keywords mk.ActWt
 #' @export
+#' @family mk
 
 mk.ActWt <- function (x, y, n) 
 {
@@ -4304,6 +4470,7 @@ mk.ActWt <- function (x, y, n)
 #' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
 #' @keywords mk.Alpha
 #' @export
+#' @family mk
 
 mk.Alpha <- function (x, y, n) 
 {
@@ -4336,6 +4503,7 @@ mk.Alpha <- function (x, y, n)
 #' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
 #' @keywords mk.avail
 #' @export
+#' @family mk
 
 mk.avail <- function (x, y, n) 
 {
@@ -4351,6 +4519,7 @@ mk.avail <- function (x, y, n)
 #' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
 #' @keywords mk.beta
 #' @export
+#' @family mk
 
 mk.beta <- function (x, y, n) 
 {
@@ -4380,6 +4549,7 @@ mk.beta <- function (x, y, n)
 #' @param n = list object containing the following items: a) classif - classif file
 #' @keywords mk.FloAlphaLt.Ctry
 #' @export
+#' @family mk
 
 mk.FloAlphaLt.Ctry <- function (x, y, n) 
 {
@@ -4398,6 +4568,7 @@ mk.FloAlphaLt.Ctry <- function (x, y, n)
 #' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
 #' @keywords mk.FundsMem
 #' @export
+#' @family mk
 
 mk.FundsMem <- function (x, y, n) 
 {
@@ -4417,6 +4588,7 @@ mk.FundsMem <- function (x, y, n)
 #' @param n = classif file
 #' @keywords mk.isin
 #' @export
+#' @family mk
 
 mk.isin <- function (x, y, n) 
 {
@@ -4436,6 +4608,7 @@ mk.isin <- function (x, y, n)
 #' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder c) CATRETS - category returns
 #' @keywords mk.JensensAlpha.fund
 #' @export
+#' @family mk
 
 mk.JensensAlpha.fund <- function (x, y, n) 
 {
@@ -4467,6 +4640,7 @@ mk.JensensAlpha.fund <- function (x, y, n)
 #' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect
 #' @keywords mk.Mem
 #' @export
+#' @family mk
 
 mk.Mem <- function (x, y, n) 
 {
@@ -4490,6 +4664,7 @@ mk.Mem <- function (x, y, n)
 #' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
 #' @keywords mk.PrcMo
 #' @export
+#' @family mk
 
 mk.PrcMo <- function (x, y, n) 
 {
@@ -4508,6 +4683,7 @@ mk.PrcMo <- function (x, y, n)
 #' @param n = list object containing the following items: a) fldr - stock-flows folder
 #' @keywords mk.sqlDump
 #' @export
+#' @family mk
 
 mk.sqlDump <- function (x, y, n) 
 {
@@ -4527,6 +4703,7 @@ mk.sqlDump <- function (x, y, n)
 #' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
 #' @keywords mk.trail.sum.dly.vbl
 #' @export
+#' @family mk
 
 mk.trail.sum.dly.vbl <- function (x, y, n) 
 {
@@ -4553,6 +4730,7 @@ mk.trail.sum.dly.vbl <- function (x, y, n)
 #' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
 #' @keywords mk.trail.sum.mo.vbl
 #' @export
+#' @family mk
 
 mk.trail.sum.mo.vbl <- function (x, y, n) 
 {
@@ -4578,6 +4756,7 @@ mk.trail.sum.mo.vbl <- function (x, y, n)
 #' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
 #' @keywords mk.vbl.chg
 #' @export
+#' @family mk
 
 mk.vbl.chg <- function (x, y, n) 
 {
@@ -4594,6 +4773,7 @@ mk.vbl.chg <- function (x, y, n)
 #' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
 #' @keywords mk.vbl.diff
 #' @export
+#' @family mk
 
 mk.vbl.diff <- function (x, y, n) 
 {
@@ -4610,6 +4790,7 @@ mk.vbl.diff <- function (x, y, n)
 #' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
 #' @keywords mk.vbl.lag
 #' @export
+#' @family mk
 
 mk.vbl.lag <- function (x, y, n) 
 {
@@ -4626,6 +4807,7 @@ mk.vbl.lag <- function (x, y, n)
 #' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
 #' @keywords mk.vbl.max
 #' @export
+#' @family mk
 
 mk.vbl.max <- function (x, y, n) 
 {
@@ -4642,6 +4824,7 @@ mk.vbl.max <- function (x, y, n)
 #' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
 #' @keywords mk.vbl.ratio
 #' @export
+#' @family mk
 
 mk.vbl.ratio <- function (x, y, n) 
 {
@@ -4658,6 +4841,7 @@ mk.vbl.ratio <- function (x, y, n)
 #' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect
 #' @keywords mk.Wt
 #' @export
+#' @family mk
 
 mk.Wt <- function (x, y, n) 
 {
@@ -4761,6 +4945,7 @@ nyse.holidays <- function (x = "yyyymmdd")
 #' @param y = an isomekic isotypic vector
 #' @keywords obj.diff
 #' @export
+#' @family obj
 
 obj.diff <- function (fcn, x, y) 
 {
@@ -4776,6 +4961,7 @@ obj.diff <- function (fcn, x, y)
 #' @param w = the bijective inverse of <n>
 #' @keywords obj.lag
 #' @export
+#' @family obj
 
 obj.lag <- function (x, y, n, w) 
 {
@@ -4789,6 +4975,7 @@ obj.lag <- function (x, y, n, w)
 #' @param y = pattern you want to see in returned objects
 #' @keywords obj.list
 #' @export
+#' @family obj
 
 obj.list <- function (x = F, y = "*") 
 {
@@ -4811,6 +4998,7 @@ obj.list <- function (x = F, y = "*")
 #' @param h = a positive integer representing quantum size
 #' @keywords obj.seq
 #' @export
+#' @family obj
 
 obj.seq <- function (x, y, n, w, h) 
 {
@@ -5037,6 +5225,7 @@ ptile <- function (x)
 #' date of last daily publication
 #' @keywords publish.daily.last
 #' @export
+#' @family publish
 
 publish.daily.last <- function () 
 {
@@ -5055,6 +5244,7 @@ publish.daily.last <- function ()
 #' @param x = a vector of yyyymm months
 #' @keywords publish.date
 #' @export
+#' @family publish
 
 publish.date <- function (x) 
 {
@@ -5071,6 +5261,7 @@ publish.date <- function (x)
 #' date of last monthly publication
 #' @keywords publish.monthly.last
 #' @export
+#' @family publish
 
 publish.monthly.last <- function () 
 {
@@ -5082,6 +5273,7 @@ publish.monthly.last <- function ()
 #' date of last weekly publication
 #' @keywords publish.weekly.last
 #' @export
+#' @family publish
 
 publish.weekly.last <- function () 
 {
@@ -5103,6 +5295,7 @@ publish.weekly.last <- function ()
 #' @param w = a vector of groups (e.g. GSec)
 #' @keywords qtl
 #' @export
+#' @family qtl
 
 qtl <- function (x, y, n, w) 
 {
@@ -5127,6 +5320,7 @@ qtl <- function (x, y, n, w)
 #' @param y = number of desired bins
 #' @keywords qtl.eq
 #' @export
+#' @family qtl
 
 qtl.eq <- function (x, y = 5) 
 {
@@ -5141,6 +5335,7 @@ qtl.eq <- function (x, y = 5)
 #' @param n = a 1/0 membership vector
 #' @keywords qtl.single.grp
 #' @export
+#' @family qtl
 
 qtl.single.grp <- function (x, y, n) 
 {
@@ -5164,6 +5359,7 @@ qtl.single.grp <- function (x, y, n)
 #' @param n = a positive integer
 #' @keywords qtl.underlying
 #' @export
+#' @family qtl
 
 qtl.underlying <- function (x, y, n) 
 {
@@ -5197,6 +5393,7 @@ qtl.underlying <- function (x, y, n)
 #' @param y = a number between zero and one
 #' @keywords qtl.weighted
 #' @export
+#' @family qtl
 
 qtl.weighted <- function (x, y) 
 {
@@ -5221,6 +5418,7 @@ qtl.weighted <- function (x, y)
 #' @param w = number of bins to divide <x> into
 #' @keywords qtl.zero.weight
 #' @export
+#' @family qtl
 
 qtl.zero.weight <- function (x, y, n, w) 
 {
@@ -5235,6 +5433,7 @@ qtl.zero.weight <- function (x, y, n, w)
 #' @param x = a vector of integers
 #' @keywords qtr.ex.int
 #' @export
+#' @family qtr
 
 qtr.ex.int <- function (x) 
 {
@@ -5253,6 +5452,7 @@ qtr.ex.int <- function (x)
 #' @param n = quantum size in QTR
 #' @keywords qtr.seq
 #' @export
+#' @family qtr
 
 qtr.seq <- function (x, y, n = 1) 
 {
@@ -5265,6 +5465,7 @@ qtr.seq <- function (x, y, n = 1)
 #' @param x = a vector of <qtr>
 #' @keywords qtr.to.int
 #' @export
+#' @family qtr
 
 qtr.to.int <- function (x) 
 {
@@ -5279,6 +5480,7 @@ qtr.to.int <- function (x)
 #' @param x = a path to a file written by the dev team
 #' @keywords read.EPFR
 #' @export
+#' @family read
 
 read.EPFR <- function (x) 
 {
@@ -5295,6 +5497,7 @@ read.EPFR <- function (x)
 #' @param x = an object name (preceded by #) or the path to a ".csv" file
 #' @keywords read.prcRet
 #' @export
+#' @family read
 
 read.prcRet <- function (x) 
 {
@@ -5315,6 +5518,7 @@ read.prcRet <- function (x)
 #' @param y = classif file
 #' @keywords read.split.adj.prices
 #' @export
+#' @family read
 
 read.split.adj.prices <- function (x, y) 
 {
@@ -5351,6 +5555,7 @@ read.split.adj.prices <- function (x, y)
 #' @param publish.fcn = a function that returns the last complete publication period
 #' @keywords refresh.predictors
 #' @export
+#' @family refresh
 
 refresh.predictors <- function (path, sql.query, sql.end.stub, connection.type, ignore.data.changes, 
     date.field, publish.fcn) 
@@ -5380,6 +5585,7 @@ refresh.predictors <- function (path, sql.query, sql.end.stub, connection.type, 
 #' @param w = T/F depending on whether the data already have row names
 #' @keywords refresh.predictors.append
 #' @export
+#' @family refresh
 
 refresh.predictors.append <- function (x, y, n = F, w = F) 
 {
@@ -5419,6 +5625,7 @@ refresh.predictors.append <- function (x, y, n = F, w = F)
 #' @param h = T/F depending on whether you want changes in data to be ignored
 #' @keywords refresh.predictors.daily
 #' @export
+#' @family refresh
 
 refresh.predictors.daily <- function (x, y, n, w, h = F) 
 {
@@ -5435,6 +5642,7 @@ refresh.predictors.daily <- function (x, y, n, w, h = F)
 #' @param h = when T, ignores the fact that data for the last row has changed
 #' @keywords refresh.predictors.monthly
 #' @export
+#' @family refresh
 
 refresh.predictors.monthly <- function (x, y, n, w, h) 
 {
@@ -5450,6 +5658,7 @@ refresh.predictors.monthly <- function (x, y, n, w, h)
 #' @param w = last date for which you already have data
 #' @keywords refresh.predictors.script
 #' @export
+#' @family refresh
 
 refresh.predictors.script <- function (x, y, n, w) 
 {
@@ -5467,6 +5676,7 @@ refresh.predictors.script <- function (x, y, n, w)
 #' @param h = T/F depending on whether you want changes in data to be ignored
 #' @keywords refresh.predictors.weekly
 #' @export
+#' @family refresh
 
 refresh.predictors.weekly <- function (x, y, n, w, h = F) 
 {
@@ -5497,6 +5707,7 @@ renorm <- function (x)
 #' @param w = if T the result is labelled by the beginning of the period, else by the end.
 #' @keywords ret.ex.idx
 #' @export
+#' @family ret
 
 ret.ex.idx <- function (x, y, n, w) 
 {
@@ -5513,6 +5724,7 @@ ret.ex.idx <- function (x, y, n, w)
 #' @param x = a file of total return indices indexed by <yyyymmdd> dates so that time runs forward
 #' @keywords ret.idx.gaps.fix
 #' @export
+#' @family ret
 
 ret.idx.gaps.fix <- function (x) 
 {
@@ -5527,6 +5739,7 @@ ret.idx.gaps.fix <- function (x)
 #' @param x = a file of total returns indexed so that time runs forward
 #' @keywords ret.to.idx
 #' @export
+#' @family ret
 
 ret.to.idx <- function (x) 
 {
@@ -5560,6 +5773,7 @@ ret.to.idx <- function (x)
 #' @param classif = classif file
 #' @keywords rrw
 #' @export
+#' @family rrw
 
 rrw <- function (prdBeg, prdEnd, vbls, univ, grp.nm, ret.nm, fldr, orth.factor = NULL, 
     classif) 
@@ -5591,6 +5805,7 @@ rrw <- function (prdBeg, prdEnd, vbls, univ, grp.nm, ret.nm, fldr, orth.factor =
 #' @param x = a data frame, the first column of which has returns
 #' @keywords rrw.factors
 #' @export
+#' @family rrw
 
 rrw.factors <- function (x) 
 {
@@ -5617,6 +5832,7 @@ rrw.factors <- function (x)
 #' @param classif = classif file
 #' @keywords rrw.underlying
 #' @export
+#' @family rrw
 
 rrw.underlying <- function (prd, vbls, univ, grp.nm, ret.nm, fldr, orth.factor, 
     classif) 
@@ -5688,6 +5904,7 @@ run.cs.reg <- function (x, y)
 #' @param classif = classif file
 #' @keywords sf
 #' @export
+#' @family sf
 
 sf <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trails, 
     sum.flows, fldr, dly.vbl = T, vbl.lag = 0, nBins = 5, reverse.vbl = F, 
@@ -5725,6 +5942,7 @@ sf <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trails,
 #' @param y = T/F depending on whether you want universe returns returned
 #' @keywords sf.bin.nms
 #' @export
+#' @family sf
 
 sf.bin.nms <- function (x, y) 
 {
@@ -5753,6 +5971,7 @@ sf.bin.nms <- function (x, y)
 #' @param classif = classif file
 #' @keywords sf.daily
 #' @export
+#' @family sf
 
 sf.daily <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trails, 
     sum.flows, fldr, vbl.lag, dly.vbl = T, classif) 
@@ -5800,6 +6019,7 @@ sf.daily <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trails,
 #' @param h = if F grp.fcn is applied to formation dates. Otherwise it is applied to the first day in forward the return window.
 #' @keywords sf.daily.summ
 #' @export
+#' @family sf
 
 sf.daily.summ <- function (x, y, n, w, h) 
 {
@@ -5836,6 +6056,7 @@ sf.daily.summ <- function (x, y, n, w, h)
 #' @param classif = classif file
 #' @keywords sf.single.bsim
 #' @export
+#' @family sf
 
 sf.single.bsim <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, fldr, 
     dly.vbl = F, trail = 1, sum.flows = T, vbl.lag = 0, uRet = F, 
@@ -5863,6 +6084,7 @@ sf.single.bsim <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, fldr,
 #' @param w = classif file
 #' @keywords sf.subset
 #' @export
+#' @family sf
 
 sf.subset <- function (x, y, n, w) 
 {
@@ -5889,6 +6111,7 @@ sf.subset <- function (x, y, n, w)
 #' @param y = forward return horizon in months
 #' @keywords sf.summ
 #' @export
+#' @family sf
 
 sf.summ <- function (fcn, x, y) 
 {
@@ -5928,6 +6151,7 @@ sf.summ <- function (fcn, x, y)
 #' @param classif = classif file
 #' @keywords sf.underlying
 #' @export
+#' @family sf
 
 sf.underlying <- function (vbl.nm, univ, ret.nm, ret.prd, trail, sum.flows, grp, 
     dly.vbl, nBins, fldr, vbl.lag, uRet = F, reverse.vbl = F, 
@@ -5959,6 +6183,7 @@ sf.underlying <- function (vbl.nm, univ, ret.nm, ret.prd, trail, sum.flows, grp,
 #' @param classif = classif file
 #' @keywords sf.underlying.data
 #' @export
+#' @family sf
 
 sf.underlying.data <- function (vbl.nm, univ, ret.nm, ret.prd, trail, sum.flows, grp, 
     dly.vbl, nBins, fldr, vbl.lag, reverse.vbl, retHz, classif) 
@@ -6005,6 +6230,7 @@ sf.underlying.data <- function (vbl.nm, univ, ret.nm, ret.prd, trail, sum.flows,
 #' @param h = T/F variable controlling whether universe return is returned
 #' @keywords sf.underlying.summ
 #' @export
+#' @family sf
 
 sf.underlying.summ <- function (x, y, n, w, h) 
 {
@@ -6064,6 +6290,7 @@ smear.Q1 <- function (x)
 #' @param n = any of StockFlows/Japan/CSI300/Energy
 #' @keywords sql.1dActWtTrend
 #' @export
+#' @family sql
 
 sql.1dActWtTrend <- function (x, y, n) 
 {
@@ -6125,6 +6352,7 @@ sql.1dActWtTrend <- function (x, y, n)
 #' @param n = one of Ctry/FX/Sector
 #' @keywords sql.1dActWtTrend.Ctry.underlying
 #' @export
+#' @family sql
 
 sql.1dActWtTrend.Ctry.underlying <- function (x, y, n) 
 {
@@ -6153,6 +6381,7 @@ sql.1dActWtTrend.Ctry.underlying <- function (x, y, n)
 #' @param n = any of StockFlows/Japan/CSI300/Energy
 #' @keywords sql.1dFloMo
 #' @export
+#' @family sql
 
 sql.1dFloMo <- function (x, y, n) 
 {
@@ -6181,6 +6410,7 @@ sql.1dFloMo <- function (x, y, n)
 #' @param x = Ctry/FX/Sector
 #' @keywords sql.1dFloMo.Ctry
 #' @export
+#' @family sql
 
 sql.1dFloMo.Ctry <- function (x) 
 {
@@ -6206,6 +6436,7 @@ sql.1dFloMo.Ctry <- function (x)
 #' @param y = one of Ctry/FX/Sector
 #' @keywords sql.1dFloMo.Ctry.Allocations
 #' @export
+#' @family sql
 
 sql.1dFloMo.Ctry.Allocations <- function (x, y) 
 {
@@ -6231,6 +6462,7 @@ sql.1dFloMo.Ctry.Allocations <- function (x, y)
 #' @param y = one of Ctry/FX/Sector
 #' @keywords sql.1dFloMo.Ctry.Allocations.GF.avg
 #' @export
+#' @family sql
 
 sql.1dFloMo.Ctry.Allocations.GF.avg <- function (x, y) 
 {
@@ -6257,6 +6489,7 @@ sql.1dFloMo.Ctry.Allocations.GF.avg <- function (x, y)
 #' @param x = One of Ctry/FX/Sector/UBS/EMDM
 #' @keywords sql.1dFloMo.Ctry.List
 #' @export
+#' @family sql
 
 sql.1dFloMo.Ctry.List <- function (x) 
 {
@@ -6318,6 +6551,7 @@ sql.1dFloMo.Ctry.List <- function (x)
 #' Generates the SQL query to get daily 1dFloMo for fixed income
 #' @keywords sql.1dFloMo.FI
 #' @export
+#' @family sql
 
 sql.1dFloMo.FI <- function () 
 {
@@ -6340,6 +6574,7 @@ sql.1dFloMo.FI <- function ()
 #' Generates the SQL query to get daily 1dFloMo for fixed income
 #' @keywords sql.1dFloMo.FI.underlying
 #' @export
+#' @family sql
 
 sql.1dFloMo.FI.underlying <- function () 
 {
@@ -6364,6 +6599,7 @@ sql.1dFloMo.FI.underlying <- function ()
 #' Generates the SQL query to get daily 1dFloMo for regions
 #' @keywords sql.1dFloMo.Rgn
 #' @export
+#' @family sql
 
 sql.1dFloMo.Rgn <- function () 
 {
@@ -6395,6 +6631,7 @@ sql.1dFloMo.Rgn <- function ()
 #' @param n = any of StockFlows/Japan/CSI300/Energy
 #' @keywords sql.1dFloMoAggr
 #' @export
+#' @family sql
 
 sql.1dFloMoAggr <- function (x, y, n) 
 {
@@ -6433,6 +6670,7 @@ sql.1dFloMoAggr <- function (x, y, n)
 #' @param w = any of StockFlows/Japan/CSI300/Energy
 #' @keywords sql.1dFloTrend
 #' @export
+#' @family sql
 
 sql.1dFloTrend <- function (x, y, n, w) 
 {
@@ -6469,6 +6707,7 @@ sql.1dFloTrend <- function (x, y, n, w)
 #' @param n = one of Diff/Diff2/Trend/AllocMo/AllocDiff/AllocTrend
 #' @keywords sql.1dFloTrend.Ctry
 #' @export
+#' @family sql
 
 sql.1dFloTrend.Ctry <- function (x, y, n) 
 {
@@ -6494,6 +6733,7 @@ sql.1dFloTrend.Ctry <- function (x, y, n)
 #' @param n = one of DailyData/WeeklyData/MonthlyData
 #' @keywords sql.1dFloTrend.Ctry.topline
 #' @export
+#' @family sql
 
 sql.1dFloTrend.Ctry.topline <- function (x, y, n) 
 {
@@ -6534,6 +6774,7 @@ sql.1dFloTrend.Ctry.topline <- function (x, y, n)
 #' @param n = one of Ctry/FX/Sector
 #' @keywords sql.1dFloTrend.Ctry.underlying
 #' @export
+#' @family sql
 
 sql.1dFloTrend.Ctry.underlying <- function (x, y, n) 
 {
@@ -6560,6 +6801,7 @@ sql.1dFloTrend.Ctry.underlying <- function (x, y, n)
 #' @param y = any of StockFlows/Japan/CSI300/Energy
 #' @keywords sql.1dFloTrend.underlying
 #' @export
+#' @family sql
 
 sql.1dFloTrend.underlying <- function (x, y) 
 {
@@ -6592,6 +6834,7 @@ sql.1dFloTrend.underlying <- function (x, y)
 #' @param x = a list of fund identifiers
 #' @keywords sql.1dFundRet
 #' @export
+#' @family sql
 
 sql.1dFundRet <- function (x) 
 {
@@ -6614,6 +6857,7 @@ sql.1dFundRet <- function (x)
 #' @param w = any of StockFlows/Japan/CSI300/Energy
 #' @keywords sql.1dION
 #' @export
+#' @family sql
 
 sql.1dION <- function (x, y, n, w) 
 {
@@ -6648,6 +6892,7 @@ sql.1dION <- function (x, y, n, w)
 #' Generates the SQL query to get monthly AIS for countries
 #' @keywords sql.1mActPas.Ctry
 #' @export
+#' @family sql
 
 sql.1mActPas.Ctry <- function () 
 {
@@ -6676,6 +6921,7 @@ sql.1mActPas.Ctry <- function ()
 #' @param y = a string vector, the elements of which are: 1) FundId for the fund used as the benchmark 2) BenchIndexId of the benchmark
 #' @keywords sql.1mActWt
 #' @export
+#' @family sql
 
 sql.1mActWt <- function (x, y) 
 {
@@ -6701,6 +6947,7 @@ sql.1mActWt <- function (x, y)
 #' @param y = characters you want put in front of the query
 #' @keywords sql.1mActWt.underlying
 #' @export
+#' @family sql
 
 sql.1mActWt.underlying <- function (x, y) 
 {
@@ -6743,6 +6990,7 @@ sql.1mActWt.underlying <- function (x, y)
 #' @param n = any of StockFlows/Japan/CSI300/Energy
 #' @keywords sql.1mAllocMo
 #' @export
+#' @family sql
 
 sql.1mAllocMo <- function (x, y, n) 
 {
@@ -6785,6 +7033,7 @@ sql.1mAllocMo <- function (x, y, n)
 #' @param y = any of StockFlows/Japan/CSI300/Energy
 #' @keywords sql.1mAllocMo.underlying
 #' @export
+#' @family sql
 
 sql.1mAllocMo.underlying <- function (x, y) 
 {
@@ -6811,6 +7060,7 @@ sql.1mAllocMo.underlying <- function (x, y)
 #' @param n = any of StockFlows/Japan/CSI300/Energy
 #' @keywords sql.1mAllocSkew
 #' @export
+#' @family sql
 
 sql.1mAllocSkew <- function (x, y, n) 
 {
@@ -6859,6 +7109,7 @@ sql.1mAllocSkew <- function (x, y, n)
 #' @param y = a string vector, the elements of which are: 1) FundId for the fund used as the benchmark 2) BenchIndexId of the benchmark
 #' @keywords sql.1mChActWt
 #' @export
+#' @family sql
 
 sql.1mChActWt <- function (x, y) 
 {
@@ -6894,6 +7145,7 @@ sql.1mChActWt <- function (x, y)
 #' @param h = the temp table for output
 #' @keywords sql.AggrAllocations
 #' @export
+#' @family sql
 
 sql.AggrAllocations <- function (x, y, n, w, h) 
 {
@@ -6936,6 +7188,7 @@ sql.AggrAllocations <- function (x, y, n, w, h)
 #' @param x = one of Ctry/FX/Sector
 #' @keywords sql.AllocTbl
 #' @export
+#' @family sql
 
 sql.AllocTbl <- function (x) 
 {
@@ -6953,6 +7206,7 @@ sql.AllocTbl <- function (x)
 #' @param n = logical operator to use
 #' @keywords sql.and
 #' @export
+#' @family sql
 
 sql.and <- function (x, y = "", n = "and") 
 {
@@ -6975,6 +7229,7 @@ sql.and <- function (x, y = "", n = "and")
 #' @param h = the owner of <x>
 #' @keywords sql.bcp
 #' @export
+#' @family sql
 
 sql.bcp <- function (x, y, n = "Quant", w = "EPFRUI", h = "dbo") 
 {
@@ -6998,6 +7253,7 @@ sql.bcp <- function (x, y, n = "Quant", w = "EPFRUI", h = "dbo")
 #' @param x = One of "StockFlows", "Quant" or "Regular"
 #' @keywords sql.connect
 #' @export
+#' @family sql
 #' @importFrom RODBC odbcDriverConnect
 
 sql.connect <- function (x) 
@@ -7018,6 +7274,7 @@ sql.connect <- function (x)
 #' @param x = T/F depending on whether StockFlows data are being used
 #' @keywords sql.cross.border
 #' @export
+#' @family sql
 
 sql.cross.border <- function (x) 
 {
@@ -7040,6 +7297,7 @@ sql.cross.border <- function (x)
 #' @param y = the temp table to hold output
 #' @keywords sql.DailyFlo
 #' @export
+#' @family sql
 
 sql.DailyFlo <- function (x, y) 
 {
@@ -7058,6 +7316,7 @@ sql.DailyFlo <- function (x, y)
 #' @param n = calendar day on which previous month's data available
 #' @keywords sql.datediff
 #' @export
+#' @family sql
 
 sql.datediff <- function (x, y, n) 
 {
@@ -7073,6 +7332,7 @@ sql.datediff <- function (x, y, n)
 #' @param n = values
 #' @keywords sql.declare
 #' @export
+#' @family sql
 
 sql.declare <- function (x, y, n) 
 {
@@ -7087,6 +7347,7 @@ sql.declare <- function (x, y, n)
 #' @param y = isomekic vector
 #' @keywords sql.Diff
 #' @export
+#' @family sql
 
 sql.Diff <- function (x, y) 
 {
@@ -7100,6 +7361,7 @@ sql.Diff <- function (x, y)
 #' @param x = the month/day for which you want \% flow, \% portfolio change, & assets end
 #' @keywords sql.FloMo.Funds
 #' @export
+#' @family sql
 
 sql.FloMo.Funds <- function (x) 
 {
@@ -7129,6 +7391,7 @@ sql.FloMo.Funds <- function (x)
 #' @param y = T/F depending on whether you want the date formatted.
 #' @keywords sql.floTbl.to.Col
 #' @export
+#' @family sql
 
 sql.floTbl.to.Col <- function (x, y) 
 {
@@ -7152,6 +7415,7 @@ sql.floTbl.to.Col <- function (x, y)
 #' @param w = columns needed in addition to HFundId
 #' @keywords sql.FundHistory
 #' @export
+#' @family sql
 
 sql.FundHistory <- function (x, y, n, w) 
 {
@@ -7186,6 +7450,7 @@ sql.FundHistory <- function (x, y, n, w)
 #' @param x = YYYYMM for which you want allocations (known 24 days after month end)
 #' @keywords sql.FundWtdExcl0
 #' @export
+#' @family sql
 
 sql.FundWtdExcl0 <- function (x) 
 {
@@ -7208,6 +7473,7 @@ sql.FundWtdExcl0 <- function (x)
 #' @param n = the temp table for the output
 #' @keywords sql.Holdings
 #' @export
+#' @family sql
 
 sql.Holdings <- function (x, y, n) 
 {
@@ -7224,6 +7490,7 @@ sql.Holdings <- function (x, y, n)
 #' @param y = SQL statement
 #' @keywords sql.in
 #' @export
+#' @family sql
 
 sql.in <- function (x, y) 
 {
@@ -7237,6 +7504,7 @@ sql.in <- function (x, y)
 #' @param y = the temp table for the output
 #' @keywords sql.into
 #' @export
+#' @family sql
 
 sql.into <- function (x, y) 
 {
@@ -7257,6 +7525,7 @@ sql.into <- function (x, y)
 #' @param y = bit of SQL string
 #' @keywords sql.ION
 #' @export
+#' @family sql
 
 sql.ION <- function (x, y) 
 {
@@ -7273,6 +7542,7 @@ sql.ION <- function (x, y)
 #' @param x = Historical Isin
 #' @keywords sql.isin.old.to.new
 #' @export
+#' @family sql
 
 sql.isin.old.to.new <- function (x) 
 {
@@ -7299,6 +7569,7 @@ sql.isin.old.to.new <- function (x)
 #' @param y = label
 #' @keywords sql.label
 #' @export
+#' @family sql
 
 sql.label <- function (x, y) 
 {
@@ -7318,6 +7589,7 @@ sql.label <- function (x, y)
 #' @param w = classif file
 #' @keywords sql.map.classif
 #' @export
+#' @family sql
 #' @importFrom RODBC sqlQuery
 
 sql.map.classif <- function (x, y, n, w) 
@@ -7342,6 +7614,7 @@ sql.map.classif <- function (x, y, n, w)
 #' @param w = T/F depending on whether to handle division by zero
 #' @keywords sql.Mo
 #' @export
+#' @family sql
 
 sql.Mo <- function (x, y, n, w) 
 {
@@ -7359,6 +7632,7 @@ sql.Mo <- function (x, y, n, w)
 #' @param y = characters that get pasted in front of every line (usually tabs for indentation)
 #' @keywords sql.MonthlyAlloc
 #' @export
+#' @family sql
 
 sql.MonthlyAlloc <- function (x, y = "") 
 {
@@ -7375,6 +7649,7 @@ sql.MonthlyAlloc <- function (x, y = "")
 #' @param n = T/F variable depending on whether you want AssetsStart/AssetsEnd or just AssetsEnd
 #' @keywords sql.MonthlyAssetsEnd
 #' @export
+#' @family sql
 
 sql.MonthlyAssetsEnd <- function (x, y = "", n = F) 
 {
@@ -7395,6 +7670,7 @@ sql.MonthlyAssetsEnd <- function (x, y = "", n = F)
 #' @param x = bit of sql string
 #' @keywords sql.nonneg
 #' @export
+#' @family sql
 
 sql.nonneg <- function (x) 
 {
@@ -7408,6 +7684,7 @@ sql.nonneg <- function (x)
 #' @param y = one of StockFlows/Regular/Quant
 #' @keywords sql.query
 #' @export
+#' @family sql
 #' @importFrom RODBC sqlQuery
 
 sql.query <- function (x, y) 
@@ -7425,6 +7702,7 @@ sql.query <- function (x, y)
 #' @param x = any of StockFlows/Japan/CSI300/Energy
 #' @keywords sql.RDSuniv
 #' @export
+#' @family sql
 
 sql.RDSuniv <- function (x) 
 {
@@ -7466,6 +7744,7 @@ sql.RDSuniv <- function (x)
 #' @param y = a string. Must be one of All/Etf/MF.
 #' @keywords sql.stock.flows.wtd.avg
 #' @export
+#' @family sql
 
 sql.stock.flows.wtd.avg <- function (x, y) 
 {
@@ -7518,6 +7797,7 @@ sql.stock.flows.wtd.avg <- function (x, y)
 #' @param h = having
 #' @keywords sql.tbl
 #' @export
+#' @family sql
 
 sql.tbl <- function (x, y, n, w, h) 
 {
@@ -7553,6 +7833,7 @@ sql.tbl <- function (x, y, n, w, h)
 #' @param n = any of StockFlows/Japan/CSI300/Energy
 #' @keywords sql.TopDownAllocs
 #' @export
+#' @family sql
 
 sql.TopDownAllocs <- function (x, y, n) 
 {
@@ -7596,6 +7877,7 @@ sql.TopDownAllocs <- function (x, y, n)
 #' @param y = type of fund to use
 #' @keywords sql.Trend
 #' @export
+#' @family sql
 
 sql.Trend <- function (x, y = "All") 
 {
@@ -7612,6 +7894,7 @@ sql.Trend <- function (x, y = "All")
 #' @param x = string vector
 #' @keywords sql.unbracket
 #' @export
+#' @family sql
 
 sql.unbracket <- function (x) 
 {
@@ -7629,6 +7912,7 @@ sql.unbracket <- function (x)
 #' @param x = "daily" or "weekly"
 #' @keywords strategy.dir
 #' @export
+#' @family strategy
 
 strategy.dir <- function (x) 
 {
@@ -7642,6 +7926,7 @@ strategy.dir <- function (x)
 #' @param y = "daily" or "weekly"
 #' @keywords strategy.file
 #' @export
+#' @family strategy
 
 strategy.file <- function (x, y) 
 {
@@ -7655,6 +7940,7 @@ strategy.file <- function (x, y)
 #' @param y = "daily" or "weekly"
 #' @keywords strategy.path
 #' @export
+#' @family strategy
 
 strategy.path <- function (x, y) 
 {
@@ -7681,6 +7967,7 @@ today <- function ()
 #' @param y = a substring
 #' @keywords txt.count
 #' @export
+#' @family txt
 
 txt.count <- function (x, y) 
 {
@@ -7697,6 +7984,7 @@ txt.count <- function (x, y)
 #' @param x = path to a text file
 #' @keywords txt.ex.file
 #' @export
+#' @family txt
 
 txt.ex.file <- function (x) 
 {
@@ -7712,6 +8000,7 @@ txt.ex.file <- function (x)
 #' @param w = T/F variable controlling paste order
 #' @keywords txt.expand
 #' @export
+#' @family txt
 
 txt.expand <- function (x, y, n = "-", w = F) 
 {
@@ -7737,6 +8026,7 @@ txt.expand <- function (x, y, n = "-", w = F)
 #' @param x = any string
 #' @keywords txt.hdr
 #' @export
+#' @family txt
 
 txt.hdr <- function (x) 
 {
@@ -7757,6 +8047,7 @@ txt.hdr <- function (x)
 #' @param x = a vector of strings
 #' @keywords txt.itrim
 #' @export
+#' @family txt
 
 txt.itrim <- function (x) 
 {
@@ -7777,6 +8068,7 @@ txt.itrim <- function (x)
 #' @param y = a positive integer
 #' @keywords txt.left
 #' @export
+#' @family txt
 
 txt.left <- function (x, y) 
 {
@@ -7788,6 +8080,7 @@ txt.left <- function (x, y)
 #' Returns a list of strings considered NA
 #' @keywords txt.na
 #' @export
+#' @family txt
 
 txt.na <- function () 
 {
@@ -7800,6 +8093,7 @@ txt.na <- function ()
 #' @param x = a string vector
 #' @keywords txt.name.format
 #' @export
+#' @family txt
 
 txt.name.format <- function (x) 
 {
@@ -7826,6 +8120,7 @@ txt.name.format <- function (x)
 #' @param y = a string that serves as a delimiter
 #' @keywords txt.parse
 #' @export
+#' @family txt
 
 txt.parse <- function (x, y) 
 {
@@ -7861,6 +8156,7 @@ txt.parse <- function (x, y)
 #' @param n = the characters to add at the beginning
 #' @keywords txt.prepend
 #' @export
+#' @family txt
 
 txt.prepend <- function (x, y, n) 
 {
@@ -7880,6 +8176,7 @@ txt.prepend <- function (x, y, n)
 #' @param y = T/F depending on whether regression has an intercept
 #' @keywords txt.regr
 #' @export
+#' @family txt
 
 txt.regr <- function (x, y = T) 
 {
@@ -7900,6 +8197,7 @@ txt.regr <- function (x, y = T)
 #' @param n = a string to replace <txt.out> with
 #' @keywords txt.replace
 #' @export
+#' @family txt
 
 txt.replace <- function (x, y, n) 
 {
@@ -7912,6 +8210,7 @@ txt.replace <- function (x, y, n)
 #' @param x = vector of strings
 #' @keywords txt.reverse
 #' @export
+#' @family txt
 
 txt.reverse <- function (x) 
 {
@@ -7927,6 +8226,7 @@ txt.reverse <- function (x)
 #' @param y = a positive integer
 #' @keywords txt.right
 #' @export
+#' @family txt
 
 txt.right <- function (x, y) 
 {
@@ -7940,6 +8240,7 @@ txt.right <- function (x, y)
 #' @param y = a single character
 #' @keywords txt.space
 #' @export
+#' @family txt
 
 txt.space <- function (x, y = " ") 
 {
@@ -7957,6 +8258,7 @@ txt.space <- function (x, y = " ")
 #' @param x = a SINGLE string
 #' @keywords txt.to.char
 #' @export
+#' @family txt
 
 txt.to.char <- function (x) 
 {
@@ -7970,6 +8272,7 @@ txt.to.char <- function (x)
 #' @param y = a vector of verboten strings, each of the same length
 #' @keywords txt.trim
 #' @export
+#' @family txt
 
 txt.trim <- function (x, y = " ") 
 {
@@ -7985,6 +8288,7 @@ txt.trim <- function (x, y = " ")
 #' @param n = a functon that returns characters from the opposite end
 #' @keywords txt.trim.end
 #' @export
+#' @family txt
 
 txt.trim.end <- function (fcn, x, y, n) 
 {
@@ -8005,6 +8309,7 @@ txt.trim.end <- function (fcn, x, y, n)
 #' @param y = a vector of verboten strings, each of the same length
 #' @keywords txt.trim.left
 #' @export
+#' @family txt
 
 txt.trim.left <- function (x, y) 
 {
@@ -8018,6 +8323,7 @@ txt.trim.left <- function (x, y)
 #' @param y = a vector of verboten strings, each of the same length
 #' @keywords txt.trim.right
 #' @export
+#' @family txt
 
 txt.trim.right <- function (x, y) 
 {
@@ -8053,6 +8359,7 @@ variance.ratio.test <- function (x, y)
 #' @param x = vector
 #' @keywords vec.cat
 #' @export
+#' @family vec
 
 vec.cat <- function (x) 
 {
@@ -8065,6 +8372,7 @@ vec.cat <- function (x)
 #' @param x = a numeric vector
 #' @keywords vec.count
 #' @export
+#' @family vec
 
 vec.count <- function (x) 
 {
@@ -8078,6 +8386,7 @@ vec.count <- function (x)
 #' @param y = a number/vector or matrix/dataframe with the same dimensions as <x>
 #' @keywords vec.max
 #' @export
+#' @family vec
 
 vec.max <- function (x, y) 
 {
@@ -8094,6 +8403,7 @@ vec.max <- function (x, y)
 #' @param y = a number/vector or matrix/dataframe with the same dimensions as <x>
 #' @keywords vec.min
 #' @export
+#' @family vec
 
 vec.min <- function (x, y) 
 {
@@ -8110,6 +8420,7 @@ vec.min <- function (x, y)
 #' @param y = an isomekic vector
 #' @keywords vec.named
 #' @export
+#' @family vec
 
 vec.named <- function (x, y) 
 {
@@ -8126,6 +8437,7 @@ vec.named <- function (x, y)
 #' @param x = path to a named vector (no column headers)
 #' @keywords vec.read
 #' @export
+#' @family vec
 
 vec.read <- function (x) 
 {
@@ -8139,6 +8451,7 @@ vec.read <- function (x)
 #' @param y = an isomekic vector
 #' @keywords vec.same
 #' @export
+#' @family vec
 
 vec.same <- function (x, y) 
 {
@@ -8158,6 +8471,7 @@ vec.same <- function (x, y)
 #' @param y = number of lagged values desired plus one
 #' @keywords vec.to.lags
 #' @export
+#' @family vec
 
 vec.to.lags <- function (x, y) 
 {
@@ -8174,6 +8488,7 @@ vec.to.lags <- function (x, y)
 #' @param x = string vector
 #' @keywords vec.to.list
 #' @export
+#' @family vec
 
 vec.to.list <- function (x) 
 {
@@ -8188,6 +8503,7 @@ vec.to.list <- function (x)
 #' @param x = a numeric vector
 #' @keywords vec.unique
 #' @export
+#' @family vec
 
 vec.unique <- function (x) 
 {
@@ -8206,6 +8522,7 @@ vec.unique <- function (x)
 #' @param n = a vector of groups (e.g. GSec)
 #' @keywords vec.zScore
 #' @export
+#' @family vec
 
 vec.zScore <- function (x, y, n) 
 {
@@ -8266,6 +8583,7 @@ yyyy.ex.yy <- function (x)
 #' @param y = an isomekic vector of YYYYMM
 #' @keywords yyyymm.diff
 #' @export
+#' @family yyyymm
 
 yyyymm.diff <- function (x, y) 
 {
@@ -8278,6 +8596,7 @@ yyyymm.diff <- function (x, y)
 #' @param x = a vector of integers
 #' @keywords yyyymm.ex.int
 #' @export
+#' @family yyyymm
 
 yyyymm.ex.int <- function (x) 
 {
@@ -8295,6 +8614,7 @@ yyyymm.ex.int <- function (x)
 #' @param x = a vector of quarters
 #' @keywords yyyymm.ex.qtr
 #' @export
+#' @family yyyymm
 
 yyyymm.ex.qtr <- function (x) 
 {
@@ -8310,6 +8630,7 @@ yyyymm.ex.qtr <- function (x)
 #' @param y = an integer or an isomekic vector of integers
 #' @keywords yyyymm.lag
 #' @export
+#' @family yyyymm
 
 yyyymm.lag <- function (x, y = 1) 
 {
@@ -8326,6 +8647,7 @@ yyyymm.lag <- function (x, y = 1)
 #' @param n = quantum size in YYYYMM or YYYYMMDD
 #' @keywords yyyymm.seq
 #' @export
+#' @family yyyymm
 
 yyyymm.seq <- function (x, y, n = 1) 
 {
@@ -8340,6 +8662,7 @@ yyyymm.seq <- function (x, y, n = 1)
 #' @param x = a vector of months in yyyymm format
 #' @keywords yyyymm.to.day
 #' @export
+#' @family yyyymm
 
 yyyymm.to.day <- function (x) 
 {
@@ -8352,6 +8675,7 @@ yyyymm.to.day <- function (x)
 #' @param x = a vector of <yyyymm> months
 #' @keywords yyyymm.to.int
 #' @export
+#' @family yyyymm
 
 yyyymm.to.int <- function (x) 
 {
@@ -8366,6 +8690,7 @@ yyyymm.to.int <- function (x)
 #' @param x = a vector of yyyymm
 #' @keywords yyyymm.to.qtr
 #' @export
+#' @family yyyymm
 
 yyyymm.to.qtr <- function (x) 
 {
@@ -8381,6 +8706,7 @@ yyyymm.to.qtr <- function (x)
 #' @param x = a vector of dates in yyyymm format
 #' @keywords yyyymm.to.yyyy
 #' @export
+#' @family yyyymm
 
 yyyymm.to.yyyy <- function (x) 
 {
@@ -8395,6 +8721,7 @@ yyyymm.to.yyyy <- function (x)
 #' @param x = a matrix/df indexed by YYYYMMDD
 #' @keywords yyyymmdd.bulk
 #' @export
+#' @family yyyymmdd
 
 yyyymmdd.bulk <- function (x) 
 {
@@ -8413,6 +8740,7 @@ yyyymmdd.bulk <- function (x)
 #' @param x = an object indexed by allocation months
 #' @keywords yyyymmdd.ex.AllocMo
 #' @export
+#' @family yyyymmdd
 
 yyyymmdd.ex.AllocMo <- function (x) 
 {
@@ -8435,6 +8763,7 @@ yyyymmdd.ex.AllocMo <- function (x)
 #' @param x = a vector of calendar dates
 #' @keywords yyyymmdd.ex.day
 #' @export
+#' @family yyyymmdd
 
 yyyymmdd.ex.day <- function (x) 
 {
@@ -8450,6 +8779,7 @@ yyyymmdd.ex.day <- function (x)
 #' @param x = an integer or vector of integers
 #' @keywords yyyymmdd.ex.int
 #' @export
+#' @family yyyymmdd
 
 yyyymmdd.ex.int <- function (x) 
 {
@@ -8464,6 +8794,7 @@ yyyymmdd.ex.int <- function (x)
 #' @param n = order in which month, day and year are represented
 #' @keywords yyyymmdd.ex.txt
 #' @export
+#' @family yyyymmdd
 
 yyyymmdd.ex.txt <- function (x, y = "/", n = "MDY") 
 {
@@ -8491,6 +8822,7 @@ yyyymmdd.ex.txt <- function (x, y = "/", n = "MDY")
 #' @param y = T/F variable depending on whether the last or all trading days in that month are desired
 #' @keywords yyyymmdd.ex.yyyymm
 #' @export
+#' @family yyyymmdd
 
 yyyymmdd.ex.yyyymm <- function (x, y = T) 
 {
@@ -8517,6 +8849,7 @@ yyyymmdd.ex.yyyymm <- function (x, y = T)
 #' @param x = a vector of calendar dates
 #' @keywords yyyymmdd.exists
 #' @export
+#' @family yyyymmdd
 
 yyyymmdd.exists <- function (x) 
 {
@@ -8530,6 +8863,7 @@ yyyymmdd.exists <- function (x)
 #' @param y = a number
 #' @keywords yyyymmdd.lag
 #' @export
+#' @family yyyymmdd
 
 yyyymmdd.lag <- function (x, y) 
 {
@@ -8544,6 +8878,7 @@ yyyymmdd.lag <- function (x, y)
 #' @param n = quantum size in YYYYMMDD
 #' @keywords yyyymmdd.seq
 #' @export
+#' @family yyyymmdd
 
 yyyymmdd.seq <- function (x, y, n = 1) 
 {
@@ -8560,6 +8895,7 @@ yyyymmdd.seq <- function (x, y, n = 1)
 #' @param y = calendar day in the next month when allocations are known (usually 24 for countries)
 #' @keywords yyyymmdd.to.AllocMo
 #' @export
+#' @family yyyymmdd
 
 yyyymmdd.to.AllocMo <- function (x, y = 23) 
 {
@@ -8577,6 +8913,7 @@ yyyymmdd.to.AllocMo <- function (x, y = 23)
 #' @param x = a vector of dates in yyyymmdd format
 #' @keywords yyyymmdd.to.CalYrDyOfWk
 #' @export
+#' @family yyyymmdd
 
 yyyymmdd.to.CalYrDyOfWk <- function (x) 
 {
@@ -8595,6 +8932,7 @@ yyyymmdd.to.CalYrDyOfWk <- function (x)
 #' @param x = a vector of YYYYMMDD
 #' @keywords yyyymmdd.to.int
 #' @export
+#' @family yyyymmdd
 
 yyyymmdd.to.int <- function (x) 
 {
@@ -8609,6 +8947,7 @@ yyyymmdd.to.int <- function (x)
 #' @param x = a vector of dates in yyyymmdd format
 #' @keywords yyyymmdd.to.unity
 #' @export
+#' @family yyyymmdd
 
 yyyymmdd.to.unity <- function (x) 
 {
@@ -8621,6 +8960,7 @@ yyyymmdd.to.unity <- function (x)
 #' @param x = a vector of dates in yyyymmdd format
 #' @keywords yyyymmdd.to.weekofmonth
 #' @export
+#' @family yyyymmdd
 
 yyyymmdd.to.weekofmonth <- function (x) 
 {
@@ -8637,6 +8977,7 @@ yyyymmdd.to.weekofmonth <- function (x)
 #' @param y = if T then falls back one month
 #' @keywords yyyymmdd.to.yyyymm
 #' @export
+#' @family yyyymmdd
 
 yyyymmdd.to.yyyymm <- function (x, y = F) 
 {

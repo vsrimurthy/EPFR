@@ -14,4 +14,8 @@ isin.check.digit(x, y)
 \description{
 The check digit, derived using the 'Modulus 10 Double Add Double' technique.
 }
+\seealso{
+Other isin: \code{\link{isin.ex.cusip}},
+  \code{\link{isin.ex.sedol}}
+}
 \keyword{isin.check.digit}

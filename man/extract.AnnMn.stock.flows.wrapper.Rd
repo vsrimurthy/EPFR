@@ -14,4 +14,7 @@ extract.AnnMn.stock.flows.wrapper(x, y = "AnnMn")
 \description{
 Subsets to "AnnMn" and re-labels columns
 }
+\seealso{
+Other extract: \code{\link{extract.AnnMn.stock.flows}}
+}
 \keyword{extract.AnnMn.stock.flows.wrapper}

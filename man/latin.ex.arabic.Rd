@@ -12,4 +12,8 @@ latin.ex.arabic(x)
 \description{
 returns <x> expressed as lower-case latin numerals
 }
+\seealso{
+Other latin: \code{\link{latin.to.arabic.underlying}},
+  \code{\link{latin.to.arabic}}
+}
 \keyword{latin.ex.arabic}

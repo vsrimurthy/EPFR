@@ -14,4 +14,9 @@ qtl.eq(x, y = 5)
 \description{
 performs an equal-weight binning on <x> if <x> is a vector or the rows of <x> otherwise
 }
+\seealso{
+Other qtl: \code{\link{qtl.single.grp}},
+  \code{\link{qtl.underlying}}, \code{\link{qtl.weighted}},
+  \code{\link{qtl.zero.weight}}, \code{\link{qtl}}
+}
 \keyword{qtl.eq}

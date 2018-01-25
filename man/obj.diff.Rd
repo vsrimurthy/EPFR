@@ -16,4 +16,8 @@ obj.diff(fcn, x, y)
 \description{
 returns <x - y>
 }
+\seealso{
+Other obj: \code{\link{obj.lag}}, \code{\link{obj.list}},
+  \code{\link{obj.seq}}
+}
 \keyword{obj.diff}

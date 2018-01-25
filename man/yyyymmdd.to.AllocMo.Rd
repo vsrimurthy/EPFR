@@ -14,4 +14,19 @@ yyyymmdd.to.AllocMo(x, y = 23)
 \description{
 Returns the month for which you need to get allocations Flows as of the 23rd of each month are known by the 24th. By this time allocations from the previous month are known
 }
+\seealso{
+Other yyyymmdd: \code{\link{yyyymmdd.bulk}},
+  \code{\link{yyyymmdd.ex.AllocMo}},
+  \code{\link{yyyymmdd.ex.day}},
+  \code{\link{yyyymmdd.ex.int}},
+  \code{\link{yyyymmdd.ex.txt}},
+  \code{\link{yyyymmdd.ex.yyyymm}},
+  \code{\link{yyyymmdd.exists}},
+  \code{\link{yyyymmdd.lag}}, \code{\link{yyyymmdd.seq}},
+  \code{\link{yyyymmdd.to.CalYrDyOfWk}},
+  \code{\link{yyyymmdd.to.int}},
+  \code{\link{yyyymmdd.to.unity}},
+  \code{\link{yyyymmdd.to.weekofmonth}},
+  \code{\link{yyyymmdd.to.yyyymm}}
+}
 \keyword{yyyymmdd.to.AllocMo}

@@ -14,4 +14,9 @@ dir.all.files(x, y)
 \description{
 Returns all files in the folder including sub-directories
 }
+\seealso{
+Other dir: \code{\link{dir.ensure}},
+  \code{\link{dir.make}}, \code{\link{dir.parameters}},
+  \code{\link{dir.parent}}
+}
 \keyword{dir.all.files}

@@ -14,4 +14,9 @@ compound.stock.flows(x, y)
 \description{
 compounds flows
 }
+\seealso{
+Other compound: \code{\link{compound.flows.initial}},
+  \code{\link{compound.flows.underlying}},
+  \code{\link{compound.flows}}, \code{\link{compound}}
+}
 \keyword{compound.stock.flows}

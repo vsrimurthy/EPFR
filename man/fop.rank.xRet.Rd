@@ -14,4 +14,11 @@ fop.rank.xRet(x, y)
 \description{
 Ranks <x> only when <y> is available
 }
+\seealso{
+Other fop: \code{\link{fop.Bin}},
+  \code{\link{fop.IC.summ}}, \code{\link{fop.IC}},
+  \code{\link{fop.grp.map}}, \code{\link{fop.stats}},
+  \code{\link{fop.subset}}, \code{\link{fop.underlying}},
+  \code{\link{fop}}
+}
 \keyword{fop.rank.xRet}

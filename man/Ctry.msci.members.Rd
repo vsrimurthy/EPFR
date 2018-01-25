@@ -14,4 +14,10 @@ Ctry.msci.members(x, y)
 \description{
 lists countries in an index at <y>
 }
+\seealso{
+Other Ctry: \code{\link{Ctry.info}},
+  \code{\link{Ctry.msci.index.changes}},
+  \code{\link{Ctry.msci.members.rng}},
+  \code{\link{Ctry.msci}}, \code{\link{Ctry.to.CtryGrp}}
+}
 \keyword{Ctry.msci.members}

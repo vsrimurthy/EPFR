@@ -12,4 +12,9 @@ publish.date(x)
 \description{
 the date on which country/sector allocations are published
 }
+\seealso{
+Other publish: \code{\link{publish.daily.last}},
+  \code{\link{publish.monthly.last}},
+  \code{\link{publish.weekly.last}}
+}
 \keyword{publish.date}

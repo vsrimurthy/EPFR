@@ -14,4 +14,8 @@ obj.list(x = F, y = "*")
 \description{
 Returns the names of objects that are or are not functions
 }
+\seealso{
+Other obj: \code{\link{obj.diff}}, \code{\link{obj.lag}},
+  \code{\link{obj.seq}}
+}
 \keyword{obj.list}

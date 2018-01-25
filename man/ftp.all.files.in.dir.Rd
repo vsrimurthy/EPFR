@@ -18,4 +18,11 @@ ftp.all.files.in.dir(x, y, n, w)
 \description{
 remote site directory listing of files (incl. sub-folders)
 }
+\seealso{
+Other ftp: \code{\link{ftp.dir.excise.crap}},
+  \code{\link{ftp.dir.ftp.code}}, \code{\link{ftp.dir}},
+  \code{\link{ftp.download.script}},
+  \code{\link{ftp.file.size}}, \code{\link{ftp.put}},
+  \code{\link{ftp.txt}}
+}
 \keyword{ftp.all.files.in.dir}

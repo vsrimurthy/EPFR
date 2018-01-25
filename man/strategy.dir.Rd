@@ -12,4 +12,8 @@ strategy.dir(x)
 \description{
 factor folder
 }
+\seealso{
+Other strategy: \code{\link{strategy.file}},
+  \code{\link{strategy.path}}
+}
 \keyword{strategy.dir}

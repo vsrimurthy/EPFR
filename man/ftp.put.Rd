@@ -16,4 +16,11 @@ ftp.put(x, y, n)
 \description{
 Writes ftp script to put the relevant file to the right folder
 }
+\seealso{
+Other ftp: \code{\link{ftp.all.files.in.dir}},
+  \code{\link{ftp.dir.excise.crap}},
+  \code{\link{ftp.dir.ftp.code}}, \code{\link{ftp.dir}},
+  \code{\link{ftp.download.script}},
+  \code{\link{ftp.file.size}}, \code{\link{ftp.txt}}
+}
 \keyword{ftp.put}

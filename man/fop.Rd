@@ -43,4 +43,11 @@ fop(x, y, delay, lags = 0:6, floWind = 1:10, retWind = 1:4,
 \description{
 returns a table with rows indexed by flow window length
 }
+\seealso{
+Other fop: \code{\link{fop.Bin}},
+  \code{\link{fop.IC.summ}}, \code{\link{fop.IC}},
+  \code{\link{fop.grp.map}}, \code{\link{fop.rank.xRet}},
+  \code{\link{fop.stats}}, \code{\link{fop.subset}},
+  \code{\link{fop.underlying}}
+}
 \keyword{fop}

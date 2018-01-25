@@ -12,4 +12,7 @@ qtr.ex.int(x)
 \description{
 returns a vector of <yyyymm> months
 }
+\seealso{
+Other qtr: \code{\link{qtr.seq}}, \code{\link{qtr.to.int}}
+}
 \keyword{qtr.ex.int}

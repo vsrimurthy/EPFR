@@ -29,4 +29,8 @@ rrw(prdBeg, prdEnd, vbls, univ, grp.nm, ret.nm, fldr, orth.factor = NULL,
 \description{
 Runs regressions
 }
+\seealso{
+Other rrw: \code{\link{rrw.factors}},
+  \code{\link{rrw.underlying}}
+}
 \keyword{rrw}

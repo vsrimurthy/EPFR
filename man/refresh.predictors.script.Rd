@@ -18,4 +18,11 @@ refresh.predictors.script(x, y, n, w)
 \description{
 generates the SQL script to refresh predictors
 }
+\seealso{
+Other refresh: \code{\link{refresh.predictors.append}},
+  \code{\link{refresh.predictors.daily}},
+  \code{\link{refresh.predictors.monthly}},
+  \code{\link{refresh.predictors.weekly}},
+  \code{\link{refresh.predictors}}
+}
 \keyword{refresh.predictors.script}

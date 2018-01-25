@@ -30,4 +30,7 @@ fwd.probs(x, y, floW, sum.flows, lag, delay, doW, retW, idx, prd.size)
 \description{
 probability that forward return is positive given predictor is positive
 }
+\seealso{
+Other fwd: \code{\link{fwd.probs.wrapper}}
+}
 \keyword{fwd.probs}

@@ -12,4 +12,7 @@ rrw.factors(x)
 \description{
 Returns the t-values of factors that best predict return
 }
+\seealso{
+Other rrw: \code{\link{rrw.underlying}}, \code{\link{rrw}}
+}
 \keyword{rrw.factors}

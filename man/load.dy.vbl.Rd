@@ -24,4 +24,8 @@ load.dy.vbl(beg, end, mk.fcn, optional.args, vbl.name, out.fldr, env)
 \description{
 Loads a daily variable
 }
+\seealso{
+Other load: \code{\link{load.dy.vbl.1obj}},
+  \code{\link{load.mo.vbl.1obj}}, \code{\link{load.mo.vbl}}
+}
 \keyword{load.dy.vbl}

@@ -14,4 +14,7 @@ extract.AnnMn.stock.flows(x, y = "AnnMn")
 \description{
 Subsets to "AnnMn" and re-lablels columns
 }
+\seealso{
+Other extract: \code{\link{extract.AnnMn.stock.flows.wrapper}}
+}
 \keyword{extract.AnnMn.stock.flows}

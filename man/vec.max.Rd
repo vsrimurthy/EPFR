@@ -14,4 +14,11 @@ vec.max(x, y)
 \description{
 Returns the piecewise maximum of <x> and <y>
 }
+\seealso{
+Other vec: \code{\link{vec.cat}}, \code{\link{vec.count}},
+  \code{\link{vec.min}}, \code{\link{vec.named}},
+  \code{\link{vec.read}}, \code{\link{vec.same}},
+  \code{\link{vec.to.lags}}, \code{\link{vec.to.list}},
+  \code{\link{vec.unique}}, \code{\link{vec.zScore}}
+}
 \keyword{vec.max}

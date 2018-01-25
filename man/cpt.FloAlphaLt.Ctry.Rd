@@ -12,4 +12,7 @@ cpt.FloAlphaLt.Ctry(x)
 \description{
 Computes flow alpha for countries. indexed by data date. Does not account for delay.
 }
+\seealso{
+Other cpt: \code{\link{cpt.RgnSec}}
+}
 \keyword{cpt.FloAlphaLt.Ctry}

@@ -14,4 +14,7 @@ cpt.RgnSec(x, y)
 \description{
 makes Region-Sector groupings
 }
+\seealso{
+Other cpt: \code{\link{cpt.FloAlphaLt.Ctry}}
+}
 \keyword{cpt.RgnSec}

@@ -16,4 +16,19 @@ mk.JensensAlpha.fund(x, y, n)
 \description{
 Returns variable with the same row space as <n>
 }
+\seealso{
+Other mk: \code{\link{mk.1dFloMo}},
+  \code{\link{mk.1mAllocMo}}, \code{\link{mk.1mPerfTrend}},
+  \code{\link{mk.ActWt}}, \code{\link{mk.Alpha}},
+  \code{\link{mk.FloAlphaLt.Ctry}},
+  \code{\link{mk.FundsMem}}, \code{\link{mk.Mem}},
+  \code{\link{mk.PrcMo}}, \code{\link{mk.Wt}},
+  \code{\link{mk.avail}}, \code{\link{mk.beta}},
+  \code{\link{mk.isin}}, \code{\link{mk.sqlDump}},
+  \code{\link{mk.trail.sum.dly.vbl}},
+  \code{\link{mk.trail.sum.mo.vbl}},
+  \code{\link{mk.vbl.chg}}, \code{\link{mk.vbl.diff}},
+  \code{\link{mk.vbl.lag}}, \code{\link{mk.vbl.max}},
+  \code{\link{mk.vbl.ratio}}
+}
 \keyword{mk.JensensAlpha.fund}

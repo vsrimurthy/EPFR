@@ -18,4 +18,8 @@ britten.jones.data(x, y, n, w = NULL)
 \description{
 returns data needed for a Britten-Jones analysis
 }
+\seealso{
+Other britten: \code{\link{britten.jones.data.stack}},
+  \code{\link{britten.jones}}
+}
 \keyword{britten.jones.data}

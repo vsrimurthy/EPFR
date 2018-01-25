@@ -16,4 +16,9 @@ qtl.underlying(x, y, n)
 \description{
 divided <x> into <n> equal bins of roughly equal weight (as defined by <y>)
 }
+\seealso{
+Other qtl: \code{\link{qtl.eq}},
+  \code{\link{qtl.single.grp}}, \code{\link{qtl.weighted}},
+  \code{\link{qtl.zero.weight}}, \code{\link{qtl}}
+}
 \keyword{qtl.underlying}

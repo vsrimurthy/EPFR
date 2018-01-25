@@ -12,4 +12,9 @@ day.to.weekday(x)
 \description{
 Converts to 0 = Sun, 1 = Mon, ..., 6 = Sat
 }
+\seealso{
+Other day: \code{\link{day.ex.date}},
+  \code{\link{day.ex.int}}, \code{\link{day.lag}},
+  \code{\link{day.seq}}, \code{\link{day.to.int}}
+}
 \keyword{day.to.weekday}

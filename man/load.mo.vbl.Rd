@@ -24,4 +24,8 @@ load.mo.vbl(beg, end, mk.fcn, optional.args, vbl.name, out.fldr, env)
 \description{
 Loads a monthly variable
 }
+\seealso{
+Other load: \code{\link{load.dy.vbl.1obj}},
+  \code{\link{load.dy.vbl}}, \code{\link{load.mo.vbl.1obj}}
+}
 \keyword{load.mo.vbl}

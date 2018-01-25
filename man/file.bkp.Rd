@@ -14,4 +14,10 @@ file.bkp(x, y)
 \description{
 Copies <x> to <y>
 }
+\seealso{
+Other file: \code{\link{file.date}},
+  \code{\link{file.kill}},
+  \code{\link{file.mtime.to.time}},
+  \code{\link{file.time}}, \code{\link{file.to.last}}
+}
 \keyword{file.bkp}

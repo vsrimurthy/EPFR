@@ -29,4 +29,11 @@ fop.underlying(x, y, n, lag, delay, nBins, grp.map, findOptimalParametersFcn,
 \description{
 returns a table with rows indexed by flow window length
 }
+\seealso{
+Other fop: \code{\link{fop.Bin}},
+  \code{\link{fop.IC.summ}}, \code{\link{fop.IC}},
+  \code{\link{fop.grp.map}}, \code{\link{fop.rank.xRet}},
+  \code{\link{fop.stats}}, \code{\link{fop.subset}},
+  \code{\link{fop}}
+}
 \keyword{fop.underlying}

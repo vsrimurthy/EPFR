@@ -16,4 +16,9 @@ qtl.single.grp(x, y, n)
 \description{
 performs an equal-weight binning on <x> so that the members of <n> are divided into <y> equal bins
 }
+\seealso{
+Other qtl: \code{\link{qtl.eq}},
+  \code{\link{qtl.underlying}}, \code{\link{qtl.weighted}},
+  \code{\link{qtl.zero.weight}}, \code{\link{qtl}}
+}
 \keyword{qtl.single.grp}

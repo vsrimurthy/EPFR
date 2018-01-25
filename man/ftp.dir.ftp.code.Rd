@@ -18,4 +18,11 @@ ftp.dir.ftp.code(x, y, n, w)
 \description{
 generates ftp code for remote site directory listing
 }
+\seealso{
+Other ftp: \code{\link{ftp.all.files.in.dir}},
+  \code{\link{ftp.dir.excise.crap}}, \code{\link{ftp.dir}},
+  \code{\link{ftp.download.script}},
+  \code{\link{ftp.file.size}}, \code{\link{ftp.put}},
+  \code{\link{ftp.txt}}
+}
 \keyword{ftp.dir.ftp.code}

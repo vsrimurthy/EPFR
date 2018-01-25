@@ -14,4 +14,8 @@ read.split.adj.prices(x, y)
 \description{
 reads the split-adjusted prices that Matt provides
 }
+\seealso{
+Other read: \code{\link{read.EPFR}},
+  \code{\link{read.prcRet}}
+}
 \keyword{read.split.adj.prices}

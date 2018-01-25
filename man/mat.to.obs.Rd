@@ -12,4 +12,21 @@ mat.to.obs(x)
 \description{
 Returns 0 if <x> is NA or 1 otherwise.
 }
+\seealso{
+Other mat: \code{\link{mat.combine}},
+  \code{\link{mat.compound}}, \code{\link{mat.correl}},
+  \code{\link{mat.count}},
+  \code{\link{mat.daily.to.monthly}},
+  \code{\link{mat.ex.array3d}}, \code{\link{mat.ex.array}},
+  \code{\link{mat.ex.matrix}}, \code{\link{mat.ex.qtl}},
+  \code{\link{mat.fake}}, \code{\link{mat.index}},
+  \code{\link{mat.lag.cols}}, \code{\link{mat.lag}},
+  \code{\link{mat.last.to.first}}, \code{\link{mat.rank}},
+  \code{\link{mat.read}}, \code{\link{mat.same}},
+  \code{\link{mat.subset}},
+  \code{\link{mat.to.first.data.row}},
+  \code{\link{mat.to.lags}}, \code{\link{mat.to.last.Idx}},
+  \code{\link{mat.to.matrix}},
+  \code{\link{mat.to.xlModel}}, \code{\link{mat.write}}
+}
 \keyword{mat.to.obs}

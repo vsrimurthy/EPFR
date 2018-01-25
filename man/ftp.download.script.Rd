@@ -20,4 +20,11 @@ ftp.download.script(x, y, n, w, h)
 \description{
 creates bat/ftp files to get all files from an ftp folder
 }
+\seealso{
+Other ftp: \code{\link{ftp.all.files.in.dir}},
+  \code{\link{ftp.dir.excise.crap}},
+  \code{\link{ftp.dir.ftp.code}}, \code{\link{ftp.dir}},
+  \code{\link{ftp.file.size}}, \code{\link{ftp.put}},
+  \code{\link{ftp.txt}}
+}
 \keyword{ftp.download.script}

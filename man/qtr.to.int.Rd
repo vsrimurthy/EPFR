@@ -12,4 +12,7 @@ qtr.to.int(x)
 \description{
 returns a vector of integers
 }
+\seealso{
+Other qtr: \code{\link{qtr.ex.int}}, \code{\link{qtr.seq}}
+}
 \keyword{qtr.to.int}

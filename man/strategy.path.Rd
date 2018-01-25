@@ -14,4 +14,8 @@ strategy.path(x, y)
 \description{
 Returns the full path to the factor file
 }
+\seealso{
+Other strategy: \code{\link{strategy.dir}},
+  \code{\link{strategy.file}}
+}
 \keyword{strategy.path}

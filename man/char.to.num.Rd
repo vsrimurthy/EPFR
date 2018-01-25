@@ -12,4 +12,8 @@ char.to.num(x)
 \description{
 coerces to numeric much more brutally than does as.numeric
 }
+\seealso{
+Other char: \code{\link{char.ex.int}},
+  \code{\link{char.seq}}, \code{\link{char.to.int}}
+}
 \keyword{char.to.num}

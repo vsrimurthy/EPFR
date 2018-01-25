@@ -12,4 +12,11 @@ yyyymm.to.day(x)
 \description{
 Returns the last day in the month whether weekend or not.
 }
+\seealso{
+Other yyyymm: \code{\link{yyyymm.diff}},
+  \code{\link{yyyymm.ex.int}}, \code{\link{yyyymm.ex.qtr}},
+  \code{\link{yyyymm.lag}}, \code{\link{yyyymm.seq}},
+  \code{\link{yyyymm.to.int}}, \code{\link{yyyymm.to.qtr}},
+  \code{\link{yyyymm.to.yyyy}}
+}
 \keyword{yyyymm.to.day}

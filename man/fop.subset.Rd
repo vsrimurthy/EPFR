@@ -14,4 +14,11 @@ fop.subset(x, y = 100)
 \description{
 Subsets to variations that have ALL combinations of Q1/TxB AnnMn/Sharpe in the <y>
 }
+\seealso{
+Other fop: \code{\link{fop.Bin}},
+  \code{\link{fop.IC.summ}}, \code{\link{fop.IC}},
+  \code{\link{fop.grp.map}}, \code{\link{fop.rank.xRet}},
+  \code{\link{fop.stats}}, \code{\link{fop.underlying}},
+  \code{\link{fop}}
+}
 \keyword{fop.subset}

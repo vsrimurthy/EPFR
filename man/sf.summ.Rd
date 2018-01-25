@@ -16,4 +16,12 @@ sf.summ(fcn, x, y)
 \description{
 summarizes the back test
 }
+\seealso{
+Other sf: \code{\link{sf.bin.nms}},
+  \code{\link{sf.daily.summ}}, \code{\link{sf.daily}},
+  \code{\link{sf.single.bsim}}, \code{\link{sf.subset}},
+  \code{\link{sf.underlying.data}},
+  \code{\link{sf.underlying.summ}},
+  \code{\link{sf.underlying}}, \code{\link{sf}}
+}
 \keyword{sf.summ}

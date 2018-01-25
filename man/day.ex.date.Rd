@@ -12,4 +12,9 @@ day.ex.date(x)
 \description{
 calendar dates
 }
+\seealso{
+Other day: \code{\link{day.ex.int}}, \code{\link{day.lag}},
+  \code{\link{day.seq}}, \code{\link{day.to.int}},
+  \code{\link{day.to.weekday}}
+}
 \keyword{day.ex.date}

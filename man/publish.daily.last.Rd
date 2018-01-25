@@ -9,4 +9,9 @@ publish.daily.last()
 \description{
 date of last daily publication
 }
+\seealso{
+Other publish: \code{\link{publish.date}},
+  \code{\link{publish.monthly.last}},
+  \code{\link{publish.weekly.last}}
+}
 \keyword{publish.daily.last}

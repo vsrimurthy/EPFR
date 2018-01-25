@@ -14,4 +14,19 @@ yyyymmdd.ex.yyyymm(x, y = T)
 \description{
 Returns the last trading day or all trading days
 }
+\seealso{
+Other yyyymmdd: \code{\link{yyyymmdd.bulk}},
+  \code{\link{yyyymmdd.ex.AllocMo}},
+  \code{\link{yyyymmdd.ex.day}},
+  \code{\link{yyyymmdd.ex.int}},
+  \code{\link{yyyymmdd.ex.txt}},
+  \code{\link{yyyymmdd.exists}},
+  \code{\link{yyyymmdd.lag}}, \code{\link{yyyymmdd.seq}},
+  \code{\link{yyyymmdd.to.AllocMo}},
+  \code{\link{yyyymmdd.to.CalYrDyOfWk}},
+  \code{\link{yyyymmdd.to.int}},
+  \code{\link{yyyymmdd.to.unity}},
+  \code{\link{yyyymmdd.to.weekofmonth}},
+  \code{\link{yyyymmdd.to.yyyymm}}
+}
 \keyword{yyyymmdd.ex.yyyymm}

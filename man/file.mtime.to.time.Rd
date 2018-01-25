@@ -12,4 +12,9 @@ file.mtime.to.time(x)
 \description{
 Converts to HHMMSS times
 }
+\seealso{
+Other file: \code{\link{file.bkp}},
+  \code{\link{file.date}}, \code{\link{file.kill}},
+  \code{\link{file.time}}, \code{\link{file.to.last}}
+}
 \keyword{file.mtime.to.time}

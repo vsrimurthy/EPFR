@@ -14,4 +14,7 @@ find.data(x, y = T)
 \description{
 returns the position of the first/last true value of x
 }
+\seealso{
+Other find: \code{\link{find.gaps}}
+}
 \keyword{find.data}
