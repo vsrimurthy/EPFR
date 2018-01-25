@@ -2905,7 +2905,7 @@ fix.gaps <- function (x)
 
 #' fop
 #' 
-#' returns a table with rows indexed by flow window length
+#' an array of summary statistics of each quantile, indexed by parameter
 #' @param x = a matrix/data frame of predictors
 #' @param y = a matrix/data frame of total return indices
 #' @param delay = the number of days needed for the predictors to be known
@@ -2920,38 +2920,46 @@ fix.gaps <- function (x)
 #' @param first.ret.date = if F grp.fcn is applied to formation dates. Otherwise it is applied to the first day in forward the return window.
 #' @param findOptimalParametersFcn = the function you are using to summarize your results
 #' @param sum.flows = if T, flows get summed. Otherwise they get compounded.
-#' @param resample = F/T depending on whether you want one simulation or the median across simulations run by removing one universe element
 #' @keywords fop
 #' @export
 #' @family fop
 
-fop <- function (x, y, delay, lags = 0:6, floWind = 1:10, retWind = 1:4, 
-    nBins = c(3:7, 10), grp.fcn = day.to.weekday, convert2df = T, 
-    reverse.vbl = F, prd.size = 1, first.ret.date = F, findOptimalParametersFcn = fop.Bin, 
-    sum.flows = F, resample = T) 
+fop <- function (x, y, delay, lags, floWind, retWind, nBins, grp.fcn, 
+    convert2df, reverse.vbl, prd.size, first.ret.date, findOptimalParametersFcn, 
+    sum.flows) 
 {
     z <- NULL
     for (i in floWind) {
         cat(txt.hdr(paste("floW", i, sep = " = ")), "\n")
-        pctFlo <- compound.flows(x, i, prd.size, sum.flows)
+        x.comp <- compound.flows(x, i, prd.size, sum.flows)
         if (reverse.vbl) 
-            pctFlo <- -pctFlo
-        if (nchar(dimnames(pctFlo)[[1]][1]) == 6 & nchar(dimnames(y)[[1]][1]) == 
+            x.comp <- -x.comp
+        if (nchar(dimnames(x.comp)[[1]][1]) == 6 & nchar(dimnames(y)[[1]][1]) == 
             8) 
-            pctFlo <- yyyymmdd.ex.AllocMo(pctFlo)
-        for (j in lags) {
-            cat("lag =", j, "")
-            vec <- fop.grp.map(grp.fcn, pctFlo, j, delay, first.ret.date)
+            x.comp <- yyyymmdd.ex.AllocMo(x.comp)
+        for (h in lags) {
+            cat("lag =", h, "")
+            pctFlo <- x.comp
+            j <- h
+            delay.loc <- delay
+            if (nchar(dimnames(pctFlo)[[1]][1]) == 8 & nchar(dimnames(y)[[1]][1]) == 
+                6) {
+                pctFlo <- mat.lag(pctFlo, j + delay, F, F)
+                pctFlo <- mat.daily.to.monthly(pctFlo, F)
+                delay.loc <- 0
+                j <- 0
+            }
+            vec <- fop.grp.map(grp.fcn, pctFlo, j, delay.loc, 
+                first.ret.date)
             for (n in retWind) {
                 if (n != retWind[1]) 
                   cat("\t")
                 cat("retW =", n, ":")
-                fwdRet <- bbk.fwdRet(pctFlo, y, n, j, delay)
+                fwdRet <- bbk.fwdRet(pctFlo, y, n, j, delay.loc)
                 for (k in nBins) {
                   cat(k, "")
-                  rslt <- fop.underlying(pctFlo, fwdRet, n, j, 
-                    delay, k, vec, findOptimalParametersFcn, 
-                    resample)
+                  rslt <- findOptimalParametersFcn(pctFlo, fwdRet, 
+                    vec, n, k)
                   if (is.null(z)) 
                     z <- array(NA, c(length(floWind), length(lags), 
                       length(retWind), length(nBins), dim(rslt)), 
@@ -3155,42 +3163,38 @@ fop.subset <- function (x, y = 100)
     z
 }
 
-#' fop.underlying
+#' fop.wrapper
 #' 
-#' returns a table with rows indexed by flow window length
-#' @param x = a matrix/data frame of predictors
-#' @param y = a matrix/data frame of returns of the same dimension as <x>
-#' @param n = the number of days of forward returns that need to be predicted
-#' @param lag = the number of days the predictors are lagged
+#' a table of Sharpes, IC's and annualized mean excess returns for: Q1 - a strategy that goes long the top fifth and short the equal-weight universe TxB - a strategy that goes long and short the top and bottom fifth respectively
+#' @param x = a matrix/data frame of predictors, the rows of which are YYYYMM or YYYYMMDD
+#' @param y = a matrix/data frame of total return indices, the rows of which are YYYYMM or YYYYMMDD
+#' @param retW = a numeric vector of forward return windows
+#' @param prd.size = size of each compounding period in terms of days (days = 1, wks = 5, etc.) if <x> is indexed by YYYYMMDD or months if <x> is indexed by YYYYMM
+#' @param sum.flows = if T, flows get summed. Otherwise they get compounded.
+#' @param lag = an integer of predictor lags
 #' @param delay = the number of days needed for the predictors to be known
-#' @param nBins = number of bins into which you are going to divide your predictors
-#' @param grp.map = a vector that maps yyyymmdd dates to groups of interest (e.g. day of the week)
-#' @param findOptimalParametersFcn = the function you are using to summarize your results
-#' @param resample = F/T depending on whether you want one simulation or the median across simulations run by removing one universe element
-#' @keywords fop.underlying
+#' @param floW = a numeric vector of trailing flow windows
+#' @param nBin = a non-negative integer
+#' @param reverse.vbl = T/F depending on whether you want the variable reversed
+#' @keywords fop.wrapper
 #' @export
 #' @family fop
 
-fop.underlying <- function (x, y, n, lag, delay, nBins, grp.map, findOptimalParametersFcn, 
-    resample) 
+fop.wrapper <- function (x, y, retW, prd.size = 5, sum.flows = F, lag = 0, delay = 2, 
+    floW = 1:20, nBin = 5, reverse.vbl = F) 
 {
-    rslt <- findOptimalParametersFcn(x, y, grp.map, n, nBins)
-    if (!resample) {
-        z <- rslt
-    }
-    else {
-        z <- dimnames(rslt)
-        z[[1 + length(z)]] <- c("ALL", dimnames(x)[[2]])
-        z <- array(NA, c(dim(rslt), dim(x)[2] + 1), z)
-        z[, , , "ALL"] <- unlist(rslt)
-        for (i in dimnames(x)[[2]]) {
-            w <- dimnames(x)[[2]] != i
-            rslt <- findOptimalParametersFcn(x[, w], y[, w], 
-                grp.map, n, nBins)
-            z[, , , i] <- unlist(rslt)
-        }
-        z <- apply(z, 1:3, median)
-    }
+    z <- fop(x, y, delay, lag, floW, retW, 0, yyyymmdd.to.unity, 
+        F, reverse.vbl, prd.size, F, fop.IC, sum.flows)
+    z <- list(IC = z[, as.character(lag), , "0", "Mean", "IC", 
+        "1"])
+    x <- fop(x, y, delay, lag, floW, retW, nBin, yyyymmdd.to.unity, 
+        F, reverse.vbl, prd.size, F, fop.Bin, sum.flows)
+    for (i in c("Q1", "TxB")) for (j in c("Sharpe", "AnnMn")) z[[paste(i, 
+        j, sep = ".")]] <- x[, as.character(lag), , as.character(nBin), 
+        j, i, "1"]
+    z <- as.data.frame(z, stringsAsFactors = F)
+    y <- c("Q1.Sharpe", "TxB.Sharpe", "IC", "Q1.AnnMn", "TxB.AnnMn")
+    z <- mat.subset(z, txt.expand(y, retW, "."))
     z
 }
 

@@ -18,6 +18,6 @@ Summarizes IC's
 Other fop: \code{\link{fop.Bin}}, \code{\link{fop.IC}},
   \code{\link{fop.grp.map}}, \code{\link{fop.rank.xRet}},
   \code{\link{fop.stats}}, \code{\link{fop.subset}},
-  \code{\link{fop.underlying}}, \code{\link{fop}}
+  \code{\link{fop.wrapper}}, \code{\link{fop}}
 }
 \keyword{fop.IC.summ}

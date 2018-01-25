@@ -4,10 +4,8 @@
 \alias{fop}
 \title{fop}
 \usage{
-fop(x, y, delay, lags = 0:6, floWind = 1:10, retWind = 1:4,
-  nBins = c(3:7, 10), grp.fcn = day.to.weekday, convert2df = T,
-  reverse.vbl = F, prd.size = 1, first.ret.date = F,
-  findOptimalParametersFcn = fop.Bin, sum.flows = F, resample = T)
+fop(x, y, delay, lags, floWind, retWind, nBins, grp.fcn, convert2df,
+  reverse.vbl, prd.size, first.ret.date, findOptimalParametersFcn, sum.flows)
 }
 \arguments{
 \item{x}{= a matrix/data frame of predictors}
@@ -37,17 +35,15 @@ fop(x, y, delay, lags = 0:6, floWind = 1:10, retWind = 1:4,
 \item{findOptimalParametersFcn}{= the function you are using to summarize your results}
 
 \item{sum.flows}{= if T, flows get summed. Otherwise they get compounded.}
-
-\item{resample}{= F/T depending on whether you want one simulation or the median across simulations run by removing one universe element}
 }
 \description{
-returns a table with rows indexed by flow window length
+an array of summary statistics of each quantile, indexed by parameter
 }
 \seealso{
 Other fop: \code{\link{fop.Bin}},
   \code{\link{fop.IC.summ}}, \code{\link{fop.IC}},
   \code{\link{fop.grp.map}}, \code{\link{fop.rank.xRet}},
   \code{\link{fop.stats}}, \code{\link{fop.subset}},
-  \code{\link{fop.underlying}}
+  \code{\link{fop.wrapper}}
 }
 \keyword{fop}

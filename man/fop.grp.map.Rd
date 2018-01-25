@@ -24,7 +24,7 @@ maps dates to date groups
 Other fop: \code{\link{fop.Bin}},
   \code{\link{fop.IC.summ}}, \code{\link{fop.IC}},
   \code{\link{fop.rank.xRet}}, \code{\link{fop.stats}},
-  \code{\link{fop.subset}}, \code{\link{fop.underlying}},
+  \code{\link{fop.subset}}, \code{\link{fop.wrapper}},
   \code{\link{fop}}
 }
 \keyword{fop.grp.map}
