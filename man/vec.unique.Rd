@@ -16,7 +16,8 @@ returns unique values of <x> in ascending order
 Other vec: \code{\link{vec.cat}}, \code{\link{vec.count}},
   \code{\link{vec.max}}, \code{\link{vec.min}},
   \code{\link{vec.named}}, \code{\link{vec.read}},
-  \code{\link{vec.same}}, \code{\link{vec.to.lags}},
-  \code{\link{vec.to.list}}, \code{\link{vec.zScore}}
+  \code{\link{vec.same}}, \code{\link{vec.swap}},
+  \code{\link{vec.to.lags}}, \code{\link{vec.to.list}},
+  \code{\link{vec.zScore}}
 }
 \keyword{vec.unique}

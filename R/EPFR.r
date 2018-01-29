@@ -862,10 +862,9 @@ britten.jones.data <- function (x, y, n, w = NULL)
             }
             else {
                 vec <- find.gaps(w1)
-                if (any(vec < n - 1)) {
+                if (any(vec < n - 1)) 
                   stop("Small return gap detected: i = ", i, 
                     ", retHz =", n, "...\n")
-                }
                 if (any(vec >= n - 1)) {
                   vec <- vec[vec >= n - 1]
                   n.beg <- c(n.beg, as.numeric(names(vec)) + 
@@ -1082,7 +1081,7 @@ combinations <- function (x, y)
 
 #' combinations.next
 #' 
-#' returns the next combination
+#' returns the next combination in dictionary order
 #' @param x = a logical vector
 #' @keywords combinations.next
 #' @export
@@ -1405,9 +1404,7 @@ Ctry.msci <- function (x)
     else if (x == "EM") {
         rein <- "Emerging"
     }
-    else {
-        stop("Bad Index")
-    }
+    else stop("Bad Index")
     raus <- setdiff(c("Developed", "Emerging", "Frontier", "Standalone"), 
         rein)
     vec <- as.character(unlist(mat.subset(z, c("From", "To"))))
@@ -1751,9 +1748,10 @@ dir.parent <- function (x)
 err.raise <- function (x, y, n) 
 {
     n <- paste(n, ":", sep = "")
-    if (y) 
+    if (y) {
         cat(paste(c(n, paste("\t", x, sep = "")), collapse = "\n"), 
             "\n")
+    }
     else {
         cat(paste(n, "\n\t", sep = ""))
         cat(paste(x, collapse = " "))
@@ -1843,7 +1841,7 @@ extract.AnnMn.stock.flows.wrapper <- function (x, y = "AnnMn")
 
 fcn.all.canonical <- function () 
 {
-    x <- obj.list(T)
+    x <- fcn.list()
     n <- length(x)
     w <- rep(F, n)
     for (j in 1:n) w[j] <- fcn.canonical(x[j])
@@ -1864,7 +1862,7 @@ fcn.all.canonical <- function ()
 
 fcn.all.roxygenize <- function (x) 
 {
-    n <- obj.list(T)
+    n <- fcn.list()
     n <- txt.parse(n, ".")
     n <- n[n[, 2] != "", 1]
     n <- vec.count(n)
@@ -1877,7 +1875,7 @@ fcn.all.roxygenize <- function (x)
     z <- NULL
     for (w in names(y)) z <- c(z, "", fcn.roxygenize(y[w], w, 
         n))
-    y <- setdiff(obj.list(T), y)
+    y <- setdiff(fcn.list(), y)
     for (w in y) z <- c(z, "", fcn.roxygenize(w, , n))
     cat(z, file = x, sep = "\n")
     invisible()
@@ -1970,7 +1968,10 @@ fcn.canonical <- function (x)
             }
         }
     }
-    z <- z$canonical
+    if (z$canonical) {
+        z <- fcn.indent.proper(x)
+    }
+    else z <- F
     z
 }
 
@@ -2069,9 +2070,10 @@ fcn.comments.parse <- function (x)
             }
             z$detl.args <- fcn.extract.args(z$detl.args)
             if (length(z$detl.args) == 1 & z$detl.args[1] != 
-                "none") 
+                "none") {
                 z$args <- as.character(txt.parse(z$detl.args, 
                   " =")[1])
+            }
             else if (length(z$detl.args) > 1) 
                 z$args <- txt.parse(z$detl.args, " =")[, 1]
         }
@@ -2178,7 +2180,7 @@ fcn.dir <- function ()
 fcn.direct.sub <- function (x) 
 {
     x <- fcn.to.txt(x)
-    z <- obj.list(T)
+    z <- fcn.list()
     n <- length(z)
     w <- rep(NA, n)
     for (i in 1:n) w[i] <- grepl(paste(z[i], "(", sep = ""), 
@@ -2200,7 +2202,7 @@ fcn.direct.sub <- function (x)
 fcn.direct.super <- function (x) 
 {
     x <- paste(x, "(", sep = "")
-    z <- obj.list(T)
+    z <- fcn.list()
     n <- length(z)
     w <- rep(NA, n)
     for (i in 1:n) {
@@ -2210,6 +2212,22 @@ fcn.direct.super <- function (x)
     if (any(w)) 
         z <- z[w]
     else z <- NULL
+    z
+}
+
+#' fcn.expressions.count
+#' 
+#' number of expressions
+#' @param x = a SINGLE function name
+#' @keywords fcn.expressions.count
+#' @export
+#' @family fcn
+
+fcn.expressions.count <- function (x) 
+{
+    z <- fcn.lines.code(x, F)
+    z <- parse(text = z)
+    z <- length(z)
     z
 }
 
@@ -2262,6 +2280,93 @@ fcn.extract.out <- function (x)
     z
 }
 
+#' fcn.indent.decrease
+#' 
+#' T/F depending on whether indent should be decreased
+#' @param x = a line of code in a function
+#' @param y = number of tabs
+#' @keywords fcn.indent.decrease
+#' @export
+#' @family fcn
+
+fcn.indent.decrease <- function (x, y) 
+{
+    txt.left(x, y) == paste(txt.space(y - 1, "\t"), "}", sep = "")
+}
+
+#' fcn.indent.ignore
+#' 
+#' T/F depending on whether line should be ignored
+#' @param x = a line of code in a function
+#' @param y = number of tabs
+#' @keywords fcn.indent.ignore
+#' @export
+#' @family fcn
+
+fcn.indent.ignore <- function (x, y) 
+{
+    h <- "} ELSE "
+    z <- any(txt.left(x, nchar(h) + y - 1) == paste(txt.space(y - 
+        1, "\t"), h, sep = ""))
+    z <- z & txt.right(x, 1) == "{"
+    z <- z | txt.left(txt.trim.left(x, "\t"), 1) == "#"
+    z
+}
+
+#' fcn.indent.increase
+#' 
+#' T/F depending on whether indent should be increased
+#' @param x = a line of code in a function
+#' @param y = number of tabs
+#' @keywords fcn.indent.increase
+#' @export
+#' @family fcn
+
+fcn.indent.increase <- function (x, y) 
+{
+    h <- c("FOR (", "WHILE (", "IF (")
+    z <- any(txt.left(x, nchar(h) + y) == paste(txt.space(y, 
+        "\t"), h, sep = ""))
+    z <- z & txt.right(x, 1) == "{"
+    z
+}
+
+#' fcn.indent.proper
+#' 
+#' T/F depending on whether the function is indented properly
+#' @param x = a SINGLE function name
+#' @keywords fcn.indent.proper
+#' @export
+#' @family fcn
+
+fcn.indent.proper <- function (x) 
+{
+    y <- toupper(fcn.lines.code(x, T))
+    n <- c(char.seq("A", "Z"), 1:9)
+    w <- 1
+    i <- 1
+    z <- T
+    while (i < 1 + length(y) & z) {
+        if (fcn.indent.decrease(y[i], w) & !fcn.indent.ignore(y[i], 
+            w)) {
+            w <- w - 1
+        }
+        else if (fcn.indent.increase(y[i], w)) {
+            w <- w + 1
+        }
+        else if (!fcn.indent.ignore(y[i], w)) {
+            z <- nchar(y[i]) > nchar(txt.space(w, "\t"))
+            if (z) 
+                z <- is.element(substring(y[i], w + 1, w + 1), 
+                  n)
+            if (!z) 
+                cat(x, ":", y[i], "\n")
+        }
+        i <- i + 1
+    }
+    z
+}
+
 #' fcn.indirect
 #' 
 #' applies <fcn> recursively
@@ -2284,18 +2389,56 @@ fcn.indirect <- function (fcn, x)
     z
 }
 
+#' fcn.lines.code
+#' 
+#' lines of actual code
+#' @param x = a SINGLE function name
+#' @param y = T/F depending on whether internal comments count
+#' @keywords fcn.lines.code
+#' @export
+#' @family fcn
+
+fcn.lines.code <- function (x, y) 
+{
+    z <- length(fcn.to.comments(x))
+    x <- fcn.to.txt(x, T)
+    x <- as.character(txt.parse(x, "\n"))
+    z <- x[seq(z + 4, length(x) - 1)]
+    if (!y) 
+        z <- z[txt.left(txt.trim.left(z, "\t"), 1) != "#"]
+    z
+}
+
 #' fcn.lines.count
 #' 
 #' number of lines of code
 #' @param x = a SINGLE function name
+#' @param y = T/F depending on whether internal comments count
 #' @keywords fcn.lines.count
 #' @export
 #' @family fcn
 
-fcn.lines.count <- function (x) 
+fcn.lines.count <- function (x, y = T) 
 {
-    length(txt.parse(fcn.to.txt(x, T), "\n")) - length(fcn.to.comments(x)) - 
-        4
+    length(fcn.lines.code(x, y))
+}
+
+#' fcn.list
+#' 
+#' Returns the names of objects that are or are not functions
+#' @param x = pattern you want to see in returned objects
+#' @keywords fcn.list
+#' @export
+#' @family fcn
+
+fcn.list <- function (x = "*") 
+{
+    w <- globalenv()
+    while (!is.element("fcn.list", ls(envir = w))) w <- parent.env(w)
+    z <- ls(envir = w, all.names = T, pattern = x)
+    w <- is.element(z, as.character(lsf.str(envir = w, all.names = T)))
+    z <- z[w]
+    z
 }
 
 #' fcn.mat.col
@@ -2498,7 +2641,7 @@ fcn.num.nonNA <- function (fcn, x, y, n)
 
 fcn.order <- function () 
 {
-    x <- obj.list(T)
+    x <- fcn.list()
     append <- F
     z <- fcn.path()
     for (i in x) {
@@ -2547,8 +2690,9 @@ fcn.roxygenize <- function (x, y, n)
             z <- c(z, paste("@family", txt.parse(x, ".")[1]))
         }
     }
-    if (!missing(y)) 
+    if (!missing(y)) {
         z <- c(z, paste("@import", y))
+    }
     else if (any(names(w) == "import")) 
         z <- c(z, w$import)
     if (any(names(w) == "example")) 
@@ -2573,6 +2717,19 @@ fcn.sho <- function (x)
     x <- fcn.to.txt(x, T)
     cat(x, "\n")
     invisible()
+}
+
+#' fcn.simple
+#' 
+#' T/F depending on whether <x> has multi-line expressions
+#' @param x = a SINGLE function name
+#' @keywords fcn.simple
+#' @export
+#' @family fcn
+
+fcn.simple <- function (x) 
+{
+    fcn.lines.count(x, F) == fcn.expressions.count(x)
 }
 
 #' fcn.to.comments
@@ -2701,8 +2858,9 @@ fetch <- function (x, y, n, w, h)
         yyyy <- yyyymm.to.yyyy(y)
         mm <- as.numeric(txt.right(y, 2))
     }
-    if (n > 1 & length(x) > 1) 
+    if (n > 1 & length(x) > 1) {
         stop("Can't handle this!\n")
+    }
     else if (n > 1) {
         z <- paste(w, "\\", x, ".", yyyy, ".r", sep = "")
         lCol <- paste(x, mm, sep = ".")
@@ -3192,7 +3350,7 @@ fop.wrapper <- function (x, y, retW, prd.size = 5, sum.flows = F, lag = 0, delay
     for (i in c("Q1", "TxB")) for (j in c("Sharpe", "AnnMn")) z[[paste(i, 
         j, sep = ".")]] <- x[, as.character(lag), , as.character(nBin), 
         j, i, "1"]
-    z <- as.data.frame(z, stringsAsFactors = F)
+    z <- mat.ex.matrix(z)
     y <- c("Q1.Sharpe", "TxB.Sharpe", "IC", "Q1.AnnMn", "TxB.AnnMn")
     z <- mat.subset(z, txt.expand(y, retW, "."))
     z
@@ -3520,12 +3678,14 @@ isin.check.digit <- function (x, y)
     for (i in 10:1) {
         x <- substring(z, i, i)
         w <- !is.element(x, 0:9)
-        if (i == 11) 
+        if (i == 11) {
             z[w] <- paste(substring(z[w], 1, i - 1), char.to.int(x[w]) - 
                 55, sep = "")
-        else if (i == 1) 
+        }
+        else if (i == 1) {
             z[w] <- paste(char.to.int(x[w]) - 55, substring(z[w], 
                 i + 1, nchar(z[w])), sep = "")
+        }
         else z[w] <- paste(substring(z[w], 1, i - 1), char.to.int(x[w]) - 
             55, substring(z[w], i + 1, nchar(z[w])), sep = "")
     }
@@ -3873,9 +4033,10 @@ map.rname <- function (x, y)
                 dimnames(x)[[2]]))
             x <- rbind(x, y.loc)
         }
-        if (dim(x)[2] == 1) 
+        if (dim(x)[2] == 1) {
             z <- matrix(x[as.character(y), 1], length(y), 1, 
                 F, list(y, dimnames(x)[[2]]))
+        }
         else z <- x[as.character(y), ]
     }
     z
@@ -3983,21 +4144,13 @@ mat.daily.to.monthly <- function (x, y = F)
 
 mat.ex.array <- function (x, y) 
 {
-    if (length(y) != length(dim(x)) + 1) 
+    n <- length(dim(x))
+    if (length(y) != n + 1) 
         stop("Problem")
-    z <- round(product(dim(x)))
-    z <- matrix(NA, z, length(dim(x)) + 1, F, list(1:z, y))
-    z <- as.data.frame(z)
-    z[, dim(z)[2]] <- as.numeric(unlist(x))
-    z[, 1] <- rep(dimnames(x)[[1]], dim(z)[1]/dim(x)[1])
-    m <- 1
-    n <- dim(x)[1]
-    for (i in 2:length(dim(x))) {
-        m <- m * dim(x)[i - 1]
-        n <- n * dim(x)[i]
-        z[, i] <- rep(rep(dimnames(x)[[i]], dim(z)[1]/n), m)[order(rep(seq(1, 
-            dim(z)[1]/m), m))]
-    }
+    z <- permutations.buckets.many(dimnames(x))
+    z <- mat.ex.matrix(z)
+    names(z) <- y[1:n]
+    z[, y[n + 1]] <- as.numeric(unlist(x))
     z
 }
 
@@ -4397,20 +4550,27 @@ mk.1dFloMo <- function (x, y, n)
             "")
         z <- txt.left(z, nchar(z) - nchar("having\n\tsum(AssetsStart * HoldingValue/AssetsEnd) > 0"))
     }
-    else if (any(y[1] == c("FloMo", "FloMoCB"))) 
+    else if (any(y[1] == c("FloMo", "FloMoCB"))) {
         z <- sql.1dFloMo(x, y[m], n$DB)
-    else if (any(y[1] == c("FloTrendPMA", "FloDiffPMA", "FloDiff2PMA"))) 
+    }
+    else if (any(y[1] == c("FloTrendPMA", "FloDiffPMA", "FloDiff2PMA"))) {
         z <- sql.1dFloTrend(x, y, 1, n$DB)
-    else if (any(y[1] == c("FloTrend", "FloDiff", "FloDiff2"))) 
+    }
+    else if (any(y[1] == c("FloTrend", "FloDiff", "FloDiff2"))) {
         z <- sql.1dFloTrend(x, y, 26, n$DB)
-    else if (any(y[1] == c("FloTrendCB", "FloDiffCB", "FloDiff2CB"))) 
+    }
+    else if (any(y[1] == c("FloTrendCB", "FloDiffCB", "FloDiff2CB"))) {
         z <- sql.1dFloTrend(x, y, 26, n$DB)
-    else if (any(y[1] == c("ActWtTrend", "ActWtDiff", "ActWtDiff2"))) 
+    }
+    else if (any(y[1] == c("ActWtTrend", "ActWtDiff", "ActWtDiff2"))) {
         z <- sql.1dActWtTrend(x, y, n$DB)
-    else if (any(y[1] == c("FwtdIn0", "FwtdEx0", "SwtdIn0", "SwtdEx0"))) 
+    }
+    else if (any(y[1] == c("FwtdIn0", "FwtdEx0", "SwtdIn0", "SwtdEx0"))) {
         z <- sql.1dFloMoAggr(x, y[-m], n$DB)
-    else if (any(y[1] == c("ION$", "ION%"))) 
+    }
+    else if (any(y[1] == c("ION$", "ION%"))) {
         z <- sql.1dION(x, y, 26, n$DB)
+    }
     else stop("Bad Argument")
     z <- sql.map.classif(z, y[-m], n$conn, n$classif)
     z
@@ -4434,11 +4594,13 @@ mk.1mAllocMo <- function (x, y, n)
         m <- m + 1
     }
     x <- yyyymm.lag(x, 1)
-    if (y[1] == "AllocSkew") 
+    if (y[1] == "AllocSkew") {
         sql.fcn <- "sql.1mAllocSkew"
+    }
     else if (any(y[1] == paste("Alloc", c("Mo", "Trend", "Diff"), 
-        sep = ""))) 
+        sep = ""))) {
         sql.fcn <- "sql.1mAllocMo"
+    }
     else stop("Bad Argument")
     sql.fcn <- get(sql.fcn)
     z <- sql.fcn(x, y, n$DB)
@@ -4972,26 +5134,6 @@ obj.lag <- function (x, y, n, w)
     w(n(x) - y)
 }
 
-#' obj.list
-#' 
-#' Returns the names of objects that are or are not functions
-#' @param x = T/F variable depending on whether you want functions or objects
-#' @param y = pattern you want to see in returned objects
-#' @keywords obj.list
-#' @export
-#' @family obj
-
-obj.list <- function (x = F, y = "*") 
-{
-    w <- globalenv()
-    while (!is.element("obj.list", ls(envir = w))) w <- parent.env(w)
-    z <- ls(envir = w, all.names = x, pattern = y)
-    w <- is.element(z, as.character(lsf.str(envir = w, all.names = x))) == 
-        x
-    z <- z[w]
-    z
-}
-
 #' obj.seq
 #' 
 #' returns a sequence of objects between (and including) <x> and <y>
@@ -5026,6 +5168,85 @@ obj.seq <- function (x, y, n, w, h)
 parameters <- function (x) 
 {
     paste(dir.parameters("parameters"), "\\", x, ".txt", sep = "")
+}
+
+#' permutations
+#' 
+#' all possible permutations of <x>
+#' @param x = a string vector without NA's
+#' @keywords permutations
+#' @export
+#' @family permutations
+
+permutations <- function (x) 
+{
+    h <- length(x)
+    w <- 1:h
+    z <- NULL
+    while (!is.null(w)) {
+        z <- c(z, paste(x[w], collapse = " "))
+        w <- permutations.next(w)
+    }
+    z
+}
+
+#' permutations.buckets.many
+#' 
+#' all possible choices of one element from each vector
+#' @param x = a list object of string vectors without NA's
+#' @keywords permutations.buckets.many
+#' @export
+#' @family permutations
+
+permutations.buckets.many <- function (x) 
+{
+    h <- length(x)
+    y <- as.numeric(lapply(x, length))
+    z <- round(product(y))
+    z <- matrix("", z, h, F, list(1:z, 1:h))
+    m <- 1
+    n <- y[1]
+    i <- 1
+    while (i < h + 1) {
+        z[, i] <- rep(rep(x[[i]], dim(z)[1]/n), m)[order(rep(seq(1, 
+            dim(z)[1]/m), m))]
+        i <- i + 1
+        m <- m * y[i - 1]
+        n <- n * y[i]
+    }
+    z
+}
+
+#' permutations.next
+#' 
+#' returns the next permutation in dictionary order
+#' @param x = a vector of integers 1:length(<x>) in some order
+#' @keywords permutations.next
+#' @export
+#' @family permutations
+
+permutations.next <- function (x) 
+{
+    z <- x
+    n <- length(z)
+    j <- n - 1
+    while (z[j] > z[j + 1] & j > 1) j <- j - 1
+    if (z[j] > z[j + 1]) {
+        z <- NULL
+    }
+    else {
+        k <- n
+        while (z[j] > z[k]) k <- k - 1
+        z <- vec.swap(z, j, k)
+        r <- n
+        s <- j + 1
+        while (r > s) {
+            z <- vec.swap(z, r, s)
+            r <- r - 1
+            s <- s + 1
+        }
+    }
+    z
 }
 
 #' phone.list
@@ -5509,9 +5730,7 @@ read.prcRet <- function (x)
         z <- substring(x, 2, nchar(x))
         z <- get(z)
     }
-    else {
-        z <- mat.read(x)
-    }
+    else z <- mat.read(x)
     z
 }
 
@@ -5607,10 +5826,9 @@ refresh.predictors.append <- function (x, y, n = F, w = F)
         ]))
     m <- correl(m[, 1], m[, 2])
     m <- zav(m)
-    if (!n & m < 0.99) {
+    if (!n & m < 0.99) 
         stop("Problem: Correlation between new and old data is", 
             round(100 * m), "!")
-    }
     z <- rbind(x, z[!w, ])
     z <- z[order(dimnames(z)[[1]]), ]
     last.date <- dimnames(z)[[1]][dim(z)[1]]
@@ -6366,9 +6584,10 @@ sql.1dActWtTrend.Ctry.underlying <- function (x, y, n)
         "inner join")
     z <- c(z, sql.label(sql.1dFloMo.Ctry.Allocations(x, n), "t2"), 
         "\ton t2.FundId = t0.FundId")
-    if (y == "MonthlyData") 
+    if (y == "MonthlyData") {
         z <- c(z, paste("\t\tand t2.WeightDate =", sql.floTbl.to.Col(y, 
             F)))
+    }
     else z <- c(z, paste("\t\tand", sql.datediff("WeightDate", 
         sql.floTbl.to.Col(y, F), 23)))
     z <- c(z, "inner join", sql.label(sql.1dFloMo.Ctry.Allocations.GF.avg(x, 
@@ -6448,10 +6667,11 @@ sql.1dFloMo.Ctry.Allocations <- function (x, y)
     z <- c("FundId", "WeightDate")
     for (i in u.grp) {
         w <- x == i
-        if (sum(w) > 1) 
+        if (sum(w) > 1) {
             z <- c(z, paste("[", x[w][1], "] = ", paste(paste("isnull(", 
                 names(x)[w], ", 0)", sep = ""), collapse = " + "), 
                 sep = ""))
+        }
         else z <- c(z, paste("[", x[w], "] = ", names(x)[w], 
             sep = ""))
     }
@@ -6476,10 +6696,11 @@ sql.1dFloMo.Ctry.Allocations.GF.avg <- function (x, y)
     z <- c("WeightDate", "GeographicFocus")
     for (i in u.grp) {
         w <- x == i
-        if (sum(w) > 1) 
+        if (sum(w) > 1) {
             z <- c(z, paste("[", x[w][1], "] = sum((", paste(paste("isnull(", 
                 names(x)[w], ", 0)", sep = ""), collapse = " + "), 
                 ") * FundSize)/sum(FundSize)", sep = ""))
+        }
         else z <- c(z, paste("[", x[w], "] = sum(", names(x)[w], 
             " * FundSize)/sum(FundSize)", sep = ""))
     }
@@ -6519,9 +6740,8 @@ sql.1dFloMo.Ctry.List <- function (x)
         z <- c(EMU, EM, "US", "JP", "GB")
         classif.type <- "Ctry"
     }
-    else if (x == "Sector") {
+    else if (x == "Sector") 
         z <- dimnames(mat.read(parameters("classif-Sector")))[[1]]
-    }
     y <- parameters(paste("classif", classif.type, sep = "-"))
     y <- mat.read(y)
     y <- map.rname(y, z)
@@ -6685,17 +6905,20 @@ sql.1dFloTrend <- function (x, y, n, w)
     z <- "n1.SecurityId"
     for (i in y[-m]) {
         if (is.element(i, paste("FloTrend", c("", "CB", "PMA"), 
-            sep = ""))) 
+            sep = ""))) {
             z <- c(z, paste(i, " ", sql.Trend("Flow * (n1.HoldingValue/n2.AssetsEnd - o1.HoldingValue/o2.AssetsEnd)", 
                 y[m]), sep = ""))
+        }
         else if (is.element(i, paste("FloDiff", c("", "CB", "PMA"), 
-            sep = ""))) 
+            sep = ""))) {
             z <- c(z, paste(i, " ", sql.Diff("Flow", "n1.HoldingValue/n2.AssetsEnd - o1.HoldingValue/o2.AssetsEnd"), 
                 sep = ""))
+        }
         else if (is.element(i, paste("FloDiff2", c("", "CB", 
-            "PMA"), sep = ""))) 
+            "PMA"), sep = ""))) {
             z <- c(z, paste(i, " ", sql.Diff("n1.HoldingValue/n2.AssetsEnd - o1.HoldingValue/o2.AssetsEnd", 
                 "Flow"), sep = ""))
+        }
         else stop("Bad Argument")
     }
     z <- paste(c(x, "", sql.unbracket(sql.tbl(z, sql.1dFloTrend.underlying(y[m], 
@@ -6741,28 +6964,35 @@ sql.1dFloTrend.Ctry <- function (x, y, n)
 
 sql.1dFloTrend.Ctry.topline <- function (x, y, n) 
 {
-    if (x == "Trend") 
+    if (x == "Trend") {
         fcn <- function(i) sql.Trend(paste("Flow * (t2.[", i, 
             "] - t3.[", i, "])", sep = ""))
-    else if (x == "Diff") 
+    }
+    else if (x == "Diff") {
         fcn <- function(i) sql.Diff("Flow", paste("t2.[", i, 
             "] - t3.[", i, "]", sep = ""))
-    else if (x == "Diff2") 
+    }
+    else if (x == "Diff2") {
         fcn <- function(i) sql.Diff(paste("(t2.[", i, "] - t3.[", 
             i, "])", sep = ""), "Flow")
-    else if (x == "AllocDiff") 
+    }
+    else if (x == "AllocDiff") {
         fcn <- function(i) sql.Diff("(AssetsStart + AssetsEnd)", 
             paste("t2.[", i, "] - t3.[", i, "]", sep = ""))
-    else if (x == "AllocTrend") 
+    }
+    else if (x == "AllocTrend") {
         fcn <- function(i) sql.Trend(paste("(AssetsStart + AssetsEnd) * (t2.[", 
             i, "] - t3.[", i, "])", sep = ""))
-    else if (x == "AllocSkew") 
+    }
+    else if (x == "AllocSkew") {
         fcn <- function(i) sql.Diff("AssetsEnd", paste("t3.[", 
             i, "] - t2.[", i, "]", sep = ""))
-    else if (x == "AllocMo") 
+    }
+    else if (x == "AllocMo") {
         fcn <- function(i) paste("= 2 * sum((AssetsStart + AssetsEnd) * (t2.[", 
             i, "] - t3.[", i, "]))", "/", sql.nonneg(paste("sum((AssetsStart + AssetsEnd) * (t2.[", 
                 i, "] + t3.[", i, "]))", sep = "")), sep = "")
+    }
     else stop("Unknown Computation")
     z <- sql.floTbl.to.Col(n, T)
     y <- y[!duplicated(y)]
@@ -6788,9 +7018,10 @@ sql.1dFloTrend.Ctry.underlying <- function (x, y, n)
         "inner join")
     z <- c(z, paste(sql.1dFloMo.Ctry.Allocations(x, n), sep = ""))
     z <- c(sql.label(z, "t2"), "\ton t2.FundId = t0.FundId")
-    if (y == "MonthlyData") 
+    if (y == "MonthlyData") {
         z <- c(z, paste("\t\tand t2.WeightDate =", sql.floTbl.to.Col(y, 
             F)))
+    }
     else z <- c(z, paste("\t\tand", sql.datediff("WeightDate", 
         sql.floTbl.to.Col(y, F), 23)))
     z <- c(z, "inner join", sql.1dFloMo.Ctry.Allocations(x, n))
@@ -6868,12 +7099,14 @@ sql.1dION <- function (x, y, n, w)
     m <- length(y)
     z <- "SecurityId"
     for (i in y[-m]) {
-        if (i == "ION$") 
+        if (i == "ION$") {
             z <- c(z, paste("[", i, "] ", sql.ION("Flow", "Flow * HoldingValue/AssetsEnd"), 
                 sep = ""))
-        else if (i == "ION%") 
+        }
+        else if (i == "ION%") {
             z <- c(z, paste("[", i, "] ", sql.ION("Flow", "HoldingValue/AssetsEnd"), 
                 sep = ""))
+        }
         else stop("Bad Argument")
     }
     y <- c(sql.label(sql.FundHistory("", y[m], T, "FundId"), 
@@ -7170,14 +7403,18 @@ sql.AggrAllocations <- function (x, y, n, w, h)
     n <- c(z, "\ton t3.HFundId = t1.HFundId and t3.HSecurityId = t0.HSecurityId and t3.ReportDate = t0.ReportDate")
     z <- c("t0.HSecurityId", w)
     for (i in x) {
-        if (i == "SwtdEx0") 
+        if (i == "SwtdEx0") {
             y <- "avg(HoldingValue/AssetsEnd)"
-        else if (i == "SwtdIn0") 
+        }
+        else if (i == "SwtdIn0") {
             y <- "sum(HoldingValue/AssetsEnd)/count(AssetsEnd)"
-        else if (i == "FwtdEx0") 
+        }
+        else if (i == "FwtdEx0") {
             y <- "sum(HoldingValue)/sum(case when HoldingValue is not null then AssetsEnd else NULL end)"
-        else if (i == "FwtdIn0") 
+        }
+        else if (i == "FwtdIn0") {
             y <- "sum(HoldingValue)/sum(AssetsEnd)"
+        }
         else stop("Problem")
         z <- c(z, paste(i, "=", y))
     }
@@ -7426,15 +7663,19 @@ sql.FundHistory <- function (x, y, n, w)
     if (missing(w)) 
         w <- "HFundId"
     else w <- c("HFundId", w)
-    if (y == "All" & n) 
+    if (y == "All" & n) {
         z <- sql.tbl(w, "FundHistory")
+    }
     else {
-        if (y == "All") 
+        if (y == "All") {
             y <- list(A = "FundType = 'E'")
-        else if (y == "Act" & n) 
+        }
+        else if (y == "Act" & n) {
             y <- list(A = "[Index] = 0")
-        else if (y == "Act" & !n) 
+        }
+        else if (y == "Act" & !n) {
             y <- list(A = "(not Idx = 'Y' or Idx is NULL)", B = "FundType = 'E'")
+        }
         else if (y == "CBE") {
             y <- sql.and(sql.cross.border(n), "", "or")
             if (n) 
@@ -7715,11 +7956,11 @@ sql.RDSuniv <- function (x)
             bmks <- "CSI300"
             names(bmks) <- 31873
         }
-        if (x == "Japan") {
+        else if (x == "Japan") {
             bmks <- c("Nikkei", "Topix")
             names(bmks) <- c(13667, 17558)
         }
-        if (x == "StockFlows") {
+        else if (x == "StockFlows") {
             bmks <- c("S&P500", "Eafe", "Gem", "R3", "EafeSc", 
                 "GemSc", "Canada", "CanadaSc", "R1", "R2", "Nikkei", 
                 "Topix", "CSI300")
@@ -7757,10 +7998,12 @@ sql.stock.flows.wtd.avg <- function (x, y)
             yyyymm.to.day(x)))
     w <- list(A = "GeographicFocusId = @geoId", B = "BenchIndexId = @benchId", 
         C = "StyleSectorId in (108, 109, 110)")
-    if (y == "Etf") 
+    if (y == "Etf") {
         w[["D"]] <- "ETFTypeId is not null"
-    else if (y == "MF") 
+    }
+    else if (y == "MF") {
         w[["D"]] <- "ETFTypeId is null"
+    }
     else if (y != "All") 
         stop("Bad type argument")
     w <- list(A = sql.in("HFundId", sql.tbl("HFundId", "FundHistory", 
@@ -7859,14 +8102,18 @@ sql.TopDownAllocs <- function (x, y, n)
         "inner join", "SecurityHistory id on id.HSecurityId = t2.HSecurityId")
     z <- "SecurityId"
     for (i in y[-1]) {
-        if (i == "SwtdEx0") 
+        if (i == "SwtdEx0") {
             z <- c(z, "SwtdEx0 = 100 * avg(HoldingValue/AssetsEnd)")
-        else if (i == "SwtdIn0") 
+        }
+        else if (i == "SwtdIn0") {
             z <- c(z, "SwtdIn0 = 100 * sum(HoldingValue/AssetsEnd)/count(t1.HFundId)")
-        else if (i == "FwtdEx0") 
+        }
+        else if (i == "FwtdEx0") {
             z <- c(z, "FwtdEx0 = 100 * sum(HoldingValue)/sum(case when HoldingValue is not null then AssetsEnd else NULL end)")
-        else if (i == "FwtdIn0") 
+        }
+        else if (i == "FwtdIn0") {
             z <- c(z, "FwtdIn0 = 100 * sum(HoldingValue)/sum(AssetsEnd)")
+        }
         else stop("Bad Argument")
     }
     z <- paste(c(x, "", sql.unbracket(sql.tbl(z, w, , "SecurityId"))), 
@@ -8465,6 +8712,25 @@ vec.same <- function (x, y)
         if (any(w)) 
             z <- all(abs(x[w] - y[w]) < 1e-06)
     }
+    z
+}
+
+#' vec.swap
+#' 
+#' swaps elements <y> and <n> of vector <x>
+#' @param x = a vector
+#' @param y = an integer between 1 and length(<x>)
+#' @param n = an integer between 1 and length(<x>)
+#' @keywords vec.swap
+#' @export
+#' @family vec
+
+vec.swap <- function (x, y, n) 
+{
+    z <- x[y]
+    x[y] <- x[n]
+    x[n] <- z
+    z <- x
     z
 }
 

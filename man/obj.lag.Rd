@@ -19,7 +19,6 @@ obj.lag(x, y, n, w)
 lags <x> by <y>
 }
 \seealso{
-Other obj: \code{\link{obj.diff}}, \code{\link{obj.list}},
-  \code{\link{obj.seq}}
+Other obj: \code{\link{obj.diff}}, \code{\link{obj.seq}}
 }
 \keyword{obj.lag}

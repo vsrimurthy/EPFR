@@ -10,6 +10,6 @@ combinations.next(x)
 \item{x}{= a logical vector}
 }
 \description{
-returns the next combination
+returns the next combination in dictionary order
 }
 \keyword{combinations.next}

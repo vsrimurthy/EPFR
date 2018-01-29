@@ -16,7 +16,8 @@ Counts unique instances of <x>
 Other vec: \code{\link{vec.cat}}, \code{\link{vec.max}},
   \code{\link{vec.min}}, \code{\link{vec.named}},
   \code{\link{vec.read}}, \code{\link{vec.same}},
-  \code{\link{vec.to.lags}}, \code{\link{vec.to.list}},
-  \code{\link{vec.unique}}, \code{\link{vec.zScore}}
+  \code{\link{vec.swap}}, \code{\link{vec.to.lags}},
+  \code{\link{vec.to.list}}, \code{\link{vec.unique}},
+  \code{\link{vec.zScore}}
 }
 \keyword{vec.count}

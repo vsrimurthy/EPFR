@@ -18,7 +18,8 @@ T/F depending on whether <x> and <y> are identical
 Other vec: \code{\link{vec.cat}}, \code{\link{vec.count}},
   \code{\link{vec.max}}, \code{\link{vec.min}},
   \code{\link{vec.named}}, \code{\link{vec.read}},
-  \code{\link{vec.to.lags}}, \code{\link{vec.to.list}},
-  \code{\link{vec.unique}}, \code{\link{vec.zScore}}
+  \code{\link{vec.swap}}, \code{\link{vec.to.lags}},
+  \code{\link{vec.to.list}}, \code{\link{vec.unique}},
+  \code{\link{vec.zScore}}
 }
 \keyword{vec.same}
