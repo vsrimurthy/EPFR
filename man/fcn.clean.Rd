@@ -7,7 +7,7 @@
 fcn.clean()
 }
 \description{
-removes trailing spaces and tabs
+removes trailing spaces and tabs & indents properly
 }
 \seealso{
 Other fcn: \code{\link{fcn.all.canonical}},
@@ -23,6 +23,7 @@ Other fcn: \code{\link{fcn.all.canonical}},
   \code{\link{fcn.extract.args}},
   \code{\link{fcn.extract.out}},
   \code{\link{fcn.indent.decrease}},
+  \code{\link{fcn.indent.else}},
   \code{\link{fcn.indent.ignore}},
   \code{\link{fcn.indent.increase}},
   \code{\link{fcn.indent.proper}},

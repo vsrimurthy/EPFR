@@ -1977,7 +1977,7 @@ fcn.canonical <- function (x)
 
 #' fcn.clean
 #' 
-#' removes trailing spaces and tabs
+#' removes trailing spaces and tabs & indents properly
 #' @keywords fcn.clean
 #' @export
 #' @family fcn
@@ -1985,25 +1985,44 @@ fcn.canonical <- function (x)
 fcn.clean <- function () 
 {
     z <- scan(fcn.path(), sep = "\n", what = "", quiet = T)
-    n <- 0
-    y <- paste(txt.space(n, "\t"), txt.space(8), sep = "")
-    w <- txt.left(z, nchar(y)) == y
-    while (any(w)) {
-        z <- ifelse(w, paste(txt.left(y, nchar(y) - 8), "\t", 
-            txt.right(z, nchar(z) - nchar(y)), sep = ""), z)
-        n <- n + 1
-        y <- paste(txt.space(n, "\t"), txt.space(8), sep = "")
-        w <- txt.left(z, nchar(y)) == y
+    w.com <- fcn.indent.ignore(z, 0)
+    w.del <- grepl(paste("#", txt.space(65, "-")), z, fixed = T)
+    w.beg <- grepl(" <- function(", z, fixed = T) & c(w.del[-1], 
+        F)
+    if (any(!w.com)) 
+        z[!w.com] <- txt.trim(z[!w.com], c(" ", "\t"))
+    i <- 1
+    n <- length(z)
+    while (i <= n) {
+        if (w.beg[i]) {
+            i <- i + 1
+            phase <- 1
+        }
+        else if (phase == 1 & w.del[i]) {
+            phase <- 2
+            w <- 1
+        }
+        else if (phase == 2 & fcn.indent.else(toupper(z[i]), 
+            1)) {
+            w <- w - 1
+            z[i] <- paste(txt.space(w, "\t"), z[i], sep = "")
+            w <- w + 1
+        }
+        else if (phase == 2 & fcn.indent.decrease(toupper(z[i]), 
+            1)) {
+            w <- w - 1
+            z[i] <- paste(txt.space(w, "\t"), z[i], sep = "")
+        }
+        else if (phase == 2 & fcn.indent.increase(toupper(z[i]), 
+            0)) {
+            z[i] <- paste(txt.space(w, "\t"), z[i], sep = "")
+            w <- w + 1
+        }
+        else if (phase == 2 & !w.com[i]) {
+            z[i] <- paste(txt.space(w, "\t"), z[i], sep = "")
+        }
+        i <- i + 1
     }
-    w <- txt.left(z, 2) == txt.space(2)
-    while (any(w)) {
-        z[w] <- txt.right(z[w], nchar(z[w]) - 1)
-        w <- txt.left(z, 2) == txt.space(2)
-    }
-    w <- txt.left(z, 2) == " \t"
-    if (any(w)) 
-        z[w] <- txt.right(z[w], nchar(z[w]) - 1)
-    z <- txt.trim.right(z, c(" ", "\t"))
     cat(z, file = fcn.path(), sep = "\n")
     invisible()
 }
@@ -2244,8 +2263,7 @@ fcn.extract.args <- function (x)
     n <- length(x)
     x <- txt.right(x, nchar(x) - ifelse(1:n == 1, 10, 5))
     if (n > 1) {
-        w <- grep("=", x, value = F, fixed = T)
-        w <- is.element(1:n, w)
+        w <- grepl("=", x, fixed = T)
         while (any(w[-n] & !w[-1])) {
             i <- 2:n - 1
             i <- i[w[-n] & !w[-1]][1]
@@ -2294,6 +2312,24 @@ fcn.indent.decrease <- function (x, y)
     txt.left(x, y) == paste(txt.space(y - 1, "\t"), "}", sep = "")
 }
 
+#' fcn.indent.else
+#' 
+#' T/F depending on whether line has an else statement
+#' @param x = a line of code in a function
+#' @param y = number of tabs
+#' @keywords fcn.indent.else
+#' @export
+#' @family fcn
+
+fcn.indent.else <- function (x, y) 
+{
+    h <- "} ELSE "
+    z <- any(txt.left(x, nchar(h) + y - 1) == paste(txt.space(y - 
+        1, "\t"), h, sep = ""))
+    z <- z & txt.right(x, 1) == "{"
+    z
+}
+
 #' fcn.indent.ignore
 #' 
 #' T/F depending on whether line should be ignored
@@ -2305,12 +2341,7 @@ fcn.indent.decrease <- function (x, y)
 
 fcn.indent.ignore <- function (x, y) 
 {
-    h <- "} ELSE "
-    z <- any(txt.left(x, nchar(h) + y - 1) == paste(txt.space(y - 
-        1, "\t"), h, sep = ""))
-    z <- z & txt.right(x, 1) == "{"
-    z <- z | txt.left(txt.trim.left(x, "\t"), 1) == "#"
-    z
+    txt.left(txt.trim.left(x, "\t"), 1) == "#"
 }
 
 #' fcn.indent.increase
@@ -2347,14 +2378,15 @@ fcn.indent.proper <- function (x)
     i <- 1
     z <- T
     while (i < 1 + length(y) & z) {
-        if (fcn.indent.decrease(y[i], w) & !fcn.indent.ignore(y[i], 
+        if (fcn.indent.decrease(y[i], w) & !fcn.indent.else(y[i], 
             w)) {
             w <- w - 1
         }
         else if (fcn.indent.increase(y[i], w)) {
             w <- w + 1
         }
-        else if (!fcn.indent.ignore(y[i], w)) {
+        else if (!fcn.indent.ignore(y[i], w) & !fcn.indent.else(y[i], 
+            w)) {
             z <- nchar(y[i]) > nchar(txt.space(w, "\t"))
             if (z) 
                 z <- is.element(substring(y[i], w + 1, w + 1), 
@@ -6539,13 +6571,16 @@ sql.1dActWtTrend <- function (x, y, n)
         "HSecurityId", "HoldingValue"), "#HLD"), "")
     x <- "SecurityId"
     for (i in y[-m]) {
-        if (i == "ActWtTrend") 
+        if (i == "ActWtTrend") {
             x <- c(x, paste("ActWtTrend", sql.Trend("Flow * (hld.HoldingValue/aum.PortVal - FundWtdExcl0)")))
-        else if (i == "ActWtDiff") 
+        }
+        else if (i == "ActWtDiff") {
             x <- c(x, paste("ActWtDiff", sql.Diff("Flow", "hld.HoldingValue/aum.PortVal - FundWtdExcl0")))
-        else if (i == "ActWtDiff2") 
+        }
+        else if (i == "ActWtDiff2") {
             x <- c(x, paste("ActWtDiff2", sql.Diff("hld.HoldingValue/aum.PortVal - FundWtdExcl0", 
                 "Flow")))
+        }
         else stop("Bad Argument")
     }
     w <- "HSecurityId, GeographicFocusId, FundWtdExcl0 = sum(HoldingValue)/sum(case when HoldingValue is not null then PortVal else NULL end)"
