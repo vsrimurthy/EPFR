@@ -16,7 +16,7 @@ Returns all files in the folder including sub-directories
 }
 \seealso{
 Other dir: \code{\link{dir.ensure}},
-  \code{\link{dir.make}}, \code{\link{dir.parameters}},
-  \code{\link{dir.parent}}
+  \code{\link{dir.kill}}, \code{\link{dir.make}},
+  \code{\link{dir.parameters}}, \code{\link{dir.parent}}
 }
 \keyword{dir.all.files}

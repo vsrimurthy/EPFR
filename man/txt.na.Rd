@@ -12,13 +12,14 @@ Returns a list of strings considered NA
 \seealso{
 Other txt: \code{\link{txt.count}},
   \code{\link{txt.ex.file}}, \code{\link{txt.expand}},
-  \code{\link{txt.hdr}}, \code{\link{txt.itrim}},
-  \code{\link{txt.left}}, \code{\link{txt.name.format}},
-  \code{\link{txt.parse}}, \code{\link{txt.prepend}},
-  \code{\link{txt.regr}}, \code{\link{txt.replace}},
-  \code{\link{txt.reverse}}, \code{\link{txt.right}},
-  \code{\link{txt.space}}, \code{\link{txt.to.char}},
-  \code{\link{txt.trim.end}}, \code{\link{txt.trim.left}},
+  \code{\link{txt.has}}, \code{\link{txt.hdr}},
+  \code{\link{txt.itrim}}, \code{\link{txt.left}},
+  \code{\link{txt.name.format}}, \code{\link{txt.parse}},
+  \code{\link{txt.prepend}}, \code{\link{txt.regr}},
+  \code{\link{txt.replace}}, \code{\link{txt.reverse}},
+  \code{\link{txt.right}}, \code{\link{txt.space}},
+  \code{\link{txt.to.char}}, \code{\link{txt.trim.end}},
+  \code{\link{txt.trim.left}},
   \code{\link{txt.trim.right}}, \code{\link{txt.trim}}
 }
 \keyword{txt.na}

@@ -1205,19 +1205,6 @@ compound.stock.flows <- function (x, y)
     z
 }
 
-#' contains
-#' 
-#' returns the elements of <x> that contain <y>
-#' @param x = a vector of strings
-#' @param y = a single string
-#' @keywords contains
-#' @export
-
-contains <- function (x, y) 
-{
-    grep(y, x, value = T, fixed = T)
-}
-
 #' correl
 #' 
 #' the estimated correlation between <x> and <y> or the columns of <x>
@@ -1670,7 +1657,7 @@ dir.all.files <- function (x, y)
 #' dir.ensure
 #' 
 #' Creates necessary folders so files can be copied to <x>
-#' @param x = a string of full paths
+#' @param x = a vector of full file paths
 #' @keywords dir.ensure
 #' @export
 #' @family dir
@@ -1679,31 +1666,44 @@ dir.ensure <- function (x)
 {
     x <- dirname(x)
     x <- x[!duplicated(x)]
-    w <- !dir.exists(x)
-    if (any(w)) {
-        x <- x[w]
-        for (i in x) {
-            while (!dir.exists(i)) {
-                z <- i
-                while (!dir.exists(dirname(z))) z <- dirname(z)
-                dir.make(z)
-            }
-        }
+    x <- x[!dir.exists(x)]
+    z <- x
+    while (length(z) > 0) {
+        z <- dirname(z)
+        z <- z[!dir.exists(z)]
+        x <- union(z, x)
     }
+    if (length(x) > 0) 
+        for (z in x) dir.make(z)
+    invisible()
+}
+
+#' dir.kill
+#' 
+#' removes <x>
+#' @param x = a vector of full folder paths
+#' @keywords dir.kill
+#' @export
+#' @family dir
+
+dir.kill <- function (x) 
+{
+    for (z in x) if (dir.exists(z)) 
+        unlink(z, recursive = T)
     invisible()
 }
 
 #' dir.make
 #' 
-#' Creates a folder in the location(s) specified by <x>
-#' @param x = a vector of full paths to folder
+#' creates folders <x>
+#' @param x = a vector of full folder paths
 #' @keywords dir.make
 #' @export
 #' @family dir
 
 dir.make <- function (x) 
 {
-    for (i in x) dir.create(i)
+    for (z in x) dir.create(z)
     invisible()
 }
 
@@ -1986,9 +1986,8 @@ fcn.clean <- function ()
 {
     z <- scan(fcn.path(), sep = "\n", what = "", quiet = T)
     w.com <- fcn.indent.ignore(z, 0)
-    w.del <- grepl(paste("#", txt.space(65, "-")), z, fixed = T)
-    w.beg <- grepl(" <- function(", z, fixed = T) & c(w.del[-1], 
-        F)
+    w.del <- txt.has(z, paste("#", txt.space(65, "-")), T)
+    w.beg <- txt.has(z, " <- function(", T) & c(w.del[-1], F)
     if (any(!w.com)) 
         z[!w.com] <- txt.trim(z[!w.com], c(" ", "\t"))
     i <- 1
@@ -2202,8 +2201,8 @@ fcn.direct.sub <- function (x)
     z <- fcn.list()
     n <- length(z)
     w <- rep(NA, n)
-    for (i in 1:n) w[i] <- grepl(paste(z[i], "(", sep = ""), 
-        x, fixed = T)
+    for (i in 1:n) w[i] <- txt.has(x, paste(z[i], "(", sep = ""), 
+        T)
     if (any(w)) 
         z <- z[w]
     else z <- NULL
@@ -2226,7 +2225,7 @@ fcn.direct.super <- function (x)
     w <- rep(NA, n)
     for (i in 1:n) {
         y <- fcn.to.txt(z[i])
-        w[i] <- grepl(x, y, fixed = T)
+        w[i] <- txt.has(y, x, T)
     }
     if (any(w)) 
         z <- z[w]
@@ -2263,7 +2262,7 @@ fcn.extract.args <- function (x)
     n <- length(x)
     x <- txt.right(x, nchar(x) - ifelse(1:n == 1, 10, 5))
     if (n > 1) {
-        w <- grepl("=", x, fixed = T)
+        w <- txt.has(x, "=", T)
         while (any(w[-n] & !w[-1])) {
             i <- 2:n - 1
             i <- i[w[-n] & !w[-1]][1]
@@ -8306,9 +8305,27 @@ txt.expand <- function (x, y, n = "-", w = F)
     z
 }
 
+#' txt.has
+#' 
+#' the elements of <x> that contain <y> if <n> is F or the a T/F logical vector otherwise
+#' @param x = a vector of strings
+#' @param y = a single string
+#' @param n = T/F depending on whether a logical vector is desired
+#' @keywords txt.has
+#' @export
+#' @family txt
+
+txt.has <- function (x, y, n = F) 
+{
+    z <- grepl(y, x, fixed = T)
+    if (!n) 
+        z <- x[z]
+    z
+}
+
 #' txt.hdr
 #' 
-#' Outputs it nicely
+#' nice-looking header
 #' @param x = any string
 #' @keywords txt.hdr
 #' @export
@@ -8383,7 +8400,7 @@ txt.na <- function ()
 
 txt.name.format <- function (x) 
 {
-    if (length(contains(x, " ")) > 0) {
+    if (any(txt.has(x, " ", T))) {
         z <- txt.parse(x, " ")
         z <- fcn.matrix(txt.name.format, z)
         x <- rep("", dim(z)[1])
