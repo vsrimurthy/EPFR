@@ -27,7 +27,7 @@ rrw(prdBeg, prdEnd, vbls, univ, grp.nm, ret.nm, fldr, orth.factor = NULL,
 \item{classif}{= classif file}
 }
 \description{
-Runs regressions
+regression results
 }
 \seealso{
 Other rrw: \code{\link{rrw.factors}},

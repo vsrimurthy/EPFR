@@ -461,11 +461,8 @@ bbk.bin.rets.summ <- function (x, y)
 
 bbk.bin.xRet <- function (x, y, n = 5, w = F, h = F) 
 {
-    if (h) {
-        rslt <- list()
-        rslt[["raw.fwd.rets"]] <- y
-        rslt[["raw"]] <- x
-    }
+    if (h) 
+        rslt <- list(raw.fwd.rets = y, raw = x)
     x <- bbk.holidays(x, y)
     x <- qtl.eq(x, n)
     if (h) 
@@ -2036,8 +2033,7 @@ fcn.clean <- function ()
 
 fcn.comments.parse <- function (x) 
 {
-    z <- list()
-    z$canonical <- !is.null(x)
+    z <- list(canonical = !is.null(x))
     if (z$canonical) {
         if (txt.left(x[1], 10) != "# Name\t\t: ") {
             cat("Problem with NAME!\n")
@@ -6014,7 +6010,7 @@ ret.to.idx <- function (x)
 
 #' rrw
 #' 
-#' Runs regressions
+#' regression results
 #' @param prdBeg = a first-return date in yyyymm format representing the first month of the backtest
 #' @param prdEnd = a first-return date in yyyymm format representing the last month of the backtest
 #' @param vbls = vector of variables against which return is to be regressed
@@ -6045,10 +6041,8 @@ rrw <- function (prdBeg, prdEnd, vbls, univ, grp.nm, ret.nm, fldr, orth.factor =
             df <- x
         else df <- rbind(df, x)
     }
-    z <- list()
-    z[["t value"]] <- map.rname(rrw.factors(df), vbls)
-    z[["corr"]] <- correl(df)
-    z[["data"]] <- df
+    z <- list(value = map.rname(rrw.factors(df), vbls), corr = correl(df), 
+        data = df)
     z
 }
 
@@ -6276,8 +6270,7 @@ sf.daily <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trails,
 
 sf.daily.summ <- function (x, y, n, w, h) 
 {
-    z <- list()
-    z[["Overall"]] <- bbk.bin.rets.summ(x, 260/y)
+    z <- list(Overall = bbk.bin.rets.summ(x, 260/y))
     vec <- fop.grp.map(day.to.weekday, x, n, w, h)
     z[["DyOfWk"]] <- bbk.bin.rets.prd.summ(bbk.bin.rets.summ, 
         x, vec, 260/y)
@@ -8307,7 +8300,7 @@ txt.expand <- function (x, y, n = "-", w = F)
 
 #' txt.has
 #' 
-#' the elements of <x> that contain <y> if <n> is F or the a T/F logical vector otherwise
+#' the elements of <x> that contain <y> if <n> is F or a logical vector otherwise
 #' @param x = a vector of strings
 #' @param y = a single string
 #' @param n = T/F depending on whether a logical vector is desired

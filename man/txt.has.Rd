@@ -14,7 +14,7 @@ txt.has(x, y, n = F)
 \item{n}{= T/F depending on whether a logical vector is desired}
 }
 \description{
-the elements of <x> that contain <y> if <n> is F or the a T/F logical vector otherwise
+the elements of <x> that contain <y> if <n> is F or a logical vector otherwise
 }
 \seealso{
 Other txt: \code{\link{txt.count}},
