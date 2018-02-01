@@ -4,13 +4,15 @@
 \alias{vec.read}
 \title{vec.read}
 \usage{
-vec.read(x)
+vec.read(x, y)
 }
 \arguments{
-\item{x}{= path to a named vector (no column headers)}
+\item{x}{= path to a vector}
+
+\item{y}{= T/F depending on whether the elements are named}
 }
 \description{
-reads into a named vector
+reads into a vector
 }
 \seealso{
 Other vec: \code{\link{vec.cat}}, \code{\link{vec.count}},

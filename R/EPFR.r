@@ -13,8 +13,11 @@
 
 mat.read <- function (x = "C:\\temp\\write.csv", y = ",", n = 1, w = T) 
 {
-    read.table(x, w, y, row.names = n, quote = "", as.is = T, 
+    if (!file.exists(x)) 
+        stop("File ", x, " doesn't exist!\n")
+    z <- read.table(x, w, y, row.names = n, quote = "", as.is = T, 
         na.strings = txt.na(), comment.char = "", check.names = F)
+    z
 }
 
 #' ret.outliers
@@ -1981,7 +1984,7 @@ fcn.canonical <- function (x)
 
 fcn.clean <- function () 
 {
-    z <- scan(fcn.path(), sep = "\n", what = "", quiet = T)
+    z <- vec.read(fcn.path(), F)
     w.com <- fcn.indent.ignore(z, 0)
     w.del <- txt.has(z, paste("#", txt.space(65, "-")), T)
     w.beg <- txt.has(z, " <- function(", T) & c(w.del[-1], F)
@@ -2179,8 +2182,7 @@ fcn.dates.parse <- function (x)
 
 fcn.dir <- function () 
 {
-    scan("C:\\temp\\Automation\\root.txt", what = "", sep = "\n", 
-        quiet = T)
+    vec.read("C:\\temp\\Automation\\root.txt", F)
 }
 
 #' fcn.direct.sub
@@ -7501,7 +7503,7 @@ sql.and <- function (x, y = "", n = "and")
 
 sql.bcp <- function (x, y, n = "Quant", w = "EPFRUI", h = "dbo") 
 {
-    x <- paste(w, h, x, sep = ".")
+    h <- paste(w, h, x, sep = ".")
     x <- parameters("SQL")
     x <- mat.read(x, "\t")
     z <- is.element(dimnames(x)[[1]], n)
@@ -7510,7 +7512,7 @@ sql.bcp <- function (x, y, n = "Quant", w = "EPFRUI", h = "dbo")
     if (sum(z) == 1) {
         z <- paste("-S", x[, "DB"], "-U", x[, "UID"], "-P", x[, 
             "PWD"])[z]
-        z <- paste("bcp", x, "out", y, z, "-c")
+        z <- paste("bcp", h, "out", y, z, "-c")
     }
     z
 }
@@ -8238,6 +8240,68 @@ today <- function ()
     z
 }
 
+#' txt.anagram
+#' 
+#' all possible anagrams
+#' @param x = a SINGLE string
+#' @param y = a file of potentially-usable capitzalized words
+#' @param n = vector of minimum number of characters for first few words
+#' @keywords txt.anagram
+#' @export
+#' @family txt
+
+txt.anagram <- function (x, y, n = 0) 
+{
+    x <- toupper(x)
+    x <- txt.to.char(x)
+    x <- x[is.element(x, char.seq("A", "Z"))]
+    x <- paste(x, collapse = "")
+    if (missing(y)) 
+        y <- paste(dir.parameters("data"), "EnglishWords.txt", 
+            sep = "\\")
+    y <- vec.read(y, F)
+    y <- y[order(y, decreasing = T)]
+    y <- y[order(nchar(y))]
+    z <- txt.anagram.underlying(x, y, n)
+    z
+}
+
+#' txt.anagram.underlying
+#' 
+#' all possible anagrams
+#' @param x = a SINGLE string
+#' @param y = potentially-usable capitalized words
+#' @param n = vector of minimum number of characters for first few words
+#' @keywords txt.anagram.underlying
+#' @export
+#' @family txt
+
+txt.anagram.underlying <- function (x, y, n) 
+{
+    y <- y[txt.excise(y, txt.to.char(x)) == ""]
+    z <- NULL
+    m <- length(y)
+    proceed <- m > 0
+    if (proceed) 
+        proceed <- nchar(y[m]) >= n[1]
+    while (proceed) {
+        w <- txt.excise(x, txt.to.char(y[m]))
+        if (nchar(w) == 0) {
+            z <- c(z, y[m])
+        }
+        else if (m > 1) {
+            w <- txt.anagram.underlying(w, y[2:m - 1], c(n, 0)[-1])
+            if (!is.null(w)) 
+                z <- c(z, paste(y[m], w))
+        }
+        m <- m - 1
+        proceed <- m > 0
+        if (proceed) 
+            proceed <- nchar(y[m]) >= n[1]
+    }
+    z
+}
+
 #' txt.count
 #' 
 #' counts the number of occurences of <y> in each element of <x>
@@ -8266,7 +8330,31 @@ txt.count <- function (x, y)
 
 txt.ex.file <- function (x) 
 {
-    paste(scan(x, what = "", sep = "\n", quiet = T), collapse = "\n")
+    paste(vec.read(x, F), collapse = "\n")
+}
+
+#' txt.excise
+#' 
+#' cuts out elements of <y> from <x> wherever found
+#' @param x = a vector
+#' @param y = a vector
+#' @keywords txt.excise
+#' @export
+#' @family txt
+
+txt.excise <- function (x, y) 
+{
+    z <- x
+    for (j in y) {
+        m <- nchar(j)
+        j <- as.numeric(regexpr(j, z, fixed = T))
+        n <- nchar(z)
+        z <- ifelse(j == 1, substring(z, m + 1, n), z)
+        z <- ifelse(j == n - m + 1, substring(z, 1, j - 1), z)
+        z <- ifelse(j > 1 & j < n - m + 1, paste(substring(z, 
+            1, j - 1), substring(z, j + m, n), sep = ""), z)
+    }
+    z
 }
 
 #' txt.expand
@@ -8729,15 +8817,23 @@ vec.named <- function (x, y)
 
 #' vec.read
 #' 
-#' reads into a named vector
-#' @param x = path to a named vector (no column headers)
+#' reads into a vector
+#' @param x = path to a vector
+#' @param y = T/F depending on whether the elements are named
 #' @keywords vec.read
 #' @export
 #' @family vec
 
-vec.read <- function (x) 
+vec.read <- function (x, y) 
 {
-    as.matrix(mat.read(x, w = F))[, 1]
+    if (!y & !file.exists(x)) {
+        stop("File ", x, " doesn't exist!\n")
+    }
+    else if (!y) {
+        z <- scan(x, what = "", sep = "\n", quiet = T)
+    }
+    else z <- as.matrix(mat.read(x, w = F))[, 1]
+    z
 }
 
 #' vec.same
