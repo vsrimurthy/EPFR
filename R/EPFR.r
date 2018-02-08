@@ -2952,6 +2952,38 @@ file.bkp <- function (x, y)
     invisible()
 }
 
+#' file.break
+#' 
+#' breaks up the file into 1GB chunks and rewrites to same directory with a "-001", "-002", etc extension
+#' @param x = path to a file
+#' @keywords file.break
+#' @export
+#' @family file
+
+file.break <- function (x) 
+{
+    y <- c(txt.left(x, nchar(x) - 4), txt.right(x, 4))
+    m <- ceiling(log(2 * file.size(x)/2^30, base = 10))
+    w <- 1e+06
+    n <- scan(file = x, what = "", skip = 0, sep = "\n", quiet = T, 
+        nlines = w)
+    n <- as.numeric(object.size(n))/2^30
+    n <- round(w/n)
+    i <- 1
+    z <- scan(file = x, what = "", skip = (i - 1) * n, sep = "\n", 
+        quiet = T, nlines = n)
+    while (length(z) == n) {
+        cat(z, file = paste(y[1], "-", txt.right(10^m + i, m), 
+            y[2], sep = ""), sep = "\n")
+        i <- i + 1
+        z <- scan(file = x, what = "", skip = (i - 1) * n, sep = "\n", 
+            quiet = T, nlines = n)
+    }
+    cat(z, file = paste(y[1], "-", txt.right(10^m + i, m), y[2], 
+        sep = ""), sep = "\n")
+    invisible()
+}
+
 #' file.date
 #' 
 #' Returns the last modified date in yyyymmdd format
@@ -6770,7 +6802,7 @@ sql.1dFloMo.Ctry.List <- function (x)
         classif.type <- "Ctry"
     }
     else if (x == "Sector") 
-        z <- dimnames(mat.read(parameters("classif-Sector")))[[1]]
+        z <- dimnames(mat.read(parameters("classif-GSec"), "\t"))[[1]]
     y <- parameters(paste("classif", classif.type, sep = "-"))
     y <- mat.read(y)
     y <- map.rname(y, z)
@@ -8493,6 +8525,202 @@ txt.name.format <- function (x)
         z <- txt.left(x, 1)
         x <- txt.right(x, nchar(x) - 1)
         z <- paste(toupper(z), x, sep = "")
+    }
+    z
+}
+
+#' txt.palindrome
+#' 
+#' short palindromes that reflect just before the first letter of <x>, or just after the last letter of <x>, or somewhere in-between.
+#' @param x = a SINGLE string
+#' @param y = potentially-usable capitalized words
+#' @keywords txt.palindrome
+#' @export
+#' @family txt
+
+txt.palindrome <- function (x, y) 
+{
+    x <- toupper(x)
+    x <- txt.to.char(x)
+    x <- x[is.element(x, char.seq("A", "Z"))]
+    x <- paste(x, collapse = "")
+    if (missing(y)) 
+        y <- paste(dir.parameters("data"), "EnglishWords.txt", 
+            sep = "\\")
+    y <- vec.read(y, F)
+    y <- y[order(y)]
+    y <- y[order(nchar(y), decreasing = T)]
+    n <- nchar(txt.replace(x, " ", ""))
+    z <- NULL
+    for (m in seq(0.5, n + 0.5, 0.5)) z <- c(z, txt.palindrome.underlying(x, 
+        y, m))
+    z
+}
+
+#' txt.palindrome.entire
+#' 
+#' words that entirely fit in the right/left tail
+#' @param x = a SINGLE string
+#' @param y = potentially-usable capitalized words
+#' @param n = T/F depending on whether you want the right/left tail
+#' @keywords txt.palindrome.entire
+#' @export
+#' @family txt
+
+txt.palindrome.entire <- function (x, y, n) 
+{
+    x <- txt.replace(x, " ", "")
+    x <- txt.reverse(x)
+    m <- nchar(x)
+    if (n) 
+        z <- intersect(txt.left(x, m:1), y)
+    if (!n) 
+        z <- intersect(txt.right(x, m:1), y)
+    z
+}
+
+#' txt.palindrome.partial
+#' 
+#' single words that fit all of <x> in the right/left tail
+#' @param x = a SINGLE string
+#' @param y = potentially-usable capitalized words
+#' @param n = T/F depending on whether you want the right/left tail
+#' @keywords txt.palindrome.partial
+#' @export
+#' @family txt
+
+txt.palindrome.partial <- function (x, y, n) 
+{
+    x <- txt.replace(x, " ", "")
+    x <- txt.reverse(x)
+    m <- nchar(x)
+    if (n) 
+        z <- y[txt.left(y, m) == x]
+    if (!n) 
+        z <- y[txt.right(y, m) == x]
+    z
+}
+
+#' txt.palindrome.tail
+#' 
+#' words that fit all of <x> in the right/left tail
+#' @param x = a SINGLE string
+#' @param y = potentially-usable capitalized words
+#' @param n = T/F depending on whether you want the right/left tail
+#' @keywords txt.palindrome.tail
+#' @export
+#' @family txt
+
+txt.palindrome.tail <- function (x, y, n) 
+{
+    x <- txt.replace(x, " ", "")
+    h <- txt.palindrome.entire(x, y, n)
+    z <- NULL
+    if (length(h) > 0 & n) {
+        for (j in h) {
+            if (nchar(x) > nchar(j)) {
+                w <- txt.palindrome.tail(substring(x, 1, nchar(x) - 
+                  nchar(j)), y, n)
+                if (length(w) > 0) 
+                  z <- c(z, paste(j, w))
+            }
+            else z <- c(z, j)
+        }
+    }
+    else if (length(h) > 0 & !n) {
+        for (j in h) {
+            if (nchar(x) > nchar(j)) {
+                w <- txt.palindrome.tail(substring(x, nchar(j) + 
+                  1, nchar(x)), y, n)
+                if (length(w) > 0) 
+                  z <- c(z, paste(w, j))
+            }
+            else z <- c(z, j)
+        }
+    }
+    z <- union(z, txt.palindrome.partial(x, y, n))
+    z
+}
+
+#' txt.palindrome.underlying
+#' 
+#' short palindromes that reflect on position <n>
+#' @param x = a SINGLE string
+#' @param y = potentially-usable capitalized words
+#' @param n = position of the reflection
+#' @keywords txt.palindrome.underlying
+#' @export
+#' @family txt
+
+txt.palindrome.underlying <- function (x, y, n) 
+{
+    h <- txt.replace(x, " ", "")
+    m <- nchar(h)
+    if (n == floor(n)) {
+        beg.n <- n - 1
+        end.n <- n + 1
+    }
+    else {
+        beg.n <- floor(n)
+        end.n <- ceiling(n)
+    }
+    w <- min(beg.n, m - end.n + 1)
+    proc.right <- proc.left <- F
+    if (nchar(h) > 100) {
+        z <- NULL
+    }
+    else if (w > 0) {
+        if (txt.reverse(substring(h, beg.n - w + 1, beg.n)) == 
+            substring(h, end.n, end.n + w - 1)) {
+            if (end.n + w - 1 < m) {
+                proc.right <- T
+            }
+            else if (beg.n > w) {
+                proc.left <- T
+            }
+            else z <- x
+        }
+        else z <- NULL
+    }
+    else if (beg.n == 0) {
+        proc.right <- T
+    }
+    else {
+        proc.left <- T
+    }
+    if (proc.right) {
+        z <- txt.palindrome.tail(substring(h, end.n + w, m), 
+            y, F)
+        m <- length(z)
+        if (m > 0) {
+            n <- nchar(z) + n
+            z <- paste(z, x)
+            w <- txt.replace(z, " ", "")
+            w <- w == txt.reverse(w)
+            if (all(!w)) {
+                h <- z
+                z <- NULL
+                for (j in 1:m) z <- c(z, txt.palindrome.underlying(h[j], 
+                  y, n[j]))
+            }
+            else z <- z[w]
+        }
+    }
+    else if (proc.left) {
+        z <- txt.palindrome.tail(substring(h, 1, beg.n - w), 
+            y, T)
+        if (length(z) > 0) {
+            z <- paste(x, z)
+            w <- txt.replace(z, " ", "")
+            w <- w == txt.reverse(w)
+            if (all(!w)) {
+                h <- z
+                z <- NULL
+                for (j in h) z <- c(z, txt.palindrome.underlying(j, 
+                  y, n))
+            }
+            else z <- z[w]
+        }
     }
     z
 }
