@@ -122,7 +122,7 @@ mk.1mPerfTrend <- function (x, y, n)
 #' @param x = the email address of the recipient
 #' @param y = subject of the email
 #' @param n = text of the email
-#' @param w = path to an attachement
+#' @param w = a vector of paths to attachement
 #' @keywords email
 #' @export
 #' @import RDCOMClient
@@ -134,8 +134,8 @@ email <- function (x, y, n, w = "")
     z[["To"]] <- x
     z[["subject"]] <- y
     z[["body"]] <- n
-    if (file.exists(w)) 
-        z[["Attachments"]]$Add(w)
+    for (j in w) if (file.exists(j)) 
+        z[["Attachments"]]$Add(j)
     z$Send()
     invisible()
 }
@@ -3420,7 +3420,7 @@ fop.wrapper <- function (x, y, retW, prd.size = 5, sum.flows = F, lag = 0, delay
 #' ftp.all.files.in.dir
 #' 
 #' remote site directory listing of files (incl. sub-folders)
-#' @param x = a folder on our ftp site
+#' @param x = a folder on an ftp site (e.g. "/ftpdata/mystuff")
 #' @param y = ftp site
 #' @param n = user id
 #' @param w = password
@@ -3433,7 +3433,7 @@ ftp.all.files.in.dir <- function (x, y, n, w)
     vec <- x
     z <- NULL
     while (length(vec) > 0) {
-        cat(y[1], "...\n")
+        cat(vec[1], "...\n")
         foo <- ftp.dir(vec[1], y, n, w)
         w.loc <- txt.left(txt.right(foo, 4), 1) == "." | is.element(txt.right(tolower(foo), 
             5), c(".xlsx", ".xlsm"))
@@ -3450,7 +3450,7 @@ ftp.all.files.in.dir <- function (x, y, n, w)
 #' ftp.dir
 #' 
 #' remote site directory listing
-#' @param x = a folder on an ftp site
+#' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
 #' @param y = ftp site
 #' @param n = user id
 #' @param w = password
@@ -3495,7 +3495,7 @@ ftp.dir.excise.crap <- function (x)
 #' ftp.dir.ftp.code
 #' 
 #' generates ftp code for remote site directory listing
-#' @param x = a folder on our ftp site
+#' @param x = a folder on an ftp site (e.g. "/ftpdata/mystuff")
 #' @param y = ftp site
 #' @param n = user id
 #' @param w = password
@@ -3514,8 +3514,8 @@ ftp.dir.ftp.code <- function (x, y, n, w)
 #' ftp.download.script
 #' 
 #' creates bat/ftp files to get all files from an ftp folder
-#' @param x = remote folder on our ftp site
-#' @param y = local folder
+#' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
+#' @param y = local folder (e.g. "C:\\temp\\mystuff")
 #' @param n = ftp site
 #' @param w = user id
 #' @param h = password
@@ -3525,8 +3525,9 @@ ftp.dir.ftp.code <- function (x, y, n, w)
 
 ftp.download.script <- function (x, y, n, w, h) 
 {
-    w <- ftp.all.files.in.dir(x, n, w, h)
+    z <- ftp.all.files.in.dir(x, n, w, h)
     h <- c(paste("open", n), w, h)
+    w <- z
     w.par <- dir.parent(w)
     u.par <- w.par[!duplicated(w.par)]
     u.par <- u.par[order(nchar(u.par))]
@@ -3554,7 +3555,9 @@ ftp.download.script <- function (x, y, n, w, h)
             z <- txt.left(z, nchar(z) - 1)
         z <- paste("cd \"", z, "\"", sep = "")
         z <- c(h, z)
-        z <- c(z, paste("get \"", w[w2.par], "\"", sep = ""))
+        i <- txt.right(w[w2.par], nchar(w[w2.par]) - nchar(i) - 
+            1)
+        z <- c(z, paste("get \"", i, "\"", sep = ""))
         z <- c(z, "disconnect", "quit")
         cat(z, file = paste(y, "\\script\\", "ftp", i.n, ".ftp", 
             sep = ""), sep = "\n")

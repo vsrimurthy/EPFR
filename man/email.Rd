@@ -13,7 +13,7 @@ email(x, y, n, w = "")
 
 \item{n}{= text of the email}
 
-\item{w}{= path to an attachement}
+\item{w}{= a vector of paths to attachement}
 }
 \description{
 emails <x>

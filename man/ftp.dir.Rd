@@ -7,7 +7,7 @@
 ftp.dir(x, y, n, w)
 }
 \arguments{
-\item{x}{= a folder on an ftp site}
+\item{x}{= remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
 
 \item{y}{= ftp site}
 

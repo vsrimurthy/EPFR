@@ -7,7 +7,7 @@
 ftp.all.files.in.dir(x, y, n, w)
 }
 \arguments{
-\item{x}{= a folder on our ftp site}
+\item{x}{= a folder on an ftp site (e.g. "/ftpdata/mystuff")}
 
 \item{y}{= ftp site}
 
