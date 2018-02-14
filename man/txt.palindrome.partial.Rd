@@ -7,7 +7,7 @@
 txt.palindrome.partial(x, y, n)
 }
 \arguments{
-\item{x}{= a SINGLE string}
+\item{x}{= a SINGLE string without spaces}
 
 \item{y}{= potentially-usable capitalized words}
 

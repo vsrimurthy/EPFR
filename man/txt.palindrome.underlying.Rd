@@ -4,7 +4,7 @@
 \alias{txt.palindrome.underlying}
 \title{txt.palindrome.underlying}
 \usage{
-txt.palindrome.underlying(x, y, n)
+txt.palindrome.underlying(x, y, n, w)
 }
 \arguments{
 \item{x}{= a SINGLE string}
@@ -12,6 +12,8 @@ txt.palindrome.underlying(x, y, n)
 \item{y}{= potentially-usable capitalized words}
 
 \item{n}{= position of the reflection}
+
+\item{w}{= <x> with spaces removed (for speed)}
 }
 \description{
 short palindromes that reflect on position <n>
