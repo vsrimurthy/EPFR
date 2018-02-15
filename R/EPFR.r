@@ -156,7 +156,7 @@ avg.model <- function (x, y = 0)
     n <- length(x)
     x <- c(x, rep(1, n))
     x <- matrix(x, n, 2, F, list(1:n, c("y", "x")))
-    x <- as.data.frame(x)
+    x <- mat.ex.matrix(x)
     x <- lm(y ~ x, x)
     z <- summary(x)$coefficients
     z <- as.matrix(z)[1, ]
@@ -164,31 +164,6 @@ avg.model <- function (x, y = 0)
         z["Std. Error"] <- NeweyWest(x, lag = y)[1, 1]
         z["t value"] <- z["Estimate"]/z["Std. Error"]
         z["Pr(>|t|)"] <- NA
-    }
-    z
-}
-
-#' aggregateFlows
-#' 
-#' a matrix indexed by time, the columns of which correspond to <y>
-#' @param x = a df of 3 columns. These are: a) ReportDate, a column of yyyymmdd dates (first column) b) FundId, a column of integers (second column) c) a column of numbers representing Flows or AUM
-#' @param y = a matrix/df of \% allocations. Row space is always <yyyymm>-<FundId> so as to match up with the first two columns of <x>
-#' @keywords aggregateFlows
-#' @export
-
-aggregateFlows <- function (x, y) 
-{
-    vec <- yyyymmdd.to.AllocMo(x[, 1])
-    vec <- paste(vec, x[, 2], sep = "-")
-    w <- is.element(vec, dimnames(y)[[1]])
-    x <- x[w, ]
-    y <- map.rname(y, vec[w])
-    y <- y * x[, 3]/100
-    z <- vec.unique(x[, 1])
-    z <- matrix(NA, length(z), dim(y)[2], F, list(z, dimnames(y)[[2]]))
-    for (i in dimnames(z)[[1]]) {
-        w <- is.element(x[, 1], i)
-        z[i, ] <- colSums(y[w, ])
     }
     z
 }
@@ -321,7 +296,7 @@ bbk <- function (x, y, floW = 20, retW = 5, nBin = 5, doW = 4, sum.flows = F,
         idx, prd.size)
     z <- bbk.bin.xRet(x$x, x$fwdRet, nBin, T, T)
     x <- z[["rets"]]
-    for (i in names(z)) z[[i]] <- z[[i]][dim(z[[i]])[1]:1, ]
+    z <- lapply(z, mat.reverse)
     quantum <- ifelse(is.null(doW), 1, 5)
     if (retW%%quantum != 0) 
         stop("Something's very wrong!")
@@ -360,14 +335,13 @@ bbk.bin.rets.geom.summ <- function (x, y)
         uRet.vec <- x[, "uRet"]
     else uRet.vec <- rep(0, dim(x)[1])
     w <- !is.element(dimnames(x)[[2]], c("uRet", "TxB"))
-    z <- list()
-    for (i in c("por", "bmk")) z[[i]] <- x
+    z <- list(por = x, bmk = x)
     for (i in dimnames(x)[[2]][w]) {
         z[["bmk"]][, i] <- ifelse(is.na(z[["por"]][, i]), NA, 
             uRet.vec)
         z[["por"]][, i] <- z[["por"]][, i] + uRet.vec
     }
-    for (i in c("por", "bmk")) z[[i]] <- log(1 + z[[i]]/100)
+    z <- lapply(z, ret.to.log)
     vec <- exp(apply(z[["bmk"]], 2, mean, na.rm = T) * y)
     vec <- ifelse(w, vec, 1)
     vec <- exp(apply(z[["por"]], 2, mean, na.rm = T) * y) - vec
@@ -483,7 +457,7 @@ bbk.bin.xRet <- function (x, y, n = 5, w = F, h = F)
         }
     }
     dimnames(z)[[2]] <- paste("Q", dimnames(z)[[2]], sep = "")
-    z <- as.data.frame(z)
+    z <- mat.ex.matrix(z)
     z$TxB <- z[, 1] - z[, dim(z)[2]]
     if (w) 
         z$uRet <- uRetVec
@@ -670,7 +644,7 @@ bbk.summ <- function (x, y, n)
     y <- map.rname(y, dimnames(z)[[2]])
     y <- matrix(y, 1, dim(z)[2], T, list("AnnTo", dimnames(z)[[2]]))
     z <- rbind(z, y)
-    z <- as.data.frame(z)
+    z <- mat.ex.matrix(z)
     z.ann <- dimnames(x)[[1]]
     z.ann <- yyyymm.lag(z.ann, -n)
     z.ann <- txt.left(z.ann, 4)
@@ -807,12 +781,8 @@ britten.jones.data <- function (x, y, n, w = NULL)
     if (!is.null(w)) 
         y <- Ctry.msci.index.changes(y, w)
     x <- bbk.bin.xRet(x, y, 5, F, T)
-    y <- 1 + y/100
-    y <- log(y)
-    for (i in names(prd.ret)) {
-        prd.ret[[i]] <- 1 + prd.ret[[i]]/100
-        prd.ret[[i]] <- log(prd.ret[[i]])
-    }
+    y <- ret.to.log(y)
+    prd.ret <- lapply(prd.ret, ret.to.log)
     w1 <- !is.na(unlist(y))
     for (i in names(prd.ret)) {
         vec <- as.numeric(unlist(prd.ret[[i]]))
@@ -820,9 +790,9 @@ britten.jones.data <- function (x, y, n, w = NULL)
         prd.ret[[i]] <- matrix(vec, dim(y)[1], dim(y)[2], F, 
             dimnames(y))
     }
-    y <- y - rowMeans(y, na.rm = T)
-    for (i in names(prd.ret)) prd.ret[[i]] <- prd.ret[[i]] - 
-        rowMeans(prd.ret[[i]], na.rm = T)
+    fcn <- function(x) x - rowMeans(x, na.rm = T)
+    y <- fcn(y)
+    prd.ret <- lapply(prd.ret, fcn)
     z <- NULL
     for (i in dimnames(x$bins)[[2]]) {
         if (sum(!is.na(x$bins[, i]) & !duplicated(x$bins[, i])) > 
@@ -911,7 +881,7 @@ britten.jones.data.stack <- function (rslt, df, retHz, prd.ret, n.beg, entity)
                 "due to Britten-Jones singularity ...\n")
     }
     if (!is.null(df)) 
-        df <- as.data.frame(zav(t(map.rname(t(df), c("ActRet", 
+        df <- mat.ex.matrix(zav(t(map.rname(t(df), c("ActRet", 
             paste("Q", 2:4, sep = ""), "TxB")))))
     if (!is.null(df)) {
         if (is.null(z)) {
@@ -1292,7 +1262,7 @@ cpt.FloAlphaLt.Ctry <- function (x)
             sep = "")
         y[[i]] <- mat.read(path)
     }
-    for (i in names(y)) y[[i]] <- y[[i]][, dimnames(y[[1]])[[2]]]
+    y <- lapply(x, mat.subset, dimnames(y[[1]])[[2]])
     for (i in names(dy.vbls)) y[[i]] <- compound.flows(y[[i]], 
         dy.vbls[i], 1, i != "FloMo")
     for (i in names(mo.vbls)) y[[i]] <- compound.flows(y[[i]], 
@@ -1301,8 +1271,8 @@ cpt.FloAlphaLt.Ctry <- function (x)
     rnames <- dimnames(y[[1]])[[1]]
     for (i in names(y)) rnames <- intersect(rnames, dimnames(y[[i]])[[1]])
     rnames <- rnames[order(rnames)]
-    for (i in names(y)) y[[i]] <- map.rname(y[[i]], rnames)
-    for (i in names(y)) y[[i]] <- zScore(y[[i]])
+    y <- lapply(y, map.rname, rnames)
+    y <- lapply(y, zScore)
     z <- matrix(0, dim(y[[1]])[1], dim(y[[1]])[2], F, dimnames(y[[1]]))
     for (i in names(wts)) z <- z + wts[i] * zav(y[[i]])/100
     z
@@ -1493,7 +1463,7 @@ Ctry.msci.members <- function (x, y)
         w <- x$YYYYMM <= point.in.2016
         w <- w & x$YYYYMM > y
         if (any(w)) {
-            x <- x[dim(x)[1]:1, ]
+            x <- mat.reverse(x)
             w <- w[dim(x)[1]:1]
             x[, "ACTION"] <- ifelse(x[, "ACTION"] == "IN", "OUT", 
                 "IN")
@@ -2520,20 +2490,16 @@ fcn.mat.num <- function (fcn, x, y, n)
         z <- fcn(x, y)
     }
     else if (n & missing(y)) {
-        z <- rep(NA, dim(x)[2])
-        for (i in 1:dim(x)[2]) z[i] <- fcn(x[, i])
+        z <- sapply(x, fcn)
     }
     else if (!n & missing(y)) {
-        z <- rep(NA, dim(x)[1])
-        for (i in 1:dim(x)[1]) z[i] <- fcn(unlist(x[i, ]))
+        z <- sapply(mat.ex.matrix(t(x)), fcn)
     }
     else if (n & is.null(dim(y))) {
-        z <- rep(NA, dim(x)[2])
-        for (i in 1:dim(x)[2]) z[i] <- fcn(x[, i], y)
+        z <- sapply(x, fcn, y)
     }
     else if (!n & is.null(dim(y))) {
-        z <- rep(NA, dim(x)[1])
-        for (i in 1:dim(x)[1]) z[i] <- fcn(unlist(x[i, ]), y)
+        z <- sapply(mat.ex.matrix(t(x)), fcn, y)
     }
     else if (n) {
         z <- rep(NA, dim(x)[2])
@@ -2561,6 +2527,7 @@ fcn.mat.num <- function (fcn, x, y, n)
 fcn.mat.vec <- function (fcn, x, y, n) 
 {
     z <- x
+    x <- dimnames(x)[[1]]
     if (is.null(dim(z)) & missing(y)) {
         z <- fcn(z)
     }
@@ -2568,13 +2535,13 @@ fcn.mat.vec <- function (fcn, x, y, n)
         z <- fcn(z, y)
     }
     else if (n & missing(y)) {
-        for (i in 1:dim(z)[2]) z[, i] <- fcn(z[, i])
+        z <- mat.ex.matrix(lapply(z, fcn), x)
+    }
+    else if (n & is.null(dim(y))) {
+        z <- mat.ex.matrix(lapply(z, fcn, y), x)
     }
     else if (!n & missing(y)) {
         for (i in 1:dim(z)[1]) z[i, ] <- fcn(unlist(z[i, ]))
-    }
-    else if (n & is.null(dim(y))) {
-        for (i in 1:dim(z)[2]) z[, i] <- fcn(z[, i], y)
     }
     else if (!n & is.null(dim(y))) {
         for (i in 1:dim(z)[1]) z[i, ] <- fcn(unlist(z[i, ]), 
@@ -2913,7 +2880,7 @@ fetch <- function (x, y, n, w, h)
     else if (length(x) > 1) {
         z <- matrix(NA, dim(h)[1], length(x), F, list(dimnames(h)[[1]], 
             x))
-        z <- as.data.frame(z)
+        z <- mat.ex.matrix(z)
         for (i in dimnames(z)[[2]]) {
             df <- paste(w, "\\", i, ".", yyyy, ".r", sep = "")
             lCol <- paste(i, mm, sep = ".")
@@ -3320,7 +3287,7 @@ fop.stats <- function (x, y, n)
     w <- !duplicated(vec)
     z <- x[w, !is.element(dimnames(x)[[2]], c(y, n))]
     dimnames(z)[[1]] <- vec[w]
-    z <- as.data.frame(z)
+    z <- mat.ex.matrix(z)
     for (i in unique(x[, y])) {
         w <- is.element(x[, y], i)
         z[, i] <- rep(NA, dim(z)[1])
@@ -3990,7 +3957,7 @@ load.dy.vbl.1obj <- function (beg, end, mk.fcn, optional.args, vbl.name, mo, env
         z[, paste(vbl.name, i, sep = ".")] <- mk.fcn(paste(mo, 
             i, sep = ""), optional.args, env)
     }
-    z <- as.data.frame(z)
+    z <- mat.ex.matrix(z)
     z
 }
 
@@ -4049,7 +4016,7 @@ load.mo.vbl.1obj <- function (beg, end, mk.fcn, optional.args, vbl.name, yyyy, e
         z[, paste(vbl.name, i, sep = ".")] <- mk.fcn(as.character(100 * 
             yyyy + i), optional.args, env)
     }
-    z <- as.data.frame(z)
+    z <- mat.ex.matrix(z)
     z
 }
 
@@ -4183,7 +4150,7 @@ mat.count <- function (x)
 mat.daily.to.monthly <- function (x, y = F) 
 {
     z <- x[order(dimnames(x)[[1]]), ]
-    z <- z[dim(z)[1]:1, ]
+    z <- mat.reverse(z)
     z <- z[!duplicated(yyyymmdd.to.yyyymm(dimnames(z)[[1]])), 
         ]
     if (y) {
@@ -4193,7 +4160,7 @@ mat.daily.to.monthly <- function (x, y = F)
         z <- z[w, ]
     }
     dimnames(z)[[1]] <- yyyymmdd.to.yyyymm(dimnames(z)[[1]])
-    z <- z[dim(z)[1]:1, ]
+    z <- mat.reverse(z)
     z
 }
 
@@ -4251,13 +4218,14 @@ mat.ex.array3d <- function (x, y = "C", n = "A")
 #' 
 #' converts into a data frame
 #' @param x = a matrix
+#' @param y = desired row names (defaults to NULL)
 #' @keywords mat.ex.matrix
 #' @export
 #' @family mat
 
-mat.ex.matrix <- function (x) 
+mat.ex.matrix <- function (x, y = NULL) 
 {
-    as.data.frame(x, stringsAsFactors = F)
+    as.data.frame(x, row.names = y, stringsAsFactors = F)
 }
 
 #' mat.ex.qtl
@@ -4285,7 +4253,7 @@ mat.ex.qtl <- function (x, y)
         z <- ifelse(z, y, NA)
     else z <- fcn.mat.vec(as.numeric, z, , T)
     dimnames(z)[[2]] <- paste("Q", dimnames(z)[[2]], sep = "")
-    z <- as.data.frame(z)
+    z <- mat.ex.matrix(z)
     z
 }
 
@@ -4414,6 +4382,19 @@ mat.rank <- function (x)
     fcn <- function(x) fcn.nonNA(rank, -x)
     z <- fcn.mat.vec(fcn, x, , F)
     z
+}
+
+#' mat.reverse
+#' 
+#' reverses row order
+#' @param x = a matrix/data-frame
+#' @keywords mat.reverse
+#' @export
+#' @family mat
+
+mat.reverse <- function (x) 
+{
+    x[dim(x)[1]:1, ]
 }
 
 #' mat.same
@@ -4568,8 +4549,7 @@ mat.to.xlModel <- function (x, y = 2, n = 5, w = F)
         }
     }
     z <- cbind(z, x)
-    z <- z[order(dimnames(z)[[1]]), ]
-    z <- z[dim(z)[1]:1, ]
+    z <- z[order(dimnames(z)[[1]], decreasing = T), ]
     z
 }
 
@@ -6014,9 +5994,7 @@ ret.ex.idx <- function (x, y, n, w)
 
 ret.idx.gaps.fix <- function (x) 
 {
-    z <- yyyymmdd.bulk(x)
-    for (i in dimnames(z)[[2]]) z[, i] <- fix.gaps(z[, i])
-    z
+    fcn.mat.vec(fix.gaps, yyyymmdd.bulk(x), , T)
 }
 
 #' ret.to.idx
@@ -6043,6 +6021,19 @@ ret.to.idx <- function (x)
         }
     }
     z
+}
+
+#' ret.to.log
+#' 
+#' converts to logarithmic return
+#' @param x = a vector of returns
+#' @keywords ret.to.log
+#' @export
+#' @family ret
+
+ret.to.log <- function (x) 
+{
+    log(1 + x/100)
 }
 
 #' rrw
@@ -6207,7 +6198,7 @@ sf <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trails,
             T, nBins, reverse.vbl, retHz, classif)
         x <- t(map.rname(t(x), c(dimnames(x)[[2]], "TxB")))
         x[, "TxB"] <- x[, "Q1"] - x[, paste("Q", nBins, sep = "")]
-        x <- as.data.frame(x)
+        x <- mat.ex.matrix(x)
         if (j == 1) {
             z <- dimnames(summ.fcn(x, 12))[[1]]
             z <- array(NA, c(length(z), dim(x)[2], n.trail), 
@@ -8554,10 +8545,25 @@ txt.palindrome <- function (x, y)
     y <- y[order(y)]
     y <- y[order(nchar(y), decreasing = T)]
     w <- txt.replace(x, " ", "")
-    n <- nchar(w)
-    z <- NULL
-    for (m in seq(0.5, n + 0.5, 0.5)) z <- c(z, txt.palindrome.underlying(x, 
-        y, m, w))
+    n <- seq(0.5, nchar(w) + 0.5, 0.5)
+    x <- list(x = rep(x, length(n)), n = n, w = rep(w, length(n)))
+    halt <- F
+    while (!halt) {
+        ord <- order(nchar(x$x))
+        x <- lapply(x, function(x, y) x[y], ord)
+        z <- txt.palindrome.underlying(x$x[1], y, x$n[1], x$w[1])
+        if (length(z$z) > 0) {
+            halt <- T
+        }
+        else if (!is.null(z$rslt)) {
+            for (j in names(x)) x[[j]] <- c(x[[j]][-1], z$rslt[[j]])
+        }
+        else if (length(x$x) == 1) {
+            halt <- T
+        }
+        else x <- lapply(x, function(x) x[-1])
+    }
+    z <- z$z
     z
 }
 
@@ -8616,28 +8622,28 @@ txt.palindrome.tail <- function (x, y, n)
     m <- nchar(x)
     h <- txt.palindrome.entire(x, y, n)
     len.h <- length(h)
-    n.h <- nchar(h)
     z <- NULL
-    if (len.h > 0 & n) {
-        for (j in 1:len.h) {
-            if (m > n.h[j]) {
+    if (len.h > 0) {
+        n.h <- nchar(h)
+        w.h <- n.h == m
+        if (any(w.h)) {
+            z <- h[w.h]
+        }
+        else if (n) {
+            for (j in 1:len.h) {
                 w <- txt.palindrome.tail(substring(x, 1, m - 
                   n.h[j]), y, n)
                 if (length(w) > 0) 
                   z <- c(z, paste(h[j], w))
             }
-            else z <- c(z, h[j])
         }
-    }
-    else if (len.h > 0 & !n) {
-        for (j in 1:len.h) {
-            if (m > n.h[j]) {
+        else {
+            for (j in 1:len.h) {
                 w <- txt.palindrome.tail(substring(x, n.h[j] + 
                   1, m), y, n)
                 if (length(w) > 0) 
                   z <- c(z, paste(w, h[j]))
             }
-            else z <- c(z, h[j])
         }
     }
     z <- union(z, txt.palindrome.partial(x, y, n))
@@ -8669,7 +8675,7 @@ txt.palindrome.underlying <- function (x, y, n, w)
     h <- min(beg.n, m - end.n + 1)
     proc.right <- proc.left <- F
     if (nchar(w) > 100) {
-        z <- NULL
+        rslt <- z <- NULL
     }
     else if (h > 0) {
         vec <- txt.to.char(w)
@@ -8680,7 +8686,7 @@ txt.palindrome.underlying <- function (x, y, n, w)
             if (!proc.right & !proc.left) 
                 z <- x
         }
-        else z <- NULL
+        else rslt <- z <- NULL
     }
     else {
         proc.right <- beg.n == 0
@@ -8690,7 +8696,10 @@ txt.palindrome.underlying <- function (x, y, n, w)
         z <- txt.palindrome.tail(substring(w, end.n + h, m), 
             y, F)
         len.z <- length(z)
-        if (len.z > 0) {
+        if (len.z == 0) {
+            rslt <- NULL
+        }
+        else {
             m <- m - end.n - h + 1
             h <- txt.replace(z, " ", "")
             n.h <- nchar(h)
@@ -8700,12 +8709,11 @@ txt.palindrome.underlying <- function (x, y, n, w)
             z <- paste(z, x)
             if (any(w.h)) {
                 z <- z[w.h]
+                rslt <- NULL
             }
             else {
-                w <- z
+                rslt <- list(x = z, n = n, w = h)
                 z <- NULL
-                for (j in 1:len.z) z <- c(z, txt.palindrome.underlying(w[j], 
-                  y, n[j], h[j]))
             }
         }
     }
@@ -8713,7 +8721,10 @@ txt.palindrome.underlying <- function (x, y, n, w)
         z <- txt.palindrome.tail(substring(w, 1, beg.n - h), 
             y, T)
         len.z <- length(z)
-        if (len.z > 0) {
+        if (len.z == 0) {
+            rslt <- NULL
+        }
+        else {
             m <- beg.n - h
             h <- txt.replace(z, " ", "")
             w.h <- nchar(h) == m
@@ -8721,15 +8732,15 @@ txt.palindrome.underlying <- function (x, y, n, w)
             z <- paste(x, z)
             if (any(w.h)) {
                 z <- z[w.h]
+                rslt <- NULL
             }
             else {
-                w <- z
+                rslt <- list(x = z, n = rep(n, len.z), w = h)
                 z <- NULL
-                for (j in 1:len.z) z <- c(z, txt.palindrome.underlying(w[j], 
-                  y, n, h[j]))
             }
         }
     }
+    z <- list(z = z, rslt = rslt)
     z
 }
 
@@ -9123,7 +9134,7 @@ vec.swap <- function (x, y, n)
 vec.to.lags <- function (x, y) 
 {
     n <- length(x)
-    z <- as.data.frame(matrix(NA, n, y, F, list(1:n, paste("lag", 
+    z <- mat.ex.matrix(matrix(NA, n, y, F, list(1:n, paste("lag", 
         1:y - 1, sep = ""))))
     for (i in 1:y) z[i:n, i] <- x[i:n - (i - 1)]
     z

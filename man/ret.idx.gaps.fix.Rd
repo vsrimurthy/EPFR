@@ -14,6 +14,7 @@ replaces NA's by latest available total return index (i.e. zero return over that
 }
 \seealso{
 Other ret: \code{\link{ret.ex.idx}},
-  \code{\link{ret.outliers}}, \code{\link{ret.to.idx}}
+  \code{\link{ret.outliers}}, \code{\link{ret.to.idx}},
+  \code{\link{ret.to.log}}
 }
 \keyword{ret.idx.gaps.fix}

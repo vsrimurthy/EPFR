@@ -4,10 +4,12 @@
 \alias{mat.ex.matrix}
 \title{mat.ex.matrix}
 \usage{
-mat.ex.matrix(x)
+mat.ex.matrix(x, y = NULL)
 }
 \arguments{
 \item{x}{= a matrix}
+
+\item{y}{= desired row names (defaults to NULL)}
 }
 \description{
 converts into a data frame
@@ -22,7 +24,8 @@ Other mat: \code{\link{mat.combine}},
   \code{\link{mat.index}}, \code{\link{mat.lag.cols}},
   \code{\link{mat.lag}}, \code{\link{mat.last.to.first}},
   \code{\link{mat.rank}}, \code{\link{mat.read}},
-  \code{\link{mat.same}}, \code{\link{mat.subset}},
+  \code{\link{mat.reverse}}, \code{\link{mat.same}},
+  \code{\link{mat.subset}},
   \code{\link{mat.to.first.data.row}},
   \code{\link{mat.to.lags}}, \code{\link{mat.to.last.Idx}},
   \code{\link{mat.to.matrix}}, \code{\link{mat.to.obs}},
