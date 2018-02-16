@@ -3592,6 +3592,66 @@ ftp.txt <- function (x, y, n)
     paste(c(paste("open", x), y, n), collapse = "\n")
 }
 
+#' ftp.upload.script
+#' 
+#' returns ftp script to copy up files from the local machine
+#' @param x = empty remote folder on an ftp site (e.g. "/ftpdata/mystuff")
+#' @param y = local folder containing the data (e.g. "C:\\temp\\mystuff")
+#' @param n = ftp site
+#' @param w = user id
+#' @param h = password
+#' @keywords ftp.upload.script
+#' @export
+#' @family ftp
+
+ftp.upload.script <- function (x, y, n, w, h) 
+{
+    z <- c(paste("open", n), w, h)
+    w <- dir.all.files(y, "*.*")
+    w.par <- dir.parent(w)
+    u.par <- w.par[!duplicated(w.par)]
+    u.par <- txt.right(u.par, nchar(u.par) - nchar(y) - 1)
+    vec <- dir.parent(u.par)
+    w.vec <- !is.element(vec, u.par) & vec != ""
+    while (any(w.vec)) {
+        u.par <- union(u.par, vec[w.vec])
+        vec <- dir.parent(u.par)
+        w.vec <- !is.element(vec, u.par) & vec != ""
+    }
+    u.par.par <- dir.parent(u.par)
+    u.par <- u.par[order(u.par.par)]
+    u.par.par <- u.par.par[order(u.par.par)]
+    u.par <- u.par[order(nchar(u.par.par))]
+    u.par.par <- u.par.par[order(nchar(u.par.par))]
+    n.par.par <- ifelse(u.par.par == "", 0, 1) + nchar(u.par.par)
+    u.par <- txt.right(u.par, nchar(u.par) - n.par.par)
+    w.par <- txt.replace(w.par, "\\", "/")
+    u.par.par <- txt.replace(u.par.par, "\\", "/")
+    u.par.par <- paste(x, ifelse(u.par.par == "", "", "/"), u.par.par, 
+        sep = "")
+    old <- "?"
+    while (length(u.par.par) > 0) {
+        if (u.par.par[1] != old) {
+            z <- c(z, paste("cd \"", u.par.par[1], "\"", sep = ""))
+            w2 <- !is.element(paste(x, txt.right(w.par, nchar(w.par) - 
+                nchar(y)), sep = ""), paste(u.par.par, u.par, 
+                sep = "/"))
+            if (old == "?" & any(w2)) 
+                z <- c(z, paste("put \"", w[w2], "\"", sep = ""))
+            old <- u.par.par[1]
+        }
+        z <- c(z, paste("mkdir \"", u.par[1], "\"", sep = ""))
+        w2 <- paste(u.par.par[1], u.par[1], sep = "/") == paste(x, 
+            txt.right(w.par, nchar(w.par) - nchar(y)), sep = "")
+        if (any(w2)) 
+            z <- c(z, paste("put \"", w[w2], "\"", sep = ""))
+        u.par <- u.par[-1]
+        u.par.par <- u.par.par[-1]
+    }
+    z <- c(z, "disconnect", "quit")
+    z
+}
+
 #' fwd.probs
 #' 
 #' probability that forward return is positive given predictor is positive

@@ -23,6 +23,6 @@ Other ftp: \code{\link{ftp.all.files.in.dir}},
   \code{\link{ftp.dir.excise.crap}}, \code{\link{ftp.dir}},
   \code{\link{ftp.download.script}},
   \code{\link{ftp.file.size}}, \code{\link{ftp.put}},
-  \code{\link{ftp.txt}}
+  \code{\link{ftp.txt}}, \code{\link{ftp.upload.script}}
 }
 \keyword{ftp.dir.ftp.code}
