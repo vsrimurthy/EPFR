@@ -1610,7 +1610,7 @@ day.to.weekday <- function (x)
 #' dir.all.files
 #' 
 #' Returns all files in the folder including sub-directories
-#' @param x = a path such as "C://temp"
+#' @param x = a path such as "C:\\\\temp"
 #' @param y = a string such as "*.txt"
 #' @keywords dir.all.files
 #' @export
@@ -2674,8 +2674,9 @@ fcn.path <- function ()
 fcn.roxygenize <- function (x, y, n) 
 {
     w <- fcn.to.comments(x)
-    w <- txt.replace(w, "\\", "/")
+    w <- txt.replace(w, "\\", "\\\\")
     w <- txt.replace(w, "%", "\\%")
+    w <- txt.replace(w, "@", "@@")
     w <- fcn.comments.parse(w)
     z <- c(w$name, "", w$out)
     if (any(names(w) == "args")) 
@@ -3485,7 +3486,7 @@ ftp.dir.ftp.code <- function (x, y, n, w)
 #' 
 #' creates bat/ftp files to get all files from an ftp folder
 #' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
-#' @param y = local folder (e.g. "C://temp//mystuff")
+#' @param y = local folder (e.g. "C:\\\\temp\\\\mystuff")
 #' @param n = ftp site
 #' @param w = user id
 #' @param h = password
@@ -3599,7 +3600,7 @@ ftp.txt <- function (x, y, n)
 #' 
 #' returns ftp script to copy up files from the local machine
 #' @param x = empty remote folder on an ftp site (e.g. "/ftpdata/mystuff")
-#' @param y = local folder containing the data (e.g. "C://temp//mystuff")
+#' @param y = local folder containing the data (e.g. "C:\\\\temp\\\\mystuff")
 #' @param n = ftp site
 #' @param w = user id
 #' @param h = password
@@ -7523,7 +7524,7 @@ sql.1mChActWt <- function (x, y)
 #' Generates the SQL query to get aggregate allocations for StockFlows
 #' @param x = one of FwtdIn0/FwtdEx0/SwtdIn0/SwtdEx0
 #' @param y = the name of the table containing Holdings (e.g. "#HLDGS")
-#' @param n = a date of the form "@allocDt" or "'20151231'"
+#' @param n = a date of the form "@@allocDt" or "'20151231'"
 #' @param w = the grouping column (e.g. "GeographicFocusId")
 #' @param h = the temp table for output
 #' @keywords sql.AggrAllocations
@@ -7641,7 +7642,7 @@ sql.bcp <- function (x, y, n = "Quant", w = "EPFRUI", h = "dbo")
 #' @keywords sql.connect
 #' @export
 #' @family sql
-#' @importFrom RODBC odbcDriverConnect
+#' @@importFrom RODBC odbcDriverConnect
 
 sql.connect <- function (x) 
 {
@@ -7981,7 +7982,7 @@ sql.label <- function (x, y)
 #' @keywords sql.map.classif
 #' @export
 #' @family sql
-#' @importFrom RODBC sqlQuery
+#' @@importFrom RODBC sqlQuery
 
 sql.map.classif <- function (x, y, n, w) 
 {
@@ -8076,7 +8077,7 @@ sql.nonneg <- function (x)
 #' @keywords sql.query
 #' @export
 #' @family sql
-#' @importFrom RODBC sqlQuery
+#' @@importFrom RODBC sqlQuery
 
 sql.query <- function (x, y) 
 {

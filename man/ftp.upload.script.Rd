@@ -9,7 +9,7 @@ ftp.upload.script(x, y, n, w, h)
 \arguments{
 \item{x}{= empty remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
 
-\item{y}{= local folder containing the data (e.g. "C://temp//mystuff")}
+\item{y}{= local folder containing the data (e.g. "C:\\\\temp\\\\mystuff")}
 
 \item{n}{= ftp site}
 
