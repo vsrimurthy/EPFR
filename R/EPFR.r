@@ -1610,7 +1610,7 @@ day.to.weekday <- function (x)
 #' dir.all.files
 #' 
 #' Returns all files in the folder including sub-directories
-#' @param x = a path such as "C:\\temp"
+#' @param x = a path such as "C://temp"
 #' @param y = a string such as "*.txt"
 #' @keywords dir.all.files
 #' @export
@@ -2674,6 +2674,7 @@ fcn.path <- function ()
 fcn.roxygenize <- function (x, y, n) 
 {
     w <- fcn.to.comments(x)
+    w <- txt.replace(w, "\\", "/")
     w <- txt.replace(w, "%", "\\%")
     w <- fcn.comments.parse(w)
     z <- c(w$name, "", w$out)
@@ -3455,7 +3456,9 @@ ftp.dir.excise.crap <- function (x)
     if (sum(w) != 1) 
         stop("Problem 2")
     n <- length(x)
-    z <- x[seq(1, (1:n)[w] - 1)]
+    if (!w[1]) 
+        z <- x[seq(1, (1:n)[w] - 1)]
+    else z <- NULL
     z
 }
 
@@ -3482,7 +3485,7 @@ ftp.dir.ftp.code <- function (x, y, n, w)
 #' 
 #' creates bat/ftp files to get all files from an ftp folder
 #' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
-#' @param y = local folder (e.g. "C:\\temp\\mystuff")
+#' @param y = local folder (e.g. "C://temp//mystuff")
 #' @param n = ftp site
 #' @param w = user id
 #' @param h = password
@@ -3596,7 +3599,7 @@ ftp.txt <- function (x, y, n)
 #' 
 #' returns ftp script to copy up files from the local machine
 #' @param x = empty remote folder on an ftp site (e.g. "/ftpdata/mystuff")
-#' @param y = local folder containing the data (e.g. "C:\\temp\\mystuff")
+#' @param y = local folder containing the data (e.g. "C://temp//mystuff")
 #' @param n = ftp site
 #' @param w = user id
 #' @param h = password
@@ -3643,8 +3646,11 @@ ftp.upload.script <- function (x, y, n, w, h)
         z <- c(z, paste("mkdir \"", u.par[1], "\"", sep = ""))
         w2 <- paste(u.par.par[1], u.par[1], sep = "/") == paste(x, 
             txt.right(w.par, nchar(w.par) - nchar(y)), sep = "")
-        if (any(w2)) 
+        if (any(w2)) {
+            z <- c(z, paste("cd \"", u.par.par[1], "/", u.par[1], 
+                "\"", sep = ""))
             z <- c(z, paste("put \"", w[w2], "\"", sep = ""))
+        }
         u.par <- u.par[-1]
         u.par.par <- u.par.par[-1]
     }
