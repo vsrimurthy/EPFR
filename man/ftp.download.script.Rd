@@ -21,7 +21,8 @@ ftp.download.script(x, y, n, w, h)
 creates bat/ftp files to get all files from an ftp folder
 }
 \seealso{
-Other ftp: \code{\link{ftp.all.files.in.dir}},
+Other ftp: \code{\link{ftp.all.dir}},
+  \code{\link{ftp.all.files}},
   \code{\link{ftp.dir.excise.crap}},
   \code{\link{ftp.dir.ftp.code}}, \code{\link{ftp.dir}},
   \code{\link{ftp.file.size}}, \code{\link{ftp.put}},

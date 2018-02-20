@@ -19,7 +19,8 @@ ftp.dir.ftp.code(x, y, n, w)
 generates ftp code for remote site directory listing
 }
 \seealso{
-Other ftp: \code{\link{ftp.all.files.in.dir}},
+Other ftp: \code{\link{ftp.all.dir}},
+  \code{\link{ftp.all.files}},
   \code{\link{ftp.dir.excise.crap}}, \code{\link{ftp.dir}},
   \code{\link{ftp.download.script}},
   \code{\link{ftp.file.size}}, \code{\link{ftp.put}},

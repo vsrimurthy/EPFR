@@ -19,7 +19,8 @@ ftp.file.size(x, y, n, w)
 returns file size in KB
 }
 \seealso{
-Other ftp: \code{\link{ftp.all.files.in.dir}},
+Other ftp: \code{\link{ftp.all.dir}},
+  \code{\link{ftp.all.files}},
   \code{\link{ftp.dir.excise.crap}},
   \code{\link{ftp.dir.ftp.code}}, \code{\link{ftp.dir}},
   \code{\link{ftp.download.script}}, \code{\link{ftp.put}},

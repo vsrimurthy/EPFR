@@ -21,7 +21,8 @@ ftp.upload.script(x, y, n, w, h)
 returns ftp script to copy up files from the local machine
 }
 \seealso{
-Other ftp: \code{\link{ftp.all.files.in.dir}},
+Other ftp: \code{\link{ftp.all.dir}},
+  \code{\link{ftp.all.files}},
   \code{\link{ftp.dir.excise.crap}},
   \code{\link{ftp.dir.ftp.code}}, \code{\link{ftp.dir}},
   \code{\link{ftp.download.script}},

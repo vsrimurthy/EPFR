@@ -3386,18 +3386,48 @@ fop.wrapper <- function (x, y, retW, prd.size = 5, sum.flows = F, lag = 0, delay
     z
 }
 
-#' ftp.all.files.in.dir
+#' ftp.all.dir
 #' 
-#' remote site directory listing of files (incl. sub-folders)
+#' remote-site directory listing of all sub-folders
 #' @param x = a folder on an ftp site (e.g. "/ftpdata/mystuff")
 #' @param y = ftp site
 #' @param n = user id
 #' @param w = password
-#' @keywords ftp.all.files.in.dir
+#' @keywords ftp.all.dir
 #' @export
 #' @family ftp
 
-ftp.all.files.in.dir <- function (x, y, n, w) 
+ftp.all.dir <- function (x, y, n, w) 
+{
+    vec <- x
+    z <- NULL
+    while (length(vec) > 0) {
+        cat(vec[1], "...\n")
+        foo <- ftp.dir(vec[1], y, n, w)
+        w.loc <- txt.left(txt.right(foo, 4), 1) != "." & !is.element(txt.right(tolower(foo), 
+            5), c(".xlsx", ".xlsm"))
+        if (any(w.loc)) {
+            z <- c(z, paste(vec[1], foo[w.loc], sep = "/"))
+            vec <- c(vec[-1], paste(vec[1], foo[w.loc], sep = "/"))
+        }
+        else vec <- vec[-1]
+    }
+    z <- txt.right(z, nchar(z) - nchar(x) - 1)
+    z
+}
+
+#' ftp.all.files
+#' 
+#' remote-site directory listing of files (incl. sub-folders)
+#' @param x = a folder on an ftp site (e.g. "/ftpdata/mystuff")
+#' @param y = ftp site
+#' @param n = user id
+#' @param w = password
+#' @keywords ftp.all.files
+#' @export
+#' @family ftp
+
+ftp.all.files <- function (x, y, n, w) 
 {
     vec <- x
     z <- NULL
@@ -3496,7 +3526,7 @@ ftp.dir.ftp.code <- function (x, y, n, w)
 
 ftp.download.script <- function (x, y, n, w, h) 
 {
-    z <- ftp.all.files.in.dir(x, n, w, h)
+    z <- ftp.all.files(x, n, w, h)
     h <- c(paste("open", n), w, h)
     w <- z
     w.par <- dir.parent(w)
@@ -3610,6 +3640,8 @@ ftp.txt <- function (x, y, n)
 
 ftp.upload.script <- function (x, y, n, w, h) 
 {
+    if (txt.left(x, 1) != "/") 
+        cat("Warning: Possible error in argument <x>.\nIt doesn't begin with /\n")
     z <- c(paste("open", n), w, h)
     w <- dir.all.files(y, "*.*")
     w.par <- dir.parent(w)
@@ -3637,6 +3669,8 @@ ftp.upload.script <- function (x, y, n, w, h)
     while (length(u.par.par) > 0) {
         if (u.par.par[1] != old) {
             z <- c(z, paste("cd \"", u.par.par[1], "\"", sep = ""))
+            w2 <- u.par.par[1] == u.par.par
+            z <- c(z, paste("mkdir \"", u.par[w2], "\"", sep = ""))
             w2 <- !is.element(paste(x, txt.right(w.par, nchar(w.par) - 
                 nchar(y)), sep = ""), paste(u.par.par, u.par, 
                 sep = "/"))
@@ -3644,7 +3678,6 @@ ftp.upload.script <- function (x, y, n, w, h)
                 z <- c(z, paste("put \"", w[w2], "\"", sep = ""))
             old <- u.par.par[1]
         }
-        z <- c(z, paste("mkdir \"", u.par[1], "\"", sep = ""))
         w2 <- paste(u.par.par[1], u.par[1], sep = "/") == paste(x, 
             txt.right(w.par, nchar(w.par) - nchar(y)), sep = "")
         if (any(w2)) {
