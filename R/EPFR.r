@@ -5486,16 +5486,24 @@ position.floPct <- function (x, y, n)
 {
     x <- strategy.path(x, "daily")
     x <- multi.asset(x)
-    x <- x[dim(x)[1] - 19:0, ]
-    if (dimnames(x)[[1]][20] != n) 
-        stop(txt.hdr("OLD DATA!"))
-    if (missing(y)) 
-        y <- dimnames(x)[[2]]
-    else x <- mat.subset(x, y)
-    x <- vec.named(mat.compound(t(x)), y)
-    x <- x[order(-x)]
-    y <- vec.named(qtl.eq(x), names(x))
-    z <- mat.ex.qtl(y, x)
+    if (all(n != dimnames(x)[[1]])) {
+        cat("Date", n, "not recognized! No output will be published ...\n")
+        z <- NULL
+    }
+    else {
+        if (dimnames(x)[[1]][dim(x)[1]] != n) {
+            cat("Warning: Latest data not being used! Proceeding regardless ...\n")
+            x <- x[dimnames(x)[[1]] <= n, ]
+        }
+        x <- x[dim(x)[1] - 19:0, ]
+        if (missing(y)) 
+            y <- dimnames(x)[[2]]
+        else x <- mat.subset(x, y)
+        x <- vec.named(mat.compound(t(x)), y)
+        x <- x[order(-x)]
+        y <- vec.named(qtl.eq(x), names(x))
+        z <- mat.ex.qtl(y, x)
+    }
     z
 }
 
