@@ -19,10 +19,12 @@ Writes ftp script to put the relevant file to the right folder
 \seealso{
 Other ftp: \code{\link{ftp.all.dir}},
   \code{\link{ftp.all.files}},
+  \code{\link{ftp.delete.script.underlying}},
+  \code{\link{ftp.delete.script}},
   \code{\link{ftp.dir.excise.crap}},
   \code{\link{ftp.dir.ftp.code}}, \code{\link{ftp.dir}},
   \code{\link{ftp.download.script}},
-  \code{\link{ftp.file.size}}, \code{\link{ftp.txt}},
-  \code{\link{ftp.upload.script}}
+  \code{\link{ftp.file.size}}, \code{\link{ftp.is.file}},
+  \code{\link{ftp.txt}}, \code{\link{ftp.upload.script}}
 }
 \keyword{ftp.put}

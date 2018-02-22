@@ -3389,7 +3389,7 @@ fop.wrapper <- function (x, y, retW, prd.size = 5, sum.flows = F, lag = 0, delay
 #' ftp.all.dir
 #' 
 #' remote-site directory listing of all sub-folders
-#' @param x = a folder on an ftp site (e.g. "/ftpdata/mystuff")
+#' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
 #' @param y = ftp site
 #' @param n = user id
 #' @param w = password
@@ -3403,12 +3403,11 @@ ftp.all.dir <- function (x, y, n, w)
     z <- NULL
     while (length(vec) > 0) {
         cat(vec[1], "...\n")
-        foo <- ftp.dir(vec[1], y, n, w)
-        w.loc <- txt.left(txt.right(foo, 4), 1) != "." & !is.element(txt.right(tolower(foo), 
-            5), c(".xlsx", ".xlsm"))
-        if (any(w.loc)) {
-            z <- c(z, paste(vec[1], foo[w.loc], sep = "/"))
-            vec <- c(vec[-1], paste(vec[1], foo[w.loc], sep = "/"))
+        h <- ftp.dir(vec[1], y, n, w)
+        w.h <- !ftp.is.file(h)
+        if (any(w.h)) {
+            z <- c(z, paste(vec[1], h[w.h], sep = "/"))
+            vec <- c(vec[-1], paste(vec[1], h[w.h], sep = "/"))
         }
         else vec <- vec[-1]
     }
@@ -3419,7 +3418,7 @@ ftp.all.dir <- function (x, y, n, w)
 #' ftp.all.files
 #' 
 #' remote-site directory listing of files (incl. sub-folders)
-#' @param x = a folder on an ftp site (e.g. "/ftpdata/mystuff")
+#' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
 #' @param y = ftp site
 #' @param n = user id
 #' @param w = password
@@ -3433,16 +3432,60 @@ ftp.all.files <- function (x, y, n, w)
     z <- NULL
     while (length(vec) > 0) {
         cat(vec[1], "...\n")
-        foo <- ftp.dir(vec[1], y, n, w)
-        w.loc <- txt.left(txt.right(foo, 4), 1) == "." | is.element(txt.right(tolower(foo), 
-            5), c(".xlsx", ".xlsm"))
-        if (any(w.loc)) 
-            z <- c(z, paste(vec[1], foo[w.loc], sep = "/"))
-        if (any(!w.loc)) 
-            vec <- c(vec[-1], paste(vec[1], foo[!w.loc], sep = "/"))
+        h <- ftp.dir(vec[1], y, n, w)
+        w.h <- ftp.is.file(h)
+        if (any(w.h)) 
+            z <- c(z, paste(vec[1], h[w.h], sep = "/"))
+        if (any(!w.h)) 
+            vec <- c(vec[-1], paste(vec[1], h[!w.h], sep = "/"))
         else vec <- vec[-1]
     }
     z <- txt.right(z, nchar(z) - nchar(x) - 1)
+    z
+}
+
+#' ftp.delete.script
+#' 
+#' ftp script to delete contents of remote directory
+#' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
+#' @param y = ftp site
+#' @param n = user id
+#' @param w = password
+#' @keywords ftp.delete.script
+#' @export
+#' @family ftp
+
+ftp.delete.script <- function (x, y, n, w) 
+{
+    c(paste("open", y), n, w, ftp.delete.script.underlying(x, 
+        y, n, w))
+}
+
+#' ftp.delete.script.underlying
+#' 
+#' ftp script to delete contents of remote directory
+#' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
+#' @param y = ftp site
+#' @param n = user id
+#' @param w = password
+#' @keywords ftp.delete.script.underlying
+#' @export
+#' @family ftp
+
+ftp.delete.script.underlying <- function (x, y, n, w) 
+{
+    z <- paste("cd \"", x, "\"", sep = "")
+    h <- ftp.dir(x, y, n, w)
+    w.h <- ftp.is.file(h)
+    if (any(w.h)) 
+        z <- c(z, paste("del \"", h[w.h], "\"", sep = ""))
+    if (any(!w.h)) {
+        for (j in h[!w.h]) {
+            z <- c(z, ftp.delete.script.underlying(paste(x, j, 
+                sep = "/"), y, n, w))
+            z <- c(z, paste("rmdir \"", x, "/", j, "\"", sep = ""))
+        }
+    }
     z
 }
 
@@ -3496,7 +3539,7 @@ ftp.dir.excise.crap <- function (x)
 #' ftp.dir.ftp.code
 #' 
 #' generates ftp code for remote site directory listing
-#' @param x = a folder on an ftp site (e.g. "/ftpdata/mystuff")
+#' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
 #' @param y = ftp site
 #' @param n = user id
 #' @param w = password
@@ -3593,6 +3636,20 @@ ftp.file.size <- function (x, y, n, w)
     z
 }
 
+#' ftp.is.file
+#' 
+#' T/F depending on whether each element is a file or folder
+#' @param x = a vector of file names
+#' @keywords ftp.is.file
+#' @export
+#' @family ftp
+
+ftp.is.file <- function (x) 
+{
+    txt.left(txt.right(x, 4), 1) == "." | is.element(txt.right(tolower(x), 
+        5), c(".xlsx", ".xlsm", ".pptx"))
+}
+
 #' ftp.put
 #' 
 #' Writes ftp script to put the relevant file to the right folder
@@ -3643,50 +3700,23 @@ ftp.upload.script <- function (x, y, n, w, h)
     if (txt.left(x, 1) != "/") 
         cat("Warning: Possible error in argument <x>.\nIt doesn't begin with /\n")
     z <- c(paste("open", n), w, h)
-    w <- dir.all.files(y, "*.*")
-    w.par <- dir.parent(w)
-    u.par <- w.par[!duplicated(w.par)]
-    u.par <- txt.right(u.par, nchar(u.par) - nchar(y) - 1)
-    vec <- dir.parent(u.par)
-    w.vec <- !is.element(vec, u.par) & vec != ""
-    while (any(w.vec)) {
-        u.par <- union(u.par, vec[w.vec])
-        vec <- dir.parent(u.par)
-        w.vec <- !is.element(vec, u.par) & vec != ""
-    }
-    u.par.par <- dir.parent(u.par)
-    u.par <- u.par[order(u.par.par)]
-    u.par.par <- u.par.par[order(u.par.par)]
-    u.par <- u.par[order(nchar(u.par.par))]
-    u.par.par <- u.par.par[order(nchar(u.par.par))]
-    n.par.par <- ifelse(u.par.par == "", 0, 1) + nchar(u.par.par)
-    u.par <- txt.right(u.par, nchar(u.par) - n.par.par)
-    w.par <- txt.replace(w.par, "\\", "/")
-    u.par.par <- txt.replace(u.par.par, "\\", "/")
-    u.par.par <- paste(x, ifelse(u.par.par == "", "", "/"), u.par.par, 
-        sep = "")
-    old <- "?"
-    while (length(u.par.par) > 0) {
-        if (u.par.par[1] != old) {
-            z <- c(z, paste("cd \"", u.par.par[1], "\"", sep = ""))
-            w2 <- u.par.par[1] == u.par.par
-            z <- c(z, paste("mkdir \"", u.par[w2], "\"", sep = ""))
-            w2 <- !is.element(paste(x, txt.right(w.par, nchar(w.par) - 
-                nchar(y)), sep = ""), paste(u.par.par, u.par, 
-                sep = "/"))
-            if (old == "?" & any(w2)) 
-                z <- c(z, paste("put \"", w[w2], "\"", sep = ""))
-            old <- u.par.par[1]
+    n <- y
+    while (length(n) > 0) {
+        m <- txt.replace(txt.right(n[1], nchar(n[1]) - nchar(y) - 
+            1), "\\", "/")
+        if (m == "") 
+            z <- c(z, paste("cd \"", x, "\"", sep = ""))
+        else z <- c(z, paste("cd \"", x, "/", m, "\"", sep = ""))
+        h <- dir(n[1])
+        w <- ftp.is.file(h)
+        if (any(!w)) {
+            z <- c(z, paste("mkdir \"", h[!w], "\"", sep = ""))
+            n <- c(n, paste(n[1], h[!w], sep = "\\"))
         }
-        w2 <- paste(u.par.par[1], u.par[1], sep = "/") == paste(x, 
-            txt.right(w.par, nchar(w.par) - nchar(y)), sep = "")
-        if (any(w2)) {
-            z <- c(z, paste("cd \"", u.par.par[1], "/", u.par[1], 
-                "\"", sep = ""))
-            z <- c(z, paste("put \"", w[w2], "\"", sep = ""))
-        }
-        u.par <- u.par[-1]
-        u.par.par <- u.par.par[-1]
+        if (any(w)) 
+            z <- c(z, paste("put \"", n[1], "\\", h[w], "\"", 
+                sep = ""))
+        n <- n[-1]
     }
     z <- c(z, "disconnect", "quit")
     z
