@@ -25,6 +25,8 @@ Other ftp: \code{\link{ftp.all.dir}},
   \code{\link{ftp.dir.ftp.code}}, \code{\link{ftp.dir}},
   \code{\link{ftp.download.script}},
   \code{\link{ftp.file.size}}, \code{\link{ftp.is.file}},
-  \code{\link{ftp.put}}, \code{\link{ftp.upload.script}}
+  \code{\link{ftp.put}},
+  \code{\link{ftp.upload.script.underlying}},
+  \code{\link{ftp.upload.script}}
 }
 \keyword{ftp.txt}

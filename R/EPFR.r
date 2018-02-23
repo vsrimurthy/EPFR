@@ -3697,28 +3697,34 @@ ftp.txt <- function (x, y, n)
 
 ftp.upload.script <- function (x, y, n, w, h) 
 {
-    if (txt.left(x, 1) != "/") 
-        cat("Warning: Possible error in argument <x>.\nIt doesn't begin with /\n")
-    z <- c(paste("open", n), w, h)
-    n <- y
-    while (length(n) > 0) {
-        m <- txt.replace(txt.right(n[1], nchar(n[1]) - nchar(y) - 
-            1), "\\", "/")
-        if (m == "") 
-            z <- c(z, paste("cd \"", x, "\"", sep = ""))
-        else z <- c(z, paste("cd \"", x, "/", m, "\"", sep = ""))
-        h <- dir(n[1])
-        w <- ftp.is.file(h)
-        if (any(!w)) {
-            z <- c(z, paste("mkdir \"", h[!w], "\"", sep = ""))
-            n <- c(n, paste(n[1], h[!w], sep = "\\"))
-        }
-        if (any(w)) 
-            z <- c(z, paste("put \"", n[1], "\\", h[w], "\"", 
+    c(paste("open", n), w, h, paste("cd \"", x, "\"", sep = ""), 
+        ftp.upload.script.underlying(y), "disconnect", "quit")
+}
+
+#' ftp.upload.script.underlying
+#' 
+#' returns ftp script to copy up files from the local machine
+#' @param x = local folder containing the data (e.g. "C:\\\\temp\\\\mystuff")
+#' @keywords ftp.upload.script.underlying
+#' @export
+#' @family ftp
+
+ftp.upload.script.underlying <- function (x) 
+{
+    y <- dir(x)
+    w <- ftp.is.file(y)
+    z <- NULL
+    if (any(w)) 
+        z <- c(z, paste("put \"", x, "\\", y[w], "\"", sep = ""))
+    if (any(!w)) {
+        for (n in y[!w]) {
+            z <- c(z, paste(c("mkdir", "cd"), " \"", n, "\"", 
                 sep = ""))
-        n <- n[-1]
+            z <- c(z, ftp.upload.script.underlying(paste(x, n, 
+                sep = "\\")))
+            z <- c(z, "cd ..")
+        }
     }
-    z <- c(z, "disconnect", "quit")
     z
 }
 

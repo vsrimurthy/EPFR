@@ -27,6 +27,7 @@ Other ftp: \code{\link{ftp.all.dir}},
   \code{\link{ftp.download.script}},
   \code{\link{ftp.file.size}}, \code{\link{ftp.is.file}},
   \code{\link{ftp.put}}, \code{\link{ftp.txt}},
+  \code{\link{ftp.upload.script.underlying}},
   \code{\link{ftp.upload.script}}
 }
 \keyword{ftp.delete.script}
