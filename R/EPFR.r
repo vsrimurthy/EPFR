@@ -2527,7 +2527,6 @@ fcn.mat.num <- function (fcn, x, y, n)
 fcn.mat.vec <- function (fcn, x, y, n) 
 {
     z <- x
-    x <- dimnames(x)[[1]]
     if (is.null(dim(z)) & missing(y)) {
         z <- fcn(z)
     }
@@ -2535,13 +2534,13 @@ fcn.mat.vec <- function (fcn, x, y, n)
         z <- fcn(z, y)
     }
     else if (n & missing(y)) {
-        z <- mat.ex.matrix(lapply(z, fcn), x)
-    }
-    else if (n & is.null(dim(y))) {
-        z <- mat.ex.matrix(lapply(z, fcn, y), x)
+        for (i in 1:dim(z)[2]) z[, i] <- fcn(z[, i])
     }
     else if (!n & missing(y)) {
         for (i in 1:dim(z)[1]) z[i, ] <- fcn(unlist(z[i, ]))
+    }
+    else if (n & is.null(dim(y))) {
+        for (i in 1:dim(z)[2]) z[, i] <- fcn(z[, i], y)
     }
     else if (!n & is.null(dim(y))) {
         for (i in 1:dim(z)[1]) z[i, ] <- fcn(unlist(z[i, ]), 
