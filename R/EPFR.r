@@ -1706,6 +1706,30 @@ dir.parent <- function (x)
     z
 }
 
+#' dir.size
+#' 
+#' size of directory <x> in KB
+#' @param x = a string of full paths
+#' @keywords dir.size
+#' @export
+#' @family dir
+
+dir.size <- function (x) 
+{
+    z <- dir.all.files(x, "*.*")
+    if (length(z) == 0) {
+        z <- 0
+    }
+    else if (length(z) == 1 & !file.exists(z[1])) {
+        z <- 0
+    }
+    else {
+        z <- file.size(z)
+        z <- sum(z, na.rm = T)/2^10
+    }
+    z
+}
+
 #' err.raise
 #' 
 #' error message
