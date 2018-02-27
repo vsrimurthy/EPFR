@@ -3421,18 +3421,7 @@ fop.wrapper <- function (x, y, retW, prd.size = 5, sum.flows = F, lag = 0, delay
 
 ftp.all.dir <- function (x, y, n, w) 
 {
-    vec <- x
-    z <- NULL
-    while (length(vec) > 0) {
-        cat(vec[1], "...\n")
-        h <- ftp.dir(vec[1], y, n, w)
-        m <- !ftp.is.file(h)
-        if (any(m)) {
-            z <- c(z, paste(vec[1], h[m], sep = "/"))
-            vec <- c(vec, paste(vec[1], h[m], sep = "/"))
-        }
-        vec <- vec[-1]
-    }
+    z <- ftp.all.files.underlying(x, y, n, w, F)
     z <- txt.right(z, nchar(z) - nchar(x) - 1)
     z
 }
@@ -3450,19 +3439,36 @@ ftp.all.dir <- function (x, y, n, w)
 
 ftp.all.files <- function (x, y, n, w) 
 {
-    vec <- x
-    z <- NULL
-    while (length(vec) > 0) {
-        cat(vec[1], "...\n")
-        h <- ftp.dir(vec[1], y, n, w)
-        m <- ftp.is.file(h)
-        if (any(m)) 
-            z <- c(z, paste(vec[1], h[m], sep = "/"))
-        if (any(!m)) 
-            vec <- c(vec, paste(vec[1], h[!m], sep = "/"))
-        vec <- vec[-1]
-    }
+    z <- ftp.all.files.underlying(x, y, n, w, T)
     z <- txt.right(z, nchar(z) - nchar(x) - 1)
+    z
+}
+
+#' ftp.all.files.underlying
+#' 
+#' remote-site directory listing of files or folders
+#' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
+#' @param y = ftp site
+#' @param n = user id
+#' @param w = password
+#' @param h = T/F depending on whether you want files or folders
+#' @keywords ftp.all.files.underlying
+#' @export
+#' @family ftp
+
+ftp.all.files.underlying <- function (x, y, n, w, h) 
+{
+    z <- NULL
+    while (length(x) > 0) {
+        cat(x[1], "...\n")
+        j <- ftp.dir(x[1], y, n, w)
+        m <- ftp.is.file(j)
+        if (any(m == h)) 
+            z <- c(z, paste(x[1], j[m == h], sep = "/"))
+        if (any(!m)) 
+            x <- c(x, paste(x[1], j[!m], sep = "/"))
+        x <- x[-1]
+    }
     z
 }
 

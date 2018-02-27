@@ -20,6 +20,7 @@ remote-site directory listing of files (incl. sub-folders)
 }
 \seealso{
 Other ftp: \code{\link{ftp.all.dir}},
+  \code{\link{ftp.all.files.underlying}},
   \code{\link{ftp.delete.script.underlying}},
   \code{\link{ftp.delete.script}},
   \code{\link{ftp.dir.excise.crap}},

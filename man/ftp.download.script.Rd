@@ -22,6 +22,7 @@ creates bat/ftp files to get all files from an ftp folder
 }
 \seealso{
 Other ftp: \code{\link{ftp.all.dir}},
+  \code{\link{ftp.all.files.underlying}},
   \code{\link{ftp.all.files}},
   \code{\link{ftp.delete.script.underlying}},
   \code{\link{ftp.delete.script}},
