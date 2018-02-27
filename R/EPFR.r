@@ -1619,8 +1619,10 @@ day.to.weekday <- function (x)
 dir.all.files <- function (x, y) 
 {
     z <- dir(x, y, recursive = T)
-    z <- paste(x, z, sep = "\\")
-    z <- txt.replace(z, "/", "\\")
+    if (length(z) > 0) {
+        z <- paste(x, z, sep = "\\")
+        z <- txt.replace(z, "/", "\\")
+    }
     z
 }
 
@@ -1709,7 +1711,7 @@ dir.parent <- function (x)
 #' dir.size
 #' 
 #' size of directory <x> in KB
-#' @param x = a string of full paths
+#' @param x = a SINGLE path to a directory
 #' @keywords dir.size
 #' @export
 #' @family dir
@@ -1718,9 +1720,6 @@ dir.size <- function (x)
 {
     z <- dir.all.files(x, "*.*")
     if (length(z) == 0) {
-        z <- 0
-    }
-    else if (length(z) == 1 & !file.exists(z[1])) {
         z <- 0
     }
     else {
@@ -3427,12 +3426,12 @@ ftp.all.dir <- function (x, y, n, w)
     while (length(vec) > 0) {
         cat(vec[1], "...\n")
         h <- ftp.dir(vec[1], y, n, w)
-        w.h <- !ftp.is.file(h)
-        if (any(w.h)) {
-            z <- c(z, paste(vec[1], h[w.h], sep = "/"))
-            vec <- c(vec[-1], paste(vec[1], h[w.h], sep = "/"))
+        m <- !ftp.is.file(h)
+        if (any(m)) {
+            z <- c(z, paste(vec[1], h[m], sep = "/"))
+            vec <- c(vec, paste(vec[1], h[m], sep = "/"))
         }
-        else vec <- vec[-1]
+        vec <- vec[-1]
     }
     z <- txt.right(z, nchar(z) - nchar(x) - 1)
     z
@@ -3456,12 +3455,12 @@ ftp.all.files <- function (x, y, n, w)
     while (length(vec) > 0) {
         cat(vec[1], "...\n")
         h <- ftp.dir(vec[1], y, n, w)
-        w.h <- ftp.is.file(h)
-        if (any(w.h)) 
-            z <- c(z, paste(vec[1], h[w.h], sep = "/"))
-        if (any(!w.h)) 
-            vec <- c(vec[-1], paste(vec[1], h[!w.h], sep = "/"))
-        else vec <- vec[-1]
+        m <- ftp.is.file(h)
+        if (any(m)) 
+            z <- c(z, paste(vec[1], h[m], sep = "/"))
+        if (any(!m)) 
+            vec <- c(vec, paste(vec[1], h[!m], sep = "/"))
+        vec <- vec[-1]
     }
     z <- txt.right(z, nchar(z) - nchar(x) - 1)
     z
@@ -3499,11 +3498,11 @@ ftp.delete.script.underlying <- function (x, y, n, w)
 {
     z <- paste("cd \"", x, "\"", sep = "")
     h <- ftp.dir(x, y, n, w)
-    w.h <- ftp.is.file(h)
-    if (any(w.h)) 
-        z <- c(z, paste("del \"", h[w.h], "\"", sep = ""))
-    if (any(!w.h)) {
-        for (j in h[!w.h]) {
+    m <- ftp.is.file(h)
+    if (any(m)) 
+        z <- c(z, paste("del \"", h[m], "\"", sep = ""))
+    if (any(!m)) {
+        for (j in h[!m]) {
             z <- c(z, ftp.delete.script.underlying(paste(x, j, 
                 sep = "/"), y, n, w))
             z <- c(z, paste("rmdir \"", x, "/", j, "\"", sep = ""))
@@ -3670,7 +3669,7 @@ ftp.file.size <- function (x, y, n, w)
 ftp.is.file <- function (x) 
 {
     txt.left(txt.right(x, 4), 1) == "." | is.element(txt.right(tolower(x), 
-        5), c(".xlsx", ".xlsm", ".pptx"))
+        5), c(".xlsx", ".xlsm", ".pptx", ".docx", ".ppsx"))
 }
 
 #' ftp.put
@@ -3735,7 +3734,7 @@ ftp.upload.script <- function (x, y, n, w, h)
 ftp.upload.script.underlying <- function (x) 
 {
     y <- dir(x)
-    w <- ftp.is.file(y)
+    w <- !file.info(paste(x, y, sep = "\\"))$isdir
     z <- NULL
     if (any(w)) 
         z <- c(z, paste("put \"", x, "\\", y[w], "\"", sep = ""))
@@ -4335,12 +4334,14 @@ mat.daily.to.monthly <- function (x, y = F)
 mat.ex.array <- function (x, y) 
 {
     n <- length(dim(x))
+    if (missing(y)) 
+        y <- char.seq("A", "Z")[seq(1, n + 1)]
     if (length(y) != n + 1) 
         stop("Problem")
     z <- permutations.buckets.many(dimnames(x))
     z <- mat.ex.matrix(z)
     names(z) <- y[1:n]
-    z[, y[n + 1]] <- as.numeric(unlist(x))
+    z[, y[n + 1]] <- unlist(x)
     z
 }
 

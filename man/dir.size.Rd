@@ -7,7 +7,7 @@
 dir.size(x)
 }
 \arguments{
-\item{x}{= a string of full paths}
+\item{x}{= a SINGLE path to a directory}
 }
 \description{
 size of directory <x> in KB
