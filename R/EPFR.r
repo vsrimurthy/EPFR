@@ -4347,7 +4347,7 @@ mat.ex.array <- function (x, y)
     z <- permutations.buckets.many(dimnames(x))
     z <- mat.ex.matrix(z)
     names(z) <- y[1:n]
-    z[, y[n + 1]] <- unlist(x)
+    z[, y[n + 1]] <- as.vector(x)
     z
 }
 
