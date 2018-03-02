@@ -28,8 +28,10 @@ Other ftp: \code{\link{ftp.all.dir}},
   \code{\link{ftp.delete.script}},
   \code{\link{ftp.dir.excise.crap}},
   \code{\link{ftp.dir.ftp.code}}, \code{\link{ftp.dir}},
-  \code{\link{ftp.file.size}}, \code{\link{ftp.is.file}},
-  \code{\link{ftp.put}}, \code{\link{ftp.txt}},
+  \code{\link{ftp.file.size}},
+  \code{\link{ftp.is.file.underlying}},
+  \code{\link{ftp.is.file}}, \code{\link{ftp.put}},
+  \code{\link{ftp.txt}},
   \code{\link{ftp.upload.script.underlying}},
   \code{\link{ftp.upload.script}}
 }

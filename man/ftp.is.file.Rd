@@ -4,13 +4,19 @@
 \alias{ftp.is.file}
 \title{ftp.is.file}
 \usage{
-ftp.is.file(x)
+ftp.is.file(x, y, n, w)
 }
 \arguments{
-\item{x}{= a vector of file names}
+\item{x}{= vector of paths to remote file or folder}
+
+\item{y}{= ftp site}
+
+\item{n}{= user id}
+
+\item{w}{= password}
 }
 \description{
-T/F depending on whether each element is a file or folder
+T/F depending on whether <x> represents a file or folder
 }
 \seealso{
 Other ftp: \code{\link{ftp.all.dir}},
@@ -21,8 +27,9 @@ Other ftp: \code{\link{ftp.all.dir}},
   \code{\link{ftp.dir.excise.crap}},
   \code{\link{ftp.dir.ftp.code}}, \code{\link{ftp.dir}},
   \code{\link{ftp.download.script}},
-  \code{\link{ftp.file.size}}, \code{\link{ftp.put}},
-  \code{\link{ftp.txt}},
+  \code{\link{ftp.file.size}},
+  \code{\link{ftp.is.file.underlying}},
+  \code{\link{ftp.put}}, \code{\link{ftp.txt}},
   \code{\link{ftp.upload.script.underlying}},
   \code{\link{ftp.upload.script}}
 }

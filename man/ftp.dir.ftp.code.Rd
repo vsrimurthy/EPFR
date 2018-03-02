@@ -4,7 +4,7 @@
 \alias{ftp.dir.ftp.code}
 \title{ftp.dir.ftp.code}
 \usage{
-ftp.dir.ftp.code(x, y, n, w)
+ftp.dir.ftp.code(x, y, n, w, h)
 }
 \arguments{
 \item{x}{= remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
@@ -14,6 +14,8 @@ ftp.dir.ftp.code(x, y, n, w)
 \item{n}{= user id}
 
 \item{w}{= password}
+
+\item{h}{= command to execute (e.g. "ls" or "pwd")}
 }
 \description{
 generates ftp code for remote site directory listing
@@ -26,8 +28,10 @@ Other ftp: \code{\link{ftp.all.dir}},
   \code{\link{ftp.delete.script}},
   \code{\link{ftp.dir.excise.crap}}, \code{\link{ftp.dir}},
   \code{\link{ftp.download.script}},
-  \code{\link{ftp.file.size}}, \code{\link{ftp.is.file}},
-  \code{\link{ftp.put}}, \code{\link{ftp.txt}},
+  \code{\link{ftp.file.size}},
+  \code{\link{ftp.is.file.underlying}},
+  \code{\link{ftp.is.file}}, \code{\link{ftp.put}},
+  \code{\link{ftp.txt}},
   \code{\link{ftp.upload.script.underlying}},
   \code{\link{ftp.upload.script}}
 }

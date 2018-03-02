@@ -1520,6 +1520,37 @@ Ctry.to.CtryGrp <- function (x)
     z
 }
 
+#' dataset.subset
+#' 
+#' subsets all files in <x> so that column <y> is made up of elements of <n>. Original files are overwritten.
+#' @param x = a local folder (e.g. "C:\\\\temp\\\\crap")
+#' @param y = column on which to subset
+#' @param n = a vector of identifiers
+#' @keywords dataset.subset
+#' @export
+
+dataset.subset <- function (x, y, n) 
+{
+    x <- dir.all.files(x, "*.*")
+    while (length(x) > 0) {
+        z <- scan(x[1], what = "", sep = "\n", nlines = 1, quiet = T)
+        m <- as.numeric(regexpr(y, z, fixed = T))
+        if (m > 0) {
+            m <- m + nchar(y)
+            if (m <= nchar(z)) {
+                m <- substring(z, m, m)
+                z <- mat.read(x[1], m, NULL, T)
+                write.table(z[is.element(z[, y], n), ], "C:\\temp\\write.csv", 
+                  sep = m, col.names = T, quote = F, row.names = F)
+            }
+            else cat("Can't subset", x[1], "\n")
+        }
+        else cat("Can't subset", x[1], "\n")
+        x <- x[-1]
+    }
+    invisible()
+}
+
 #' day.ex.date
 #' 
 #' calendar dates
@@ -3462,7 +3493,7 @@ ftp.all.files.underlying <- function (x, y, n, w, h)
     while (length(x) > 0) {
         cat(x[1], "...\n")
         j <- ftp.dir(x[1], y, n, w)
-        m <- ftp.is.file(j)
+        m <- ftp.is.file(paste(x[1], j, sep = "/"), y, n, w)
         if (any(m == h)) 
             z <- c(z, paste(x[1], j[m == h], sep = "/"))
         if (any(!m)) 
@@ -3504,7 +3535,7 @@ ftp.delete.script.underlying <- function (x, y, n, w)
 {
     z <- paste("cd \"", x, "\"", sep = "")
     h <- ftp.dir(x, y, n, w)
-    m <- ftp.is.file(h)
+    m <- ftp.is.file(paste(x, h, sep = "/"), y, n, w)
     if (any(m)) 
         z <- c(z, paste("del \"", h[m], "\"", sep = ""))
     if (any(!m)) {
@@ -3531,9 +3562,10 @@ ftp.delete.script.underlying <- function (x, y, n, w)
 ftp.dir <- function (x, y, n, w) 
 {
     ftp.file <- "C:\\temp\\foo.ftp"
-    cat(ftp.dir.ftp.code(x, y, n, w), file = ftp.file)
+    cat(ftp.dir.ftp.code(x, y, n, w, "ls"), file = ftp.file)
     z <- shell(paste("ftp -i -s:", ftp.file, sep = ""), intern = T)
-    z <- ftp.dir.excise.crap(z)
+    z <- ftp.dir.excise.crap(z, "150 Opening data channel for directory listing", 
+        "226 Successfully transferred")
     z
 }
 
@@ -3541,25 +3573,27 @@ ftp.dir <- function (x, y, n, w)
 #' 
 #' cleans up output
 #' @param x = output from ftp directory listing
+#' @param y = string demarcating the beginning of useful output
+#' @param n = string demarcating the end of useful output
 #' @keywords ftp.dir.excise.crap
 #' @export
 #' @family ftp
 
-ftp.dir.excise.crap <- function (x) 
+ftp.dir.excise.crap <- function (x, y, n) 
 {
-    w <- "150 Opening data channel for directory listing"
+    w <- y
     w <- txt.left(x, nchar(w)) == w
     if (sum(w) != 1) 
         stop("Problem 1")
-    n <- length(x)
-    x <- x[seq((1:n)[w] + 1, n)]
-    w <- "226 Successfully transferred"
+    m <- length(x)
+    x <- x[seq((1:m)[w] + 1, m)]
+    w <- n
     w <- txt.left(x, nchar(w)) == w
     if (sum(w) != 1) 
         stop("Problem 2")
-    n <- length(x)
+    m <- length(x)
     if (!w[1]) 
-        z <- x[seq(1, (1:n)[w] - 1)]
+        z <- x[seq(1, (1:m)[w] - 1)]
     else z <- NULL
     z
 }
@@ -3571,15 +3605,16 @@ ftp.dir.excise.crap <- function (x)
 #' @param y = ftp site
 #' @param n = user id
 #' @param w = password
+#' @param h = command to execute (e.g. "ls" or "pwd")
 #' @keywords ftp.dir.ftp.code
 #' @export
 #' @family ftp
 
-ftp.dir.ftp.code <- function (x, y, n, w) 
+ftp.dir.ftp.code <- function (x, y, n, w, h) 
 {
     z <- ftp.txt(y, n, w)
     z <- paste(z, "\ncd \"", x, "\"", sep = "")
-    z <- paste(z, "ls", "disconnect", "quit", sep = "\n")
+    z <- paste(z, h, "disconnect", "quit", sep = "\n")
     z
 }
 
@@ -3656,7 +3691,8 @@ ftp.file.size <- function (x, y, n, w)
     z <- paste(z, "disconnect", "quit", sep = "\n")
     cat(z, file = ftp.file)
     z <- shell(paste("ftp -i -s:", ftp.file, sep = ""), intern = T)
-    z <- ftp.dir.excise.crap(z)
+    z <- ftp.dir.excise.crap(z, "150 Opening data channel for directory listing", 
+        "226 Successfully transferred")
     z <- txt.itrim(z)
     z <- as.numeric(txt.parse(z, txt.space(1))[5])
     if (!is.na(z)) 
@@ -3666,16 +3702,44 @@ ftp.file.size <- function (x, y, n, w)
 
 #' ftp.is.file
 #' 
-#' T/F depending on whether each element is a file or folder
-#' @param x = a vector of file names
+#' T/F depending on whether <x> represents a file or folder
+#' @param x = vector of paths to remote file or folder
+#' @param y = ftp site
+#' @param n = user id
+#' @param w = password
 #' @keywords ftp.is.file
 #' @export
 #' @family ftp
 
-ftp.is.file <- function (x) 
+ftp.is.file <- function (x, y, n, w) 
 {
-    txt.left(txt.right(x, 4), 1) == "." | is.element(txt.right(tolower(x), 
-        5), c(".xlsx", ".xlsm", ".pptx", ".docx", ".ppsx"))
+    m <- length(x)
+    z <- rep(NA, m)
+    for (i in 1:m) z[i] <- ftp.is.file.underlying(x[i], y, n, 
+        w)
+    z
+}
+
+#' ftp.is.file.underlying
+#' 
+#' T/F depending on whether <x> represents a file or folder
+#' @param x = path to remote file or folder (e.g. "/ftpdata/mystuff")
+#' @param y = ftp site
+#' @param n = user id
+#' @param w = password
+#' @keywords ftp.is.file.underlying
+#' @export
+#' @family ftp
+
+ftp.is.file.underlying <- function (x, y, n, w) 
+{
+    ftp.file <- "C:\\temp\\foo.ftp"
+    cat(ftp.dir.ftp.code(x, y, n, w, "pwd"), file = ftp.file)
+    z <- shell(paste("ftp -i -s:", ftp.file, sep = ""), intern = T)
+    z <- ftp.dir.excise.crap(z, "ftp> pwd", "ftp> disconnect")
+    z <- z != paste("257 \"", x, "\" is current directory.", 
+        sep = "")
+    z
 }
 
 #' ftp.put
@@ -3740,17 +3804,19 @@ ftp.upload.script <- function (x, y, n, w, h)
 ftp.upload.script.underlying <- function (x) 
 {
     y <- dir(x)
-    w <- !file.info(paste(x, y, sep = "\\"))$isdir
     z <- NULL
-    if (any(w)) 
-        z <- c(z, paste("put \"", x, "\\", y[w], "\"", sep = ""))
-    if (any(!w)) {
-        for (n in y[!w]) {
-            z <- c(z, paste(c("mkdir", "cd"), " \"", n, "\"", 
-                sep = ""))
-            z <- c(z, ftp.upload.script.underlying(paste(x, n, 
-                sep = "\\")))
-            z <- c(z, "cd ..")
+    if (length(y) > 0) {
+        w <- !file.info(paste(x, y, sep = "\\"))$isdir
+        if (any(w)) 
+            z <- c(z, paste("put \"", x, "\\", y[w], "\"", sep = ""))
+        if (any(!w)) {
+            for (n in y[!w]) {
+                z <- c(z, paste(c("mkdir", "cd"), " \"", n, "\"", 
+                  sep = ""))
+                z <- c(z, ftp.upload.script.underlying(paste(x, 
+                  n, sep = "\\")))
+                z <- c(z, "cd ..")
+            }
         }
     }
     z

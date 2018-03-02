@@ -4,10 +4,14 @@
 \alias{ftp.dir.excise.crap}
 \title{ftp.dir.excise.crap}
 \usage{
-ftp.dir.excise.crap(x)
+ftp.dir.excise.crap(x, y, n)
 }
 \arguments{
 \item{x}{= output from ftp directory listing}
+
+\item{y}{= string demarcating the beginning of useful output}
+
+\item{n}{= string demarcating the end of useful output}
 }
 \description{
 cleans up output
@@ -20,8 +24,10 @@ Other ftp: \code{\link{ftp.all.dir}},
   \code{\link{ftp.delete.script}},
   \code{\link{ftp.dir.ftp.code}}, \code{\link{ftp.dir}},
   \code{\link{ftp.download.script}},
-  \code{\link{ftp.file.size}}, \code{\link{ftp.is.file}},
-  \code{\link{ftp.put}}, \code{\link{ftp.txt}},
+  \code{\link{ftp.file.size}},
+  \code{\link{ftp.is.file.underlying}},
+  \code{\link{ftp.is.file}}, \code{\link{ftp.put}},
+  \code{\link{ftp.txt}},
   \code{\link{ftp.upload.script.underlying}},
   \code{\link{ftp.upload.script}}
 }
