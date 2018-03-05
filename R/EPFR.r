@@ -4285,7 +4285,7 @@ map.rname <- function (x, y)
         z <- vec.named(, y)
         w <- is.element(y, names(x))
         if (any(w)) 
-            z[w] <- x[y[w]]
+            z[w] <- x[names(z)[w]]
     }
     else {
         w <- !is.element(y, dimnames(x)[[1]])
