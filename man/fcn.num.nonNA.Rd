@@ -11,7 +11,7 @@ fcn.num.nonNA(fcn, x, y, n)
 
 \item{x}{= a vector}
 
-\item{y}{= an isomekic vector when not missing}
+\item{y}{= either missing or an isomekic vector}
 
 \item{n}{= T/F depending on whether inputs should be ranked}
 }

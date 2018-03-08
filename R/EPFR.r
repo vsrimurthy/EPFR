@@ -2544,13 +2544,13 @@ fcn.mat.num <- function (fcn, x, y, n)
         z <- fcn(x, y)
     }
     else if (n & missing(y)) {
-        z <- sapply(x, fcn)
+        z <- sapply(mat.ex.matrix(x), fcn)
     }
     else if (!n & missing(y)) {
         z <- sapply(mat.ex.matrix(t(x)), fcn)
     }
     else if (n & is.null(dim(y))) {
-        z <- sapply(x, fcn, y)
+        z <- sapply(mat.ex.matrix(x), fcn, y)
     }
     else if (!n & is.null(dim(y))) {
         z <- sapply(mat.ex.matrix(t(x)), fcn, y)
@@ -2652,7 +2652,7 @@ fcn.nonNA <- function (fcn, x)
 #' applies <fcn> to the non-NA values of <x> and <y>
 #' @param fcn = a function that maps a vector to a number
 #' @param x = a vector
-#' @param y = an isomekic vector when not missing
+#' @param y = either missing or an isomekic vector
 #' @param n = T/F depending on whether inputs should be ranked
 #' @keywords fcn.num.nonNA
 #' @export
@@ -4262,8 +4262,9 @@ load.mo.vbl.1obj <- function (beg, end, mk.fcn, optional.args, vbl.name, yyyy, e
 
 map.classif <- function (x, y, n) 
 {
-    z <- matrix(NA, dim(y)[1], 3, F, list(dimnames(y)[[1]], paste(n, 
-        1:3, sep = "")))
+    z <- c(n, paste(n, 1:3, sep = ""))
+    z <- matrix(NA, dim(y)[1], length(z), F, list(dimnames(y)[[1]], 
+        z))
     for (i in dimnames(z)[[2]]) if (any(dimnames(y)[[2]] == i)) 
         z[, i] <- as.numeric(map.rname(x, y[, i]))
     z <- avail(z)
@@ -5027,7 +5028,7 @@ mk.FundsMem <- function (x, y, n)
 #' Looks up date from external file and maps on isin
 #' @param x = a single YYYYMM or YYYYMMDD
 #' @param y = a string vector, the elements of which are: 1) an object name (preceded by #) or the path to a ".csv" file 2) defaults to "isin"
-#' @param n = classif file
+#' @param n = list object containing the following items: a) classif - classif file
 #' @keywords mk.isin
 #' @export
 #' @family mk
@@ -5038,7 +5039,7 @@ mk.isin <- function (x, y, n)
         y <- c(y, "isin")
     z <- read.prcRet(y[1])
     z <- vec.named(z[, x], dimnames(z)[[1]])
-    z <- map.classif(z, n, y[2])
+    z <- map.classif(z, n[["classif"]], y[2])
     z
 }
 
@@ -5627,14 +5628,19 @@ position.floPct <- function (x, y, n)
             cat("Warning: Latest data not being used! Proceeding regardless ...\n")
             x <- x[dimnames(x)[[1]] <= n, ]
         }
-        x <- x[dim(x)[1] - 19:0, ]
         if (missing(y)) 
             y <- dimnames(x)[[2]]
         else x <- mat.subset(x, y)
+        z <- x[dim(x)[1] - 19:0, ]
+        z <- vec.named(mat.compound(t(z)), y)
+        z <- z[order(-z)]
+        x <- x[dim(x)[1] - 19:0 - 5, ]
         x <- vec.named(mat.compound(t(x)), y)
-        x <- x[order(-x)]
-        y <- vec.named(qtl.eq(x), names(x))
-        z <- mat.ex.qtl(y, x)
+        x <- z - map.rname(x, names(z))
+        y <- vec.named(qtl.eq(z), names(z))
+        y <- mat.ex.qtl(y, z)
+        z <- data.frame(z, x, y)
+        dimnames(z)[[2]][1:2] <- c("Current", "WoW.chg")
     }
     z
 }
