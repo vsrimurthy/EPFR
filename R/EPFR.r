@@ -5639,7 +5639,7 @@ position.floPct <- function (x, y, n)
         x <- z - map.rname(x, names(z))
         y <- vec.named(qtl.eq(z), names(z))
         y <- mat.ex.qtl(y, z)
-        z <- data.frame(z, x, y)
+        z <- 0.01 * data.frame(z, x, y)
         dimnames(z)[[2]][1:2] <- c("Current", "WoW.chg")
     }
     z
