@@ -3471,6 +3471,8 @@ ftp.all.dir <- function (x, y, n, w)
 ftp.all.files <- function (x, y, n, w) 
 {
     z <- ftp.all.files.underlying(x, y, n, w, T)
+    if (x == "/") 
+        x <- ""
     z <- txt.right(z, nchar(z) - nchar(x) - 1)
     z
 }
@@ -3493,11 +3495,14 @@ ftp.all.files.underlying <- function (x, y, n, w, h)
     while (length(x) > 0) {
         cat(x[1], "...\n")
         j <- ftp.dir(x[1], y, n, w)
-        m <- ftp.is.file(paste(x[1], j, sep = "/"), y, n, w)
+        if (x[1] != "/" & x[1] != "") 
+            j <- paste(x[1], j, sep = "/")
+        else j <- paste("/", j, sep = "")
+        m <- ftp.is.file(j, y, n, w)
         if (any(m == h)) 
-            z <- c(z, paste(x[1], j[m == h], sep = "/"))
+            z <- c(z, j[m == h])
         if (any(!m)) 
-            x <- c(x, paste(x[1], j[!m], sep = "/"))
+            x <- c(x, j[!m])
         x <- x[-1]
     }
     z
@@ -3657,13 +3662,19 @@ ftp.download.script <- function (x, y, n, w, h)
         i <- u.par[i.n]
         w2.par <- is.element(w.par, i)
         z <- txt.replace(i, "\\", "/")
-        z <- paste(x, z, sep = "/")
+        if (x != "" & x != "/") 
+            z <- paste(x, z, sep = "/")
         if (txt.right(z, 1) == "/") 
             z <- txt.left(z, nchar(z) - 1)
         z <- paste("cd \"", z, "\"", sep = "")
         z <- c(h, z)
-        i <- txt.right(w[w2.par], nchar(w[w2.par]) - nchar(i) - 
-            1)
+        if (i == "") {
+            i <- w[w2.par]
+        }
+        else {
+            i <- txt.right(w[w2.par], nchar(w[w2.par]) - nchar(i) - 
+                1)
+        }
         z <- c(z, paste("get \"", i, "\"", sep = ""))
         z <- c(z, "disconnect", "quit")
         cat(z, file = paste(y, "\\script\\", "ftp", i.n, ".ftp", 
