@@ -1040,11 +1040,20 @@ col.to.int <- function (x)
 combinations <- function (x, y) 
 {
     w <- rep(F, length(x))
-    w[1:y] <- T
-    z <- NULL
-    while (any(w)) {
-        z <- c(z, paste(x[w], collapse = " "))
-        w <- combinations.next(w)
+    if (y > 0) 
+        w[1:y] <- T
+    if (all(w)) {
+        z <- paste(x, collapse = " ")
+    }
+    else if (all(!w)) {
+        z <- ""
+    }
+    else {
+        z <- NULL
+        while (any(w)) {
+            z <- c(z, paste(x[w], collapse = " "))
+            w <- combinations.next(w)
+        }
     }
     z
 }
@@ -4937,7 +4946,7 @@ mk.Alpha <- function (x, y, n)
     wts <- renorm(as.numeric(y[seq(m/2 + 2, m)]))/100
     z <- fetch(vbls, x, 1, paste(n$fldr, "derived", sep = "\\"), 
         n$classif)
-    z$grp <- n[, grp.nm]
+    z$grp <- n$classif[, grp.nm]
     z$mem <- fetch(univ, x, 1, paste(n$fldr, "\\data", sep = ""), 
         n$classif)
     for (j in vbls) z[, j] <- vec.zScore(z[, j], z$mem, z$grp)
@@ -6341,6 +6350,8 @@ rrw <- function (prdBeg, prdEnd, vbls, univ, grp.nm, ret.nm, fldr, orth.factor =
 
 rrw.factors <- function (x) 
 {
+    y <- vec.named(dimnames(x)[[2]], char.ex.int(64 + 1:dim(x)[2]))
+    dimnames(x)[[2]] <- names(y)
     z <- summary(lm(txt.regr(dimnames(x)[[2]]), x))$coeff[-1, 
         "t value"]
     while (any(z < 0)) {
@@ -6348,6 +6359,7 @@ rrw.factors <- function (x)
         z <- summary(lm(txt.regr(dimnames(x)[[2]]), x))$coeff[, 
             "t value"][-1]
     }
+    names(z) <- map.rname(y, names(z))
     z
 }
 
