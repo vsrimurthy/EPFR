@@ -21,8 +21,7 @@ sf.underlying.summ(x, y, n, w, h)
 Returns a named vector of bin returns
 }
 \seealso{
-Other sf: \code{\link{sf.bin.nms}},
-  \code{\link{sf.daily.summ}}, \code{\link{sf.daily}},
+Other sf: \code{\link{sf.bin.nms}}, \code{\link{sf.daily}},
   \code{\link{sf.single.bsim}}, \code{\link{sf.subset}},
   \code{\link{sf.summ}}, \code{\link{sf.underlying.data}},
   \code{\link{sf.underlying}}, \code{\link{sf}}

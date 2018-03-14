@@ -4,13 +4,13 @@
 \alias{sf.daily}
 \title{sf.daily}
 \usage{
-sf.daily(prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trails, sum.flows, fldr,
-  vbl.lag, dly.vbl = T, classif)
+sf.daily(prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trail, sum.flows, fldr,
+  vbl.lag, dly.vbl, retHz, classif)
 }
 \arguments{
-\item{prdBeg}{= first-return date in YYYYMM}
+\item{prdBeg}{= first-return date in YYYYMMDD}
 
-\item{prdEnd}{= first-return date in YYYYMM after <prdBeg>}
+\item{prdEnd}{= first-return date in YYYYMMDD (must postdate <prdBeg>)}
 
 \item{vbl.nm}{= variable}
 
@@ -20,7 +20,7 @@ sf.daily(prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trails, sum.flows, fldr,
 
 \item{ret.nm}{= return variable}
 
-\item{trails}{= number of trailing periods to compound/sum over}
+\item{trail}{= number of trailing periods to compound/sum over}
 
 \item{sum.flows}{= T/F depending on whether you want flows summed or compounded.}
 
@@ -28,7 +28,9 @@ sf.daily(prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trails, sum.flows, fldr,
 
 \item{vbl.lag}{= lags by <vbl.lag> weekdays or months depending on whether <dly.vbl> is true.}
 
-\item{dly.vbl}{= if T then a daily predictor is assumed else a monthly one}
+\item{dly.vbl}{= whether the predictor is daily or monthly}
+
+\item{retHz}{= forward return horizon in days}
 
 \item{classif}{= classif file}
 }
@@ -37,7 +39,6 @@ runs stock-flows simulation
 }
 \seealso{
 Other sf: \code{\link{sf.bin.nms}},
-  \code{\link{sf.daily.summ}},
   \code{\link{sf.single.bsim}}, \code{\link{sf.subset}},
   \code{\link{sf.summ}}, \code{\link{sf.underlying.data}},
   \code{\link{sf.underlying.summ}},

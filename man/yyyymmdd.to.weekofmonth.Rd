@@ -14,6 +14,7 @@ returns 1 if the date fell in the first week of the month, 2 if it fell in the s
 }
 \seealso{
 Other yyyymmdd: \code{\link{yyyymmdd.bulk}},
+  \code{\link{yyyymmdd.diff}},
   \code{\link{yyyymmdd.ex.AllocMo}},
   \code{\link{yyyymmdd.ex.day}},
   \code{\link{yyyymmdd.ex.int}},

@@ -14,6 +14,7 @@ Returns an object indexed by flow dates
 }
 \seealso{
 Other yyyymmdd: \code{\link{yyyymmdd.bulk}},
+  \code{\link{yyyymmdd.diff}},
   \code{\link{yyyymmdd.ex.day}},
   \code{\link{yyyymmdd.ex.int}},
   \code{\link{yyyymmdd.ex.txt}},

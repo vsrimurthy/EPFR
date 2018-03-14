@@ -14,6 +14,7 @@ returns T if <x> is YYYYMMDD
 }
 \seealso{
 Other yyyymmdd: \code{\link{yyyymmdd.bulk}},
+  \code{\link{yyyymmdd.diff}},
   \code{\link{yyyymmdd.ex.AllocMo}},
   \code{\link{yyyymmdd.ex.day}},
   \code{\link{yyyymmdd.ex.int}},

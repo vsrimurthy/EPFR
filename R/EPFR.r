@@ -1093,7 +1093,11 @@ combinations.next <- function (x)
 
 compound <- function (x) 
 {
-    100 * product(1 + x/100) - 100
+    z <- !is.na(x)
+    if (any(z)) 
+        z <- 100 * product(1 + x[z]/100) - 100
+    else z <- NA
+    z
 }
 
 #' compound.flows
@@ -6350,7 +6354,8 @@ rrw <- function (prdBeg, prdEnd, vbls, univ, grp.nm, ret.nm, fldr, orth.factor =
 
 rrw.factors <- function (x) 
 {
-    y <- vec.named(dimnames(x)[[2]], char.ex.int(64 + 1:dim(x)[2]))
+    y <- dimnames(x)[[2]]
+    names(y) <- fcn.vec.num(col.ex.int, 1:dim(x)[2])
     dimnames(x)[[2]] <- names(y)
     z <- summary(lm(txt.regr(dimnames(x)[[2]]), x))$coeff[-1, 
         "t value"]
@@ -6526,80 +6531,63 @@ sf.bin.nms <- function (x, y)
 #' sf.daily
 #' 
 #' runs stock-flows simulation
-#' @param prdBeg = first-return date in YYYYMM
-#' @param prdEnd = first-return date in YYYYMM after <prdBeg>
+#' @param prdBeg = first-return date in YYYYMMDD
+#' @param prdEnd = first-return date in YYYYMMDD (must postdate <prdBeg>)
 #' @param vbl.nm = variable
 #' @param univ = membership (e.g. "EafeMem" or c("GemMem", 1))
 #' @param grp.nm = group within which binning is to be performed
 #' @param ret.nm = return variable
-#' @param trails = number of trailing periods to compound/sum over
+#' @param trail = number of trailing periods to compound/sum over
 #' @param sum.flows = T/F depending on whether you want flows summed or compounded.
 #' @param fldr = data folder
 #' @param vbl.lag = lags by <vbl.lag> weekdays or months depending on whether <dly.vbl> is true.
-#' @param dly.vbl = if T then a daily predictor is assumed else a monthly one
+#' @param dly.vbl = whether the predictor is daily or monthly
+#' @param retHz = forward return horizon in days
 #' @param classif = classif file
 #' @keywords sf.daily
 #' @export
 #' @family sf
 
-sf.daily <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trails, 
-    sum.flows, fldr, vbl.lag, dly.vbl = T, classif) 
+sf.daily <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trail, 
+    sum.flows, fldr, vbl.lag, dly.vbl, retHz, classif) 
 {
     grp <- classif[, grp.nm]
     dts <- yyyymm.seq(prdBeg, prdEnd)
-    z <- c(1:3, "na", 4:5)
-    z <- paste("Q", z, sep = "")
-    z <- array(NA, c(6, length(z), length(trails)), list(c("All", 
-        weekday.to.name(1:5)), z, trails))
-    for (j in 1:dim(z)[3]) {
-        cat(trails[j], "")
-        if (j%%10 == 0) 
+    dts <- dts[!is.element(dts, nyse.holidays())]
+    m <- length(dts)
+    dts <- vec.named(c(yyyymmdd.diff(dts[seq(retHz + 1, m)], 
+        dts[seq(1, m - retHz)]), rep(retHz, retHz)), dts)
+    x <- sf.bin.nms(5, F)
+    x <- matrix(NA, m, length(x), F, list(names(dts), x))
+    for (i in 1:dim(x)[1]) {
+        if (i%%10 == 0) 
+            cat(dimnames(x)[[1]][i], "")
+        if (i%%100 == 0) 
             cat("\n")
-        x <- c(1:3, "na", 4:5)
-        x <- paste("Q", x, sep = "")
-        x <- matrix(NA, length(dts), length(x), F, list(dts, 
-            x))
-        for (i in dimnames(x)[[1]]) {
-            vec <- sf.underlying(vbl.nm, univ, ret.nm, i, trails[j], 
-                F, grp, dly.vbl, 5, fldr, vbl.lag, classif = classif)
-            vec <- map.rname(vec, dimnames(x)[[2]])
-            x[i, ] <- as.numeric(vec)
-        }
-        x <- sf.daily.summ(x, 1, 0, 0, T)
-        x <- data.frame(x[["DyOfWk"]]["AnnMn", dimnames(x[["Overall"]])[[2]], 
-            ], t(x[["Overall"]])[, "AnnMn"])
-        dimnames(x)[[2]][dim(x)[2]] <- "All"
-        x <- map.rname(x, dimnames(z)[[2]])
-        x <- t(x)
-        x <- map.rname(x, dimnames(z)[[1]])
-        z[, , j] <- unlist(x)
+        i.dt <- dimnames(x)[[1]][i]
+        vec <- sf.underlying(vbl.nm, univ, ret.nm, i.dt, trail, 
+            sum.flows, grp, dly.vbl, 5, fldr, vbl.lag, F, F, 
+            dts[i.dt], classif)
+        vec <- map.rname(vec, dimnames(x)[[2]])
+        x[i.dt, ] <- as.numeric(vec)
     }
     cat("\n")
-    z
-}
-
-#' sf.daily.summ
-#' 
-#' Summarizes bin excess returns by sub-periods of interest (as defined by <vec>)
-#' @param x = bin returns by period
-#' @param y = the number of days in the return window
-#' @param n = the number of days the predictors are lagged
-#' @param w = the number of days needed for the predictors to be known
-#' @param h = if F grp.fcn is applied to formation dates. Otherwise it is applied to the first day in forward the return window.
-#' @keywords sf.daily.summ
-#' @export
-#' @family sf
-
-sf.daily.summ <- function (x, y, n, w, h) 
-{
-    z <- list(Overall = bbk.bin.rets.summ(x, 260/y))
-    vec <- fop.grp.map(day.to.weekday, x, n, w, h)
-    z[["DyOfWk"]] <- bbk.bin.rets.prd.summ(bbk.bin.rets.summ, 
-        x, vec, 260/y)
-    dimnames(z[["DyOfWk"]])[[3]] <- weekday.to.name(dimnames(z[["DyOfWk"]])[[3]])
-    vec <- fop.grp.map(yyyymmdd.to.CalYrDyOfWk, x, n, w, h)
-    z[["CalYrDyOfWk"]] <- bbk.bin.rets.prd.summ(bbk.bin.rets.summ, 
-        x, vec, 260/y)
+    x <- mat.ex.matrix(x)
+    x$TxB <- x[, 1] - x[, dim(x)[2]]
+    x <- mat.last.to.first(x)
+    if (retHz > 1) {
+        y <- NULL
+        for (offset in 1:retHz - 1) {
+            w <- 1:dim(x)[1]%%retHz == offset
+            z <- bbk.bin.rets.summ(x[w, ], 250/retHz)
+            if (is.null(y)) 
+                y <- array(NA, c(dim(z), retHz), list(dimnames(z)[[1]], 
+                  dimnames(z)[[2]], 1:retHz - 1))
+            y[, , as.character(offset)] <- unlist(z)
+        }
+        z <- apply(y, 1:2, mean)
+    }
+    else z <- bbk.bin.rets.summ(x, 250/retHz)
     z
 }
 
@@ -6775,8 +6763,6 @@ sf.underlying.data <- function (vbl.nm, univ, ret.nm, ret.prd, trail, sum.flows,
             sep = "\\"), classif)
     }
     else {
-        if (nchar(ret.prd) == 8) 
-            stop("Can't handle this yet!")
         ret <- fetch(ret.nm, yyyymm.lag(ret.prd, 1 - retHz), 
             retHz, paste(fldr, "data", sep = "\\"), classif)
         ret <- mat.compound(ret)
@@ -9686,6 +9672,20 @@ yyyymmdd.bulk <- function (x)
         err.raise(z[w], F, "Following weekdays missing from data")
     z <- map.rname(x, z)
     z
+}
+
+#' yyyymmdd.diff
+#' 
+#' returns <x - y> in terms of YYYYMMDD
+#' @param x = a vector of YYYYMMDD
+#' @param y = an isomekic vector of YYYYMMDD
+#' @keywords yyyymmdd.diff
+#' @export
+#' @family yyyymmdd
+
+yyyymmdd.diff <- function (x, y) 
+{
+    obj.diff(yyyymmdd.to.int, x, y)
 }
 
 #' yyyymmdd.ex.AllocMo

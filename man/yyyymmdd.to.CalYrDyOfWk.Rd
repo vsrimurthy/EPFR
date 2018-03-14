@@ -14,6 +14,7 @@ Converts to 0 = Sun, 1 = Mon, ..., 6 = Sat
 }
 \seealso{
 Other yyyymmdd: \code{\link{yyyymmdd.bulk}},
+  \code{\link{yyyymmdd.diff}},
   \code{\link{yyyymmdd.ex.AllocMo}},
   \code{\link{yyyymmdd.ex.day}},
   \code{\link{yyyymmdd.ex.int}},
