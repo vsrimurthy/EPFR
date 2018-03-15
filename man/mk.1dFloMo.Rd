@@ -19,7 +19,8 @@ Returns a flow variable with the same row space as <n>
 \seealso{
 Other mk: \code{\link{mk.1mAllocMo}},
   \code{\link{mk.1mPerfTrend}}, \code{\link{mk.ActWt}},
-  \code{\link{mk.Alpha}}, \code{\link{mk.FloAlphaLt.Ctry}},
+  \code{\link{mk.Alpha.daily}}, \code{\link{mk.Alpha}},
+  \code{\link{mk.FloAlphaLt.Ctry}},
   \code{\link{mk.FundsMem}},
   \code{\link{mk.JensensAlpha.fund}}, \code{\link{mk.Mem}},
   \code{\link{mk.PrcMo}}, \code{\link{mk.Wt}},

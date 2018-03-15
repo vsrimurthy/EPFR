@@ -4962,6 +4962,51 @@ mk.Alpha <- function (x, y, n)
     z
 }
 
+#' mk.Alpha.daily
+#' 
+#' makes Alpha
+#' @param x = a single YYYYMMDD
+#' @param y = a string vector, the first two elements of which are universe and group to zScore on and within. This is then followed by a list of variables which are, in turn, followed by weights to put on variables and a logical vector indicating whether the variables are daily.
+#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
+#' @keywords mk.Alpha.daily
+#' @export
+#' @family mk
+
+mk.Alpha.daily <- function (x, y, n) 
+{
+    m <- length(y)
+    if ((m - 2)%%3 != 0) 
+        stop("Bad Arguments")
+    univ <- y[1]
+    grp.nm <- y[2]
+    wts <- renorm(as.numeric(y[seq((m + 7)/3, (2 * m + 2)/3)]))/100
+    vbls <- vec.named(as.logical(y[seq((2 * m + 5)/3, m)]), y[seq(3, 
+        (m + 4)/3)])
+    vbls[univ] <- F
+    z <- matrix(NA, dim(n$classif)[1], length(vbls), F, list(dimnames(n$classif)[[1]], 
+        names(vbls)))
+    for (i in names(vbls)) {
+        if (vbls[i]) 
+            x.loc <- x
+        else x.loc <- yyyymm.lag(yyyymmdd.to.yyyymm(x))
+        if (i == univ) 
+            sub.fldr <- "data"
+        else sub.fldr <- "derived"
+        z[, i] <- fetch(i, x.loc, 1, paste(n$fldr, sub.fldr, 
+            sep = "\\"), n$classif)
+    }
+    z <- mat.ex.matrix(z)
+    z$grp <- n$classif[, grp.nm]
+    vbls <- setdiff(names(vbls), univ)
+    for (j in vbls) z[, j] <- vec.zScore(z[, j], z[, univ], z$grp)
+    z <- z[, vbls]
+    z <- zav(z)
+    z <- as.matrix(z)
+    z <- z %*% wts
+    z <- as.numeric(z)
+    z
+}
+
 #' mk.avail
 #' 
 #' Returns leftmost non-NA variable
@@ -5180,8 +5225,9 @@ mk.trail.sum.dly.vbl <- function (x, y, n)
         y <- c(y, "derived")
     m <- as.numeric(y[3])
     trail <- m + as.numeric(y[4])
-    mo.end <- yyyymmdd.ex.yyyymm(x)
-    z <- fetch(y[1], mo.end, trail, paste(n$fldr, y[5], sep = "\\"), 
+    if (nchar(x) == 6) 
+        x <- yyyymmdd.ex.yyyymm(x)
+    z <- fetch(y[1], x, trail, paste(n$fldr, y[5], sep = "\\"), 
         n$classif)
     z <- z[, 1:m]
     z <- compound.stock.flows(z, as.logical(y[2]))

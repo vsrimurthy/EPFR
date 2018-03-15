@@ -19,8 +19,8 @@ Computes monthly beta versus relevant benchmark
 \seealso{
 Other mk: \code{\link{mk.1dFloMo}},
   \code{\link{mk.1mAllocMo}}, \code{\link{mk.1mPerfTrend}},
-  \code{\link{mk.ActWt}}, \code{\link{mk.Alpha}},
-  \code{\link{mk.FloAlphaLt.Ctry}},
+  \code{\link{mk.ActWt}}, \code{\link{mk.Alpha.daily}},
+  \code{\link{mk.Alpha}}, \code{\link{mk.FloAlphaLt.Ctry}},
   \code{\link{mk.FundsMem}},
   \code{\link{mk.JensensAlpha.fund}}, \code{\link{mk.Mem}},
   \code{\link{mk.PrcMo}}, \code{\link{mk.Wt}},
