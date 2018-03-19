@@ -5686,7 +5686,7 @@ plurality.map <- function (x, y)
 
 position.ActWtDiff2 <- function (x) 
 {
-    conn <- sql.connect("StockFlows")
+    conn <- sql.connect(x)
     dts <- "select ReportDate = convert(char(8), max(ReportDate), 112) from DailyData"
     dts <- sqlQuery(conn, dts)[1, 1]
     mo.end <- yyyymmdd.to.AllocMo(dts, 26)
