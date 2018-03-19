@@ -14,10 +14,12 @@ sql.1dActWtTrend(x, y, n)
 \item{n}{= any of StockFlows/Japan/CSI300/Energy}
 }
 \description{
-Generates the SQL query to get the data for 1dActWtTrend
+the SQL query to get 1dActWtTrend
 }
 \seealso{
 Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
+  \code{\link{sql.1dActWtTrend.topline}},
+  \code{\link{sql.1dActWtTrend.underlying}},
   \code{\link{sql.1dFloMo.Ctry.Allocations.GF.avg}},
   \code{\link{sql.1dFloMo.Ctry.Allocations}},
   \code{\link{sql.1dFloMo.Ctry.List}},

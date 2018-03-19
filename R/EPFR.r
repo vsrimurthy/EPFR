@@ -6884,7 +6884,7 @@ smear.Q1 <- function (x)
 
 #' sql.1dActWtTrend
 #' 
-#' Generates the SQL query to get the data for 1dActWtTrend
+#' the SQL query to get 1dActWtTrend
 #' @param x = the YYYYMMDD for which you want flows (known one day later)
 #' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
 #' @param n = any of StockFlows/Japan/CSI300/Energy
@@ -6895,55 +6895,8 @@ smear.Q1 <- function (x)
 sql.1dActWtTrend <- function (x, y, n) 
 {
     m <- length(y)
-    mo.end <- yyyymmdd.to.AllocMo(x, 26)
-    mo.end <- yyyymm.to.day(mo.end)
-    z <- c(paste("drop table", c("#AUM", "#HLD", "#FLO")), "", 
-        sql.DailyFlo(paste("'", x, "'", sep = ""), "#FLO"))
-    z <- c(z, "", "create table #AUM (HFundId int not null, PortVal float not null)", 
-        "create clustered index TempRandomIndex ON #AUM(HFundId)")
-    w <- list(A = paste("ReportDate = '", mo.end, "'", sep = ""))
-    if (y[m] == "Act") 
-        w[["B"]] <- sql.in("HFundId", sql.FundHistory("", "Act", 
-            T))
-    w <- sql.unbracket(sql.tbl("HFundId, PortVal = sum(AssetsEnd)", 
-        "MonthlyData", sql.and(w), "HFundId", "sum(AssetsEnd) > 0"))
-    z <- c(z, "insert into", "\t#AUM (HFundId, PortVal)", w)
-    w <- sql.and(list(A = sql.in("HFundId", sql.tbl("HFundId", 
-        "#FLO")), B = sql.in("HSecurityId", sql.RDSuniv(n))))
-    w <- list(A = sql.in("FundId", sql.tbl("FundId", "FundHistory", 
-        w)), B = paste("datediff(month, ReportDate, '", mo.end, 
-        "') = 0", sep = ""))
-    z <- c(z, sql.Holdings(sql.and(w), c("FundId", "HFundId", 
-        "HSecurityId", "HoldingValue"), "#HLD"), "")
-    x <- "SecurityId"
-    for (i in y[-m]) {
-        if (i == "ActWtTrend") {
-            x <- c(x, paste("ActWtTrend", sql.Trend("Flow * (hld.HoldingValue/aum.PortVal - FundWtdExcl0)")))
-        }
-        else if (i == "ActWtDiff") {
-            x <- c(x, paste("ActWtDiff", sql.Diff("Flow", "hld.HoldingValue/aum.PortVal - FundWtdExcl0")))
-        }
-        else if (i == "ActWtDiff2") {
-            x <- c(x, paste("ActWtDiff2", sql.Diff("hld.HoldingValue/aum.PortVal - FundWtdExcl0", 
-                "Flow")))
-        }
-        else stop("Bad Argument")
-    }
-    w <- "HSecurityId, GeographicFocusId, FundWtdExcl0 = sum(HoldingValue)/sum(case when HoldingValue is not null then PortVal else NULL end)"
-    y <- c("FundHistory t1", "inner join", "#HLD t2 on t2.HFundId = t1.HFundId", 
-        "inner join", "#AUM t3 on t3.HFundId = t1.HFundId")
-    h <- "sum(case when HoldingValue is not null then PortVal else NULL end) > 0"
-    w <- sql.label(sql.tbl(w, y, , "HSecurityId, GeographicFocusId", 
-        h), "mnW")
-    y <- c("#FLO flo", "inner join", "FundHistory his on his.HFundId = flo.HFundId", 
-        "inner join")
-    y <- c(y, "#HLD hld on hld.FundId = his.FundId", "inner join", 
-        "#AUM aum on aum.HFundId = hld.HFundId", "inner join")
-    y <- c(y, "SecurityHistory id on id.HSecurityId = hld.HSecurityId", 
-        "inner join")
-    y <- c(y, w, "\ton mnW.HSecurityId = hld.HSecurityId and mnW.GeographicFocusId = his.GeographicFocusId")
-    z <- c(paste(z, collapse = "\n"), paste(sql.unbracket(sql.tbl(x, 
-        y, , "SecurityId")), collapse = "\n"))
+    z <- sql.1dActWtTrend.underlying(x, y[m], sql.RDSuniv(n))
+    z <- c(z, sql.1dActWtTrend.topline(y[-m]))
     z
 }
 
@@ -6974,6 +6927,83 @@ sql.1dActWtTrend.Ctry.underlying <- function (x, y, n)
     z <- c(z, "inner join", sql.label(sql.1dFloMo.Ctry.Allocations.GF.avg(x, 
         n), "t3"))
     z <- c(z, "\ton t3.GeographicFocus = t0.GeographicFocus and t3.WeightDate = t2.WeightDate")
+    z
+}
+
+#' sql.1dActWtTrend.topline
+#' 
+#' SQL query to get the select statement for 1dActWtTrend
+#' @param x = a string vector of factors to be computed,
+#' @keywords sql.1dActWtTrend.topline
+#' @export
+#' @family sql
+
+sql.1dActWtTrend.topline <- function (x) 
+{
+    z <- "SecurityId"
+    for (i in x) {
+        if (i == "ActWtTrend") {
+            z <- c(z, paste("ActWtTrend", sql.Trend("Flow * (hld.HoldingValue/aum.PortVal - FundWtdExcl0)")))
+        }
+        else if (i == "ActWtDiff") {
+            z <- c(z, paste("ActWtDiff", sql.Diff("Flow", "hld.HoldingValue/aum.PortVal - FundWtdExcl0")))
+        }
+        else if (i == "ActWtDiff2") {
+            z <- c(z, paste("ActWtDiff2", sql.Diff("hld.HoldingValue/aum.PortVal - FundWtdExcl0", 
+                "Flow")))
+        }
+        else stop("Bad Argument")
+    }
+    w <- "HSecurityId, GeographicFocusId, FundWtdExcl0 = sum(HoldingValue)/sum(case when HoldingValue is not null then PortVal else NULL end)"
+    x <- c("FundHistory t1", "inner join", "#HLD t2 on t2.HFundId = t1.HFundId", 
+        "inner join", "#AUM t3 on t3.HFundId = t1.HFundId")
+    h <- "sum(case when HoldingValue is not null then PortVal else NULL end) > 0"
+    w <- sql.label(sql.tbl(w, x, , "HSecurityId, GeographicFocusId", 
+        h), "mnW")
+    x <- c("#FLO flo", "inner join", "FundHistory his on his.HFundId = flo.HFundId", 
+        "inner join")
+    x <- c(x, "#HLD hld on hld.FundId = his.FundId", "inner join", 
+        "#AUM aum on aum.HFundId = hld.HFundId", "inner join")
+    x <- c(x, "SecurityHistory id on id.HSecurityId = hld.HSecurityId", 
+        "inner join")
+    x <- c(x, w, "\ton mnW.HSecurityId = hld.HSecurityId and mnW.GeographicFocusId = his.GeographicFocusId")
+    z <- paste(sql.unbracket(sql.tbl(z, x, , "SecurityId")), 
+        collapse = "\n")
+    z
+}
+
+#' sql.1dActWtTrend.underlying
+#' 
+#' the SQL query to get the data for 1dActWtTrend
+#' @param x = the YYYYMMDD for which you want flows (known one day later)
+#' @param y = the type of fund used in the computation
+#' @param n = SQL query to subset to securities desired
+#' @keywords sql.1dActWtTrend.underlying
+#' @export
+#' @family sql
+
+sql.1dActWtTrend.underlying <- function (x, y, n) 
+{
+    mo.end <- yyyymmdd.to.AllocMo(x, 26)
+    mo.end <- yyyymm.to.day(mo.end)
+    z <- c(paste("drop table", c("#AUM", "#HLD", "#FLO")), "", 
+        sql.DailyFlo(paste("'", x, "'", sep = ""), "#FLO"))
+    z <- c(z, "", "create table #AUM (HFundId int not null, PortVal float not null)", 
+        "create clustered index TempRandomIndex ON #AUM(HFundId)")
+    w <- list(A = paste("ReportDate = '", mo.end, "'", sep = ""))
+    if (y == "Act") 
+        w[["B"]] <- sql.in("HFundId", sql.FundHistory("", "Act", 
+            T))
+    w <- sql.unbracket(sql.tbl("HFundId, PortVal = sum(AssetsEnd)", 
+        "MonthlyData", sql.and(w), "HFundId", "sum(AssetsEnd) > 0"))
+    z <- c(z, "insert into", "\t#AUM (HFundId, PortVal)", w)
+    w <- sql.in("HFundId", sql.tbl("HFundId", "#FLO"))
+    w <- sql.in("FundId", sql.tbl("FundId", "FundHistory", w))
+    w <- list(A = w, B = sql.in("HSecurityId", n), C = paste("datediff(month, ReportDate, '", 
+        mo.end, "') = 0", sep = ""))
+    z <- c(z, "", sql.Holdings(sql.and(w), c("FundId", "HFundId", 
+        "HSecurityId", "HoldingValue"), "#HLD"), "")
+    z <- paste(z, collapse = "\n")
     z
 }
 

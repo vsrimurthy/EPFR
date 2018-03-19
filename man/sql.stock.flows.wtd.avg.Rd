@@ -16,6 +16,8 @@ Computes Fund/Smpl weighted Incl/Excl zero for all names in the S&P
 }
 \seealso{
 Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
+  \code{\link{sql.1dActWtTrend.topline}},
+  \code{\link{sql.1dActWtTrend.underlying}},
   \code{\link{sql.1dActWtTrend}},
   \code{\link{sql.1dFloMo.Ctry.Allocations.GF.avg}},
   \code{\link{sql.1dFloMo.Ctry.Allocations}},

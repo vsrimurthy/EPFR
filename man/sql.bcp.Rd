@@ -22,6 +22,8 @@ code to bcp data out of server
 }
 \seealso{
 Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
+  \code{\link{sql.1dActWtTrend.topline}},
+  \code{\link{sql.1dActWtTrend.underlying}},
   \code{\link{sql.1dActWtTrend}},
   \code{\link{sql.1dFloMo.Ctry.Allocations.GF.avg}},
   \code{\link{sql.1dFloMo.Ctry.Allocations}},
