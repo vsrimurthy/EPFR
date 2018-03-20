@@ -4488,8 +4488,8 @@ mat.ex.matrix <- function (x, y = NULL)
 #' mat.ex.qtl
 #' 
 #' transforms into a 1/0 matrix of bin memberships if <y> is missing or the values of <y> otherwise
-#' @param x = a vector
-#' @param y = an isomekic vector
+#' @param x = a vector of bin assignments
+#' @param y = an isomekic vector of associated values
 #' @keywords mat.ex.qtl
 #' @export
 #' @family mat
@@ -5742,6 +5742,9 @@ position.ActWtDiff2 <- function (x, y)
     z <- z[!is.na(z$Ticker) & !duplicated(z$Ticker), ]
     dimnames(z)[[1]] <- z$Ticker
     z <- z[, c("CompanyName", "Current", "WoW.chg")]
+    y <- vec.named(qtl.eq(z$Current), dimnames(z)[[1]])
+    y <- mat.ex.qtl(y, z$Current)
+    z <- data.frame(z, y)
     z
 }
 

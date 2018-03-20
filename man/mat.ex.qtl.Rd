@@ -7,9 +7,9 @@
 mat.ex.qtl(x, y)
 }
 \arguments{
-\item{x}{= a vector}
+\item{x}{= a vector of bin assignments}
 
-\item{y}{= an isomekic vector}
+\item{y}{= an isomekic vector of associated values}
 }
 \description{
 transforms into a 1/0 matrix of bin memberships if <y> is missing or the values of <y> otherwise
