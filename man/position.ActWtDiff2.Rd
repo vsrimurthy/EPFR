@@ -4,10 +4,12 @@
 \alias{position.ActWtDiff2}
 \title{position.ActWtDiff2}
 \usage{
-position.ActWtDiff2(x)
+position.ActWtDiff2(x, y)
 }
 \arguments{
 \item{x}{= One of "StockFlows", "Quant" or "Regular"}
+
+\item{y}{= last publication date}
 }
 \description{
 Current and week-over-week change of ActWtDiff2 on R1 Materials

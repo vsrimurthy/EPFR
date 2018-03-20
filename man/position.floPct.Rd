@@ -11,7 +11,7 @@ position.floPct(x, y, n)
 
 \item{y}{= subset}
 
-\item{n}{= last date of publication}
+\item{n}{= last publication date}
 }
 \description{
 Latest four-week flow percentage

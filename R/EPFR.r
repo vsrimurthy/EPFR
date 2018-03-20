@@ -5680,33 +5680,32 @@ plurality.map <- function (x, y)
 #' 
 #' Current and week-over-week change of ActWtDiff2 on R1 Materials
 #' @param x = One of "StockFlows", "Quant" or "Regular"
+#' @param y = last publication date
 #' @keywords position.ActWtDiff2
 #' @export
 #' @family position
 
-position.ActWtDiff2 <- function (x) 
+position.ActWtDiff2 <- function (x, y) 
 {
     conn <- sql.connect(x)
-    dts <- "select ReportDate = convert(char(8), max(ReportDate), 112) from DailyData"
-    dts <- sqlQuery(conn, dts)[1, 1]
-    mo.end <- yyyymmdd.to.AllocMo(dts, 26)
-    y <- sql.and(list(A = "StyleSectorId = 101", B = "GeographicFocusId = 77", 
+    mo.end <- yyyymmdd.to.AllocMo(y, 26)
+    w <- sql.and(list(A = "StyleSectorId = 101", B = "GeographicFocusId = 77", 
         C = "[Index] = 1"))
-    y <- sql.in("HFundId", sql.tbl("HFundId", "FundHistory", 
-        y))
-    y <- list(A = y, B = paste("ReportDate = '", yyyymm.to.day(mo.end), 
+    w <- sql.in("HFundId", sql.tbl("HFundId", "FundHistory", 
+        w))
+    w <- list(A = w, B = paste("ReportDate = '", yyyymm.to.day(mo.end), 
         "'", sep = ""))
     z <- sql.in("HFundId", sql.tbl("HFundId", "FundHistory", 
         "FundId = 5152"))
     z <- sql.and(list(A = z, B = paste("ReportDate = '", yyyymm.to.day(mo.end), 
         "'", sep = "")))
     z <- sql.tbl("HSecurityId", "Holdings", z, "HSecurityId")
-    y[["C"]] <- sql.in("HSecurityId", z)
-    y <- sql.tbl("HSecurityId", "Holdings", sql.and(y), "HSecurityId")
-    dts <- yyyymmdd.lag(dts, 19:0)
+    w[["C"]] <- sql.in("HSecurityId", z)
+    w <- sql.tbl("HSecurityId", "Holdings", sql.and(w), "HSecurityId")
+    y <- yyyymmdd.lag(y, 19:0)
     z <- list()
-    for (j in dts) {
-        x <- sql.1dActWtTrend.underlying(j, "All", y)
+    for (j in y) {
+        x <- sql.1dActWtTrend.underlying(j, "All", w)
         x <- c(x, sql.1dActWtTrend.topline("ActWtDiff2"))
         for (i in x) x <- sqlQuery(conn, i)
         z[[j]] <- x
@@ -5723,27 +5722,26 @@ position.ActWtDiff2 <- function (x)
     z <- matrix(c(Current, WoW.chg), length(x), 2, F, list(x, 
         c("Current", "WoW.chg")))
     z <- mat.ex.matrix(z)
-    z$Latest <- rep(dts[20], dim(z)[1])
-    z$Bin <- qtl.eq(z$Current)
     z <- z[order(z$Current, decreasing = T), ]
-    z <- z[is.element(z$Bin, c(1, 5)), ]
     x <- paste(dimnames(z)[[1]], collapse = ", ")
     x <- sql.in("SecurityId", paste("(", x, ")", sep = ""))
-    x <- sql.and(list(A = x, B = "t1.EndDate is null"))
-    x <- sql.tbl(c("SecurityId", "t2.CompanyName"), c("SecurityHistory t1", 
-        "inner join", "CompanyHistory t2 on t1.HCompanyId = t2.HCompanyId"), 
-        x)
+    x <- sql.and(list(A = x, B = "t1.EndDate is null", C = "t3.SecurityCodeTypeId = 4"))
+    y <- c("SecurityHistory t1", "inner join", "CompanyHistory t2 on t1.HCompanyId = t2.HCompanyId")
+    y <- c(y, "inner join", "SecurityCodeMapping t3 on t1.HSecurityId = t3.HSecurityId")
+    y <- c(y, "inner join", "SecurityCode t4 on SecurityCodeId = [Id]")
+    x <- sql.tbl(c("SecurityId", "t4.SecurityCode", "t2.CompanyName"), 
+        y, x)
     x <- paste(sql.unbracket(x), collapse = "\n")
     x <- sqlQuery(conn, x)
     close(conn)
     x <- x[!duplicated(x[, "SecurityId"]), ]
     dimnames(x)[[1]] <- x[, "SecurityId"]
     x <- map.rname(x, dimnames(z)[[1]])
-    z$CompanyName <- x[, "CompanyName"]
-    z <- z[!is.na(z$CompanyName) & !duplicated(z$CompanyName), 
-        ]
-    dimnames(z)[[1]] <- z$CompanyName
-    z <- z[, c("Current", "WoW.chg", "Latest", "Bin")]
+    z$CompanyName <- x$CompanyName
+    z$Ticker <- x$SecurityCode
+    z <- z[!is.na(z$Ticker) & !duplicated(z$Ticker), ]
+    dimnames(z)[[1]] <- z$Ticker
+    z <- z[, c("CompanyName", "Current", "WoW.chg")]
     z
 }
 
@@ -5752,7 +5750,7 @@ position.ActWtDiff2 <- function (x)
 #' Latest four-week flow percentage
 #' @param x = strategy path
 #' @param y = subset
-#' @param n = last date of publication
+#' @param n = last publication date
 #' @keywords position.floPct
 #' @export
 #' @family position
@@ -5886,13 +5884,7 @@ ptile <- function (x)
 
 publish.daily.last <- function () 
 {
-    z <- today()
-    n <- as.numeric(day.to.weekday(z))
-    if (any(n == 1:2)) 
-        n <- n + 2
-    else n <- 2
-    z <- day.lag(z, n)
-    z
+    yyyymmdd.lag(today(), 2)
 }
 
 #' publish.date
