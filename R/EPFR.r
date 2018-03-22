@@ -3948,6 +3948,24 @@ GSec.to.GSgrp <- function (x)
     z
 }
 
+#' int.to.prime
+#' 
+#' prime factors of <x>
+#' @param x = an integer
+#' @keywords int.to.prime
+#' @export
+
+int.to.prime <- function (x) 
+{
+    n <- floor(sqrt(x))
+    while (n > 1 & x%%n > 0) n <- n - 1
+    if (n == 1) 
+        z <- x
+    else z <- z <- c(int.to.prime(n), int.to.prime(x/n))
+    z <- z[order(z)]
+    z
+}
+
 #' isin.check.digit
 #' 
 #' The check digit, derived using the 'Modulus 10 Double Add Double' technique.
@@ -5881,13 +5899,17 @@ ptile <- function (x)
 #' publish.daily.last
 #' 
 #' date of last daily publication
+#' @param x = a YYYYMMDD date
 #' @keywords publish.daily.last
 #' @export
 #' @family publish
 
-publish.daily.last <- function () 
+publish.daily.last <- function (x) 
 {
-    yyyymmdd.lag(today(), 2)
+    if (missing(x)) 
+        x <- today()
+    z <- yyyymmdd.lag(x, 2)
+    z
 }
 
 #' publish.date
@@ -5911,30 +5933,38 @@ publish.date <- function (x)
 #' publish.monthly.last
 #' 
 #' date of last monthly publication
+#' @param x = a YYYYMMDD date
 #' @keywords publish.monthly.last
 #' @export
 #' @family publish
 
-publish.monthly.last <- function () 
+publish.monthly.last <- function (x) 
 {
-    yyyymm.to.day(yyyymmdd.to.AllocMo(yyyymmdd.lag(today(), 1)))
+    if (missing(x)) 
+        x <- today()
+    z <- yyyymmdd.lag(x, 1)
+    z <- yyyymmdd.to.AllocMo(z)
+    z <- yyyymm.to.day(z)
+    z
 }
 
 #' publish.weekly.last
 #' 
 #' date of last weekly publication
+#' @param x = a YYYYMMDD date
 #' @keywords publish.weekly.last
 #' @export
 #' @family publish
 
-publish.weekly.last <- function () 
+publish.weekly.last <- function (x) 
 {
-    z <- today()
-    n <- as.numeric(day.to.weekday(z))
-    if (any(n == 5:6)) 
-        n <- n - 3
-    else n <- n + 4
-    z <- day.lag(z, n)
+    if (missing(x)) 
+        x <- today()
+    z <- as.numeric(day.to.weekday(x))
+    if (any(z == 5:6)) 
+        z <- z - 3
+    else z <- z + 4
+    z <- day.lag(x, z)
     z
 }
 
@@ -8748,6 +8778,39 @@ txt.anagram.underlying <- function (x, y, n)
         if (proceed) 
             proceed <- nchar(y[m]) >= n[1]
     }
+    z
+}
+
+#' txt.core
+#' 
+#' renders with upper-case letters, spaces and numbers only
+#' @param x = a vector
+#' @keywords txt.core
+#' @export
+#' @family txt
+
+txt.core <- function (x) 
+{
+    x <- toupper(x)
+    m <- nchar(x)
+    n <- max(m)
+    while (n > 0) {
+        w <- m >= n
+        w[w] <- !is.element(substring(x[w], n, n), c(" ", char.seq("A", 
+            "Z"), 0:9))
+        h <- w & m == n
+        if (any(h)) {
+            x[h] <- txt.left(x[h], n - 1)
+            m[h] <- m[h] - 1
+        }
+        h <- w & m > n
+        if (any(h)) 
+            x[h] <- paste(txt.left(x[h], n - 1), substring(x[h], 
+                n + 1, m[h]))
+        n <- n - 1
+    }
+    x <- txt.trim(x)
+    z <- txt.itrim(x)
     z
 }
 

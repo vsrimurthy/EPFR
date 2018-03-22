@@ -4,7 +4,10 @@
 \alias{publish.daily.last}
 \title{publish.daily.last}
 \usage{
-publish.daily.last()
+publish.daily.last(x)
+}
+\arguments{
+\item{x}{= a YYYYMMDD date}
 }
 \description{
 date of last daily publication

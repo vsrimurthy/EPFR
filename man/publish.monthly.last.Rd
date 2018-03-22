@@ -4,7 +4,10 @@
 \alias{publish.monthly.last}
 \title{publish.monthly.last}
 \usage{
-publish.monthly.last()
+publish.monthly.last(x)
+}
+\arguments{
+\item{x}{= a YYYYMMDD date}
 }
 \description{
 date of last monthly publication

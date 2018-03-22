@@ -14,11 +14,12 @@ reads in the file as a single string
 }
 \seealso{
 Other txt: \code{\link{txt.anagram.underlying}},
-  \code{\link{txt.anagram}}, \code{\link{txt.count}},
-  \code{\link{txt.excise}}, \code{\link{txt.expand}},
-  \code{\link{txt.has}}, \code{\link{txt.hdr}},
-  \code{\link{txt.itrim}}, \code{\link{txt.left}},
-  \code{\link{txt.name.format}}, \code{\link{txt.na}},
+  \code{\link{txt.anagram}}, \code{\link{txt.core}},
+  \code{\link{txt.count}}, \code{\link{txt.excise}},
+  \code{\link{txt.expand}}, \code{\link{txt.has}},
+  \code{\link{txt.hdr}}, \code{\link{txt.itrim}},
+  \code{\link{txt.left}}, \code{\link{txt.name.format}},
+  \code{\link{txt.na}},
   \code{\link{txt.palindrome.entire}},
   \code{\link{txt.palindrome.partial}},
   \code{\link{txt.palindrome.tail}},
