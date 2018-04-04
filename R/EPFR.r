@@ -5057,12 +5057,9 @@ mk.beta <- function (x, y, n)
 {
     m <- as.numeric(y[2])
     univ <- y[1]
-    w <- mat.read(paste(n$fldr, "MsciIndexReturns.csv", sep = "\\csv\\"))
-    w <- map.rname(w, pivot.1d(max, yyyymmdd.to.yyyymm(dimnames(w)[[1]]), 
-        as.numeric(dimnames(w)[[1]])))
-    w <- w[-dim(w)[1], ]
-    dimnames(w)[[1]] <- yyyymmdd.to.yyyymm(dimnames(w)[[1]])
-    w <- 100 * w[-1, ]/w[-dim(w)[1], ] - 100
+    w <- paste(dir.parameters("csv"), "IndexReturns-Monthly.csv", 
+        sep = "\\")
+    w <- mat.read(w)
     z <- fetch("Ret", x, m, paste(n$fldr, "data", sep = "\\"), 
         n$classif)
     vec <- map.rname(w, yyyymm.lag(x, m:1 - 1))[, univ]
