@@ -809,7 +809,7 @@ britten.jones.data <- function (x, y, n, w = NULL)
                     1] <- 3
                 }
             }
-            df <- mat.ex.qtl(df)
+            df <- mat.ex.vec(df)
             w1 <- rowSums(df) == 1
             if (all(is.element(c("Q1", "Q5"), names(df)))) {
                 df$TxB <- (df$Q1 - df$Q5)/2
@@ -4503,21 +4503,22 @@ mat.ex.matrix <- function (x, y = NULL)
     as.data.frame(x, row.names = y, stringsAsFactors = F)
 }
 
-#' mat.ex.qtl
+#' mat.ex.vec
 #' 
 #' transforms into a 1/0 matrix of bin memberships if <y> is missing or the values of <y> otherwise
-#' @param x = a vector of bin assignments
+#' @param x = a numeric or character vector
 #' @param y = an isomekic vector of associated values
-#' @keywords mat.ex.qtl
+#' @param n = T/F depending on whether "Q" is to be appended to column headers
+#' @keywords mat.ex.vec
 #' @export
 #' @family mat
 
-mat.ex.qtl <- function (x, y) 
+mat.ex.vec <- function (x, y, n = T) 
 {
     if (!is.null(names(x))) 
         w <- names(x)
     else w <- 1:length(x)
-    x <- as.numeric(x)
+    x <- as.vector(x)
     z <- x[!duplicated(x)]
     z <- z[!is.na(z)]
     z <- z[order(z)]
@@ -4527,7 +4528,8 @@ mat.ex.qtl <- function (x, y)
     if (!missing(y)) 
         z <- ifelse(z, y, NA)
     else z <- fcn.mat.vec(as.numeric, z, , T)
-    dimnames(z)[[2]] <- paste("Q", dimnames(z)[[2]], sep = "")
+    if (n) 
+        dimnames(z)[[2]] <- paste("Q", dimnames(z)[[2]], sep = "")
     z <- mat.ex.matrix(z)
     z
 }
@@ -5761,7 +5763,7 @@ position.ActWtDiff2 <- function (x, y)
     dimnames(z)[[1]] <- z$Ticker
     z <- z[, c("CompanyName", "Current", "WoW.chg")]
     y <- vec.named(qtl.eq(z$Current), dimnames(z)[[1]])
-    y <- mat.ex.qtl(y, z$Current)
+    y <- mat.ex.vec(y, z$Current)
     z <- data.frame(z, y)
     z
 }
@@ -5799,7 +5801,7 @@ position.floPct <- function (x, y, n)
         x <- vec.named(mat.compound(t(x)), y)
         x <- z - map.rname(x, names(z))
         y <- vec.named(qtl.eq(z), names(z))
-        y <- mat.ex.qtl(y, z)
+        y <- mat.ex.vec(y, z)
         z <- 0.01 * data.frame(z, x, y)
         dimnames(z)[[2]][1:2] <- c("Current", "WoW.chg")
     }
@@ -6447,6 +6449,22 @@ ret.to.idx <- function (x)
 ret.to.log <- function (x) 
 {
     log(1 + x/100)
+}
+
+#' rgb.diff
+#' 
+#' distance between RGB colours <x> and <y>
+#' @param x = a vector of length three containing numbers between 0 and 256
+#' @param y = a vector of length three containing numbers between 0 and 256
+#' @keywords rgb.diff
+#' @export
+
+rgb.diff <- function (x, y) 
+{
+    z <- (x[1] + y[1])/2
+    z <- c(z/256, 2, 1 - z/256) + 2
+    z <- sqrt(sum(z * (x - y)^2))
+    z
 }
 
 #' rrw
