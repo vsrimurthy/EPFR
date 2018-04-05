@@ -5354,7 +5354,7 @@ mk.vbl.vol <- function (x, y, n)
 #' 
 #' Generates the SQL query to get monthly index weight for individual stocks
 #' @param x = a single YYYYMM
-#' @param y = FundId of the fund of interest (8275 for the S&P500)
+#' @param y = FundId of the fund of interest
 #' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect
 #' @keywords mk.Wt
 #' @export
@@ -5362,15 +5362,16 @@ mk.vbl.vol <- function (x, y, n)
 
 mk.Wt <- function (x, y, n) 
 {
-    z <- c(sql.label(sql.MonthlyAlloc("@allocDt"), "t1"), "inner join", 
-        sql.label(sql.MonthlyAssetsEnd("@allocDt"), "t2"))
-    z <- c(z, "\ton t2.HFundId = t1.HFundId", "inner join", "SecurityHistory id", 
-        "\ton id.HSecurityId = t1.HSecurityId")
-    z <- sql.unbracket(sql.tbl("SecurityId, IdxWt = 100 * HoldingValue/AssetsEnd", 
-        z, "FundId = @fundId"))
-    z <- paste(c(sql.declare(c("@allocDt", "@fundId"), c("datetime", 
-        "int"), c(yyyymm.to.day(x), y)), z), collapse = "\n")
-    z <- sql.map.classif(z, "IdxWt", n$conn, n$classif)
+    y <- sql.and(list(A = sql.in("t1.HFundId", sql.tbl("HFundId", 
+        "FundHistory", paste("FundId =", y))), B = "ReportDate = @mo"))
+    z <- c("Holdings t1", "inner join", sql.label(sql.MonthlyAssetsEnd("@mo"), 
+        "t3"), "\ton t1.HFundId = t3.HFundId")
+    z <- c(z, "inner join", "SecurityHistory t2 on t1.HSecurityId = t2.HSecurityId")
+    z <- sql.unbracket(sql.tbl("SecurityId, Wt = 100 * HoldingValue/AssetsEnd", 
+        z, y))
+    z <- paste(c(sql.declare("@mo", "datetime", yyyymm.to.day(x)), 
+        z), collapse = "\n")
+    z <- sql.map.classif(z, "Wt", n$conn, n$classif)
     z <- zav(z)
     z
 }
