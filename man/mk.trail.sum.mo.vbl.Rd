@@ -9,12 +9,12 @@ mk.trail.sum.mo.vbl(x, y, n)
 \arguments{
 \item{x}{= a single YYYYMM}
 
-\item{y}{= a string vector, the elements of which are: 1) 1m variable to fetch (e.g. "AllocMo"/"AllocDiff"/"AllocTrend") 2) T to sum or F to compound (e.g. "T") 3) number of months to sum over (e.g. "11") 4) number of months to lag (defaults to "0") 5) sub-folder to fetch basic variable from (defaults to "derived")}
+\item{y}{= a string vector, the elements of which are: 1) 1m variable to fetch (e.g. "AllocMo"/"AllocDiff"/"AllocTrend"/"Ret") 2) T to sum or F to compound (e.g. "T") 3) number of months to sum over (e.g. "11") 4) number of months to lag (defaults to "0") 5) sub-folder to fetch basic variable from (defaults to "derived")}
 
 \item{n}{= list object containing the following items: a) classif - classif file b) fldr - stock-flows folder}
 }
 \description{
-makes 11 month AllocMo
+compounded variable over some trailing window
 }
 \seealso{
 Other mk: \code{\link{mk.1dFloMo}},
@@ -23,9 +23,9 @@ Other mk: \code{\link{mk.1dFloMo}},
   \code{\link{mk.Alpha}}, \code{\link{mk.FloAlphaLt.Ctry}},
   \code{\link{mk.FundsMem}},
   \code{\link{mk.JensensAlpha.fund}}, \code{\link{mk.Mem}},
-  \code{\link{mk.PrcMo}}, \code{\link{mk.Wt}},
-  \code{\link{mk.avail}}, \code{\link{mk.beta}},
-  \code{\link{mk.isin}}, \code{\link{mk.sqlDump}},
+  \code{\link{mk.Wt}}, \code{\link{mk.avail}},
+  \code{\link{mk.beta}}, \code{\link{mk.isin}},
+  \code{\link{mk.sqlDump}},
   \code{\link{mk.trail.sum.dly.vbl}},
   \code{\link{mk.vbl.chg}}, \code{\link{mk.vbl.diff}},
   \code{\link{mk.vbl.lag}}, \code{\link{mk.vbl.max}},

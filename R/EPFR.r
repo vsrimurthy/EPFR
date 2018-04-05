@@ -5185,25 +5185,6 @@ mk.Mem <- function (x, y, n)
     z
 }
 
-#' mk.PrcMo
-#' 
-#' makes 5 month lagged one month PrcMo
-#' @param x = a single YYYYMM
-#' @param y = 1m variable to fetch (e.g. "Ret")
-#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
-#' @keywords mk.PrcMo
-#' @export
-#' @family mk
-
-mk.PrcMo <- function (x, y, n) 
-{
-    x <- yyyymm.lag(x, 1)
-    z <- fetch(y, x, 5, paste(n$fldr, "data", sep = "\\"), n$classif)
-    z <- compound.stock.flows(z, F)
-    z <- as.numeric(z)
-    z
-}
-
 #' mk.sqlDump
 #' 
 #' Returns variable with the same row space as <n>
@@ -5254,9 +5235,9 @@ mk.trail.sum.dly.vbl <- function (x, y, n)
 
 #' mk.trail.sum.mo.vbl
 #' 
-#' makes 11 month AllocMo
+#' compounded variable over some trailing window
 #' @param x = a single YYYYMM
-#' @param y = a string vector, the elements of which are: 1) 1m variable to fetch (e.g. "AllocMo"/"AllocDiff"/"AllocTrend") 2) T to sum or F to compound (e.g. "T") 3) number of months to sum over (e.g. "11") 4) number of months to lag (defaults to "0") 5) sub-folder to fetch basic variable from (defaults to "derived")
+#' @param y = a string vector, the elements of which are: 1) 1m variable to fetch (e.g. "AllocMo"/"AllocDiff"/"AllocTrend"/"Ret") 2) T to sum or F to compound (e.g. "T") 3) number of months to sum over (e.g. "11") 4) number of months to lag (defaults to "0") 5) sub-folder to fetch basic variable from (defaults to "derived")
 #' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
 #' @keywords mk.trail.sum.mo.vbl
 #' @export
