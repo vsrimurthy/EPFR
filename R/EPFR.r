@@ -5205,60 +5205,6 @@ mk.sqlDump <- function (x, y, n)
     z
 }
 
-#' mk.trail.sum.dly.vbl
-#' 
-#' Compounds/sums over some trailing period
-#' @param x = a single YYYYMM
-#' @param y = a vector of string, the elements of which are: 1) 1d variable to fetch (e.g. "1dFloMo") 2)  T to sum or F to compound (e.g. "F") 3) number of weekdays to compound over (e.g. "65") 4) number of days to lag (defaults to "0") 5) sub-folder to fetch basic variable from (defaults to "derived")
-#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
-#' @keywords mk.trail.sum.dly.vbl
-#' @export
-#' @family mk
-
-mk.trail.sum.dly.vbl <- function (x, y, n) 
-{
-    if (length(y) == 3) 
-        y <- c(y, 0, "derived")
-    if (length(y) == 4) 
-        y <- c(y, "derived")
-    m <- as.numeric(y[3])
-    trail <- m + as.numeric(y[4])
-    if (nchar(x) == 6) 
-        x <- yyyymmdd.ex.yyyymm(x)
-    z <- fetch(y[1], x, trail, paste(n$fldr, y[5], sep = "\\"), 
-        n$classif)
-    z <- z[, 1:m]
-    z <- compound.stock.flows(z, as.logical(y[2]))
-    z <- as.numeric(z)
-    z
-}
-
-#' mk.trail.sum.mo.vbl
-#' 
-#' compounded variable over some trailing window
-#' @param x = a single YYYYMM
-#' @param y = a string vector, the elements of which are: 1) 1m variable to fetch (e.g. "AllocMo"/"AllocDiff"/"AllocTrend"/"Ret") 2) T to sum or F to compound (e.g. "T") 3) number of months to sum over (e.g. "11") 4) number of months to lag (defaults to "0") 5) sub-folder to fetch basic variable from (defaults to "derived")
-#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
-#' @keywords mk.trail.sum.mo.vbl
-#' @export
-#' @family mk
-
-mk.trail.sum.mo.vbl <- function (x, y, n) 
-{
-    if (length(y) == 3) 
-        y <- c(y, 0, "derived")
-    if (length(y) == 4) 
-        y <- c(y, "derived")
-    m <- as.numeric(y[3])
-    trail <- m + as.numeric(y[4])
-    z <- fetch(y[1], x, trail, paste(n$fldr, y[5], sep = "\\"), 
-        n$classif)
-    z <- z[, 1:m]
-    z <- compound.stock.flows(z, as.logical(y[2]))
-    z <- as.numeric(z)
-    z
-}
-
 #' mk.vbl.chg
 #' 
 #' Makes the MoM change in the variable
@@ -5341,6 +5287,84 @@ mk.vbl.ratio <- function (x, y, n)
 {
     z <- fetch(y, x, 1, paste(n$fldr, "data", sep = "\\"), n$classif)
     z <- z[, 1]/nonneg(z[, 2])
+    z
+}
+
+#' mk.vbl.trail.fetch
+#' 
+#' compounded variable over some trailing window
+#' @param x = a single YYYYMM or YYYYMMDD
+#' @param y = a string vector, the elements of which are: 1) variable to fetch (e.g. "AllocMo"/"AllocDiff"/"AllocTrend"/"Ret") 2) number of trailing months to use (e.g. "11") 3) number of months to lag (defaults to "0") 4) sub-folder to fetch basic variable from (defaults to "derived")
+#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
+#' @keywords mk.vbl.trail.fetch
+#' @export
+#' @family mk
+
+mk.vbl.trail.fetch <- function (x, y, n) 
+{
+    if (length(y) == 2) 
+        y <- c(y, 0, "derived")
+    if (length(y) == 3) 
+        y <- c(y, "derived")
+    m <- as.numeric(y[2])
+    trail <- m + as.numeric(y[3])
+    z <- fetch(y[1], x, trail, paste(n$fldr, y[4], sep = "\\"), 
+        n$classif)
+    z <- z[, 1:m]
+    z
+}
+
+#' mk.vbl.trail.sum.dly
+#' 
+#' Compounds/sums over some trailing period
+#' @param x = a single YYYYMM
+#' @param y = a vector of string, the elements of which are: 1) 1d variable to fetch (e.g. "1dFloMo") 2)  T to sum or F to compound (e.g. "F") 3) number of weekdays to compound over (e.g. "65") 4) number of days to lag (defaults to "0") 5) sub-folder to fetch basic variable from (defaults to "derived")
+#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
+#' @keywords mk.vbl.trail.sum.dly
+#' @export
+#' @family mk
+
+mk.vbl.trail.sum.dly <- function (x, y, n) 
+{
+    z <- mk.vbl.trail.fetch(x, y[-2], n)
+    z <- compound.stock.flows(z, as.logical(y[2]))
+    z <- as.numeric(z)
+    z
+}
+
+#' mk.vbl.trail.sum.mo
+#' 
+#' compounded variable over some trailing window
+#' @param x = a single YYYYMM
+#' @param y = a string vector, the elements of which are: 1) variable to fetch (e.g. "AllocMo"/"AllocDiff"/"AllocTrend"/"Ret") 2) T to sum or F to compound (e.g. "T") 3) number of trailing months to use (e.g. "11") 4) number of months to lag (defaults to "0") 5) sub-folder to fetch basic variable from (defaults to "derived")
+#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
+#' @keywords mk.vbl.trail.sum.mo
+#' @export
+#' @family mk
+
+mk.vbl.trail.sum.mo <- function (x, y, n) 
+{
+    z <- mk.vbl.trail.fetch(x, y[-2], n)
+    z <- compound.stock.flows(z, as.logical(y[2]))
+    z <- as.numeric(z)
+    z
+}
+
+#' mk.vbl.vol
+#' 
+#' volatility of variable over some trailing window
+#' @param x = a single YYYYMM
+#' @param y = a string vector, the elements of which are: 1) variable to fetch (e.g. "AllocMo"/"AllocDiff"/"AllocTrend"/"Ret") 2) number of trailing months to use (e.g. "11") 3) number of months to lag (defaults to "0") 4) sub-folder to fetch basic variable from (defaults to "derived")
+#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
+#' @keywords mk.vbl.vol
+#' @export
+#' @family mk
+
+mk.vbl.vol <- function (x, y, n) 
+{
+    z <- mk.vbl.trail.fetch(x, y, n)
+    z <- apply(z, 1, sd)
+    z <- as.numeric(z)
     z
 }
 
