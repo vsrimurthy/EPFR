@@ -7,9 +7,9 @@
 mk.vbl.vol(x, y, n)
 }
 \arguments{
-\item{x}{= a single YYYYMM}
+\item{x}{= a single YYYYMM or YYYYMMDD}
 
-\item{y}{= a string vector, the elements of which are: 1) variable to fetch (e.g. "AllocMo"/"AllocDiff"/"AllocTrend"/"Ret") 2) number of trailing months to use (e.g. "11") 3) number of months to lag (defaults to "0") 4) sub-folder to fetch basic variable from (defaults to "derived")}
+\item{y}{= a string vector, the elements of which are: 1) variable to fetch (e.g. "AllocMo"/"AllocDiff"/"AllocTrend"/"Ret") 2) number of trailing periods to use (e.g. "11") 3) number of periods to lag (defaults to "0") 4) sub-folder to fetch basic variable from (defaults to "derived") 5) T/F depending on whether the compounded variable is daily (defaults to F, matters only if <x> is monthly)}
 
 \item{n}{= list object containing the following items: a) classif - classif file b) fldr - stock-flows folder}
 }

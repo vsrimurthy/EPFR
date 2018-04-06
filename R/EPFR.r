@@ -5294,7 +5294,7 @@ mk.vbl.ratio <- function (x, y, n)
 #' 
 #' compounded variable over some trailing window
 #' @param x = a single YYYYMM or YYYYMMDD
-#' @param y = a string vector, the elements of which are: 1) variable to fetch (e.g. "AllocMo"/"AllocDiff"/"AllocTrend"/"Ret") 2) number of trailing months to use (e.g. "11") 3) number of months to lag (defaults to "0") 4) sub-folder to fetch basic variable from (defaults to "derived")
+#' @param y = a string vector, the elements of which are: 1) variable to fetch (e.g. "AllocMo"/"AllocDiff"/"AllocTrend"/"Ret") 2) number of trailing periods to use (e.g. "11") 3) number of periods to lag (defaults to "0") 4) sub-folder to fetch basic variable from (defaults to "derived") 5) T/F depending on whether the compounded variable is daily (defaults to F, matters only if <x> is monthly)
 #' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
 #' @keywords mk.vbl.trail.fetch
 #' @export
@@ -5303,11 +5303,15 @@ mk.vbl.ratio <- function (x, y, n)
 mk.vbl.trail.fetch <- function (x, y, n) 
 {
     if (length(y) == 2) 
-        y <- c(y, 0, "derived")
+        y <- c(y, 0, "derived", F)
     if (length(y) == 3) 
-        y <- c(y, "derived")
+        y <- c(y, "derived", F)
+    if (length(y) == 4) 
+        y <- c(y, F)
     m <- as.numeric(y[2])
     trail <- m + as.numeric(y[3])
+    if (nchar(x) == 6 & as.logical(y[5])) 
+        x <- yyyymmdd.ex.yyyymm(x)
     z <- fetch(y[1], x, trail, paste(n$fldr, y[4], sep = "\\"), 
         n$classif)
     z <- z[, 1:m]
@@ -5317,8 +5321,8 @@ mk.vbl.trail.fetch <- function (x, y, n)
 #' mk.vbl.trail.sum
 #' 
 #' compounded variable over some trailing window
-#' @param x = a single YYYYMM
-#' @param y = a string vector, the elements of which are: 1) variable to fetch (e.g. "AllocMo"/"AllocDiff"/"AllocTrend"/"Ret") 2) T to sum or F to compound (e.g. "T") 3) number of trailing months to use (e.g. "11") 4) number of months to lag (defaults to "0") 5) sub-folder to fetch basic variable from (defaults to "derived")
+#' @param x = a single YYYYMM or YYYYMMDD
+#' @param y = a string vector, the elements of which are: 1) variable to fetch (e.g. "AllocMo"/"AllocDiff"/"AllocTrend"/"Ret") 2) T to sum or F to compound (e.g. "T") 3) number of trailing periods to use (e.g. "11") 4) number of periods to lag (defaults to "0") 5) sub-folder to fetch basic variable from (defaults to "derived") 6) T/F depending on whether the compounded variable is daily (defaults to F, matters only if <x> is monthly)
 #' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
 #' @keywords mk.vbl.trail.sum
 #' @export
@@ -5335,8 +5339,8 @@ mk.vbl.trail.sum <- function (x, y, n)
 #' mk.vbl.vol
 #' 
 #' volatility of variable over some trailing window
-#' @param x = a single YYYYMM
-#' @param y = a string vector, the elements of which are: 1) variable to fetch (e.g. "AllocMo"/"AllocDiff"/"AllocTrend"/"Ret") 2) number of trailing months to use (e.g. "11") 3) number of months to lag (defaults to "0") 4) sub-folder to fetch basic variable from (defaults to "derived")
+#' @param x = a single YYYYMM or YYYYMMDD
+#' @param y = a string vector, the elements of which are: 1) variable to fetch (e.g. "AllocMo"/"AllocDiff"/"AllocTrend"/"Ret") 2) number of trailing periods to use (e.g. "11") 3) number of periods to lag (defaults to "0") 4) sub-folder to fetch basic variable from (defaults to "derived") 5) T/F depending on whether the compounded variable is daily (defaults to F, matters only if <x> is monthly)
 #' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
 #' @keywords mk.vbl.vol
 #' @export
