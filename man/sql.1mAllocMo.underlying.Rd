@@ -4,12 +4,16 @@
 \alias{sql.1mAllocMo.underlying}
 \title{sql.1mAllocMo.underlying}
 \usage{
-sql.1mAllocMo.underlying(x, y)
+sql.1mAllocMo.underlying(x, y, n, w)
 }
 \arguments{
-\item{x}{= either "All" or "Act"}
+\item{x}{= either "All" or "Act" or "Pseudo"}
 
 \item{y}{= any of StockFlows/Japan/CSI300/Energy}
+
+\item{n}{= date for new holdings in YYYYMMDD}
+
+\item{w}{= date for old holdings in YYYYMMDD}
 }
 \description{
 FROM and WHERE for 1mAllocMo
@@ -43,6 +47,7 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.Diff}}, \code{\link{sql.FloMo.Funds}},
   \code{\link{sql.FundHistory}},
   \code{\link{sql.FundWtdExcl0}},
+  \code{\link{sql.Holdings.bulk}},
   \code{\link{sql.Holdings}}, \code{\link{sql.ION}},
   \code{\link{sql.MonthlyAlloc}},
   \code{\link{sql.MonthlyAssetsEnd}}, \code{\link{sql.Mo}},
@@ -52,8 +57,9 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.connect}},
   \code{\link{sql.cross.border}},
   \code{\link{sql.datediff}}, \code{\link{sql.declare}},
-  \code{\link{sql.floTbl.to.Col}}, \code{\link{sql.into}},
-  \code{\link{sql.in}}, \code{\link{sql.isin.old.to.new}},
+  \code{\link{sql.drop}}, \code{\link{sql.floTbl.to.Col}},
+  \code{\link{sql.into}}, \code{\link{sql.in}},
+  \code{\link{sql.isin.old.to.new}},
   \code{\link{sql.label}}, \code{\link{sql.map.classif}},
   \code{\link{sql.nonneg}}, \code{\link{sql.query}},
   \code{\link{sql.stock.flows.wtd.avg}},

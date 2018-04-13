@@ -4,15 +4,17 @@
 \alias{sql.in}
 \title{sql.in}
 \usage{
-sql.in(x, y)
+sql.in(x, y, n = T)
 }
 \arguments{
 \item{x}{= column}
 
 \item{y}{= SQL statement}
+
+\item{n}{= T/F depending on whether <x> is in <y>}
 }
 \description{
-<x> in <y>
+<x> in <y> if <n> or <x> not in <y> otherwise
 }
 \seealso{
 Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
@@ -45,6 +47,7 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.Diff}}, \code{\link{sql.FloMo.Funds}},
   \code{\link{sql.FundHistory}},
   \code{\link{sql.FundWtdExcl0}},
+  \code{\link{sql.Holdings.bulk}},
   \code{\link{sql.Holdings}}, \code{\link{sql.ION}},
   \code{\link{sql.MonthlyAlloc}},
   \code{\link{sql.MonthlyAssetsEnd}}, \code{\link{sql.Mo}},
@@ -54,7 +57,8 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.connect}},
   \code{\link{sql.cross.border}},
   \code{\link{sql.datediff}}, \code{\link{sql.declare}},
-  \code{\link{sql.floTbl.to.Col}}, \code{\link{sql.into}},
+  \code{\link{sql.drop}}, \code{\link{sql.floTbl.to.Col}},
+  \code{\link{sql.into}},
   \code{\link{sql.isin.old.to.new}},
   \code{\link{sql.label}}, \code{\link{sql.map.classif}},
   \code{\link{sql.nonneg}}, \code{\link{sql.query}},

@@ -4,12 +4,16 @@
 \alias{sql.1dFloTrend.underlying}
 \title{sql.1dFloTrend.underlying}
 \usage{
-sql.1dFloTrend.underlying(x, y)
+sql.1dFloTrend.underlying(x, y, n, w)
 }
 \arguments{
-\item{x}{= either "All" or "Act" or "CBE"}
+\item{x}{= either "All" or "Act" or "CBE" or "Pseudo"}
 
 \item{y}{= any of StockFlows/Japan/CSI300/Energy}
+
+\item{n}{= flow date in YYYYMMDD (known two days later)}
+
+\item{w}{= the delay in knowing allocations}
 }
 \description{
 Generates the SQL query to get the data for 1dFloTrend
@@ -44,6 +48,7 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.Diff}}, \code{\link{sql.FloMo.Funds}},
   \code{\link{sql.FundHistory}},
   \code{\link{sql.FundWtdExcl0}},
+  \code{\link{sql.Holdings.bulk}},
   \code{\link{sql.Holdings}}, \code{\link{sql.ION}},
   \code{\link{sql.MonthlyAlloc}},
   \code{\link{sql.MonthlyAssetsEnd}}, \code{\link{sql.Mo}},
@@ -53,8 +58,9 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.connect}},
   \code{\link{sql.cross.border}},
   \code{\link{sql.datediff}}, \code{\link{sql.declare}},
-  \code{\link{sql.floTbl.to.Col}}, \code{\link{sql.into}},
-  \code{\link{sql.in}}, \code{\link{sql.isin.old.to.new}},
+  \code{\link{sql.drop}}, \code{\link{sql.floTbl.to.Col}},
+  \code{\link{sql.into}}, \code{\link{sql.in}},
+  \code{\link{sql.isin.old.to.new}},
   \code{\link{sql.label}}, \code{\link{sql.map.classif}},
   \code{\link{sql.nonneg}}, \code{\link{sql.query}},
   \code{\link{sql.stock.flows.wtd.avg}},
