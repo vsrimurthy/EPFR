@@ -7252,6 +7252,7 @@ sql.1dFloMo.Ctry.List <- function (x)
     EM <- Ctry.msci.members("EM", "201706")
     EAFE <- Ctry.msci.members("EAFE", "201706")
     classif.type <- x
+    sep <- ","
     if (x == "Ctry" | x == "EMDM") {
         z <- Ctry.msci.members.rng("ACWI", "200704", "201706")
         classif.type <- "Ctry"
@@ -7270,10 +7271,13 @@ sql.1dFloMo.Ctry.List <- function (x)
         z <- c(EMU, EM, "US", "JP", "GB")
         classif.type <- "Ctry"
     }
-    else if (x == "Sector") 
+    else if (x == "Sector") {
         z <- dimnames(mat.read(parameters("classif-GSec"), "\t"))[[1]]
+        classif.type <- "GSec"
+        sep <- "\t"
+    }
     y <- parameters(paste("classif", classif.type, sep = "-"))
-    y <- mat.read(y)
+    y <- mat.read(y, sep)
     y <- map.rname(y, z)
     if (x == "Ctry" | x == "Sector") {
         z <- vec.named(z, y$AllocTable)
