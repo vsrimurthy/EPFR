@@ -5788,11 +5788,12 @@ position.floPct <- function (x, y, n)
         z <- z[order(-z)]
         x <- x[dim(x)[1] - 19:0 - 5, ]
         x <- vec.named(mat.compound(t(x)), y)
-        x <- z - map.rname(x, names(z))
+        x <- map.rname(x, names(z))
+        x <- rank(z) - rank(x)
         y <- vec.named(qtl.eq(z), names(z))
         y <- mat.ex.vec(y, z)
-        z <- 0.01 * data.frame(z, x, y)
-        dimnames(z)[[2]][1:2] <- c("Current", "WoW.chg")
+        z <- 0.01 * data.frame(z, 100 * x, y)
+        dimnames(z)[[2]][1:2] <- c("Current", "RankChg")
     }
     z
 }
