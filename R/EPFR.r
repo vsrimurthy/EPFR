@@ -5714,6 +5714,7 @@ position.ActWtDiff2 <- function (x, y)
     y <- yyyymmdd.lag(y, 19:0)
     z <- list()
     for (j in y) {
+        cat(j, "...\n")
         x <- sql.1dActWtTrend.underlying(j, "All", w)
         x <- c(x, sql.1dActWtTrend.topline("ActWtDiff2"))
         for (i in x) x <- sqlQuery(conn, i)
@@ -5727,9 +5728,10 @@ position.ActWtDiff2 <- function (x, y)
     }
     z <- mat.ex.matrix(z)
     Current <- rowSums(z[, 6:20], na.rm = T)
-    WoW.chg <- Current - rowSums(z[, 1:15], na.rm = T)
-    z <- matrix(c(Current, WoW.chg), length(x), 2, F, list(x, 
-        c("Current", "WoW.chg")))
+    RankChg <- rowSums(z[, 1:15], na.rm = T)
+    RankChg <- rank(Current) - rank(RankChg)
+    z <- matrix(c(Current, RankChg), length(x), 2, F, list(x, 
+        c("Current", "RankChg")))
     z <- mat.ex.matrix(z)
     z <- z[order(z$Current, decreasing = T), ]
     x <- paste(dimnames(z)[[1]], collapse = ", ")
@@ -5750,7 +5752,7 @@ position.ActWtDiff2 <- function (x, y)
     z$Ticker <- x$SecurityCode
     z <- z[!is.na(z$Ticker) & !duplicated(z$Ticker), ]
     dimnames(z)[[1]] <- z$Ticker
-    z <- z[, c("CompanyName", "Current", "WoW.chg")]
+    z <- z[, c("CompanyName", "Current", "RankChg")]
     y <- vec.named(qtl.eq(z$Current), dimnames(z)[[1]])
     y <- mat.ex.vec(y, z$Current)
     z <- data.frame(z, y)
