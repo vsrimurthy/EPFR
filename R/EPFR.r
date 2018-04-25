@@ -13,10 +13,22 @@
 
 mat.read <- function (x = "C:\\temp\\write.csv", y = ",", n = 1, w = T) 
 {
+    if (missing(y)) 
+        y <- c("\t", ",")
+    if (is.null(n)) 
+        adj <- 0:1
+    else adj <- rep(0, 2)
     if (!file.exists(x)) 
         stop("File ", x, " doesn't exist!\n")
-    z <- read.table(x, w, y, row.names = n, quote = "", as.is = T, 
+    h <- length(y)
+    z <- read.table(x, w, y[h], row.names = n, quote = "", as.is = T, 
         na.strings = txt.na(), comment.char = "", check.names = F)
+    while (min(dim(z) - adj) == 0 & h > 1) {
+        h <- h - 1
+        z <- read.table(x, w, y[h], row.names = n, quote = "", 
+            as.is = T, na.strings = txt.na(), comment.char = "", 
+            check.names = F)
+    }
     z
 }
 
@@ -1268,12 +1280,12 @@ cpt.FloAlphaLt.Ctry <- function (x)
     for (i in names(dy.vbls)) {
         path <- paste(x, "\\", i, "\\Ctry\\csv\\oneDay", i, ".csv", 
             sep = "")
-        y[[i]] <- mat.read(path)
+        y[[i]] <- mat.read(path, ",")
     }
     for (i in names(mo.vbls)) {
         path <- paste(x, "\\", i, "\\Ctry\\csv\\oneMo", i, ".csv", 
             sep = "")
-        y[[i]] <- mat.read(path)
+        y[[i]] <- mat.read(path, ",")
     }
     y <- lapply(x, mat.subset, dimnames(y[[1]])[[2]])
     for (i in names(dy.vbls)) y[[i]] <- compound.flows(y[[i]], 
@@ -1347,7 +1359,7 @@ cptRollingAverageWeights <- function (x = 4, y = 100, n = 0)
 
 Ctry.info <- function (x, y) 
 {
-    z <- mat.read(parameters("classif-ctry"))
+    z <- mat.read(parameters("classif-ctry"), ",")
     z <- map.rname(z, x)[, y]
     z
 }
@@ -1450,7 +1462,7 @@ Ctry.msci.index.changes <- function (x, y)
 
 Ctry.msci.members <- function (x, y) 
 {
-    z <- mat.read(parameters("MsciCtry2016"))
+    z <- mat.read(parameters("MsciCtry2016"), ",")
     z <- dimnames(z)[[1]][is.element(z[, x], 1)]
     if (y != "" & txt.left(y, 4) != "2016") {
         x <- Ctry.msci(x)
@@ -3086,7 +3098,7 @@ file.time <- function (x)
 
 file.to.last <- function (x) 
 {
-    z <- mat.read(x)
+    z <- mat.read(x, ",")
     z <- mat.to.last.Idx(z)
     if (nchar(z) == 6) 
         z <- yyyymm.to.day(z)
@@ -3757,6 +3769,8 @@ ftp.is.file <- function (x, y, n, w)
 
 ftp.is.file.underlying <- function (x, y, n, w) 
 {
+    if (txt.left(x, 1) != "/") 
+        x <- paste("/", x, sep = "")
     ftp.file <- "C:\\temp\\foo.ftp"
     cat(ftp.dir.ftp.code(x, y, n, w, "pwd"), file = ftp.file)
     z <- shell(paste("ftp -i -s:", ftp.file, sep = ""), intern = T)
@@ -5059,7 +5073,7 @@ mk.beta <- function (x, y, n)
     univ <- y[1]
     w <- paste(dir.parameters("csv"), "IndexReturns-Monthly.csv", 
         sep = "\\")
-    w <- mat.read(w)
+    w <- mat.read(w, ",")
     z <- fetch("Ret", x, m, paste(n$fldr, "data", sep = "\\"), 
         n$classif)
     vec <- map.rname(w, yyyymm.lag(x, m:1 - 1))[, univ]
@@ -5391,10 +5405,10 @@ multi.asset <- function (x)
 {
     n <- length(x)
     i <- 1
-    z <- mat.read(x[i])
+    z <- mat.read(x[i], ",")
     while (i < n) {
         i <- i + 1
-        z <- mat.combine(intersect, z, mat.read(x[i]))
+        z <- mat.combine(intersect, z, mat.read(x[i], ","))
     }
     z
 }
@@ -5842,7 +5856,7 @@ production.write <- function (x, y)
 {
     proceed <- !is.null(x)
     if (proceed) {
-        w <- mat.read(y)
+        w <- mat.read(y, ",")
         proceed <- dim(w)[2] == dim(x)[[2]]
     }
     if (proceed) 
@@ -6181,7 +6195,7 @@ read.prcRet <- function (x)
         z <- substring(x, 2, nchar(x))
         z <- get(z)
     }
-    else z <- mat.read(x)
+    else z <- mat.read(x, ",")
     z
 }
 
@@ -6196,7 +6210,7 @@ read.prcRet <- function (x)
 
 read.split.adj.prices <- function (x, y) 
 {
-    z <- mat.read(x, , NULL)
+    z <- mat.read(x, ",", NULL)
     z$date <- as.character(z$date)
     z <- mat.subset(z, c("date", "CUSIP", "PRC", "CFACPR"))
     z$PRC <- z$PRC/nonneg(z$CFACPR)
@@ -6239,7 +6253,7 @@ refresh.predictors <- function (path, sql.query, sql.end.stub, connection.type, 
         z <- refresh.predictors.script(sql.query, sql.end.stub, 
             date.field, last.date)
         z <- sql.query(z, connection.type)
-        x <- mat.read(path)
+        x <- mat.read(path, ",")
         z <- refresh.predictors.append(x, z, ignore.data.changes, 
             F)
     }
@@ -9707,7 +9721,7 @@ vec.read <- function (x, y)
     else if (!y) {
         z <- scan(x, what = "", sep = "\n", quiet = T)
     }
-    else z <- as.matrix(mat.read(x, w = F))[, 1]
+    else z <- as.matrix(mat.read(x, ",", , F))[, 1]
     z
 }
 
