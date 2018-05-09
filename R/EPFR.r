@@ -430,8 +430,11 @@ bbk.bin.rets.summ <- function (x, y)
     for (i in dimnames(x)[[2]]) {
         w <- bbk.drawdown(x[, i])
         z["DDnN", i] <- sum(w)
-        z["DDnBeg", i] <- as.numeric(dimnames(x)[[1]][w & !duplicated(w)])
         z["DrawDn", i] <- sum(x[w, i])
+        y <- dimnames(x)[[1]][w & !duplicated(w)]
+        if (substring(y, 5, 5) == "Q") 
+            y <- yyyymm.ex.qtr(y)
+        z["DDnBeg", i] <- as.numeric(y)
     }
     z
 }
@@ -645,8 +648,8 @@ bbk.holidays <- function (x, y)
 
 bbk.summ <- function (x, y, n) 
 {
-    prdsPerYr <- ifelse(all(nchar(dimnames(x)[[1]]) == 6), 12, 
-        260)
+    prdsPerYr <- ifelse(all(nchar(dimnames(x)[[1]]) == 6), ifelse(all(substring(dimnames(x)[[1]], 
+        5, 5) == "Q"), 4, 12), 260)
     z <- bbk.bin.rets.summ(x, prdsPerYr/n)
     y <- bbk.turnover(y)
     names(y) <- paste("Q", names(y), sep = "")
@@ -6134,6 +6137,20 @@ qtr.ex.int <- function (x)
     z
 }
 
+#' qtr.lag
+#' 
+#' lags <x> by <y> quarters
+#' @param x = a vector of quarters
+#' @param y = a number
+#' @keywords qtr.lag
+#' @export
+#' @family qtr
+
+qtr.lag <- function (x, y) 
+{
+    obj.lag(x, y, qtr.to.int, qtr.ex.int)
+}
+
 #' qtr.seq
 #' 
 #' returns a sequence of QTR between (and including) x and y
@@ -9934,9 +9951,16 @@ yyyymm.ex.qtr <- function (x)
 
 yyyymm.lag <- function (x, y = 1) 
 {
-    if (nchar(x[1]) == 8) 
-        yyyymmdd.lag(x, y)
-    else obj.lag(x, y, yyyymm.to.int, yyyymm.ex.int)
+    if (nchar(x[1]) == 8) {
+        z <- yyyymmdd.lag(x, y)
+    }
+    else if (substring(x[1], 5, 5) == "Q") {
+        z <- qtr.lag(x, y)
+    }
+    else {
+        z <- obj.lag(x, y, yyyymm.to.int, yyyymm.ex.int)
+    }
+    z
 }
 
 #' yyyymm.seq

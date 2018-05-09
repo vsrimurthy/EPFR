@@ -13,6 +13,7 @@ qtr.to.int(x)
 returns a vector of integers
 }
 \seealso{
-Other qtr: \code{\link{qtr.ex.int}}, \code{\link{qtr.seq}}
+Other qtr: \code{\link{qtr.ex.int}}, \code{\link{qtr.lag}},
+  \code{\link{qtr.seq}}
 }
 \keyword{qtr.to.int}
