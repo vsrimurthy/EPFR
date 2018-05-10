@@ -7993,8 +7993,8 @@ sql.AggrAllocations <- function (x, y, n, w, h)
     z <- sql.label(z, "t0 -- Securities Held At Month End")
     tmp <- sql.and(list(A = "h.ReportDate = MonthlyData.ReportDate", 
         B = "h.HFundId = MonthlyData.HFundId"))
-    tmp <- c("exists", paste("\t", sql.tbl("ReportDate, HFundId", 
-        paste(y, "h"), tmp), sep = ""))
+    tmp <- sql.exists(sql.tbl("ReportDate, HFundId", paste(y, 
+        "h"), tmp))
     n <- sql.and(list(A = paste("ReportDate =", n), B = tmp))
     n <- sql.tbl("HFundId, AssetsEnd = sum(AssetsEnd)", "MonthlyData", 
         n, "HFundId", "sum(AssetsEnd) > 0")
@@ -8003,23 +8003,7 @@ sql.AggrAllocations <- function (x, y, n, w, h)
     z <- c(z, "FundHistory t2 on t1.HFundId = t2.HFundId", "left join", 
         paste(y, "t3"))
     n <- c(z, "\ton t3.HFundId = t1.HFundId and t3.HSecurityId = t0.HSecurityId and t3.ReportDate = t0.ReportDate")
-    z <- c("t0.HSecurityId", w)
-    for (i in x) {
-        if (i == "SwtdEx0") {
-            y <- "avg(HoldingValue/AssetsEnd)"
-        }
-        else if (i == "SwtdIn0") {
-            y <- "sum(HoldingValue/AssetsEnd)/count(AssetsEnd)"
-        }
-        else if (i == "FwtdEx0") {
-            y <- "sum(HoldingValue)/sum(case when HoldingValue is not null then AssetsEnd else NULL end)"
-        }
-        else if (i == "FwtdIn0") {
-            y <- "sum(HoldingValue)/sum(AssetsEnd)"
-        }
-        else stop("Problem")
-        z <- c(z, paste(i, "=", y))
-    }
+    z <- c("t0.HSecurityId", w, sql.TopDownAllocs.items(x))
     z <- sql.into(sql.tbl(z, n, , paste("t0.HSecurityId", w, 
         sep = ", "), "sum(HoldingValue) > 0"), h)
     z
@@ -8210,6 +8194,24 @@ sql.drop <- function (x)
 {
     paste("IF OBJECT_ID('tempdb..", x, "') IS NOT NULL DROP TABLE ", 
         x, sep = "")
+}
+
+#' sql.exists
+#' 
+#' <x> in <y> if <n> or <x> not in <y> otherwise
+#' @param x = SQL statement
+#' @param y = T/F depending on whether exists/not exists
+#' @keywords sql.exists
+#' @export
+#' @family sql
+
+sql.exists <- function (x, y = T) 
+{
+    if (y) 
+        z <- "exists"
+    else z <- "not exists"
+    z <- c(z, paste("\t", x, sep = ""))
+    z
 }
 
 #' sql.FloMo.Funds
@@ -8779,13 +8781,29 @@ sql.TopDownAllocs <- function (x, y, n)
         sql.label(sql.MonthlyAlloc("@allocDt"), "t3"))
     w <- c(z, "\ton t3.HFundId = t1.HFundId and t3.HSecurityId = t2.HSecurityId", 
         "inner join", "SecurityHistory id on id.HSecurityId = t2.HSecurityId")
-    z <- "SecurityId"
-    for (i in y[-1]) {
+    z <- c("SecurityId", sql.TopDownAllocs.items(y[-1]))
+    z <- paste(c(x, "", sql.unbracket(sql.tbl(z, w, , "SecurityId"))), 
+        collapse = "\n")
+    z
+}
+
+#' sql.TopDownAllocs.items
+#' 
+#' allocations to select in Top-Down Allocations SQL query
+#' @param x = a string vector specifying types of allocation wanted
+#' @keywords sql.TopDownAllocs.items
+#' @export
+#' @family sql
+
+sql.TopDownAllocs.items <- function (x) 
+{
+    z <- NULL
+    for (i in x) {
         if (i == "SwtdEx0") {
             z <- c(z, "SwtdEx0 = 100 * avg(HoldingValue/AssetsEnd)")
         }
         else if (i == "SwtdIn0") {
-            z <- c(z, "SwtdIn0 = 100 * sum(HoldingValue/AssetsEnd)/count(t1.HFundId)")
+            z <- c(z, "SwtdIn0 = 100 * sum(HoldingValue/AssetsEnd)/count(AssetsEnd)")
         }
         else if (i == "FwtdEx0") {
             z <- c(z, "FwtdEx0 = 100 * sum(HoldingValue)/sum(case when HoldingValue is not null then AssetsEnd else NULL end)")
@@ -8795,8 +8813,6 @@ sql.TopDownAllocs <- function (x, y, n)
         }
         else stop("Bad Argument")
     }
-    z <- paste(c(x, "", sql.unbracket(sql.tbl(z, w, , "SecurityId"))), 
-        collapse = "\n")
     z
 }
 
@@ -8833,6 +8849,129 @@ sql.unbracket <- function (x)
         stop("Can't unbracket!")
     x[1] <- txt.right(x[1], nchar(x[1]) - 1)
     z <- x[-n]
+    z
+}
+
+#' sqlts.FloDollar.daily
+#' 
+#' SQL query for daily dollar flow
+#' @param x = the security id for which you want data
+#' @keywords sqlts.FloDollar.daily
+#' @export
+#' @family sqlts
+
+sqlts.FloDollar.daily <- function (x) 
+{
+    x <- sql.declare("@secId", "int", x)
+    z <- sql.tbl(c("ReportDate", "HFundId", "Flow = sum(Flow)"), 
+        "DailyData", , "ReportDate, HFundId")
+    z <- c(sql.label(z, "t1"), "inner join", "FundHistory t2 on t2.HFundId = t1.HFundId")
+    z <- c(z, "inner join", "Holdings t3 on t3.FundId = t2.FundId")
+    z <- c(z, "\tand datediff(month, t3.ReportDate, t1.ReportDate) = case when day(t1.ReportDate) < 26 then 2 else 1 end")
+    h <- sql.tbl("ReportDate, HFundId, AUM = sum(AssetsEnd)", 
+        "MonthlyData", , "ReportDate, HFundId", "sum(AssetsEnd) > 0")
+    z <- c(z, "inner join", sql.label(h, "t4"), "\ton t4.HFundId = t3.HFundId and t4.ReportDate = t3.ReportDate")
+    h <- sql.in("HSecurityId", sql.tbl("HSecurityId", "SecurityHistory", 
+        "SecurityId = @secId"))
+    z <- sql.tbl(c("yyyymmdd = convert(char(8), t1.ReportDate, 112)", 
+        "FloDlr = sum(Flow * HoldingValue/AUM)"), z, h, "t1.ReportDate")
+    z <- paste(c(x, "", sql.unbracket(z)), collapse = "\n")
+    z
+}
+
+#' sqlts.FloDollar.monthly
+#' 
+#' SQL query for monthly dollar flow
+#' @param x = the security id for which you want data
+#' @keywords sqlts.FloDollar.monthly
+#' @export
+#' @family sqlts
+
+sqlts.FloDollar.monthly <- function (x) 
+{
+    x <- sql.declare("@secId", "int", x)
+    z <- sql.tbl(c("ReportDate", "HFundId", "Flow = sum(Flow)", 
+        "AUM = sum(AssetsEnd)"), "MonthlyData", , "ReportDate, HFundId", 
+        "sum(AssetsEnd) > 0")
+    z <- c(sql.label(z, "t1"), "inner join", "Holdings t2 on t2.HFundId = t1.HFundId and t2.ReportDate = t1.ReportDate")
+    h <- sql.in("HSecurityId", sql.tbl("HSecurityId", "SecurityHistory", 
+        "SecurityId = @secId"))
+    z <- sql.tbl(c("yyyymm = convert(char(6), t1.ReportDate, 112)", 
+        "FloDlr = sum(Flow * HoldingValue/AUM)"), z, h, "t1.ReportDate")
+    z <- paste(c(x, "", sql.unbracket(z)), collapse = "\n")
+    z
+}
+
+#' sqlts.TopDownAllocs
+#' 
+#' SQL query for Top-Down Allocations
+#' @param x = the security id for which you want data
+#' @param y = a string vector specifying types of allocation wanted
+#' @keywords sqlts.TopDownAllocs
+#' @export
+#' @family sqlts
+
+sqlts.TopDownAllocs <- function (x, y) 
+{
+    if (missing(y)) 
+        y <- paste(txt.expand(c("S", "F"), c("Ex", "In"), "wtd"), 
+            "0", sep = "")
+    x <- sql.declare("@secId", "int", x)
+    z <- sql.and(list(A = "h.ReportDate = t.ReportDate", B = "h.HFundId = t.HFundId"))
+    z <- sql.exists(sql.tbl("ReportDate, HFundId", "Holdings h", 
+        z))
+    z <- sql.tbl("ReportDate, HFundId, AssetsEnd = sum(AssetsEnd)", 
+        "MonthlyData t", z, "ReportDate, HFundId", "sum(AssetsEnd) > 0")
+    z <- sql.label(z, "t1")
+    h <- sql.in("HSecurityId", sql.tbl("HSecurityId", "SecurityHistory", 
+        "SecurityId = @secId"))
+    h <- sql.label(sql.Holdings(h, c("ReportDate", "HFundId", 
+        "HoldingValue")), "t2")
+    z <- c(z, "left join", h, "\ton t2.HFundId = t1.HFundId and t2.ReportDate = t1.ReportDate")
+    z <- sql.tbl(c("yyyymm = convert(char(6), t1.ReportDate, 112)", 
+        sql.TopDownAllocs.items(y)), z, , "t1.ReportDate")
+    z <- paste(c(x, "", sql.unbracket(z)), collapse = "\n")
+    z
+}
+
+#' sqlts.wrapper
+#' 
+#' SQL query for monthly dollar flow
+#' @param x = a vector of security id's
+#' @param y = data item wanted (Daily/Monthly/Allocation)
+#' @keywords sqlts.wrapper
+#' @export
+#' @family sqlts
+
+sqlts.wrapper <- function (x, y) 
+{
+    w <- vec.named(c("sqlts.FloDollar.daily", "sqlts.FloDollar.monthly", 
+        "sqlts.TopDownAllocs"), c("Daily", "Monthly", "Allocation"))
+    y <- get(w[y])
+    z <- list()
+    h <- sql.connect("StockFlows")
+    for (i in x) {
+        cat(i, "...\n")
+        z[[as.character(i)]] <- sqlQuery(h, y(i))
+    }
+    close(h)
+    y <- NULL
+    for (i in names(z)) {
+        dimnames(z[[i]])[[1]] <- z[[i]][, 1]
+        y <- union(y, z[[i]][, 1])
+    }
+    y <- y[order(y)]
+    for (i in names(z)) z[[i]] <- map.rname(z[[i]], y)
+    if (dim(z[[1]])[2] == 2) {
+        x <- matrix(NA, length(y), length(x), F, list(y, x))
+        for (i in names(z)) x[, i] <- z[[i]][, 2]
+    }
+    else {
+        x <- array(NA, c(length(y), length(x), dim(z[[1]])[2] - 
+            1), list(y, x, dimnames(z[[1]])[[2]][-1]))
+        for (i in names(z)) x[, i, ] <- unlist(z[[i]][, -1])
+    }
+    z <- x
     z
 }
 
