@@ -4881,12 +4881,17 @@ mk.1dFloMo <- function (x, y, n)
         m <- m + 1
     }
     x <- yyyymmdd.lag(x, 2)
-    if (y[1] == "FloDollar") {
+    if (any(y[1] == c("FloDollar", "FloDollarGross"))) {
         z <- sql.1dFloMo(x, y[m], n$DB)
         z <- txt.replace(z, "FloMo = 100 * ", "FloDollar = ")
         z <- txt.replace(z, "/sum(AssetsStart * HoldingValue/AssetsEnd)", 
             "")
-        z <- txt.left(z, nchar(z) - nchar("having\n\tsum(AssetsStart * HoldingValue/AssetsEnd) > 0"))
+        h <- length(z)
+        z[h] <- txt.left(z[h], nchar(z[h]) - nchar("having\n\tsum(AssetsStart * HoldingValue/AssetsEnd) > 0"))
+        if (y[1] == "FloDollarGross") {
+            z <- txt.replace(z, "FloDollar = sum(Flow * HoldingValue/AssetsEnd)", 
+                "FloDollarGross = sum(abs(Flow) * HoldingValue/AssetsEnd)")
+        }
     }
     else if (any(y[1] == c("FloMo", "FloMoCB"))) {
         z <- sql.1dFloMo(x, y[m], n$DB)
@@ -6772,6 +6777,44 @@ sf.daily <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trail,
         z <- apply(y, 1:2, mean)
     }
     else z <- bbk.bin.rets.summ(x, 250/retHz)
+    z
+}
+
+#' sf.detail
+#' 
+#' runs a stock-flows simulation
+#' @param prdBeg = first-return date in YYYYMM
+#' @param prdEnd = first-return date in YYYYMM after <prdBeg>
+#' @param vbl.nm = variable
+#' @param univ = membership (e.g. "EafeMem" or c("GemMem", 1))
+#' @param grp.nm = group within which binning is to be performed
+#' @param ret.nm = return variable
+#' @param trail = number of trailing periods to compound/sum over
+#' @param sum.flows = T/F depending on whether you want flows summed or compounded.
+#' @param fldr = data folder
+#' @param dly.vbl = if T then a daily predictor is assumed else a monthly one
+#' @param vbl.lag = lags by <vbl.lag> weekdays or months depending on whether <dly.vbl> is true.
+#' @param nBins = number of bins
+#' @param reverse.vbl = T/F depending on whether you want the variable reversed
+#' @param classif = classif file
+#' @keywords sf.detail
+#' @export
+#' @family sf
+
+sf.detail <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trail, 
+    sum.flows, fldr, dly.vbl = T, vbl.lag = 0, nBins = 5, reverse.vbl = F, 
+    classif) 
+{
+    x <- sf.single.bsim(prdBeg, prdEnd, vbl.nm, univ, grp.nm, 
+        ret.nm, fldr, dly.vbl, trail, sum.flows, vbl.lag, T, 
+        nBins, reverse.vbl, 1, classif)
+    x <- t(map.rname(t(x), c(dimnames(x)[[2]], "TxB")))
+    x[, "TxB"] <- x[, "Q1"] - x[, paste("Q", nBins, sep = "")]
+    x <- mat.ex.matrix(x)
+    z <- bbk.bin.rets.summ(x, 12)
+    z.ann <- t(bbk.bin.rets.prd.summ(bbk.bin.rets.summ, x, txt.left(dimnames(x)[[1]], 
+        4), 12)["AnnMn", , ])
+    z <- list(summ = z, annSumm = z.ann)
     z
 }
 
