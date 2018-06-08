@@ -4876,7 +4876,8 @@ mat.write <- function (x, y = "C:\\temp\\write.csv", n = ",")
 mk.1dFloMo <- function (x, y, n) 
 {
     m <- length(y)
-    if (all(y[m] != c("All", "Act", "Num", "CBE", "Pseudo"))) {
+    if (all(y[m] != c("All", "Act", "Num", "CBE", "Pseudo", "Etf", 
+        "Mutual"))) {
         y <- c(y, "All")
         m <- m + 1
     }
@@ -7198,7 +7199,7 @@ sql.1dActWtTrend.underlying <- function (x, y, n)
 #' 
 #' Generates the SQL query to get the data for 1dFloMo for individual stocks
 #' @param x = the date for which you want flows (known one day later)
-#' @param y = either "All" or "Act" or "CBE" or "Pseudo"
+#' @param y = either "All" or "Act" or "CBE" or "Pseudo" or "Etf" or "Mutual"
 #' @param n = any of StockFlows/Japan/CSI300/Energy
 #' @keywords sql.1dFloMo
 #' @export
@@ -8312,7 +8313,7 @@ sql.floTbl.to.Col <- function (x, y)
 #' 
 #' SQL query to restrict to Global and Regional equity funds
 #' @param x = characters to place before each line of the SQL query part
-#' @param y = either "All" or "Act" or "CBE"
+#' @param y = either "All" or "Act" or "CBE" or "Etf" or "Mutual"
 #' @param n = T/F depending on whether StockFlows data are being used
 #' @param w = columns needed in addition to HFundId
 #' @keywords sql.FundHistory
@@ -8332,6 +8333,18 @@ sql.FundHistory <- function (x, y, n, w)
     else {
         if (y == "All") {
             y <- list(A = "FundType = 'E'")
+        }
+        else if (y == "Etf" & n) {
+            y <- list(A = "ETFTypeId is not null")
+        }
+        else if (y == "Etf" & !n) {
+            y <- list(A = "ETF = 'Y'", B = "FundType = 'E'")
+        }
+        else if (y == "Mutual" & n) {
+            y <- list(A = "ETFTypeId is null")
+        }
+        else if (y == "Etf" & !n) {
+            y <- list(A = "not ETF = 'Y'", B = "FundType = 'E'")
         }
         else if (y == "Act" & n) {
             y <- list(A = "[Index] = 0")
@@ -8778,14 +8791,16 @@ sql.tbl <- function (x, y, n, w, h)
         for (i in 2:m) {
             if (txt.left(x[i], 1) != "\t") 
                 z[i - 1] <- paste(z[i - 1], ",", sep = "")
-            z <- c(z, paste("\t", x[i], sep = ""))
+            z <- c(z, paste("\t", txt.replace(x[i], "\n", "\n\t"), 
+                sep = ""))
         }
     }
     z <- c("(select", z)
     x <- txt.right(y, 5) == " join"
     x <- x & txt.left(c(y[-1], ""), 1) != "\t"
     x <- ifelse(x, "", "\t")
-    z <- c(z, "from", paste(x, y, sep = ""))
+    z <- c(z, "from", paste(x, txt.replace(y, "\n", "\n\t"), 
+        sep = ""))
     if (!missing(n)) 
         z <- c(z, "where", paste("\t", n, sep = ""))
     if (!missing(w)) 
