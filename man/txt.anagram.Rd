@@ -9,7 +9,7 @@ txt.anagram(x, y, n = 0)
 \arguments{
 \item{x}{= a SINGLE string}
 
-\item{y}{= a file of potentially-usable capitzalized words}
+\item{y}{= a file of potentially-usable capitalized words}
 
 \item{n}{= vector of minimum number of characters for first few words}
 }
@@ -20,10 +20,10 @@ all possible anagrams
 Other txt: \code{\link{txt.anagram.underlying}},
   \code{\link{txt.core}}, \code{\link{txt.count}},
   \code{\link{txt.ex.file}}, \code{\link{txt.excise}},
-  \code{\link{txt.expand}}, \code{\link{txt.has}},
-  \code{\link{txt.hdr}}, \code{\link{txt.itrim}},
-  \code{\link{txt.left}}, \code{\link{txt.name.format}},
-  \code{\link{txt.na}},
+  \code{\link{txt.expand}}, \code{\link{txt.gunning}},
+  \code{\link{txt.has}}, \code{\link{txt.hdr}},
+  \code{\link{txt.itrim}}, \code{\link{txt.left}},
+  \code{\link{txt.name.format}}, \code{\link{txt.na}},
   \code{\link{txt.palindrome.entire}},
   \code{\link{txt.palindrome.partial}},
   \code{\link{txt.palindrome.tail}},
@@ -34,6 +34,7 @@ Other txt: \code{\link{txt.anagram.underlying}},
   \code{\link{txt.right}}, \code{\link{txt.space}},
   \code{\link{txt.to.char}}, \code{\link{txt.trim.end}},
   \code{\link{txt.trim.left}},
-  \code{\link{txt.trim.right}}, \code{\link{txt.trim}}
+  \code{\link{txt.trim.right}}, \code{\link{txt.trim}},
+  \code{\link{txt.words}}
 }
 \keyword{txt.anagram}

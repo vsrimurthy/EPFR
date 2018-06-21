@@ -9,7 +9,7 @@ sql.1dFloMo(x, y, n)
 \arguments{
 \item{x}{= the date for which you want flows (known one day later)}
 
-\item{y}{= either "All" or "Act" or "CBE" or "Pseudo" or "Etf" or "Mutual"}
+\item{y}{= either "All" or "Act" or "xJP" or "CBE" or "Pseudo" or "Etf" or "Mutual"}
 
 \item{n}{= any of StockFlows/Japan/CSI300/Energy}
 }

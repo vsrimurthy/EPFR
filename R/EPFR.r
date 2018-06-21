@@ -4927,8 +4927,8 @@ mat.write <- function (x, y = "C:\\temp\\write.csv", n = ",")
 mk.1dFloMo <- function (x, y, n) 
 {
     m <- length(y)
-    if (all(y[m] != c("All", "Act", "Num", "CBE", "Pseudo", "Etf", 
-        "Mutual"))) {
+    if (all(y[m] != c("All", "Act", "xJP", "Num", "CBE", "Pseudo", 
+        "Etf", "Mutual"))) {
         y <- c(y, "All")
         m <- m + 1
     }
@@ -4984,7 +4984,7 @@ mk.1dFloMo <- function (x, y, n)
 mk.1mAllocMo <- function (x, y, n) 
 {
     m <- length(y)
-    if (all(y[m] != c("All", "Act", "Num", "Pseudo"))) {
+    if (all(y[m] != c("All", "Act", "Num", "Pseudo", "xJP"))) {
         y <- c(y, "All")
         m <- m + 1
     }
@@ -7223,8 +7223,8 @@ sql.1dActWtTrend.underlying <- function (x, y, n)
     z <- c(z, "", "create table #AUM (HFundId int not null, PortVal float not null)", 
         "create clustered index TempRandomIndex ON #AUM(HFundId)")
     w <- list(A = paste("ReportDate = '", mo.end, "'", sep = ""))
-    if (y == "Act") 
-        w[["B"]] <- sql.in("HFundId", sql.FundHistory("", "Act", 
+    if (any(y == c("Act", "xJP"))) 
+        w[["B"]] <- sql.in("HFundId", sql.FundHistory("", y, 
             T))
     w <- sql.unbracket(sql.tbl("HFundId, PortVal = sum(AssetsEnd)", 
         "MonthlyData", sql.and(w), "HFundId", "sum(AssetsEnd) > 0"))
@@ -7250,7 +7250,7 @@ sql.1dActWtTrend.underlying <- function (x, y, n)
 #' 
 #' Generates the SQL query to get the data for 1dFloMo for individual stocks
 #' @param x = the date for which you want flows (known one day later)
-#' @param y = either "All" or "Act" or "CBE" or "Pseudo" or "Etf" or "Mutual"
+#' @param y = either "All" or "Act" or "xJP" or "CBE" or "Pseudo" or "Etf" or "Mutual"
 #' @param n = any of StockFlows/Japan/CSI300/Energy
 #' @keywords sql.1dFloMo
 #' @export
@@ -7998,7 +7998,7 @@ sql.1mAllocMo <- function (x, y, n)
 #' sql.1mAllocMo.underlying
 #' 
 #' FROM and WHERE for 1mAllocMo
-#' @param x = either "All" or "Act" or "Pseudo"
+#' @param x = either "All" or "Act" or "Pseudo" or "xJP"
 #' @param y = any of StockFlows/Japan/CSI300/Energy
 #' @param n = date for new holdings in YYYYMMDD
 #' @param w = date for old holdings in YYYYMMDD
@@ -8027,8 +8027,8 @@ sql.1mAllocMo.underlying <- function (x, y, n, w)
     z <- c(z, "inner join", "#OLDHLD o1 on o1.FundId = n1.FundId and o1.HSecurityId = n1.HSecurityId")
     z <- c(z, "inner join", "SecurityHistory id on id.HSecurityId = n1.HSecurityId")
     w <- list(A = sql.in("n1.HSecurityId", sql.RDSuniv(y)))
-    if (x == "Act") 
-        w[["B"]] <- sql.in("t.HFundId", sql.FundHistory("", "Act", 
+    if (any(x == c("Act", "xJP"))) 
+        w[["B"]] <- sql.in("t.HFundId", sql.FundHistory("", x, 
             T))
     z <- list(PRE = n, FROM = z, WHERE = sql.and(w))
     z
@@ -8050,8 +8050,8 @@ sql.1mAllocSkew <- function (x, y, n)
     x <- yyyymm.to.day(x)
     cols <- c("HFundId", "HSecurityId", "HoldingValue")
     w <- list(A = paste("ReportDate = '", x, "'", sep = ""))
-    if (y[h] == "Act") 
-        w[["B"]] <- c("HFundId in", sql.FundHistory("\t", "Act", 
+    if (any(y[h] == c("Act", "xJP"))) 
+        w[["B"]] <- c("HFundId in", sql.FundHistory("\t", y[h], 
             T))
     w <- sql.into(sql.tbl("HFundId, PortVal = sum(AssetsEnd)", 
         "MonthlyData", sql.and(w), "HFundId", "sum(AssetsEnd) > 0"), 
@@ -8447,6 +8447,9 @@ sql.FundHistory <- function (x, y, n, w)
         }
         else if (y == "Etf" & !n) {
             y <- list(A = "not ETF = 'Y'", B = "FundType = 'E'")
+        }
+        else if (y == "xJP" & n) {
+            y <- list(A = "not DomicileId = 'JP'")
         }
         else if (y == "Act" & n) {
             y <- list(A = "[Index] = 0")
@@ -9193,7 +9196,7 @@ today <- function ()
 #' 
 #' all possible anagrams
 #' @param x = a SINGLE string
-#' @param y = a file of potentially-usable capitzalized words
+#' @param y = a file of potentially-usable capitalized words
 #' @param n = vector of minimum number of characters for first few words
 #' @keywords txt.anagram
 #' @export
@@ -9206,8 +9209,7 @@ txt.anagram <- function (x, y, n = 0)
     x <- x[is.element(x, char.seq("A", "Z"))]
     x <- paste(x, collapse = "")
     if (missing(y)) 
-        y <- paste(dir.parameters("data"), "EnglishWords.txt", 
-            sep = "\\")
+        y <- txt.words()
     y <- vec.read(y, F)
     y <- y[order(y, decreasing = T)]
     y <- y[order(nchar(y))]
@@ -9368,6 +9370,53 @@ txt.expand <- function (x, y, n = "-", w = F)
     z
 }
 
+#' txt.gunning
+#' 
+#' the Gunning fog index measuring the number of years of  schooling beyond kindergarten needed to comprehend <x>
+#' @param x = a string representing a text passage
+#' @param y = a file of potentially-usable capitalized words
+#' @param n = a file of potentially-usable capitalized words considered "simple"
+#' @keywords txt.gunning
+#' @export
+#' @family txt
+
+txt.gunning <- function (x, y, n) 
+{
+    x <- toupper(x)
+    x <- txt.replace(x, "-", " ")
+    x <- txt.to.char(x)
+    x <- x[is.element(x, c(char.seq("A", "Z"), " ", "."))]
+    x <- paste(x, collapse = "")
+    x <- txt.replace(x, ".", " . ")
+    x <- txt.trim(x)
+    while (x != txt.replace(x, txt.space(2), txt.space(1))) x <- txt.replace(x, 
+        txt.space(2), txt.space(1))
+    if (txt.right(x, 1) == ".") 
+        x <- txt.left(x, nchar(x) - 1)
+    x <- txt.trim(x)
+    if (missing(y)) 
+        y <- txt.words()
+    y <- vec.read(y, F)
+    x <- as.character(txt.parse(x, " "))
+    x <- x[is.element(x, c(y, "."))]
+    z <- 1 + sum(x == ".")
+    x <- x[x != "."]
+    h <- length(x)
+    if (h < 100) 
+        cat("Passage needs to have at least a 100 words ...\n")
+    z <- h/nonneg(z)
+    if (missing(n)) {
+        n <- vec.read(txt.words(1), F)
+        n <- union(n, vec.read(txt.words(2), F))
+    }
+    else {
+        n <- vec.read(n, F)
+    }
+    n <- sum(is.element(x, n))/nonneg(h)
+    z <- 0.4 * (z + 100 * n)
+    z
+}
+
 #' txt.has
 #' 
 #' the elements of <x> that contain <y> if <n> is F or a logical vector otherwise
@@ -9496,8 +9545,7 @@ txt.palindrome <- function (x, y)
     x <- x[is.element(x, char.seq("A", "Z"))]
     x <- paste(x, collapse = "")
     if (missing(y)) 
-        y <- paste(dir.parameters("data"), "EnglishWords.txt", 
-            sep = "\\")
+        y <- txt.words()
     y <- vec.read(y, F)
     y <- y[order(y)]
     y <- y[order(nchar(y), decreasing = T)]
@@ -9917,6 +9965,29 @@ txt.trim.left <- function (x, y)
 txt.trim.right <- function (x, y) 
 {
     txt.trim.end(txt.right, x, y, txt.left)
+}
+
+#' txt.words
+#' 
+#' a path to all capitalized words, if <x> is missing, or  one to those with <x> syllables otherwise
+#' @param x = missing or an integer
+#' @keywords txt.words
+#' @export
+#' @family txt
+
+txt.words <- function (x) 
+{
+    if (missing(x)) {
+        z <- "EnglishWords.txt"
+    }
+    else if (x == 1) {
+        z <- "EnglishWords-1syllable.txt"
+    }
+    else {
+        z <- "EnglishWords-2syllables.txt"
+    }
+    z <- paste(dir.parameters("data"), z, sep = "\\")
+    z
 }
 
 #' variance.ratio.test

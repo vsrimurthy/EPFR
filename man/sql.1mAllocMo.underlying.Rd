@@ -7,7 +7,7 @@
 sql.1mAllocMo.underlying(x, y, n, w)
 }
 \arguments{
-\item{x}{= either "All" or "Act" or "Pseudo"}
+\item{x}{= either "All" or "Act" or "Pseudo" or "xJP"}
 
 \item{y}{= any of StockFlows/Japan/CSI300/Energy}
 
