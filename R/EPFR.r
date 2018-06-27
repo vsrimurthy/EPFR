@@ -9403,7 +9403,8 @@ txt.gunning <- function (x, y, n)
     x <- x[x != "."]
     h <- length(x)
     if (h < 100) 
-        cat("Passage needs to have at least a 100 words ...\n")
+        cat("Passage needs to have at least a 100 words.\nNeed at least", 
+            100 - h, "more words ...\n")
     z <- h/nonneg(z)
     if (missing(n)) {
         n <- vec.read(txt.words(1), F)
@@ -9412,7 +9413,7 @@ txt.gunning <- function (x, y, n)
     else {
         n <- vec.read(n, F)
     }
-    n <- sum(is.element(x, n))/nonneg(h)
+    n <- sum(!is.element(x, n))/nonneg(h)
     z <- 0.4 * (z + 100 * n)
     z
 }
