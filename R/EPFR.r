@@ -9384,6 +9384,8 @@ txt.gunning <- function (x, y, n)
 {
     x <- toupper(x)
     x <- txt.replace(x, "-", " ")
+    x <- txt.replace(x, "?", ".")
+    x <- txt.replace(x, "!", ".")
     x <- txt.to.char(x)
     x <- x[is.element(x, c(char.seq("A", "Z"), " ", "."))]
     x <- paste(x, collapse = "")
