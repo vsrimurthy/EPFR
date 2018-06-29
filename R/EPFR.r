@@ -9415,8 +9415,17 @@ txt.gunning <- function (x, y, n)
     else {
         n <- vec.read(n, F)
     }
-    n <- sum(!is.element(x, n))/nonneg(h)
-    z <- 0.4 * (z + 100 * n)
+    if (any(!is.element(x, n))) {
+        x <- x[!is.element(x, n)]
+        n <- length(x)/nonneg(h)
+        x <- x[!duplicated(x)]
+        x <- x[order(nchar(x))]
+    }
+    else {
+        n <- 0
+        x <- NULL
+    }
+    z <- list(result = 0.4 * (z + 100 * n), complex = x)
     z
 }
 
