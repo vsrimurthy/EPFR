@@ -1828,20 +1828,35 @@ dir.size <- function (x)
 #' @param n = main line of error message
 #' @keywords err.raise
 #' @export
+#' @family err
 
 err.raise <- function (x, y, n) 
 {
+    cat(err.raise.txt(x, y, n), "\n")
+    invisible()
+}
+
+#' err.raise.txt
+#' 
+#' error message
+#' @param x = a vector
+#' @param y = T/F depending on whether output goes on many lines
+#' @param n = main line of error message
+#' @keywords err.raise.txt
+#' @export
+#' @family err
+
+err.raise.txt <- function (x, y, n) 
+{
     n <- paste(n, ":", sep = "")
     if (y) {
-        cat(paste(c(n, paste("\t", x, sep = "")), collapse = "\n"), 
-            "\n")
+        z <- paste(c(n, paste("\t", x, sep = "")), collapse = "\n")
     }
     else {
-        cat(paste(n, "\n\t", sep = ""))
-        cat(paste(x, collapse = " "))
+        z <- paste(n, "\n\t", paste(x, collapse = " "), sep = "")
     }
-    cat("\n")
-    invisible()
+    z <- paste(z, "\n", sep = "")
+    z
 }
 
 #' excise.zeroes
@@ -3615,22 +3630,45 @@ ftp.delete.script.underlying <- function (x, y, n, w)
 
 #' ftp.dir
 #' 
-#' remote site directory listing
+#' string vector of, or YYYYMMDD vector indexed by, remote file names
 #' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
 #' @param y = ftp site
 #' @param n = user id
 #' @param w = password
+#' @param h = T/F depending on whether you want time stamps
 #' @keywords ftp.dir
 #' @export
 #' @family ftp
 
-ftp.dir <- function (x, y, n, w) 
+ftp.dir <- function (x, y, n, w, h = F) 
 {
     ftp.file <- "C:\\temp\\foo.ftp"
-    cat(ftp.dir.ftp.code(x, y, n, w, "ls"), file = ftp.file)
+    month.abbrv <- vec.named(1:12, c("Jan", "Feb", "Mar", "Apr", 
+        "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
+    if (h) 
+        cmd <- "dir"
+    else cmd <- "ls"
+    cat(ftp.dir.ftp.code(x, y, n, w, cmd), file = ftp.file)
     z <- shell(paste("ftp -i -s:", ftp.file, sep = ""), intern = T)
     z <- ftp.dir.excise.crap(z, "150 Opening data channel for directory listing", 
         "226 Successfully transferred")
+    if (h) {
+        n <- min(nchar(z)) - 4
+        while (any(!is.element(substring(z, n, n + 4), paste(" ", 
+            names(month.abbrv), " ", sep = "")))) {
+            n <- n - 1
+        }
+        z <- substring(z, n + 1, nchar(z))
+        z <- data.frame(substring(z, 1, 3), as.numeric(substring(z, 
+            5, 6)), substring(z, 8, 12), substring(z, 14, nchar(z)), 
+            stringsAsFactors = F)
+        names(z) <- c("mm", "dd", "yyyy", "file")
+        z$mm <- map.rname(month.abbrv, z$mm)
+        z$yyyy <- ifelse(txt.has(z$yyyy, ":", T), yyyymm.to.yyyy(yyyymmdd.to.yyyymm(today())), 
+            z$yyyy)
+        z$yyyy <- as.numeric(z$yyyy)
+        z <- vec.named(10000 * z$yyyy + 100 * z$mm + z$dd, z$file)
+    }
     z
 }
 
@@ -3666,11 +3704,11 @@ ftp.dir.excise.crap <- function (x, y, n)
 #' ftp.dir.ftp.code
 #' 
 #' generates ftp code for remote site directory listing
-#' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
+#' @param x = remote folder or file on ftp site (e.g. "/ftpdata/mystuff")
 #' @param y = ftp site
 #' @param n = user id
 #' @param w = password
-#' @param h = command to execute (e.g. "ls" or "pwd")
+#' @param h = command to execute (e.g. "ls" or "pwd" or "get")
 #' @keywords ftp.dir.ftp.code
 #' @export
 #' @family ftp
@@ -3678,8 +3716,13 @@ ftp.dir.excise.crap <- function (x, y, n)
 ftp.dir.ftp.code <- function (x, y, n, w, h) 
 {
     z <- ftp.txt(y, n, w)
-    z <- paste(z, "\ncd \"", x, "\"", sep = "")
-    z <- paste(z, h, "disconnect", "quit", sep = "\n")
+    if (h == "get") {
+        z <- paste(z, "\n", h, " \"", x, "\"", sep = "")
+    }
+    else {
+        z <- paste(z, "\ncd \"", x, "\"\n", h, sep = "")
+    }
+    z <- paste(z, "disconnect", "quit", sep = "\n")
     z
 }
 
@@ -3771,6 +3814,48 @@ ftp.file.size <- function (x, y, n, w)
     z
 }
 
+#' ftp.get
+#' 
+#' file <x> from remote site
+#' @param x = remote file on an ftp site (e.g. "/ftpdata/mystuff/foo.txt")
+#' @param y = local folder (e.g. "C:\\\\temp")
+#' @param n = ftp site
+#' @param w = user id
+#' @param h = password
+#' @keywords ftp.get
+#' @export
+#' @family ftp
+
+ftp.get <- function (x, y, n, w, h) 
+{
+    ftp.file <- "C:\\temp\\foo.ftp"
+    cat(ftp.dir.ftp.code(x, n, w, h, "get"), file = ftp.file)
+    bat.file <- "C:\\temp\\foo.bat"
+    cat(paste("C:\ncd \"", y, "\"\nftp -i -s:", ftp.file, sep = ""), 
+        file = bat.file)
+    z <- shell(bat.file, intern = T)
+    invisible()
+}
+
+#' ftp.info
+#' 
+#' parameter <n> associated with <x> flows at the <y> level with the <w> filter
+#' @param x = M/W/D depending on whether flows are monthly/weekly/daily
+#' @param y = T/F depending on whether you want to check Fund or Share-Class level data
+#' @param n = one of sql.table/date.field/ftp.path
+#' @param w = filter (e.g. Aggregate/Active/Passive/ETF/Mutual)
+#' @keywords ftp.info
+#' @export
+#' @family ftp
+
+ftp.info <- function (x, y, n, w) 
+{
+    z <- mat.read(parameters("classif-ftp"), "\t", NULL)
+    z <- z[z[, "Type"] == x & z[, "FundLvl"] == y & z[, "filter"] == 
+        w, n]
+    z
+}
+
 #' ftp.is.file
 #' 
 #' T/F depending on whether <x> represents a file or folder
@@ -3830,6 +3915,97 @@ ftp.put <- function (x, y, n)
     z <- paste("cd /\ncd \"", n, "\"", sep = "")
     z <- paste(z, "\ndel ", strategy.file(x, y), sep = "")
     z <- paste(z, "\nput \"", strategy.path(x, y), "\"", sep = "")
+    z
+}
+
+#' ftp.sql
+#' 
+#' SQL code to validate <x> flows at the <y> level
+#' @param x = M/W/D depending on whether flows are monthly/weekly/daily
+#' @param y = flow date in YYYYMMDD format
+#' @param n = columns to select
+#' @param w = filter (e.g. Aggregate/Active/Passive/ETF/Mutual)
+#' @keywords ftp.sql
+#' @export
+#' @family ftp
+
+ftp.sql <- function (x, y, n, w) 
+{
+    sql.table <- ftp.info(x, T, "sql.table", w)
+    h <- ftp.info(x, T, "date.field", w)
+    if (any(x == c("M", "W", "D"))) {
+        w <- list(A = paste(h, "= @dy"))
+        w[["B"]] <- "FundType in ('M', 'A', 'Y', 'B', 'E')"
+        w[["C"]] <- "GeographicFocus not in (0, 18, 48)"
+        w[["D"]] <- "(Category >= '1' or Commodity = 'Y')"
+        w[["E"]] <- "isActive = 'Y'"
+        w <- sql.and(w)
+        z <- c("FundId", paste("ReportDate = convert(char(8), ", 
+            h, ", 112)", sep = ""))
+        z <- c(z, paste(n, " = sum(", n, ")", sep = ""))
+        z <- sql.tbl(z, paste(sql.table, "t1 inner join FundHistory t2 on t1.HFundId = t2.HFundId"), 
+            w, paste(h, "FundId", sep = ", "))
+    }
+    else if (any(x == c("StockM", "StockD"))) {
+        z <- c(h, "HFundId", "Flow = sum(Flow)")
+        if (x == "StockM") {
+            z <- c(z, "AUM = sum(AssetsEnd)")
+        }
+        z <- sql.tbl(z, sql.table, "ReportDate = @dy", paste(h, 
+            "HFundId", sep = ", "), "sum(AssetsEnd) > 0")
+        z <- c(sql.label(z, "t1"), "inner join", "FundHistory t3 on t3.HFundId = t1.HFundId")
+        z <- c(z, "inner join", "Holdings t2 on t2.FundId = t3.FundId")
+        if (x == "StockD") {
+            z <- c(z, paste("and datediff(month, t2.ReportDate, t1.", 
+                h, ") = case when day(t1.", h, ") < 26 then 2 else 1 end", 
+                sep = ""))
+        }
+        else {
+            z <- c(z, paste("and t2.ReportDate = t1.", h, sep = ""))
+        }
+        if (x == "StockD") {
+            x <- sql.tbl("ReportDate, HFundId, AUM = sum(AssetsEnd)", 
+                "MonthlyData", , "ReportDate, HFundId", "sum(AssetsEnd) > 0")
+            z <- c(z, "inner join", sql.label(x, "t4"), "\ton t4.HFundId = t2.HFundId and t4.ReportDate = t2.ReportDate")
+        }
+        if (w == "Aggregate") {
+            z <- sql.tbl(c("ReportDate = convert(char(8), t1.ReportDate, 112)", 
+                "GeoId = GeographicFocusId", "HSecurityId", "CalculatedStockFlow = sum(Flow * HoldingValue/AUM)"), 
+                z, , "t1.ReportDate, GeographicFocusId, HSecurityId")
+        }
+        else {
+            if (w == "Active") {
+                w <- "[Index] = 0"
+            }
+            else if (w == "Passive") {
+                w <- "[Index] = 1"
+            }
+            else if (w == "Mutual") {
+                w <- "EtfTypeId is NULL"
+            }
+            else if (w == "ETF") {
+                w <- "EtfTypeId is not NULL"
+            }
+            z <- sql.tbl(c("ReportDate = convert(char(8), t1.ReportDate, 112)", 
+                "GeoId = GeographicFocusId", "HSecurityId", "CalculatedStockFlow = sum(Flow * HoldingValue/AUM)"), 
+                z, w, "t1.ReportDate, GeographicFocusId, HSecurityId")
+        }
+    }
+    else {
+        w <- list(A = paste(h, "= @dy"))
+        w[["B"]] <- "FundType in ('M', 'A', 'Y', 'B', 'E')"
+        w[["C"]] <- "GeographicFocus not in (0, 18, 48)"
+        w[["D"]] <- "(Category >= '1' or Commodity = 'Y')"
+        w[["E"]] <- "isActive = 'Y'"
+        w <- sql.and(w)
+        z <- c("t2.FundId", paste("ReportDate = convert(char(8), ", 
+            h, ", 112)", sep = ""))
+        z <- c(z, n)
+        z <- sql.tbl(z, c(paste(sql.table, "t1"), "inner join", 
+            "FundHistory t2 on t2.HFundId = t1.HFundId"), w)
+    }
+    z <- c(sql.declare("@dy", "datetime", y), sql.unbracket(z))
+    z <- paste(z, collapse = "\n")
     z
 }
 
@@ -4016,12 +4192,38 @@ GSec.to.GSgrp <- function (x)
     z
 }
 
+#' int.format
+#' 
+#' adds commas "1,234,567"
+#' @param x = a vector of integers
+#' @keywords int.format
+#' @export
+#' @family int
+
+int.format <- function (x) 
+{
+    z <- as.character(x)
+    w <- nchar(z)
+    n <- max(w)
+    if (n > 3) {
+        vec <- seq(4, n, 3)
+        vec <- vec[length(vec):1]
+        for (i in vec) {
+            z[w >= i] <- paste(txt.left(z[w >= i], w[w >= i] - 
+                i + 1), txt.right(z[w >= i], i - 1), sep = ",")
+            w[w >= i] <- w[w >= i] + 1
+        }
+    }
+    z
+}
+
 #' int.to.prime
 #' 
 #' prime factors of <x>
 #' @param x = an integer
 #' @keywords int.to.prime
 #' @export
+#' @family int
 
 int.to.prime <- function (x) 
 {
@@ -4927,8 +5129,8 @@ mat.write <- function (x, y = "C:\\temp\\write.csv", n = ",")
 mk.1dFloMo <- function (x, y, n) 
 {
     m <- length(y)
-    if (all(y[m] != c("All", "Act", "xJP", "Num", "CBE", "Pseudo", 
-        "Etf", "Mutual"))) {
+    if (all(y[m] != c("All", "Act", "xJP", "xJPAct", "JP", "Num", 
+        "CBE", "Pseudo", "Etf", "Mutual"))) {
         y <- c(y, "All")
         m <- m + 1
     }
@@ -4984,7 +5186,8 @@ mk.1dFloMo <- function (x, y, n)
 mk.1mAllocMo <- function (x, y, n) 
 {
     m <- length(y)
-    if (all(y[m] != c("All", "Act", "Num", "Pseudo", "xJP"))) {
+    if (all(y[m] != c("All", "Act", "Num", "Pseudo", "xJP", "xJPAct", 
+        "JP"))) {
         y <- c(y, "All")
         m <- m + 1
     }
@@ -6033,6 +6236,222 @@ publish.weekly.last <- function (x)
         z <- z - 3
     else z <- z + 4
     z <- day.lag(x, z)
+    z
+}
+
+#' qa.flow
+#' 
+#' Compares flow file to data from Quant server
+#' @param x = a YYYYMM month
+#' @param y = M/W/D depending on whether flows are monthly/weekly/daily
+#' @param n = T for fund or F for share-class level
+#' @param w = filter (e.g. Aggregate/Active/Passive/ETF/Mutual)
+#' @keywords qa.flow
+#' @export
+
+qa.flow <- function (x, y, n, w = "Aggregate") 
+{
+    fldr <- "C:\\temp\\crap"
+    if (any(y == c("M", "W", "D"))) {
+        cols <- c("ReportDate", "FundId", "Flow", "AssetsStart", 
+            "AssetsEnd", "ForexChange", "PortfolioChange")
+    }
+    else if (y == "S") {
+        cols <- mat.read(parameters("classif-GSec"))$AllocTable[1:10]
+        cols <- c("ReportDate", "FundId", cols)
+    }
+    else if (y == "I") {
+        cols <- mat.read(parameters("classif-GIgrp"))$AllocTable
+        cols <- c("ReportDate", "FundId", cols)
+    }
+    else if (y == "C") {
+        cols <- mat.read(parameters("classif-ctry"), ",")
+        cols <- cols$AllocTable[is.element(cols$OnFTP, 1)]
+        cols <- c("ReportDate", "FundId", cols)
+    }
+    else if (any(y == c("StockM", "StockD"))) {
+        cols <- c("ReportDate", "HSecurityId", "GeoId", "CalculatedStockFlow")
+    }
+    if (any(y == c("W", "D", "StockD"))) {
+        dts <- yyyymmdd.ex.yyyymm(x, F)
+        if (y == "W") 
+            dts <- dts[day.to.weekday(dts) == ifelse(dts >= "20010919", 
+                3, 5)]
+    }
+    else if (substring(x, 5, 5) == "Q") {
+        dts <- yyyymm.to.day(yyyymm.lag(yyyymm.ex.qtr(x), 2:0))
+    }
+    else {
+        dts <- yyyymm.to.day(x)
+    }
+    z <- c("isFTP", "goodFile", "badDts", "DupFunds", "isSQL", 
+        "SQLxFTP", "FTPxSQL", "Common")
+    if (any(y == c("M", "W", "D"))) {
+        z <- c(z, txt.expand(c("sum", "max"), cols[-1][-1], "Abs", 
+            T))
+    }
+    else if (any(y == c("StockM", "StockD"))) {
+        z <- c(z, txt.expand(c("sum", "max"), "CalculatedStockFlow", 
+            "", T))
+    }
+    else {
+        z <- c(z, txt.expand(c("sum", "max"), "Turnover", "", 
+            T))
+    }
+    z <- matrix(NA, length(dts), length(z), F, list(dts, z))
+    ftpFile <- txt.replace(ftp.info(y, n, "ftp.path", w), "YYYYMM", 
+        x)
+    ftp.get(ftpFile, fldr, "204.232.176.77", "datafeed", "datafeed$09")
+    ftpFile <- txt.right(ftpFile, nchar(ftpFile) - nchar(dirname(ftpFile)) - 
+        1)
+    ftpFile <- paste(fldr, ftpFile, sep = "\\")
+    z[, "isFTP"] <- as.numeric(file.exists(ftpFile))
+    if (z[, "isFTP"][1] == 1) {
+        df <- mat.read(ftpFile, "\t", NULL)
+        dimnames(df)[[2]][1] <- "ReportDate"
+        df[, "ReportDate"] <- yyyymmdd.ex.txt(df[, "ReportDate"])
+        z[, "goodFile"] <- as.numeric(all(is.element(cols, dimnames(df)[[2]])))
+        if (!n & all(dimnames(df)[[2]] != "ShareId")) 
+            z[, "goodFile"] <- 0
+    }
+    else {
+        z[, "goodFile"] <- 0
+    }
+    if (z[, "goodFile"][1] == 1 & substring(x, 5, 5) == "Q") {
+        z[, "badDts"] <- as.numeric(any(yyyymm.to.qtr(yyyymmdd.to.yyyymm(dimnames(z)[[1]])) != 
+            x))
+    }
+    else if (z[, "goodFile"][1] == 1) {
+        z[, "badDts"] <- as.numeric(any(yyyymmdd.to.yyyymm(dimnames(z)[[1]]) != 
+            x))
+    }
+    else {
+        z[, "badDts"] <- 1
+    }
+    if (z[, "goodFile"][1] == 1) {
+        for (j in dimnames(z)[[1]]) {
+            vec <- is.element(df[, "ReportDate"], j)
+            if (any(y == c("StockM", "StockD"))) {
+                vec <- paste(df[vec, "HSecurityId"], df[vec, 
+                  "GeoId"])
+            }
+            else if (n) {
+                vec <- df[vec, "FundId"]
+            }
+            else {
+                vec <- df[vec, "ShareId"]
+            }
+            z[j, "DupFunds"] <- as.numeric(any(duplicated(vec)))
+        }
+        df <- df[, cols]
+        if (!n & dim(df)[1] > 0) {
+            df <- pivot.1d(sum, paste(df[, 1], df[, 2]), df[, 
+                cols[-1][-1]])
+            df <- data.frame(txt.parse(dimnames(df)[[1]], " "), 
+                df)
+            dimnames(df)[[2]] <- cols
+            dimnames(df)[[1]] <- 1:dim(df)[1]
+        }
+    }
+    else {
+        z[, "DupFunds"] <- 1
+    }
+    for (j in dimnames(z)[[1]][is.element(z[, "DupFunds"], 1)]) {
+        z[j, "isSQL"] <- 0
+        if (z[j, "goodFile"] == 1) {
+            z[j, "FTPxSQL"] <- sum(is.element(df[, "ReportDate"], 
+                j))
+        }
+        else {
+            z[j, "FTPxSQL"] <- 0
+        }
+        z[j, "Common"] <- 0
+        z[j, "SQLxFTP"] <- 0
+        z[j, 9:dim(z)[2]] <- 0
+    }
+    for (j in dimnames(z)[[1]][is.element(z[, "DupFunds"], 0)]) {
+        h <- ftp.sql(y, j, cols[-1][-1], w)
+        if (any(y == c("StockM", "StockD"))) {
+            h <- sql.query(h, "StockFlows", F)
+        }
+        else {
+            h <- sql.query(h, "Quant", F)
+        }
+        z[j, "isSQL"] <- as.numeric(!is.null(dim(h)))
+        if (z[j, "isSQL"] == 1) 
+            z[j, "isSQL"] <- as.numeric(dim(h)[1] > 0)
+        if (z[j, "isSQL"] == 1) {
+            if (any(y == c("StockM", "StockD"))) {
+                dimnames(h)[[1]] <- paste(h[, "HSecurityId"], 
+                  h[, "GeoId"])
+            }
+            else {
+                dimnames(h)[[1]] <- h[, "FundId"]
+            }
+            h <- h[, cols]
+            if (any(y == c("StockM", "StockD"))) {
+                vec <- df[, "ReportDate"] == j
+                vec <- paste(df[vec, "HSecurityId"], df[vec, 
+                  "GeoId"])
+            }
+            else {
+                vec <- df[df[, "ReportDate"] == j, "FundId"]
+            }
+            z[j, "SQLxFTP"] <- sum(!is.element(dimnames(h)[[1]], 
+                vec))
+            z[j, "FTPxSQL"] <- sum(!is.element(vec, dimnames(h)[[1]]))
+            z[j, "Common"] <- sum(is.element(vec, dimnames(h)[[1]]))
+        }
+        else {
+            if (z[j, "goodFile"] == 1) {
+                z[j, "FTPxSQL"] <- sum(is.element(df[, "ReportDate"], 
+                  j))
+            }
+            else {
+                z[j, "FTPxSQL"] <- 0
+            }
+            z[j, "Common"] <- 0
+            z[j, "SQLxFTP"] <- 0
+            z[j, 9:dim(z)[2]] <- 0
+        }
+        if (z[j, "Common"] > 100) {
+            if (any(y == c("StockM", "StockD"))) {
+                vec <- paste(df[, "HSecurityId"], df[, "GeoId"])
+            }
+            else {
+                vec <- df[, "FundId"]
+            }
+            vec <- is.element(df[, "ReportDate"], j) & is.element(vec, 
+                dimnames(h)[[1]])
+            if (any(y == c("StockM", "StockD"))) {
+                h <- h[paste(df[vec, "HSecurityId"], df[vec, 
+                  "GeoId"]), dim(h)[2]]
+                h <- abs(zav(df[vec, dim(df)[2]]) - zav(h))
+            }
+            else {
+                h <- h[as.character(df[vec, "FundId"]), cols[-1][-1]]
+                h <- abs(zav(df[vec, dimnames(h)[[2]]]) - zav(h))
+            }
+            if (any(y == c("M", "W", "D"))) {
+                z[j, paste("sum", dimnames(h)[[2]], sep = "Abs")] <- apply(h, 
+                  2, sum)
+                z[j, paste("max", dimnames(h)[[2]], sep = "Abs")] <- apply(h, 
+                  2, max)
+            }
+            else if (any(y == c("StockM", "StockD"))) {
+                z[j, 9] <- sum(h)
+                z[j, 10] <- max(h)
+            }
+            else {
+                z[j, 9] <- sum(unlist(h))
+                z[j, 10] <- max(rowSums(h))
+            }
+        }
+        else {
+            z[j, 9:dim(z)[2]] <- 0
+        }
+    }
+    file.kill(ftpFile)
     z
 }
 
@@ -7223,7 +7642,7 @@ sql.1dActWtTrend.underlying <- function (x, y, n)
     z <- c(z, "", "create table #AUM (HFundId int not null, PortVal float not null)", 
         "create clustered index TempRandomIndex ON #AUM(HFundId)")
     w <- list(A = paste("ReportDate = '", mo.end, "'", sep = ""))
-    if (any(y == c("Act", "xJP"))) 
+    if (any(y == c("Act", "xJP", "xJPAct", "JP"))) 
         w[["B"]] <- sql.in("HFundId", sql.FundHistory("", y, 
             T))
     w <- sql.unbracket(sql.tbl("HFundId, PortVal = sum(AssetsEnd)", 
@@ -8027,7 +8446,7 @@ sql.1mAllocMo.underlying <- function (x, y, n, w)
     z <- c(z, "inner join", "#OLDHLD o1 on o1.FundId = n1.FundId and o1.HSecurityId = n1.HSecurityId")
     z <- c(z, "inner join", "SecurityHistory id on id.HSecurityId = n1.HSecurityId")
     w <- list(A = sql.in("n1.HSecurityId", sql.RDSuniv(y)))
-    if (any(x == c("Act", "xJP"))) 
+    if (any(x == c("Act", "xJP", "xJPAct", "JP"))) 
         w[["B"]] <- sql.in("t.HFundId", sql.FundHistory("", x, 
             T))
     z <- list(PRE = n, FROM = z, WHERE = sql.and(w))
@@ -8050,7 +8469,7 @@ sql.1mAllocSkew <- function (x, y, n)
     x <- yyyymm.to.day(x)
     cols <- c("HFundId", "HSecurityId", "HoldingValue")
     w <- list(A = paste("ReportDate = '", x, "'", sep = ""))
-    if (any(y[h] == c("Act", "xJP"))) 
+    if (any(y[h] == c("Act", "xJP", "xJPAct", "JP"))) 
         w[["B"]] <- c("HFundId in", sql.FundHistory("\t", y[h], 
             T))
     w <- sql.into(sql.tbl("HFundId, PortVal = sum(AssetsEnd)", 
@@ -8415,7 +8834,7 @@ sql.floTbl.to.Col <- function (x, y)
 #' 
 #' SQL query to restrict to Global and Regional equity funds
 #' @param x = characters to place before each line of the SQL query part
-#' @param y = either "All" or "Act" or "CBE" or "Etf" or "Mutual"
+#' @param y = one of All/Act/CBE/Etf/Mutual/xJP/xJPAct/JP
 #' @param n = T/F depending on whether StockFlows data are being used
 #' @param w = columns needed in addition to HFundId
 #' @keywords sql.FundHistory
@@ -8450,6 +8869,12 @@ sql.FundHistory <- function (x, y, n, w)
         }
         else if (y == "xJP" & n) {
             y <- list(A = "not DomicileId = 'JP'")
+        }
+        else if (y == "xJPAct" & n) {
+            y <- list(A = "not DomicileId = 'JP'", B = "[Index] = 0")
+        }
+        else if (y == "JP" & n) {
+            y <- list(A = "DomicileId = 'JP'")
         }
         else if (y == "Act" & n) {
             y <- list(A = "[Index] = 0")
@@ -8769,17 +9194,19 @@ sql.nonneg <- function (x)
 #' opens a connection, executes sql query, then closes the connection
 #' @param x = query needed for the update
 #' @param y = one of StockFlows/Regular/Quant
+#' @param n = T/F depending on whether you wish to output number of rows of data got
 #' @keywords sql.query
 #' @export
 #' @family sql
 #' @@importFrom RODBC sqlQuery
 
-sql.query <- function (x, y) 
+sql.query <- function (x, y, n = T) 
 {
     myconn <- sql.connect(y)
     z <- sqlQuery(myconn, x)
     close(myconn)
-    cat("Getting ", dim(z)[1], " new rows of data ...\n")
+    if (n) 
+        cat("Getting ", dim(z)[1], " new rows of data ...\n")
     z
 }
 

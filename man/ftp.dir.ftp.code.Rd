@@ -7,7 +7,7 @@
 ftp.dir.ftp.code(x, y, n, w, h)
 }
 \arguments{
-\item{x}{= remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
+\item{x}{= remote folder or file on ftp site (e.g. "/ftpdata/mystuff")}
 
 \item{y}{= ftp site}
 
@@ -15,7 +15,7 @@ ftp.dir.ftp.code(x, y, n, w, h)
 
 \item{w}{= password}
 
-\item{h}{= command to execute (e.g. "ls" or "pwd")}
+\item{h}{= command to execute (e.g. "ls" or "pwd" or "get")}
 }
 \description{
 generates ftp code for remote site directory listing
@@ -28,10 +28,11 @@ Other ftp: \code{\link{ftp.all.dir}},
   \code{\link{ftp.delete.script}},
   \code{\link{ftp.dir.excise.crap}}, \code{\link{ftp.dir}},
   \code{\link{ftp.download.script}},
-  \code{\link{ftp.file.size}},
+  \code{\link{ftp.file.size}}, \code{\link{ftp.get}},
+  \code{\link{ftp.info}},
   \code{\link{ftp.is.file.underlying}},
   \code{\link{ftp.is.file}}, \code{\link{ftp.put}},
-  \code{\link{ftp.txt}},
+  \code{\link{ftp.sql}}, \code{\link{ftp.txt}},
   \code{\link{ftp.upload.script.underlying}},
   \code{\link{ftp.upload.script}}
 }

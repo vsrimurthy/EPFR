@@ -4,12 +4,14 @@
 \alias{sql.query}
 \title{sql.query}
 \usage{
-sql.query(x, y)
+sql.query(x, y, n = T)
 }
 \arguments{
 \item{x}{= query needed for the update}
 
 \item{y}{= one of StockFlows/Regular/Quant}
+
+\item{n}{= T/F depending on whether you wish to output number of rows of data got}
 }
 \description{
 opens a connection, executes sql query, then closes the connection

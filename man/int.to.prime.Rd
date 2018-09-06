@@ -12,4 +12,7 @@ int.to.prime(x)
 \description{
 prime factors of <x>
 }
+\seealso{
+Other int: \code{\link{int.format}}
+}
 \keyword{int.to.prime}
