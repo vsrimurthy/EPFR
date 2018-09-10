@@ -62,6 +62,7 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.label}}, \code{\link{sql.map.classif}},
   \code{\link{sql.nonneg}}, \code{\link{sql.query}},
   \code{\link{sql.stock.flows.wtd.avg}},
-  \code{\link{sql.tbl}}, \code{\link{sql.unbracket}}
+  \code{\link{sql.tbl}}, \code{\link{sql.ui}},
+  \code{\link{sql.unbracket}}
 }
 \keyword{sql.1mActWt}

@@ -3934,11 +3934,7 @@ ftp.sql <- function (x, y, n, w)
     sql.table <- ftp.info(x, T, "sql.table", w)
     h <- ftp.info(x, T, "date.field", w)
     if (any(x == c("M", "W", "D"))) {
-        w <- list(A = paste(h, "= @dy"))
-        w[["B"]] <- "FundType in ('M', 'A', 'Y', 'B', 'E')"
-        w[["C"]] <- "GeographicFocus not in (0, 18, 48)"
-        w[["D"]] <- "(Category >= '1' or Commodity = 'Y')"
-        w[["E"]] <- "isActive = 'Y'"
+        w <- list(A = sql.ui(), B = paste(h, "= @dy"))
         w <- sql.and(w)
         z <- c("FundId", paste("ReportDate = convert(char(8), ", 
             h, ", 112)", sep = ""))
@@ -3992,11 +3988,7 @@ ftp.sql <- function (x, y, n, w)
         }
     }
     else {
-        w <- list(A = paste(h, "= @dy"))
-        w[["B"]] <- "FundType in ('M', 'A', 'Y', 'B', 'E')"
-        w[["C"]] <- "GeographicFocus not in (0, 18, 48)"
-        w[["D"]] <- "(Category >= '1' or Commodity = 'Y')"
-        w[["E"]] <- "isActive = 'Y'"
+        w <- list(A = sql.ui(), B = paste(h, "= @dy"))
         w <- sql.and(w)
         z <- c("t2.FundId", paste("ReportDate = convert(char(8), ", 
             h, ", 112)", sep = ""))
@@ -9421,6 +9413,32 @@ sql.Trend <- function (x, y = "All")
     if (y != "Num") 
         z <- paste(z, "/", sql.nonneg(paste("sum(abs(", x, "))", 
             sep = "")), sep = "")
+    z
+}
+
+#' sql.ui
+#' 
+#' funds to be displayed on the UI
+#' @keywords sql.ui
+#' @export
+#' @family sql
+
+sql.ui <- function () 
+{
+    z <- list()
+    z[["A"]] <- "FundType in ('M', 'A', 'Y', 'B', 'E')"
+    z[["B"]] <- "GeographicFocus not in (0, 18, 48)"
+    z[["C"]] <- "Category >= '1'"
+    z[["D"]] <- "isActive = 'Y'"
+    z <- c("(", sql.and(z), ")")
+    x <- list()
+    x[["A"]] <- "Commodity = 'Y'"
+    x[["B"]] <- "StyleSector in (101, 103)"
+    x[["C"]] <- "FundType = 'Y'"
+    x[["D"]] <- "isActive = 'Y'"
+    x <- c("(", sql.and(x), ")")
+    z <- list(A = z, B = x)
+    z <- c("(", sql.and(z, , "or"), ")")
     z
 }
 
