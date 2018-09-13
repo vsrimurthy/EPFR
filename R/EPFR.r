@@ -6336,7 +6336,7 @@ qa.flow <- function (x, y, n, w = "Aggregate")
             z[j, "DupFunds"] <- as.numeric(any(duplicated(vec)))
         }
         df <- df[, cols]
-        if (!n & dim(df)[1] > 0) {
+        if (dim(df)[1] > 0) {
             df <- pivot.1d(sum, paste(df[, 1], df[, 2]), df[, 
                 cols[-1][-1]])
             df <- data.frame(txt.parse(dimnames(df)[[1]], " "), 
@@ -6348,7 +6348,7 @@ qa.flow <- function (x, y, n, w = "Aggregate")
     else {
         z[, "DupFunds"] <- 1
     }
-    for (j in dimnames(z)[[1]][is.element(z[, "DupFunds"], 1)]) {
+    for (j in dimnames(z)[[1]][is.element(z[, "goodFile"], 0)]) {
         z[j, "isSQL"] <- 0
         if (z[j, "goodFile"] == 1) {
             z[j, "FTPxSQL"] <- sum(is.element(df[, "ReportDate"], 
@@ -6361,7 +6361,7 @@ qa.flow <- function (x, y, n, w = "Aggregate")
         z[j, "SQLxFTP"] <- 0
         z[j, 9:dim(z)[2]] <- 0
     }
-    for (j in dimnames(z)[[1]][is.element(z[, "DupFunds"], 0)]) {
+    for (j in dimnames(z)[[1]][is.element(z[, "goodFile"], 1)]) {
         h <- ftp.sql(y, j, cols[-1][-1], w)
         if (any(y == c("StockM", "StockD"))) {
             h <- sql.query(h, "StockFlows", F)
@@ -9434,7 +9434,7 @@ sql.ui <- function ()
     x <- list()
     x[["A"]] <- "Commodity = 'Y'"
     x[["B"]] <- "StyleSector in (101, 103)"
-    x[["C"]] <- "FundType = 'Y'"
+    x[["C"]] <- "FundType in ('Y', 'E')"
     x[["D"]] <- "isActive = 'Y'"
     x <- c("(", sql.and(x), ")")
     z <- list(A = z, B = x)
