@@ -6266,9 +6266,14 @@ qa.flow <- function (x, y, n, w = "Aggregate")
     }
     if (any(y == c("W", "D", "StockD"))) {
         dts <- yyyymmdd.ex.yyyymm(x, F)
-        if (y == "W") 
+        if (y == "W") {
             dts <- dts[day.to.weekday(dts) == ifelse(dts >= "20010919", 
                 3, 5)]
+        }
+        else if (y == "D") {
+            dts <- dts[!is.element(txt.right(dts, 4), c("0101", 
+                "1225"))]
+        }
     }
     else if (substring(x, 5, 5) == "Q") {
         dts <- yyyymm.to.day(yyyymm.lag(yyyymm.ex.qtr(x), 2:0))
