@@ -3989,6 +3989,9 @@ ftp.sql <- function (x, y, n, w)
     }
     else {
         w <- list(A = sql.ui(), B = paste(h, "= @dy"))
+        if (x == "C") 
+            w[["C"]] <- c("(", sql.and(sql.cross.border(F), "", 
+                "or"), ")")
         w <- sql.and(w)
         z <- c("t2.FundId", paste("ReportDate = convert(char(8), ", 
             h, ", 112)", sep = ""))
