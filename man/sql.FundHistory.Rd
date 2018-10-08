@@ -9,7 +9,7 @@ sql.FundHistory(x, y, n, w)
 \arguments{
 \item{x}{= characters to place before each line of the SQL query part}
 
-\item{y}{= one of All/Act/CBE/Etf/Mutual/xJP/xJPAct/JP}
+\item{y}{= one of All/Act/Pas/CBE/Etf/Mutual/xJP/xJPAct/JP}
 
 \item{n}{= T/F depending on whether StockFlows data are being used}
 
@@ -20,6 +20,8 @@ SQL query to restrict to Global and Regional equity funds
 }
 \seealso{
 Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
+  \code{\link{sql.1dActWtTrend.select}},
+  \code{\link{sql.1dActWtTrend.topline.from}},
   \code{\link{sql.1dActWtTrend.topline}},
   \code{\link{sql.1dActWtTrend.underlying}},
   \code{\link{sql.1dActWtTrend}},
@@ -31,24 +33,28 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.1dFloMo.FI.underlying}},
   \code{\link{sql.1dFloMo.FI}},
   \code{\link{sql.1dFloMo.Rgn}},
+  \code{\link{sql.1dFloMo.underlying}},
   \code{\link{sql.1dFloMoAggr}}, \code{\link{sql.1dFloMo}},
   \code{\link{sql.1dFloTrend.Ctry.topline}},
   \code{\link{sql.1dFloTrend.Ctry.underlying}},
   \code{\link{sql.1dFloTrend.Ctry}},
+  \code{\link{sql.1dFloTrend.select}},
   \code{\link{sql.1dFloTrend.underlying}},
   \code{\link{sql.1dFloTrend}},
   \code{\link{sql.1dFundRet}}, \code{\link{sql.1dION}},
   \code{\link{sql.1mActPas.Ctry}},
   \code{\link{sql.1mActWt.underlying}},
   \code{\link{sql.1mActWt}},
-  \code{\link{sql.1mAllocMo.underlying}},
+  \code{\link{sql.1mAllocMo.select}},
+  \code{\link{sql.1mAllocMo.underlying.from}},
+  \code{\link{sql.1mAllocMo.underlying.pre}},
   \code{\link{sql.1mAllocMo}},
+  \code{\link{sql.1mAllocSkew.topline.from}},
   \code{\link{sql.1mAllocSkew}},
   \code{\link{sql.1mChActWt}},
   \code{\link{sql.AggrAllocations}},
   \code{\link{sql.AllocTbl}}, \code{\link{sql.DailyFlo}},
   \code{\link{sql.Diff}}, \code{\link{sql.FloMo.Funds}},
-  \code{\link{sql.FundWtdExcl0}},
   \code{\link{sql.Holdings.bulk}},
   \code{\link{sql.Holdings}}, \code{\link{sql.ION}},
   \code{\link{sql.MonthlyAlloc}},

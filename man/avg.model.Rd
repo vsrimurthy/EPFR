@@ -4,12 +4,10 @@
 \alias{avg.model}
 \title{avg.model}
 \usage{
-avg.model(x, y = 0)
+avg.model(x)
 }
 \arguments{
 \item{x}{= vector of results}
-
-\item{y}{= lag length (to handle overlapping returns)     When using N-period returns, y is N - 1. So for     annual or qtrly periods of monthly data, y is 11 or 2.}
 }
 \description{
 constant-only (zero-variable) regression model

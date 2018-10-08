@@ -18,4 +18,9 @@ qa.flow(x, y, n, w = "Aggregate")
 \description{
 Compares flow file to data from Quant server
 }
+\seealso{
+Other qa: \code{\link{qa.columns}},
+  \code{\link{qa.filter.map}}, \code{\link{qa.index}},
+  \code{\link{qa.mat.read}}, \code{\link{qa.secMenu}}
+}
 \keyword{qa.flow}

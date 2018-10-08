@@ -4,16 +4,20 @@
 \alias{sql.TopDownAllocs.items}
 \title{sql.TopDownAllocs.items}
 \usage{
-sql.TopDownAllocs.items(x)
+sql.TopDownAllocs.items(x, y = T)
 }
 \arguments{
 \item{x}{= a string vector specifying types of allocation wanted}
+
+\item{y}{= T/F depending on whether select item or having entry is desired}
 }
 \description{
 allocations to select in Top-Down Allocations SQL query
 }
 \seealso{
 Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
+  \code{\link{sql.1dActWtTrend.select}},
+  \code{\link{sql.1dActWtTrend.topline.from}},
   \code{\link{sql.1dActWtTrend.topline}},
   \code{\link{sql.1dActWtTrend.underlying}},
   \code{\link{sql.1dActWtTrend}},
@@ -25,25 +29,29 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.1dFloMo.FI.underlying}},
   \code{\link{sql.1dFloMo.FI}},
   \code{\link{sql.1dFloMo.Rgn}},
+  \code{\link{sql.1dFloMo.underlying}},
   \code{\link{sql.1dFloMoAggr}}, \code{\link{sql.1dFloMo}},
   \code{\link{sql.1dFloTrend.Ctry.topline}},
   \code{\link{sql.1dFloTrend.Ctry.underlying}},
   \code{\link{sql.1dFloTrend.Ctry}},
+  \code{\link{sql.1dFloTrend.select}},
   \code{\link{sql.1dFloTrend.underlying}},
   \code{\link{sql.1dFloTrend}},
   \code{\link{sql.1dFundRet}}, \code{\link{sql.1dION}},
   \code{\link{sql.1mActPas.Ctry}},
   \code{\link{sql.1mActWt.underlying}},
   \code{\link{sql.1mActWt}},
-  \code{\link{sql.1mAllocMo.underlying}},
+  \code{\link{sql.1mAllocMo.select}},
+  \code{\link{sql.1mAllocMo.underlying.from}},
+  \code{\link{sql.1mAllocMo.underlying.pre}},
   \code{\link{sql.1mAllocMo}},
+  \code{\link{sql.1mAllocSkew.topline.from}},
   \code{\link{sql.1mAllocSkew}},
   \code{\link{sql.1mChActWt}},
   \code{\link{sql.AggrAllocations}},
   \code{\link{sql.AllocTbl}}, \code{\link{sql.DailyFlo}},
   \code{\link{sql.Diff}}, \code{\link{sql.FloMo.Funds}},
   \code{\link{sql.FundHistory}},
-  \code{\link{sql.FundWtdExcl0}},
   \code{\link{sql.Holdings.bulk}},
   \code{\link{sql.Holdings}}, \code{\link{sql.ION}},
   \code{\link{sql.MonthlyAlloc}},

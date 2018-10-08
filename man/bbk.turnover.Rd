@@ -18,7 +18,8 @@ Other bbk: \code{\link{bbk.bin.rets.geom.summ}},
   \code{\link{bbk.bin.rets.summ}},
   \code{\link{bbk.bin.xRet}}, \code{\link{bbk.data}},
   \code{\link{bbk.doW.bulk}}, \code{\link{bbk.drawdown}},
-  \code{\link{bbk.fwdRet}}, \code{\link{bbk.holidays}},
+  \code{\link{bbk.fanChart}}, \code{\link{bbk.fwdRet}},
+  \code{\link{bbk.histogram}}, \code{\link{bbk.holidays}},
   \code{\link{bbk.summ}}, \code{\link{bbk}}
 }
 \keyword{bbk.turnover}
