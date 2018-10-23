@@ -4,7 +4,7 @@
 \alias{sql.1dActWtTrend}
 \title{sql.1dActWtTrend}
 \usage{
-sql.1dActWtTrend(x, y, n)
+sql.1dActWtTrend(x, y, n, w)
 }
 \arguments{
 \item{x}{= the YYYYMMDD for which you want flows (known one day later)}
@@ -12,6 +12,8 @@ sql.1dActWtTrend(x, y, n)
 \item{y}{= a string vector of factors to be computed, the last element of which is the type of fund used.}
 
 \item{n}{= any of StockFlows/Japan/CSI300/Energy}
+
+\item{w}{= T/F depending on whether you are checking ftp}
 }
 \description{
 the SQL query to get 1dActWtTrend
@@ -30,6 +32,7 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.1dFloMo.FI.underlying}},
   \code{\link{sql.1dFloMo.FI}},
   \code{\link{sql.1dFloMo.Rgn}},
+  \code{\link{sql.1dFloMo.select}},
   \code{\link{sql.1dFloMo.underlying}},
   \code{\link{sql.1dFloMoAggr}}, \code{\link{sql.1dFloMo}},
   \code{\link{sql.1dFloTrend.Ctry.topline}},

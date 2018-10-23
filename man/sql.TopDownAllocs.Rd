@@ -4,14 +4,16 @@
 \alias{sql.TopDownAllocs}
 \title{sql.TopDownAllocs}
 \usage{
-sql.TopDownAllocs(x, y, n)
+sql.TopDownAllocs(x, y, n, w)
 }
 \arguments{
 \item{x}{= the YYYYMM for which you want data (known 26 days later)}
 
-\item{y}{= a string vector, first the element of which is 0/1 depending on whether you want Active/Passive, while the subsequent elements are the types of top-down allocation wanted}
+\item{y}{= a string vector of top-down allocations wanted, the last element of which is the type of fund to be used.}
 
 \item{n}{= any of StockFlows/Japan/CSI300/Energy}
+
+\item{w}{= T/F depending on whether you are checking ftp}
 }
 \description{
 Generates the SQL query to get Active/Passive Top-Down Allocations
@@ -31,6 +33,7 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.1dFloMo.FI.underlying}},
   \code{\link{sql.1dFloMo.FI}},
   \code{\link{sql.1dFloMo.Rgn}},
+  \code{\link{sql.1dFloMo.select}},
   \code{\link{sql.1dFloMo.underlying}},
   \code{\link{sql.1dFloMoAggr}}, \code{\link{sql.1dFloMo}},
   \code{\link{sql.1dFloTrend.Ctry.topline}},

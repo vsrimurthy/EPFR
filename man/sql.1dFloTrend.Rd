@@ -4,7 +4,7 @@
 \alias{sql.1dFloTrend}
 \title{sql.1dFloTrend}
 \usage{
-sql.1dFloTrend(x, y, n, w)
+sql.1dFloTrend(x, y, n, w, h)
 }
 \arguments{
 \item{x}{= data date in YYYYMMDD (known two days later)}
@@ -14,6 +14,8 @@ sql.1dFloTrend(x, y, n, w)
 \item{n}{= the delay in knowing allocations}
 
 \item{w}{= any of StockFlows/Japan/CSI300/Energy}
+
+\item{h}{= T/F depending on whether you are checking ftp}
 }
 \description{
 Generates the SQL query to get the data for 1dFloTrend
@@ -33,6 +35,7 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.1dFloMo.FI.underlying}},
   \code{\link{sql.1dFloMo.FI}},
   \code{\link{sql.1dFloMo.Rgn}},
+  \code{\link{sql.1dFloMo.select}},
   \code{\link{sql.1dFloMo.underlying}},
   \code{\link{sql.1dFloMoAggr}}, \code{\link{sql.1dFloMo}},
   \code{\link{sql.1dFloTrend.Ctry.topline}},

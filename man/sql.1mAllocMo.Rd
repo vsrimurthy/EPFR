@@ -4,7 +4,7 @@
 \alias{sql.1mAllocMo}
 \title{sql.1mAllocMo}
 \usage{
-sql.1mAllocMo(x, y, n)
+sql.1mAllocMo(x, y, n, w)
 }
 \arguments{
 \item{x}{= the YYYYMM for which you want data (known 26 days later)}
@@ -12,6 +12,8 @@ sql.1mAllocMo(x, y, n)
 \item{y}{= a string vector of factors to be computed, the last element of which is the type of fund used.}
 
 \item{n}{= any of StockFlows/Japan/CSI300/Energy}
+
+\item{w}{= T/F depending on whether you are checking ftp}
 }
 \description{
 Generates the SQL query to get the data for 1mAllocMo
@@ -31,6 +33,7 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.1dFloMo.FI.underlying}},
   \code{\link{sql.1dFloMo.FI}},
   \code{\link{sql.1dFloMo.Rgn}},
+  \code{\link{sql.1dFloMo.select}},
   \code{\link{sql.1dFloMo.underlying}},
   \code{\link{sql.1dFloMoAggr}}, \code{\link{sql.1dFloMo}},
   \code{\link{sql.1dFloTrend.Ctry.topline}},

@@ -4,10 +4,14 @@
 \alias{sql.1dActWtTrend.topline}
 \title{sql.1dActWtTrend.topline}
 \usage{
-sql.1dActWtTrend.topline(x)
+sql.1dActWtTrend.topline(x, y, n)
 }
 \arguments{
-\item{x}{= a string vector of factors to be computed,}
+\item{x}{= a string vector of factors to be computed}
+
+\item{y}{= the YYYYMMDD for which you want flows (known one day later)}
+
+\item{n}{= T/F depending on whether you are checking ftp}
 }
 \description{
 SQL query to get the select statement for 1dActWtTrend
@@ -26,6 +30,7 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.1dFloMo.FI.underlying}},
   \code{\link{sql.1dFloMo.FI}},
   \code{\link{sql.1dFloMo.Rgn}},
+  \code{\link{sql.1dFloMo.select}},
   \code{\link{sql.1dFloMo.underlying}},
   \code{\link{sql.1dFloMoAggr}}, \code{\link{sql.1dFloMo}},
   \code{\link{sql.1dFloTrend.Ctry.topline}},

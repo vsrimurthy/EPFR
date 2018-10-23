@@ -25,7 +25,6 @@ Other ftp: \code{\link{ftp.all.dir}},
   \code{\link{ftp.info}},
   \code{\link{ftp.is.file.underlying}},
   \code{\link{ftp.is.file}}, \code{\link{ftp.put}},
-  \code{\link{ftp.sql.allocations}},
   \code{\link{ftp.sql.factor}},
   \code{\link{ftp.sql.other}}, \code{\link{ftp.txt}},
   \code{\link{ftp.upload.script}}
