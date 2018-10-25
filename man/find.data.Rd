@@ -15,6 +15,7 @@ find.data(x, y = T)
 returns the position of the first/last true value of x
 }
 \seealso{
-Other find: \code{\link{find.gaps}}
+Other find: \code{\link{find.gaps}},
+  \code{\link{find.whitespace.trail}}
 }
 \keyword{find.data}
