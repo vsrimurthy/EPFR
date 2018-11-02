@@ -959,6 +959,20 @@ char.ex.int <- function (x)
     z
 }
 
+#' char.lag
+#' 
+#' lags <x> by <y>
+#' @param x = a vector of characters
+#' @param y = a number
+#' @keywords char.lag
+#' @export
+#' @family char
+
+char.lag <- function (x, y) 
+{
+    obj.lag(x, y, char.to.int, char.ex.int)
+}
+
 #' char.seq
 #' 
 #' returns a sequence of ASCII characters between (and including) x and y
@@ -3976,7 +3990,7 @@ ftp.put <- function (x, y, n)
 #' ftp.sql.factor
 #' 
 #' SQL code to validate <x> flows at the <y> level
-#' @param x = M/W/D depending on whether flows are monthly/weekly/daily
+#' @param x = vector of M/W/D depending on whether flows are monthly/weekly/daily
 #' @param y = flow date in YYYYMMDD format
 #' @param n = filter (e.g. Aggregate/Active/Passive/ETF/Mutual)
 #' @keywords ftp.sql.factor
@@ -3985,46 +3999,51 @@ ftp.put <- function (x, y, n)
 
 ftp.sql.factor <- function (x, y, n) 
 {
-    if (any(x == paste("Flo", c("Trend", "Diff", "Diff2"), sep = ""))) {
+    if (all(is.element(x, paste("Flo", c("Trend", "Diff", "Diff2"), 
+        sep = "")))) {
         z <- sql.1dFloTrend(y, c(x, qa.filter.map(n)), 26, "All", 
             T)
     }
-    else if (any(x == paste("ActWt", c("Trend", "Diff", "Diff2"), 
-        sep = ""))) {
+    else if (all(is.element(x, paste("ActWt", c("Trend", "Diff", 
+        "Diff2"), sep = "")))) {
         z <- sql.1dActWtTrend(y, c(x, qa.filter.map(n)), "All", 
             T)
     }
-    else if (x == "FloMo") {
+    else if (all(x == "FloMo")) {
         z <- sql.1dFloMo(y, c(x, qa.filter.map(n)), "All", T)
     }
-    else if (x == "StockD") {
+    else if (all(x == "StockD")) {
         z <- sql.1dFloMo(y, c("FloDollar", qa.filter.map(n)), 
             "All", T)
     }
-    else if (x == "StockM") {
+    else if (all(x == "StockM")) {
         z <- sql.1mFloMo(yyyymmdd.to.yyyymm(y), c("FloDollar", 
             qa.filter.map(n)), "All", T)
     }
-    else if (x == "IOND") {
+    else if (all(x == "IOND")) {
         z <- sql.1dFloMo(y, c("Inflow", "Outflow", qa.filter.map(n)), 
             "All", T)
     }
-    else if (x == "IONM") {
+    else if (all(x == "IONM")) {
         z <- sql.1mFloMo(yyyymmdd.to.yyyymm(y), c("Inflow", "Outflow", 
             qa.filter.map(n)), "All", T)
     }
-    else if (any(x == paste("Alloc", c("Trend", "Diff", "Mo"), 
-        sep = ""))) {
+    else if (all(is.element(x, paste("Alloc", c("Trend", "Diff", 
+        "Mo"), sep = "")))) {
         z <- sql.1mAllocMo(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
             "All", T)
     }
-    else if (x == "AllocSkew") {
+    else if (all(x == "AllocSkew")) {
         z <- sql.1mAllocSkew(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
             "All", T)
     }
-    else {
+    else if (all(is.element(x, c("FwtdEx0", "FwtdIn0", "SwtdEx0", 
+        "SwtdIn0")))) {
         z <- sql.TopDownAllocs(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
             "All", T)
+    }
+    else {
+        stop("Bad factor")
     }
     z
 }
@@ -6036,6 +6055,75 @@ plurality.map <- function (x, y)
     z$pct <- 100 * z$obs/map.rname(vec.count(x), dimnames(z)[[1]])
     z <- z[order(-z$pct), ]
     z
+}
+
+#' portfolio.beta
+#' 
+#' beta of <x> with respect to <y>
+#' @param x = a numeric vector
+#' @param y = an isomekic numeric vector
+#' @param n = T/F depending on whether all observations required
+#' @keywords portfolio.beta
+#' @export
+#' @family portfolio
+
+portfolio.beta <- function (x, y, n) 
+{
+    w <- !is.na(x) & !is.na(y)
+    if (n & all(w)) {
+        z <- cov(x, y)/nonneg(cov(y, y))
+    }
+    else if (n | sum(w) < 2) {
+        z <- NA
+    }
+    else {
+        z <- cov(x[w], y[w])/nonneg(cov(y[w], y[w]))
+    }
+    z
+}
+
+#' portfolio.beta.wrapper
+#' 
+#' <n> day beta of columns of <x> with respect to benchmark <y>
+#' @param x = a file of total return indices indexed so that time runs forward
+#' @param y = the name of the benchmark w.r.t. which beta is to be computed (e.g. "ACWorld")
+#' @param n = the window in days over which beta is to be computed
+#' @keywords portfolio.beta.wrapper
+#' @export
+#' @family portfolio
+
+portfolio.beta.wrapper <- function (x, y, n) 
+{
+    z <- mat.read(paste(dir.parameters("csv"), "IndexReturns-Daily.csv", 
+        sep = "\\"))
+    z <- map.rname(z, dimnames(x)[[1]])
+    x <- mat.ex.matrix(x)
+    x[, y] <- z[, y]
+    z <- ret.ex.idx(x, 1, F, F)
+    for (j in dim(z)[1]:n) {
+        for (k in 2:dim(z)[2] - 1) {
+            w <- j - n:1 + 1
+            z[j, k] <- portfolio.beta(z[w, k], z[w, dim(z)[2]], 
+                T)
+        }
+    }
+    z[2:n - 1, ] <- NA
+    z <- z[, -dim(z)[2]]
+    z
+}
+
+#' portfolio.residual
+#' 
+#' residual of <x> after factoring out <y>
+#' @param x = a numeric vector
+#' @param y = an isomekic numeric vector
+#' @keywords portfolio.residual
+#' @export
+#' @family portfolio
+
+portfolio.residual <- function (x, y) 
+{
+    x - portfolio.beta(x, y, F) * y
 }
 
 #' position.ActWtDiff2
@@ -9344,7 +9432,7 @@ sql.floTbl.to.Col <- function (x, y)
 #' 
 #' SQL query to restrict to Global and Regional equity funds
 #' @param x = characters to place before each line of the SQL query part
-#' @param y = one of All/Act/Pas/CBE/Etf/Mutual/xJP/xJPAct/JP
+#' @param y = a vector of filters
 #' @param n = T/F depending on whether StockFlows data are being used
 #' @param w = columns needed in addition to HFundId
 #' @keywords sql.FundHistory
@@ -9353,55 +9441,62 @@ sql.floTbl.to.Col <- function (x, y)
 
 sql.FundHistory <- function (x, y, n, w) 
 {
-    if (y == "Pseudo") 
+    if (y[1] == "Pseudo") 
         y <- "All"
     if (missing(w)) 
         w <- "HFundId"
     else w <- c("HFundId", w)
-    if (y == "All" & n) {
+    if (y[1] == "All" & n) {
         z <- sql.tbl(w, "FundHistory")
     }
     else {
-        if (y == "All") {
+        if (n) {
+            z <- list()
+            for (h in y) {
+                if (h == "Act") {
+                  z[[char.ex.int(length(z) + 65)]] <- "[Index] = 0"
+                }
+                else if (h == "Pas") {
+                  z[[char.ex.int(length(z) + 65)]] <- "[Index] = 1"
+                }
+                else if (h == "Etf") {
+                  z[[char.ex.int(length(z) + 65)]] <- "ETFTypeId is not null"
+                }
+                else if (h == "Mutual") {
+                  z[[char.ex.int(length(z) + 65)]] <- "ETFTypeId is null"
+                }
+                else if (h == "JP") {
+                  z[[char.ex.int(length(z) + 65)]] <- "DomicileId = 'JP'"
+                }
+                else if (h == "xJP") {
+                  z[[char.ex.int(length(z) + 65)]] <- "not DomicileId = 'JP'"
+                }
+                else if (h == "CBE") {
+                  z[[char.ex.int(length(z) + 65)]] <- c("(", 
+                    sql.and(sql.cross.border(n), "", "or"), ")")
+                }
+                else {
+                  stop("Bad Argument y =", h)
+                }
+            }
+            y <- z
+        }
+        else if (y == "All") {
             y <- list(A = "FundType = 'E'")
         }
-        else if (y == "Etf" & n) {
-            y <- list(A = "ETFTypeId is not null")
-        }
-        else if (y == "Etf" & !n) {
-            y <- list(A = "ETF = 'Y'", B = "FundType = 'E'")
-        }
-        else if (y == "Mutual" & n) {
-            y <- list(A = "ETFTypeId is null")
-        }
-        else if (y == "Etf" & !n) {
-            y <- list(A = "not ETF = 'Y'", B = "FundType = 'E'")
-        }
-        else if (y == "xJP" & n) {
-            y <- list(A = "not DomicileId = 'JP'")
-        }
-        else if (y == "xJPAct" & n) {
-            y <- list(A = "not DomicileId = 'JP'", B = "[Index] = 0")
-        }
-        else if (y == "JP" & n) {
-            y <- list(A = "DomicileId = 'JP'")
-        }
-        else if (y == "Act" & n) {
-            y <- list(A = "[Index] = 0")
-        }
-        else if (y == "Pas" & n) {
-            y <- list(A = "[Index] = 1")
-        }
-        else if (y == "Act" & !n) {
+        else if (y == "Act") {
             y <- list(A = "isnull(Idx, 'N') = 'N'", B = "FundType = 'E'")
+        }
+        else if (y == "Etf") {
+            y <- list(A = "not ETF = 'Y'", B = "FundType = 'E'")
         }
         else if (y == "CBE") {
             y <- sql.and(sql.cross.border(n), "", "or")
-            if (n) 
-                y <- list(A = y)
-            else y <- list(A = c("(", y, ")"), B = "FundType = 'E'")
+            y <- list(A = c("(", y, ")"), B = "FundType = 'E'")
         }
-        else stop("Bad Argument y =", y)
+        else {
+            stop("Bad Argument y =", y)
+        }
         z <- sql.tbl(w, "FundHistory", sql.and(y))
     }
     z <- paste(x, z, sep = "")
@@ -9622,10 +9717,11 @@ sql.map.classif <- function (x, y, n, w)
 
 sql.Mo <- function (x, y, n, w) 
 {
-    z <- paste("sum(", y, " * ", n, ")", sep = "")
+    z <- paste("sum(", y, " * cast(", n, " as float))", sep = "")
     if (w) 
         z <- sql.nonneg(z)
-    z <- paste("= 100 * sum(", x, " * ", n, ")/", z, sep = "")
+    z <- paste("= 100 * sum(", x, " * cast(", n, " as float))/", 
+        z, sep = "")
     z
 }
 
@@ -9900,7 +9996,7 @@ sql.TopDownAllocs <- function (x, y, n, w)
     h <- c(h, "\ton t3.FundId = t2.FundId and HSId = HSecurityId")
     if (!w) 
         h <- c(h, "inner join", "SecurityHistory id on id.HSecurityId = t1.HSecurityId")
-    if (w) {
+    if (w & m == 2) {
         cols <- c("GeoId", "AverageAllocation")
         n <- sql.TopDownAllocs.items(y[1])
         n <- txt.right(n, nchar(n) - nchar(y[1]) - 1)
@@ -9909,6 +10005,11 @@ sql.TopDownAllocs <- function (x, y, n, w)
             "GeoId = GeographicFocusId", "HSecurityId", n), h, 
             , "t1.ReportDate, GeographicFocusId, HSecurityId", 
             sql.TopDownAllocs.items(y[1], F))
+    }
+    else if (w & m > 2) {
+        z <- c("ReportDate = convert(char(8), t1.ReportDate, 112)", 
+            "GeoId = GeographicFocusId", "HSecurityId", sql.TopDownAllocs.items(y[-m]))
+        z <- sql.tbl(z, h, , "t1.ReportDate, GeographicFocusId, HSecurityId")
     }
     else {
         z <- c("SecurityId", sql.TopDownAllocs.items(y[-m]))
@@ -10520,6 +10621,40 @@ txt.left <- function (x, y)
     substring(x, 1, y)
 }
 
+#' txt.levenshtein
+#' 
+#' Levenshtein distance between <x> and <y>
+#' @param x = a string
+#' @param y = a string
+#' @keywords txt.levenshtein
+#' @export
+#' @family txt
+
+txt.levenshtein <- function (x, y) 
+{
+    n <- nchar(x)
+    m <- nchar(y)
+    if (min(m, n) == 0) {
+        z <- max(m, n)
+    }
+    else {
+        x <- c("", txt.to.char(x))
+        y <- c("", txt.to.char(y))
+        z <- matrix(NA, n + 1, m + 1, F, list(x, y))
+        z[1, ] <- 0:m
+        z[, 1] <- 0:n
+        for (i in 1:m + 1) {
+            for (j in 1:n + 1) {
+                z[j, i] <- min(z[j - 1, i], z[j, i - 1]) + 1
+                z[j, i] <- min(z[j, i], z[j - 1, i - 1] + as.numeric(x[j] != 
+                  y[i]))
+            }
+        }
+        z <- z[n + 1, m + 1]
+    }
+    z
+}
+
 #' txt.na
 #' 
 #' Returns a list of strings considered NA
@@ -11017,6 +11152,80 @@ txt.words <- function (x)
         z <- "EnglishWords-2syllables.txt"
     }
     z <- paste(dir.parameters("data"), z, sep = "\\")
+    z
+}
+
+#' urn.comb
+#' 
+#' various combinations
+#' @param x = a matrix of integers
+#' @keywords urn.comb
+#' @export
+#' @family urn
+
+urn.comb <- function (x) 
+{
+    m <- dim(x)[2]
+    while (x[dim(x)[1], m] > 0) {
+        w <- x[, m] == x[dim(x)[1], m]
+        z <- NULL
+        for (j in seq(1, dim(x)[1])[w]) {
+            y <- matrix(unlist(x[j, ]), m - 1, m, T, list(2:m - 
+                1, dimnames(x)[[2]]))
+            diag(y[2:m - 1, 2:m - 1]) <- diag(y[2:m - 1, 2:m - 
+                1]) + 1
+            y[, m] <- y[, m] - 1
+            if (is.null(z)) {
+                z <- y
+            }
+            else {
+                z <- rbind(z, y)
+            }
+        }
+        dimnames(z)[[1]] <- dim(x)[1] + 1:dim(z)[1]
+        x <- rbind(x, z)
+    }
+    z <- x
+    z
+}
+
+#' urn.exact
+#' 
+#' probability of drawing precisely <x> balls from an urn containing <y> balls
+#' @param x = a vector of integers
+#' @param y = an isomekic vector of integers that is pointwise greater than or equal to <x>
+#' @keywords urn.exact
+#' @export
+#' @family urn
+
+urn.exact <- function (x, y) 
+{
+    z <- 1
+    for (i in 1:length(x)) z <- z * factorial(y[i])/(factorial(x[i]) * 
+        factorial(y[i] - x[i]))
+    z <- (z/factorial(sum(y))) * factorial(sum(x)) * factorial(sum(y - 
+        x))
+    z
+}
+
+#' urn.least
+#' 
+#' probability of drawing at least <x> balls from an urn containing <y> balls
+#' @param x = a vector of integers
+#' @param y = an isomekic vector of integers that is pointwise greater than or equal to <x>
+#' @keywords urn.least
+#' @export
+#' @family urn
+
+urn.least <- function (x, y) 
+{
+    m <- length(x)
+    x <- matrix(x, 1, m, T, list(1, 1:m))
+    x <- urn.comb(x)
+    z <- rep(NA, dim(x)[1])
+    for (i in 1:dim(x)[1]) z[i] <- urn.exact(unlist(x[i, ]), 
+        y)
+    z <- sum(z)
     z
 }
 

@@ -9,7 +9,7 @@ sql.FundHistory(x, y, n, w)
 \arguments{
 \item{x}{= characters to place before each line of the SQL query part}
 
-\item{y}{= one of All/Act/Pas/CBE/Etf/Mutual/xJP/xJPAct/JP}
+\item{y}{= a vector of filters}
 
 \item{n}{= T/F depending on whether StockFlows data are being used}
 
