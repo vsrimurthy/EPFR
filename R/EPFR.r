@@ -5227,7 +5227,7 @@ mat.write <- function (x, y = "C:\\temp\\write.csv", n = ",")
 #' 
 #' Returns a flow variable with the same row space as <n>
 #' @param x = a single YYYYMMDD
-#' @param y = a string vector of variables to build with the last element specifying the type of funds to use (All/Act/Num, defaults to "All")
+#' @param y = a string vector of variables to build with the last elements specifying the type of funds to use
 #' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) DB - any of StockFlows/Japan/CSI300/Energy
 #' @keywords mk.1dFloMo
 #' @export
@@ -5235,12 +5235,7 @@ mat.write <- function (x, y = "C:\\temp\\write.csv", n = ",")
 
 mk.1dFloMo <- function (x, y, n) 
 {
-    m <- length(y)
-    if (all(y[m] != c("All", "Act", "xJP", "xJPAct", "JP", "Num", 
-        "CBE", "Pseudo", "Etf", "Mutual"))) {
-        y <- c(y, "All")
-        m <- m + 1
-    }
+    vbls <- sql.arguments(y)[["factor"]]
     x <- yyyymmdd.lag(x, 2)
     if (any(y[1] == c("FloMo", "FloMoCB", "FloDollar", "FloDollarGross"))) {
         z <- sql.1dFloMo(x, y, n$DB, F)
@@ -5258,13 +5253,13 @@ mk.1dFloMo <- function (x, y, n)
         z <- sql.1dActWtTrend(x, y, n$DB, F)
     }
     else if (any(y[1] == c("FwtdIn0", "FwtdEx0", "SwtdIn0", "SwtdEx0"))) {
-        z <- sql.1dFloMoAggr(x, y[-m], n$DB)
+        z <- sql.1dFloMoAggr(x, vbls, n$DB)
     }
     else if (any(y[1] == c("ION$", "ION%"))) {
         z <- sql.1dION(x, y, 26, n$DB)
     }
     else stop("Bad Argument")
-    z <- sql.map.classif(z, y[-m], n$conn, n$classif)
+    z <- sql.map.classif(z, vbls, n$conn, n$classif)
     z
 }
 
@@ -5272,7 +5267,7 @@ mk.1dFloMo <- function (x, y, n)
 #' 
 #' Returns a flow variable with the same row space as <n>
 #' @param x = a single YYYYMM
-#' @param y = a string vector of variables to build with the last element specifying the type of funds to use (All/Act/Num, defaults to "All")
+#' @param y = a string vector of variables to build with the last elements specifying the type of funds to use
 #' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) DB - any of StockFlows/Japan/CSI300/Energy
 #' @keywords mk.1mAllocMo
 #' @export
@@ -5280,12 +5275,7 @@ mk.1dFloMo <- function (x, y, n)
 
 mk.1mAllocMo <- function (x, y, n) 
 {
-    m <- length(y)
-    if (all(y[m] != c("All", "Act", "Num", "Pseudo", "xJP", "xJPAct", 
-        "JP"))) {
-        y <- c(y, "All")
-        m <- m + 1
-    }
+    vbls <- sql.arguments(y)[["factor"]]
     x <- yyyymm.lag(x, 1)
     if (y[1] == "AllocSkew") {
         z <- sql.1mAllocSkew(x, y, n$DB, F)
@@ -5297,7 +5287,7 @@ mk.1mAllocMo <- function (x, y, n)
     else {
         z <- sql.1mFloMo(x, y, n$DB, F)
     }
-    z <- sql.map.classif(z, y[-m], n$conn, n$classif)
+    z <- sql.map.classif(z, vbls, n$conn, n$classif)
     z
 }
 
@@ -7861,9 +7851,9 @@ smear.Q1 <- function (x)
 
 sql.1dActWtTrend <- function (x, y, n, w) 
 {
-    m <- length(y)
-    z <- sql.1dActWtTrend.underlying(x, y[m], sql.RDSuniv(n))
-    z <- c(z, sql.1dActWtTrend.topline(y[-m], x, w))
+    y <- sql.arguments(y)
+    z <- sql.1dActWtTrend.underlying(x, y$filter, sql.RDSuniv(n))
+    z <- c(z, sql.1dActWtTrend.topline(y$factor, x, w))
     z
 }
 
@@ -7986,18 +7976,26 @@ sql.1dActWtTrend.underlying <- function (x, y, n)
         y, T, c("FundId", "GeographicFocusId")), "t2"), "on t2.HFundId = t1.HFundId")
     z <- sql.tbl("FundId, GeographicFocusId, Flow = sum(Flow), AssetsStart = sum(AssetsStart)", 
         z, paste("ReportDate = '", x, "'", sep = ""), "FundId, GeographicFocusId")
-    z <- c(sql.drop(c("#AUM", "#HLD", "#FLO")), "", sql.into(z, 
-        "#FLO"))
+    z <- c("insert into", "\t#FLO (FundId, GeographicFocusId, Flow, AssetsStart)", 
+        sql.unbracket(z))
+    z <- c("create clustered index TempRandomFloIndex ON #FLO(FundId)", 
+        z)
+    z <- c("create table #FLO (FundId int not null, GeographicFocusId int, Flow float, AssetsStart float)", 
+        z)
+    z <- c(sql.drop(c("#AUM", "#HLD", "#FLO")), "", z)
     z <- c(z, "", "create table #AUM (FundId int not null, PortVal float not null)", 
-        "create clustered index TempRandomIndex ON #AUM(FundId)")
+        "create clustered index TempRandomAumIndex ON #AUM(FundId)")
     w <- c("MonthlyData t1", "inner join", "FundHistory t2 on t2.HFundId = t1.HFundId")
     w <- sql.unbracket(sql.tbl("FundId, PortVal = sum(AssetsEnd)", 
         w, paste("ReportDate = '", mo.end, "'", sep = ""), "FundId", 
         "sum(AssetsEnd) > 0"))
     z <- c(z, "insert into", "\t#AUM (FundId, PortVal)", w)
-    z <- c(z, "", sql.into(sql.MonthlyAlloc(paste("'", mo.end, 
-        "'", sep = "")), "#HLD"))
-    if (y == "Pseudo") {
+    z <- c(z, "", "create table #HLD (FundId int not null, HFundId int not null, HSecurityId int not null, HoldingValue float)")
+    z <- c(z, "create clustered index TempRandomHoldIndex ON #HLD(FundId, HSecurityId)")
+    z <- c(z, "insert into", "\t#HLD (FundId, HFundId, HSecurityId, HoldingValue)", 
+        sql.unbracket(sql.MonthlyAlloc(paste("'", mo.end, "'", 
+            sep = ""))))
+    if (any(y == "Pseudo")) {
         cols <- c("FundId", "HFundId", "HSecurityId", "HoldingValue")
         z <- c(z, "", sql.Holdings.bulk("#HLD", cols, mo.end, 
             "#BMKHLD", "#BMKAUM"), "")
@@ -8024,9 +8022,8 @@ sql.1dActWtTrend.underlying <- function (x, y, n)
 
 sql.1dFloMo <- function (x, y, n, w) 
 {
-    m <- length(y)
     h <- sql.1dFloMo.underlying(x)
-    if (y[m] == "Pseudo") {
+    if (any(y == "Pseudo")) {
         cols <- c("FundId", "HFundId", "HSecurityId", "HoldingValue")
         h <- c(h, "", sql.Holdings.bulk("#HLD", cols, yyyymm.to.day(yyyymmdd.to.AllocMo(x, 
             26)), "#BMKHLD", "#BMKAUM"), "")
@@ -8302,7 +8299,7 @@ sql.1dFloMo.FI.underlying <- function ()
 #' sql.1dFloMo.filter
 #' 
 #' implements filters for 1dFloMo
-#' @param x = a string vector of factors to be computed, the last element of which is the type of fund used
+#' @param x = a string vector of factors to be computed, the last elements of which are the type of fund used
 #' @param y = T/F depending on whether you are checking ftp
 #' @keywords sql.1dFloMo.filter
 #' @export
@@ -8310,12 +8307,12 @@ sql.1dFloMo.FI.underlying <- function ()
 
 sql.1dFloMo.filter <- function (x, y) 
 {
-    m <- length(x)
-    if (y & x[1] == "FloDollar") {
-        z <- sql.FundHistory("", x[m], T, c("FundId", "GeographicFocusId"))
+    x <- sql.arguments(x)
+    if (y & x$factor[1] == "FloDollar") {
+        z <- sql.FundHistory("", x$filter, T, c("FundId", "GeographicFocusId"))
     }
     else {
-        z <- sql.FundHistory("", x[m], T, "FundId")
+        z <- sql.FundHistory("", x$filter, T, "FundId")
     }
     z
 }
@@ -8323,7 +8320,7 @@ sql.1dFloMo.filter <- function (x, y)
 #' sql.1dFloMo.group
 #' 
 #' group by clause for 1dFloMo
-#' @param x = a string vector of factors to be computed, the last element of which is the type of fund used
+#' @param x = a string vector of factors to be computed
 #' @param y = T/F depending on whether you are checking ftp
 #' @keywords sql.1dFloMo.group
 #' @export
@@ -8403,7 +8400,7 @@ sql.1dFloMo.select <- function (x)
 #' 
 #' Generates the SQL query to get the data for 1mFloMo for individual stocks
 #' @param x = the YYYYMM for which you want data (known 16 days later)
-#' @param y = a string vector of factors to be computed, the last element of which is the type of fund used
+#' @param y = a string vector of factors to be computed, the last elements of are the type of fund used
 #' @param n = T/F depending on whether you are checking ftp
 #' @keywords sql.1dFloMo.select.wrapper
 #' @export
@@ -8411,7 +8408,7 @@ sql.1dFloMo.select <- function (x)
 
 sql.1dFloMo.select.wrapper <- function (x, y, n) 
 {
-    m <- length(y)
+    y <- sql.arguments(y)$factor
     if (n & y[1] == "FloDollar") {
         z <- c(paste("ReportDate = '", x, "'", sep = ""), "GeoId = GeographicFocusId", 
             "HSecurityId")
@@ -8422,7 +8419,7 @@ sql.1dFloMo.select.wrapper <- function (x, y, n)
     else {
         z <- c("SecurityId")
     }
-    for (i in y[-m]) {
+    for (i in y) {
         if (n & i == "FloDollar") {
             z <- c(z, paste("CalculatedStockFlow", txt.right(sql.1dFloMo.select(i), 
                 nchar(sql.1dFloMo.select(i)) - nchar(i) - 1)))
@@ -8505,15 +8502,15 @@ sql.1dFloMoAggr <- function (x, y, n)
 
 sql.1dFloTrend <- function (x, y, n, w, h) 
 {
-    m <- length(y)
+    y <- sql.arguments(y)
     if (h) {
         z <- c(paste("ReportDate = '", x, "'", sep = ""), "n1.HSecurityId")
     }
     else {
         z <- "n1.SecurityId"
     }
-    for (i in y[-m]) z <- c(z, sql.1dFloTrend.select(i))
-    x <- sql.1dFloTrend.underlying(y[m], w, x, n)
+    for (i in y$factor) z <- c(z, sql.1dFloTrend.select(i))
+    x <- sql.1dFloTrend.underlying(y$filter, w, x, n)
     h <- ifelse(h, "n1.HSecurityId", "n1.SecurityId")
     z <- c(paste(x$PRE, collapse = "\n"), paste(sql.unbracket(sql.tbl(z, 
         x$FINAL, , h)), collapse = "\n"))
@@ -8654,7 +8651,7 @@ sql.1dFloTrend.select <- function (x)
 #' sql.1dFloTrend.underlying
 #' 
 #' Generates the SQL query to get the data for 1dFloTrend
-#' @param x = either "All" or "Act" or "CBE" or "Pseudo"
+#' @param x = a vector of filters
 #' @param y = any of All/StockFlows/Japan/CSI300/Energy
 #' @param n = flow date in YYYYMMDD (known two days later)
 #' @param w = the delay in knowing allocations
@@ -8677,7 +8674,7 @@ sql.1dFloTrend.underlying <- function (x, y, n, w)
         "'", sep = "")), "#OLDHLD"))
     z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(paste("'", yyyymm.to.day(n[2]), 
         "'", sep = ""), "", F, T), "#OLDAUM"))
-    if (x == "Pseudo") {
+    if (any(x == "Pseudo")) {
         cols <- c("FundId", "HFundId", "HSecurityId", "HoldingValue")
         z <- c(z, "", sql.Holdings.bulk("#NEWHLD", cols, yyyymm.to.day(n[1]), 
             "#NEWBMKHLD", "#NEWBMKAUM"), "")
@@ -8877,7 +8874,7 @@ sql.1mActWt.underlying <- function (x, y)
 
 sql.1mAllocMo <- function (x, y, n, w) 
 {
-    m <- length(y)
+    y <- sql.arguments(y)
     if (w) {
         z <- c(paste("ReportDate = '", yyyymm.to.day(x), "'", 
             sep = ""), "n1.HSecurityId")
@@ -8885,11 +8882,11 @@ sql.1mAllocMo <- function (x, y, n, w)
     else {
         z <- "n1.SecurityId"
     }
-    for (i in y[-m]) z <- c(z, sql.1mAllocMo.select(i, y[m] == 
-        "Num"))
-    h <- sql.1mAllocMo.underlying.pre(y[m], yyyymm.to.day(x), 
+    for (i in y$factor) z <- c(z, sql.1mAllocMo.select(i, any(y$filter == 
+        "Num")))
+    h <- sql.1mAllocMo.underlying.pre(y$filter, yyyymm.to.day(x), 
         yyyymm.to.day(yyyymm.lag(x)))
-    y <- sql.1mAllocMo.underlying.from(y[m])
+    y <- sql.1mAllocMo.underlying.from(y$filter)
     if (w) {
         z <- sql.tbl(z, y, , "n1.HSecurityId")
     }
@@ -8941,7 +8938,7 @@ sql.1mAllocMo.select <- function (x, y)
 #' sql.1mAllocMo.underlying.from
 #' 
 #' FROM for 1mAllocMo
-#' @param x = either "All" or "Act" or "Pseudo" or "xJP"
+#' @param x = filter list
 #' @keywords sql.1mAllocMo.underlying.from
 #' @export
 #' @family sql
@@ -8964,7 +8961,7 @@ sql.1mAllocMo.underlying.from <- function (x)
 #' sql.1mAllocMo.underlying.pre
 #' 
 #' FROM and WHERE for 1mAllocMo
-#' @param x = either "All" or "Act" or "Pseudo" or "xJP"
+#' @param x = filter list
 #' @param y = date for new holdings in YYYYMMDD
 #' @param n = date for old holdings in YYYYMMDD
 #' @keywords sql.1mAllocMo.underlying.pre
@@ -8979,7 +8976,7 @@ sql.1mAllocMo.underlying.pre <- function (x, y, n)
         sep = "")), "#NEWHLD"))
     z <- c(z, "", sql.into(sql.MonthlyAlloc(paste("'", n, "'", 
         sep = "")), "#OLDHLD"))
-    if (x == "Pseudo") {
+    if (any(x == "Pseudo")) {
         cols <- c("FundId", "HFundId", "HSecurityId", "HoldingValue")
         z <- c(z, "", sql.Holdings.bulk("#NEWHLD", cols, y, "#BMKHLD", 
             "#BMKAUM"), "")
@@ -9004,7 +9001,7 @@ sql.1mAllocMo.underlying.pre <- function (x, y, n)
 
 sql.1mAllocSkew <- function (x, y, n, w) 
 {
-    m <- length(y)
+    y <- sql.arguments(y)
     x <- yyyymm.to.day(x)
     cols <- c("HFundId", "FundId", "HSecurityId", "HoldingValue")
     z <- sql.into(sql.tbl("HFundId, PortVal = sum(AssetsEnd)", 
@@ -9015,7 +9012,7 @@ sql.1mAllocSkew <- function (x, y, n, w)
     if (n != "All") 
         h <- sql.and(list(A = h, B = sql.in("HSecurityId", sql.RDSuniv(n))))
     z <- c(z, sql.Holdings(h, cols, "#HLD"), "")
-    if (y[m] == "Pseudo") 
+    if (any(y$filter == "Pseudo")) 
         z <- c(z, sql.Holdings.bulk("#HLD", cols, x, "#BMKHLD", 
             "#BMKAUM"), "")
     if (w) {
@@ -9024,7 +9021,7 @@ sql.1mAllocSkew <- function (x, y, n, w)
     else {
         x <- "SecurityId"
     }
-    for (i in y[-m]) {
+    for (i in y$factor) {
         if (i == "AllocSkew") {
             h <- "AllocSkew = sum(PortVal * sign(FundWtdExcl0 - n1.HoldingValue/PortVal))"
             x <- c(x, paste(h, "/", sql.nonneg("sum(PortVal)"), 
@@ -9032,7 +9029,7 @@ sql.1mAllocSkew <- function (x, y, n, w)
         }
         else stop("Bad Argument")
     }
-    h <- sql.1mAllocSkew.topline.from(y[m])
+    h <- sql.1mAllocSkew.topline.from(y$filter)
     if (!w) 
         h <- c(h, "inner join", "SecurityHistory id on id.HSecurityId = n1.HSecurityId")
     w <- ifelse(w, "n1.HSecurityId", "SecurityId")
@@ -9111,7 +9108,6 @@ sql.1mChActWt <- function (x, y)
 
 sql.1mFloMo <- function (x, y, n, w) 
 {
-    m <- length(y)
     z <- sql.tbl("ReportDate, HFundId, AssetsEnd = sum(AssetsEnd)", 
         "MonthlyData", "ReportDate = @dy", "ReportDate, HFundId", 
         "sum(AssetsEnd) > 0")
@@ -9205,6 +9201,27 @@ sql.and <- function (x, y = "", n = "and")
             sep = ""))
     }
     else z <- x[[1]]
+    z
+}
+
+#' sql.arguments
+#' 
+#' splits <x> into factor and filters
+#' @param x = a string vector of variables to build with the last elements specifying the type of funds to use
+#' @keywords sql.arguments
+#' @export
+#' @family sql
+
+sql.arguments <- function (x) 
+{
+    filters <- c("All", "Act", "Pas", "Etf", "Mutual", "Num", 
+        "Pseudo", "xJP", "JP", "CBE")
+    m <- length(x)
+    while (any(x[m] == filters)) m <- m - 1
+    if (m == length(x)) 
+        x <- c(x, "All")
+    w <- seq(1, length(x)) > m
+    z <- list(factor = x[!w], filter = x[w])
     z
 }
 

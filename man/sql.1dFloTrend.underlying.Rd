@@ -7,7 +7,7 @@
 sql.1dFloTrend.underlying(x, y, n, w)
 }
 \arguments{
-\item{x}{= either "All" or "Act" or "CBE" or "Pseudo"}
+\item{x}{= a vector of filters}
 
 \item{y}{= any of All/StockFlows/Japan/CSI300/Energy}
 
@@ -66,8 +66,8 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.RDSuniv}},
   \code{\link{sql.TopDownAllocs.items}},
   \code{\link{sql.TopDownAllocs}}, \code{\link{sql.Trend}},
-  \code{\link{sql.and}}, \code{\link{sql.bcp}},
-  \code{\link{sql.connect}},
+  \code{\link{sql.and}}, \code{\link{sql.arguments}},
+  \code{\link{sql.bcp}}, \code{\link{sql.connect}},
   \code{\link{sql.cross.border}},
   \code{\link{sql.datediff}}, \code{\link{sql.declare}},
   \code{\link{sql.drop}}, \code{\link{sql.exists}},

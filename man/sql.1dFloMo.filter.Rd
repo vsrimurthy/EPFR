@@ -7,7 +7,7 @@
 sql.1dFloMo.filter(x, y)
 }
 \arguments{
-\item{x}{= a string vector of factors to be computed, the last element of which is the type of fund used}
+\item{x}{= a string vector of factors to be computed, the last elements of which are the type of fund used}
 
 \item{y}{= T/F depending on whether you are checking ftp}
 }
@@ -62,8 +62,8 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.RDSuniv}},
   \code{\link{sql.TopDownAllocs.items}},
   \code{\link{sql.TopDownAllocs}}, \code{\link{sql.Trend}},
-  \code{\link{sql.and}}, \code{\link{sql.bcp}},
-  \code{\link{sql.connect}},
+  \code{\link{sql.and}}, \code{\link{sql.arguments}},
+  \code{\link{sql.bcp}}, \code{\link{sql.connect}},
   \code{\link{sql.cross.border}},
   \code{\link{sql.datediff}}, \code{\link{sql.declare}},
   \code{\link{sql.drop}}, \code{\link{sql.exists}},

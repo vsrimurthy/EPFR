@@ -7,7 +7,7 @@
 sql.1mAllocMo.underlying.pre(x, y, n)
 }
 \arguments{
-\item{x}{= either "All" or "Act" or "Pseudo" or "xJP"}
+\item{x}{= filter list}
 
 \item{y}{= date for new holdings in YYYYMMDD}
 
@@ -64,8 +64,8 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.RDSuniv}},
   \code{\link{sql.TopDownAllocs.items}},
   \code{\link{sql.TopDownAllocs}}, \code{\link{sql.Trend}},
-  \code{\link{sql.and}}, \code{\link{sql.bcp}},
-  \code{\link{sql.connect}},
+  \code{\link{sql.and}}, \code{\link{sql.arguments}},
+  \code{\link{sql.bcp}}, \code{\link{sql.connect}},
   \code{\link{sql.cross.border}},
   \code{\link{sql.datediff}}, \code{\link{sql.declare}},
   \code{\link{sql.drop}}, \code{\link{sql.exists}},
