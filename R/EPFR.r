@@ -3652,6 +3652,20 @@ ftp.all.files.underlying <- function (x, y, n, w, h)
     z
 }
 
+#' ftp.credential
+#' 
+#' relevant ftp credential
+#' @param x = one of ftp/user/pwd
+#' @keywords ftp.credential
+#' @export
+#' @family ftp
+
+ftp.credential <- function (x) 
+{
+    as.character(map.rname(vec.read(parameters("ftp-credential"), 
+        T), x))
+}
+
 #' ftp.delete.script
 #' 
 #' ftp script to delete contents of remote directory
@@ -3711,6 +3725,12 @@ ftp.delete.script.underlying <- function (x, y, n, w)
 
 ftp.dir <- function (x, y, n, w, h = F) 
 {
+    if (missing(y)) 
+        y <- ftp.credential("ftp")
+    if (missing(n)) 
+        n <- ftp.credential("user")
+    if (missing(w)) 
+        w <- ftp.credential("pwd")
     ftp.file <- "C:\\temp\\foo.ftp"
     month.abbrv <- vec.named(1:12, c("Jan", "Feb", "Mar", "Apr", 
         "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
@@ -3897,6 +3917,12 @@ ftp.file.size <- function (x, y, n, w)
 
 ftp.get <- function (x, y, n, w, h) 
 {
+    if (missing(n)) 
+        n <- ftp.credential("ftp")
+    if (missing(w)) 
+        w <- ftp.credential("user")
+    if (missing(h)) 
+        h <- ftp.credential("pwd")
     ftp.file <- "C:\\temp\\foo.ftp"
     cat(ftp.dir.ftp.code(x, n, w, h, "get"), file = ftp.file)
     bat.file <- "C:\\temp\\foo.bat"
@@ -5547,6 +5573,26 @@ mk.Mem <- function (x, y, n)
     z
 }
 
+#' mk.SatoMem
+#' 
+#' Returns a 1/0 membership vector
+#' @param x = a single YYYYMM
+#' @param y = path to a file containing isin's
+#' @param n = list object containing the following items: a) classif - classif file
+#' @keywords mk.SatoMem
+#' @export
+#' @family mk
+
+mk.SatoMem <- function (x, y, n) 
+{
+    y <- vec.read(y, F)
+    n <- n[["classif"]][, paste("isin", 1:3, sep = "")]
+    for (i in dimnames(n)[[2]]) n[, i] <- is.element(n[, i], 
+        y)
+    z <- as.numeric(apply(n, 1, max))
+    z
+}
+
 #' mk.sqlDump
 #' 
 #' Returns variable with the same row space as <n>
@@ -6625,7 +6671,12 @@ qa.flow <- function (x, y, n, w = "Aggregate")
             else if (isFactor) {
                 h <- h[as.character(df[vec, "HSecurityId"]), 
                   cols[-1][-1]]
-                h <- abs(zav(df[vec, y]) - zav(h))
+                if (any(y == c("IONM", "IOND"))) {
+                  h <- abs(zav(df[vec, dimnames(h)[[2]]]) - zav(h))
+                }
+                else {
+                  h <- abs(zav(df[vec, y]) - zav(h))
+                }
             }
             else {
                 h <- h[paste(df[vec, "HSecurityId"], df[vec, 

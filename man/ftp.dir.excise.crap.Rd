@@ -20,6 +20,7 @@ cleans up output
 Other ftp: \code{\link{ftp.all.dir}},
   \code{\link{ftp.all.files.underlying}},
   \code{\link{ftp.all.files}},
+  \code{\link{ftp.credential}},
   \code{\link{ftp.delete.script.underlying}},
   \code{\link{ftp.delete.script}},
   \code{\link{ftp.dir.ftp.code}}, \code{\link{ftp.dir}},

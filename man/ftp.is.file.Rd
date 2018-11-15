@@ -22,6 +22,7 @@ T/F depending on whether <x> represents a file or folder
 Other ftp: \code{\link{ftp.all.dir}},
   \code{\link{ftp.all.files.underlying}},
   \code{\link{ftp.all.files}},
+  \code{\link{ftp.credential}},
   \code{\link{ftp.delete.script.underlying}},
   \code{\link{ftp.delete.script}},
   \code{\link{ftp.dir.excise.crap}},
