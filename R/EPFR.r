@@ -6550,8 +6550,7 @@ qa.flow <- function (x, y, n, w = "Aggregate")
     z <- matrix(NA, length(dts), length(z), F, list(dts, z))
     ftpFile <- txt.replace(ftp.info(y, n, "ftp.path", w), "YYYYMM", 
         x)
-    df <- qa.mat.read(ftpFile, fldr, "204.232.176.77", "datafeed", 
-        "datafeed$09")
+    df <- qa.mat.read(ftpFile, fldr)
     z[, "isFTP"] <- as.numeric(!is.null(df))
     if (z[, "isFTP"][1] == 1) {
         z[, "goodFile"] <- as.numeric(all(is.element(cols, dimnames(df)[[2]])))
@@ -6751,6 +6750,12 @@ qa.index <- function (x, y, n)
 
 qa.mat.read <- function (x, y, n, w, h) 
 {
+    if (missing(n)) 
+        n <- ftp.credential("ftp")
+    if (missing(w)) 
+        w <- ftp.credential("user")
+    if (missing(h)) 
+        h <- ftp.credential("pwd")
     ftp.get(x, y, n, w, h)
     x <- txt.right(x, nchar(x) - nchar(dirname(x)) - 1)
     x <- paste(y, x, sep = "\\")
@@ -6781,15 +6786,13 @@ qa.secMenu <- function (x, y)
         "SECxFLO", "FLOxSEC"))
     secMenuFile <- txt.replace(ftp.info(y, T, "ftp.path", "Aggregate"), 
         "YYYYMM", x)
-    secMenuFile <- qa.mat.read(secMenuFile, fldr, "204.232.176.77", 
-        "datafeed", "datafeed$09")
+    secMenuFile <- qa.mat.read(secMenuFile, fldr)
     z["isSEC"] <- as.numeric(!is.null(secMenuFile))
     if (z["isSEC"] == 1) {
         floDolrFile <- txt.replace(ftp.info(txt.replace(y, "SecMenu", 
             "Stock"), T, "ftp.path", "Aggregate"), "YYYYMM", 
             x)
-        floDolrFile <- qa.mat.read(floDolrFile, fldr, "204.232.176.77", 
-            "datafeed", "datafeed$09")
+        floDolrFile <- qa.mat.read(floDolrFile, fldr)
         z["isFLO"] <- as.numeric(!is.null(floDolrFile))
     }
     if (z["isSEC"] == 1 & z["isFLO"] == 1) {
