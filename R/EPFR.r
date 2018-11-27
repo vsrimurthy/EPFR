@@ -6124,18 +6124,19 @@ portfolio.beta <- function (x, y, n)
 #' @param x = a file of total return indices indexed so that time runs forward
 #' @param y = the name of the benchmark w.r.t. which beta is to be computed (e.g. "ACWorld")
 #' @param n = the window in days over which beta is to be computed
+#' @param w = number of periods over which the return is computed
 #' @keywords portfolio.beta.wrapper
 #' @export
 #' @family portfolio
 
-portfolio.beta.wrapper <- function (x, y, n) 
+portfolio.beta.wrapper <- function (x, y, n, w = 1) 
 {
     z <- mat.read(paste(dir.parameters("csv"), "IndexReturns-Daily.csv", 
         sep = "\\"))
     z <- map.rname(z, dimnames(x)[[1]])
     x <- mat.ex.matrix(x)
     x[, y] <- z[, y]
-    z <- ret.ex.idx(x, 1, F, F)
+    z <- ret.ex.idx(x, w, F, F)
     for (j in dim(z)[1]:n) {
         for (k in 2:dim(z)[2] - 1) {
             w <- j - n:1 + 1
@@ -10400,7 +10401,7 @@ txt.anagram <- function (x, y, n = 0)
     x <- paste(x, collapse = "")
     if (missing(y)) 
         y <- txt.words()
-    y <- vec.read(y, F)
+    else y <- txt.words(y)
     y <- y[order(y, decreasing = T)]
     y <- y[order(nchar(y))]
     z <- txt.anagram.underlying(x, y, n)
@@ -10588,7 +10589,7 @@ txt.gunning <- function (x, y, n)
     x <- txt.trim(x)
     if (missing(y)) 
         y <- txt.words()
-    y <- vec.read(y, F)
+    else y <- txt.words(y)
     x <- as.character(txt.parse(x, " "))
     x <- x[is.element(x, c(y, "."))]
     z <- 1 + sum(x == ".")
@@ -10599,11 +10600,10 @@ txt.gunning <- function (x, y, n)
             100 - h, "more words ...\n")
     z <- h/nonneg(z)
     if (missing(n)) {
-        n <- vec.read(txt.words(1), F)
-        n <- union(n, vec.read(txt.words(2), F))
+        n <- union(txt.words(1), txt.words(2))
     }
     else {
-        n <- vec.read(n, F)
+        n <- txt.words(n)
     }
     if (any(!is.element(x, n))) {
         x <- x[!is.element(x, n)]
@@ -10782,7 +10782,7 @@ txt.palindrome <- function (x, y)
     x <- paste(x, collapse = "")
     if (missing(y)) 
         y <- txt.words()
-    y <- vec.read(y, F)
+    else y <- txt.words(y)
     y <- y[order(y)]
     y <- y[order(nchar(y), decreasing = T)]
     w <- txt.replace(x, " ", "")
@@ -11205,24 +11205,30 @@ txt.trim.right <- function (x, y)
 
 #' txt.words
 #' 
-#' a path to all capitalized words, if <x> is missing, or  one to those with <x> syllables otherwise
+#' a vector of capitalized words
 #' @param x = missing or an integer
 #' @keywords txt.words
 #' @export
 #' @family txt
 
-txt.words <- function (x) 
+txt.words <- function (x = "All") 
 {
-    if (missing(x)) {
-        z <- "EnglishWords.txt"
-    }
-    else if (x == 1) {
-        z <- "EnglishWords-1syllable.txt"
+    if (any(x == c("All", 1:2))) {
+        if (x == "All") {
+            z <- "EnglishWords.txt"
+        }
+        else if (x == 1) {
+            z <- "EnglishWords-1syllable.txt"
+        }
+        else if (x == 2) {
+            z <- "EnglishWords-2syllables.txt"
+        }
+        z <- paste(dir.parameters("data"), z, sep = "\\")
     }
     else {
-        z <- "EnglishWords-2syllables.txt"
+        z <- x
     }
-    z <- paste(dir.parameters("data"), z, sep = "\\")
+    z <- vec.read(z, F)
     z
 }
 
