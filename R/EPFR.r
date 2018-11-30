@@ -3587,15 +3587,21 @@ fop.wrapper <- function (x, y, retW, prd.size = 5, sum.flows = F, lag = 0, delay
 #' 
 #' remote-site directory listing of all sub-folders
 #' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
-#' @param y = ftp site
-#' @param n = user id
-#' @param w = password
+#' @param y = ftp site (defaults to standard)
+#' @param n = user id (defaults to standard)
+#' @param w = password (defaults to standard)
 #' @keywords ftp.all.dir
 #' @export
 #' @family ftp
 
 ftp.all.dir <- function (x, y, n, w) 
 {
+    if (missing(y)) 
+        y <- ftp.credential("ftp")
+    if (missing(n)) 
+        n <- ftp.credential("user")
+    if (missing(w)) 
+        w <- ftp.credential("pwd")
     z <- ftp.all.files.underlying(x, y, n, w, F)
     z <- txt.right(z, nchar(z) - nchar(x) - 1)
     z
@@ -3605,15 +3611,21 @@ ftp.all.dir <- function (x, y, n, w)
 #' 
 #' remote-site directory listing of files (incl. sub-folders)
 #' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
-#' @param y = ftp site
-#' @param n = user id
-#' @param w = password
+#' @param y = ftp site (defaults to standard)
+#' @param n = user id (defaults to standard)
+#' @param w = password (defaults to standard)
 #' @keywords ftp.all.files
 #' @export
 #' @family ftp
 
 ftp.all.files <- function (x, y, n, w) 
 {
+    if (missing(y)) 
+        y <- ftp.credential("ftp")
+    if (missing(n)) 
+        n <- ftp.credential("user")
+    if (missing(w)) 
+        w <- ftp.credential("pwd")
     z <- ftp.all.files.underlying(x, y, n, w, T)
     if (x == "/") 
         x <- ""
@@ -3715,9 +3727,9 @@ ftp.delete.script.underlying <- function (x, y, n, w)
 #' 
 #' string vector of, or YYYYMMDD vector indexed by, remote file names
 #' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
-#' @param y = ftp site
-#' @param n = user id
-#' @param w = password
+#' @param y = ftp site (defaults to standard)
+#' @param n = user id (defaults to standard)
+#' @param w = password (defaults to standard)
 #' @param h = T/F depending on whether you want time stamps
 #' @keywords ftp.dir
 #' @export
