@@ -11,14 +11,14 @@ qa.mat.read(x, y, n, w, h)
 
 \item{y}{= local folder (e.g. "C:\\\\temp")}
 
-\item{n}{= ftp site}
+\item{n}{= ftp site (defaults to standard)}
 
-\item{w}{= user id}
+\item{w}{= user id (defaults to standard)}
 
-\item{h}{= password}
+\item{h}{= password (defaults to standard)}
 }
 \description{
-compares HSecurityId/ReportDate pairs in Security Menu versus Flow Dollar
+contents of <x> as a data frame
 }
 \seealso{
 Other qa: \code{\link{qa.columns}},

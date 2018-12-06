@@ -7,7 +7,7 @@
 sql.1dFloMo.Ctry.List(x)
 }
 \arguments{
-\item{x}{= One of Ctry/FX/Sector/UBS/EMDM}
+\item{x}{= one of Ctry/FX/Sector/UBS/EMDM/CtryFlows}
 }
 \description{
 Generates the SQL query to get daily 1dFloMo for countries
@@ -22,6 +22,7 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.1dFloMo.Ctry.Allocations.GF.avg}},
   \code{\link{sql.1dFloMo.Ctry.Allocations.term}},
   \code{\link{sql.1dFloMo.Ctry.Allocations}},
+  \code{\link{sql.1dFloMo.CtryFlow}},
   \code{\link{sql.1dFloMo.Ctry}},
   \code{\link{sql.1dFloMo.FI.underlying}},
   \code{\link{sql.1dFloMo.FI}},
@@ -52,6 +53,8 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.AggrAllocations}},
   \code{\link{sql.AllocTbl}}, \code{\link{sql.DailyFlo}},
   \code{\link{sql.Diff}}, \code{\link{sql.FloMo.Funds}},
+  \code{\link{sql.FundHistory.macro}},
+  \code{\link{sql.FundHistory.sf}},
   \code{\link{sql.FundHistory}},
   \code{\link{sql.Holdings.bulk}},
   \code{\link{sql.Holdings}}, \code{\link{sql.ION}},
@@ -70,8 +73,7 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.label}}, \code{\link{sql.map.classif}},
   \code{\link{sql.nonneg}},
   \code{\link{sql.query.underlying}},
-  \code{\link{sql.query}},
-  \code{\link{sql.stock.flows.wtd.avg}},
+  \code{\link{sql.query}}, \code{\link{sql.sf.wtd.avg}},
   \code{\link{sql.tbl}}, \code{\link{sql.ui}},
   \code{\link{sql.unbracket}}
 }

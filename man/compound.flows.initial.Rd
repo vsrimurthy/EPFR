@@ -16,8 +16,7 @@ T/F depending on whether output for a row is to be set to NA
 }
 \seealso{
 Other compound: \code{\link{compound.flows.underlying}},
-  \code{\link{compound.flows}},
-  \code{\link{compound.stock.flows}},
+  \code{\link{compound.flows}}, \code{\link{compound.sf}},
   \code{\link{compound}}
 }
 \keyword{compound.flows.initial}

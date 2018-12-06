@@ -155,6 +155,28 @@ email <- function (x, y, n, w = "")
     invisible()
 }
 
+#' array.unlist
+#' 
+#' unlists the contents of an array
+#' @param x = any numerical array
+#' @param y = a vector of names for the columns of the output corresponding to the dimensions of <x>
+#' @keywords array.unlist
+#' @export
+
+array.unlist <- function (x, y) 
+{
+    n <- length(dim(x))
+    if (missing(y)) 
+        y <- char.seq("A", "Z")[seq(1, n + 1)]
+    if (length(y) != n + 1) 
+        stop("Problem")
+    z <- permutations.buckets.many(dimnames(x))
+    z <- mat.ex.matrix(z)
+    names(z) <- y[1:n]
+    z[, y[n + 1]] <- as.vector(x)
+    z
+}
+
 #' ascending
 #' 
 #' T/F depending on whether <x> is ascending
@@ -1228,16 +1250,16 @@ compound.flows.underlying <- function (fcn, x, y, n, w)
     z
 }
 
-#' compound.stock.flows
+#' compound.sf
 #' 
 #' compounds flows
 #' @param x = a matrix/data-frame of percentage flows
 #' @param y = if T, flows get summed. Otherwise they get compounded.
-#' @keywords compound.stock.flows
+#' @keywords compound.sf
 #' @export
 #' @family compound
 
-compound.stock.flows <- function (x, y) 
+compound.sf <- function (x, y) 
 {
     if (y) 
         fcn <- sum
@@ -1921,16 +1943,16 @@ excise.zeroes <- function (x)
     z
 }
 
-#' extract.AnnMn.stock.flows
+#' extract.AnnMn.sf
 #' 
 #' Subsets to "AnnMn" and re-lablels columns
 #' @param x = a list object, each element of which is a 3D object The first dimension has AnnMn/AnnSd/Sharp/HitRate The second dimension has bins Q1/Q2/Qna/Q3/Q4/Q5 The third dimension is some kind of parameter
 #' @param y = a string which must be one of AnnMn/AnnSd/Sharp/HitRate
-#' @keywords extract.AnnMn.stock.flows
+#' @keywords extract.AnnMn.sf
 #' @export
 #' @family extract
 
-extract.AnnMn.stock.flows <- function (x, y = "AnnMn") 
+extract.AnnMn.sf <- function (x, y = "AnnMn") 
 {
     z <- x
     for (i in names(z)) {
@@ -1943,18 +1965,18 @@ extract.AnnMn.stock.flows <- function (x, y = "AnnMn")
     z
 }
 
-#' extract.AnnMn.stock.flows.wrapper
+#' extract.AnnMn.sf.wrapper
 #' 
 #' Subsets to "AnnMn" and re-labels columns
 #' @param x = a list object, each element of which is a 3D object The first dimension has AnnMn/AnnSd/Sharp/HitRate The second dimension has bins Q1/Q2/Qna/Q3/Q4/Q5 The third dimension is some kind of parameter
 #' @param y = a string which must be one of AnnMn/AnnSd/Sharp/HitRate
-#' @keywords extract.AnnMn.stock.flows.wrapper
+#' @keywords extract.AnnMn.sf.wrapper
 #' @export
 #' @family extract
 
-extract.AnnMn.stock.flows.wrapper <- function (x, y = "AnnMn") 
+extract.AnnMn.sf.wrapper <- function (x, y = "AnnMn") 
 {
-    x <- extract.AnnMn.stock.flows(x, y)
+    x <- extract.AnnMn.sf(x, y)
     if (dim(x[[1]])[1] == 1) {
         z <- txt.parse(dimnames(x[[1]])[[2]], ".")
         z <- z[, dim(z)[2]]
@@ -3361,7 +3383,7 @@ fop <- function (x, y, delay, lags, floWind, retWind, nBins, grp.fcn,
         cat("\n")
     }
     if (convert2df) {
-        z <- mat.ex.array(z, c("floW", "lag", "retW", "nBin", 
+        z <- array.unlist(z, c("floW", "lag", "retW", "nBin", 
             "stat", "bin", "dtGrp", "val"))
         z <- fop.stats(z, "stat", "val")
     }
@@ -4852,29 +4874,6 @@ mat.daily.to.monthly <- function (x, y = F)
     z
 }
 
-#' mat.ex.array
-#' 
-#' unlists the contents of an array
-#' @param x = any numerical array
-#' @param y = a vector of names for the columns of the output corresponding to the dimensions of <x>
-#' @keywords mat.ex.array
-#' @export
-#' @family mat
-
-mat.ex.array <- function (x, y) 
-{
-    n <- length(dim(x))
-    if (missing(y)) 
-        y <- char.seq("A", "Z")[seq(1, n + 1)]
-    if (length(y) != n + 1) 
-        stop("Problem")
-    z <- permutations.buckets.many(dimnames(x))
-    z <- mat.ex.matrix(z)
-    names(z) <- y[1:n]
-    z[, y[n + 1]] <- as.vector(x)
-    z
-}
-
 #' mat.ex.array3d
 #' 
 #' unlists the contents of an array to a data frame
@@ -4888,7 +4887,7 @@ mat.ex.array <- function (x, y)
 mat.ex.array3d <- function (x, y = "C", n = "A") 
 {
     cols <- char.seq("A", "C")
-    x <- mat.ex.array(x, c(cols, "X"))
+    x <- array.unlist(x, c(cols, "X"))
     x <- mat.subset(x, c(n, setdiff(cols, c(n, y)), y, "X"))
     names(x) <- c(cols, "X")
     panl <- x$C[!duplicated(x$C)]
@@ -5751,7 +5750,7 @@ mk.vbl.trail.fetch <- function (x, y, n)
 mk.vbl.trail.sum <- function (x, y, n) 
 {
     z <- mk.vbl.trail.fetch(x, y[-2], n)
-    z <- compound.stock.flows(z, as.logical(y[2]))
+    z <- compound.sf(z, as.logical(y[2]))
     z <- as.numeric(z)
     z
 }
@@ -6751,12 +6750,12 @@ qa.index <- function (x, y, n)
 
 #' qa.mat.read
 #' 
-#' compares HSecurityId/ReportDate pairs in Security Menu versus Flow Dollar
+#' contents of <x> as a data frame
 #' @param x = remote file on an ftp site (e.g. "/ftpdata/mystuff/foo.txt")
 #' @param y = local folder (e.g. "C:\\\\temp")
-#' @param n = ftp site
-#' @param w = user id
-#' @param h = password
+#' @param n = ftp site (defaults to standard)
+#' @param w = user id (defaults to standard)
+#' @param h = password (defaults to standard)
 #' @keywords qa.mat.read
 #' @export
 #' @family qa
@@ -7826,7 +7825,7 @@ sf.underlying.data <- function (vbl.nm, univ, ret.nm, ret.prd, trail, sum.flows,
     if (reverse.vbl) 
         vbl <- -vbl
     if (trail > 1) 
-        vbl <- compound.stock.flows(vbl, sum.flows)
+        vbl <- compound.sf(vbl, sum.flows)
     if (retHz == 1) {
         ret <- fetch(ret.nm, ret.prd, 1, paste(fldr, "data", 
             sep = "\\"), classif)
@@ -7936,7 +7935,7 @@ sql.1dActWtTrend <- function (x, y, n, w)
 
 sql.1dActWtTrend.Ctry.underlying <- function (x, y, n) 
 {
-    z <- c(sql.label(sql.FundHistory("", "CBE", F, c("FundId", 
+    z <- c(sql.label(sql.FundHistory("", c("CB", "E"), F, c("FundId", 
         "GeographicFocus")), "t0"), "inner join")
     z <- c(z, paste(y, " t1", sep = ""), "\ton t1.HFundId = t0.HFundId", 
         "inner join")
@@ -8138,7 +8137,7 @@ sql.1dFloMo.Ctry <- function (x)
     z <- paste("[", grp.unique(w), "]", sep = "")
     z <- paste(z, sql.Mo("Flow", "AssetsStart", z, T))
     z <- c("DayEnding = convert(char(8), DayEnding, 112)", z)
-    w <- c(sql.label(sql.FundHistory("", "CBE", F, "FundId"), 
+    w <- c(sql.label(sql.FundHistory("", c("CB", "E"), F, "FundId"), 
         "t0"), "inner join", "DailyData t1 on t1.HFundId = t0.HFundId", 
         "inner join")
     w <- c(w, sql.label(x, "t2"), "\ton t2.FundId = t0.FundId", 
@@ -8244,7 +8243,7 @@ sql.1dFloMo.Ctry.Allocations.term <- function (x, y)
 #' sql.1dFloMo.Ctry.List
 #' 
 #' Generates the SQL query to get daily 1dFloMo for countries
-#' @param x = One of Ctry/FX/Sector/UBS/EMDM
+#' @param x = one of Ctry/FX/Sector/UBS/EMDM/CtryFlows
 #' @keywords sql.1dFloMo.Ctry.List
 #' @export
 #' @family sql
@@ -8312,6 +8311,45 @@ sql.1dFloMo.Ctry.List <- function (x)
         z <- ifelse(z == "GB", "UK", z)
         z <- vec.named(z, y$AllocTable)
     }
+    z
+}
+
+#' sql.1dFloMo.CtryFlow
+#' 
+#' SQL query for country-flow percentage for date <x>
+#' @param x = the date for which you want flows (known one day later)
+#' @keywords sql.1dFloMo.CtryFlow
+#' @export
+#' @family sql
+
+sql.1dFloMo.CtryFlow <- function (x) 
+{
+    h <- sql.1dFloMo.Ctry.List("Ctry")
+    w <- "datediff(month, WeightDate, @floDt) = case when day(@floDt) < 23 then 2 else 1 end"
+    z <- paste("[", h, "] = avg(", names(h), ")", sep = "")
+    z <- c("GeographicFocus", "Advisor", z)
+    y <- sql.label(sql.FundHistory("", c("CB", "E", "UI"), F, 
+        c("GeographicFocus", "Advisor")), "t2")
+    y <- c("CountryAllocations t1", "inner join", y, "\ton t2.HFundId = t1.HFundId")
+    z <- sql.label(sql.tbl(z, y, w, "GeographicFocus, Advisor"), 
+        "t")
+    y <- c("GeographicFocus", paste("[", h, "] = avg([", h, "])", 
+        sep = ""))
+    y <- sql.tbl(y, z, , "GeographicFocus")
+    z <- sql.label(sql.FundHistory("", c("E", "UI"), F, "GeographicFocus"), 
+        "t2")
+    z <- c(sql.label(sql.DailyFlo("@floDt", , F), "t1"), "inner join", 
+        z, "\ton t2.HFundId = t1.HFundId")
+    z <- c(z, "left join", sql.label(y, "t3"), "\ton t3.GeographicFocus = t2.GeographicFocus")
+    w <- Ctry.info(h, "GeoId")
+    y <- paste("case when t2.GeographicFocus = ", w, " then 100 else [", 
+        h, "] end", sep = "")
+    y <- ifelse(is.na(w), paste("[", h, "]", sep = ""), y)
+    y <- sql.Mo("Flow", "AssetsStart", y, T)
+    y <- paste("[", h, "] ", y, sep = "")
+    z <- sql.tbl(y, z)
+    z <- c(sql.declare("@floDt", "datetime", x), sql.unbracket(z))
+    z <- paste(z, collapse = "\n")
     z
 }
 
@@ -8670,7 +8708,7 @@ sql.1dFloTrend.Ctry.topline <- function (x, y, n)
 
 sql.1dFloTrend.Ctry.underlying <- function (x, y, n) 
 {
-    z <- c(sql.label(sql.FundHistory("", "CBE", F, "FundId"), 
+    z <- c(sql.label(sql.FundHistory("", c("CB", "E"), F, "FundId"), 
         "t0"), "inner join")
     z <- c(z, paste(y, " t1 on t1.HFundId = t0.HFundId", sep = ""), 
         "inner join")
@@ -8853,7 +8891,7 @@ sql.1mActPas.Ctry <- function ()
             Ctry.info(i, "AllocTable"), " end)/", x, sep = "")
         z <- c(z, paste(x, "- 1"))
     }
-    x <- c(sql.label(sql.FundHistory("", "CBE", F, c("FundId", 
+    x <- c(sql.label(sql.FundHistory("", c("CB", "E"), F, c("FundId", 
         "Idx")), "t1"), "inner join", "CountryAllocations t2 on t2.HFundId = t1.HFundId")
     z <- paste(sql.unbracket(sql.tbl(z, x, , "WeightDate")), 
         collapse = "\n")
@@ -9368,14 +9406,16 @@ sql.cross.border <- function (x)
 #' Generates the SQL query to get the data for daily Flow
 #' @param x = the date for which you want flows (known one day later)
 #' @param y = the temp table to hold output
+#' @param n = T/F depending on whether StockFlows data are being used
 #' @keywords sql.DailyFlo
 #' @export
 #' @family sql
 
-sql.DailyFlo <- function (x, y) 
+sql.DailyFlo <- function (x, y, n = T) 
 {
     z <- c("HFundId, Flow = sum(Flow), AssetsStart = sum(AssetsStart)")
-    z <- sql.tbl(z, "DailyData", paste("ReportDate =", x), "HFundId")
+    z <- sql.tbl(z, "DailyData", paste(ifelse(n, "ReportDate", 
+        "DayEnding"), "=", x), "HFundId")
     if (!missing(y)) 
         z <- sql.into(z, y)
     z
@@ -9526,7 +9566,7 @@ sql.floTbl.to.Col <- function (x, y)
 sql.FundHistory <- function (x, y, n, w) 
 {
     if (y[1] == "Pseudo") 
-        y <- "All"
+        y <- ifelse(n, "All", "E")
     if (missing(w)) 
         w <- "HFundId"
     else w <- c("HFundId", w)
@@ -9535,55 +9575,94 @@ sql.FundHistory <- function (x, y, n, w)
     }
     else {
         if (n) {
-            z <- list()
-            for (h in y) {
-                if (h == "Act") {
-                  z[[char.ex.int(length(z) + 65)]] <- "[Index] = 0"
-                }
-                else if (h == "Pas") {
-                  z[[char.ex.int(length(z) + 65)]] <- "[Index] = 1"
-                }
-                else if (h == "Etf") {
-                  z[[char.ex.int(length(z) + 65)]] <- "ETFTypeId is not null"
-                }
-                else if (h == "Mutual") {
-                  z[[char.ex.int(length(z) + 65)]] <- "ETFTypeId is null"
-                }
-                else if (h == "JP") {
-                  z[[char.ex.int(length(z) + 65)]] <- "DomicileId = 'JP'"
-                }
-                else if (h == "xJP") {
-                  z[[char.ex.int(length(z) + 65)]] <- "not DomicileId = 'JP'"
-                }
-                else if (h == "CBE") {
-                  z[[char.ex.int(length(z) + 65)]] <- c("(", 
-                    sql.and(sql.cross.border(n), "", "or"), ")")
-                }
-                else {
-                  stop("Bad Argument y =", h)
-                }
-            }
-            y <- z
-        }
-        else if (y == "All") {
-            y <- list(A = "FundType = 'E'")
-        }
-        else if (y == "Act") {
-            y <- list(A = "isnull(Idx, 'N') = 'N'", B = "FundType = 'E'")
-        }
-        else if (y == "Etf") {
-            y <- list(A = "not ETF = 'Y'", B = "FundType = 'E'")
-        }
-        else if (y == "CBE") {
-            y <- sql.and(sql.cross.border(n), "", "or")
-            y <- list(A = c("(", y, ")"), B = "FundType = 'E'")
+            y <- sql.FundHistory.sf(y)
         }
         else {
-            stop("Bad Argument y =", y)
+            y <- sql.FundHistory.macro(y)
         }
         z <- sql.tbl(w, "FundHistory", sql.and(y))
     }
     z <- paste(x, z, sep = "")
+    z
+}
+
+#' sql.FundHistory.macro
+#' 
+#' SQL query where clause
+#' @param x = a vector of filters
+#' @keywords sql.FundHistory.macro
+#' @export
+#' @family sql
+
+sql.FundHistory.macro <- function (x) 
+{
+    z <- list()
+    for (y in x) {
+        if (any(y == dimnames(mat.read(parameters("classif-FundType")))[[1]])) {
+            z[[char.ex.int(length(z) + 65)]] <- paste("FundType = '", 
+                y, "'", sep = "")
+        }
+        else if (y == "Act") {
+            z[[char.ex.int(length(z) + 65)]] <- "isnull(Idx, 'N') = 'N'"
+        }
+        else if (y == "Mutual") {
+            z[[char.ex.int(length(z) + 65)]] <- "not ETF = 'Y'"
+        }
+        else if (y == "Etf") {
+            z[[char.ex.int(length(z) + 65)]] <- "ETF = 'Y'"
+        }
+        else if (y == "CB") {
+            z[[char.ex.int(length(z) + 65)]] <- c("(", sql.and(sql.cross.border(F), 
+                "", "or"), ")")
+        }
+        else if (y == "UI") {
+            z[[char.ex.int(length(z) + 65)]] <- sql.ui()
+        }
+        else {
+            stop("Bad Argument x =", y)
+        }
+    }
+    z
+}
+
+#' sql.FundHistory.sf
+#' 
+#' SQL query where clause
+#' @param x = a vector of filters
+#' @keywords sql.FundHistory.sf
+#' @export
+#' @family sql
+
+sql.FundHistory.sf <- function (x) 
+{
+    z <- list()
+    for (h in x) {
+        if (h == "Act") {
+            z[[char.ex.int(length(z) + 65)]] <- "[Index] = 0"
+        }
+        else if (h == "Pas") {
+            z[[char.ex.int(length(z) + 65)]] <- "[Index] = 1"
+        }
+        else if (h == "Etf") {
+            z[[char.ex.int(length(z) + 65)]] <- "ETFTypeId is not null"
+        }
+        else if (h == "Mutual") {
+            z[[char.ex.int(length(z) + 65)]] <- "ETFTypeId is null"
+        }
+        else if (h == "JP") {
+            z[[char.ex.int(length(z) + 65)]] <- "DomicileId = 'JP'"
+        }
+        else if (h == "xJP") {
+            z[[char.ex.int(length(z) + 65)]] <- "not DomicileId = 'JP'"
+        }
+        else if (h == "CBE") {
+            z[[char.ex.int(length(z) + 65)]] <- c("(", sql.and(sql.cross.border(T), 
+                "", "or"), ")")
+        }
+        else {
+            stop("Bad Argument x =", h)
+        }
+    }
     z
 }
 
@@ -9952,16 +10031,16 @@ sql.RDSuniv <- function (x)
     z
 }
 
-#' sql.stock.flows.wtd.avg
+#' sql.sf.wtd.avg
 #' 
 #' Computes Fund/Smpl weighted Incl/Excl zero for all names in the S&P
 #' @param x = YYYYMM at the end of which allocations are desired
 #' @param y = a string. Must be one of All/Etf/MF.
-#' @keywords sql.stock.flows.wtd.avg
+#' @keywords sql.sf.wtd.avg
 #' @export
 #' @family sql
 
-sql.stock.flows.wtd.avg <- function (x, y) 
+sql.sf.wtd.avg <- function (x, y) 
 {
     x <- sql.declare(c("@benchId", "@hFundId", "@geoId", "@allocDt"), 
         c("int", "int", "int", "datetime"), c(1487, 8068, 77, 
