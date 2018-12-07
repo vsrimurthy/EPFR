@@ -10,7 +10,7 @@ yyyymmdd.exists(x)
 \item{x}{= a vector of calendar dates}
 }
 \description{
-returns T if <x> is YYYYMMDD
+returns T if <x> is a weekday
 }
 \seealso{
 Other yyyymmdd: \code{\link{yyyymmdd.bulk}},

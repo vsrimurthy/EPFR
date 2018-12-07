@@ -7,12 +7,12 @@
 yyyymmdd.diff(x, y)
 }
 \arguments{
-\item{x}{= a vector of YYYYMMDD}
+\item{x}{= a vector of weekdays}
 
-\item{y}{= an isomekic vector of YYYYMMDD}
+\item{y}{= an isomekic vector of weekdays}
 }
 \description{
-returns <x - y> in terms of YYYYMMDD
+returns <x - y> in terms of weekdays
 }
 \seealso{
 Other yyyymmdd: \code{\link{yyyymmdd.bulk}},

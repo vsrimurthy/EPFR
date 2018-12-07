@@ -7,12 +7,12 @@
 yyyymmdd.lag(x, y)
 }
 \arguments{
-\item{x}{= a vector of yyyymmdd-dates that happen to fall on a weekday}
+\item{x}{= a vector of weekdays}
 
-\item{y}{= a number}
+\item{y}{= an integer}
 }
 \description{
-lags <x> by <y> YYYYMMDD.
+lags <x> by <y> weekdays
 }
 \seealso{
 Other yyyymmdd: \code{\link{yyyymmdd.bulk}},

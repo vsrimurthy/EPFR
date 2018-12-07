@@ -3310,6 +3310,85 @@ fix.gaps <- function (x)
     z
 }
 
+#' flowdate.ex.yyyymm
+#' 
+#' last/all trading days daily flow-publication dates in <x>
+#' @param x = a vector/single YYYYMM depending on if y is T/F
+#' @param y = T/F variable depending on whether the last or all daily flow-publication dates in <x> are desired
+#' @keywords flowdate.ex.yyyymm
+#' @export
+#' @family flowdate
+
+flowdate.ex.yyyymm <- function (x, y = T) 
+{
+    z <- yyyymmdd.ex.yyyymm(x, y)
+    if (!y) 
+        z <- z[flowdate.exists(z)]
+    z
+}
+
+#' flowdate.exists
+#' 
+#' returns T if <x> is a daily flow-publication date
+#' @param x = a vector of calendar dates
+#' @keywords flowdate.exists
+#' @export
+#' @family flowdate
+
+flowdate.exists <- function (x) 
+{
+    yyyymmdd.exists(x) & !is.element(txt.right(x, 4), c("0101", 
+        "1225"))
+}
+
+#' flowdate.lag
+#' 
+#' lags <x> by <y> daily flow-publication dates
+#' @param x = a vector of daily flow-publication dates
+#' @param y = a SINGLE integer
+#' @keywords flowdate.lag
+#' @export
+#' @family flowdate
+
+flowdate.lag <- function (x, y) 
+{
+    while (abs(y) > 1) {
+        z <- yyyymmdd.lag(x, y)
+        if (!flowdate.exists(z)) 
+            z <- yyyymmdd.lag(z, -sign(y))
+        y <- sign(y) * (abs(y) - length(flowdate.seq(z, x)) + 
+            1)
+        x <- z
+    }
+    if (abs(y) == 1) {
+        z <- yyyymmdd.lag(x, y)
+        if (!flowdate.exists(z)) 
+            z <- yyyymmdd.lag(z, y)
+    }
+    z
+}
+
+#' flowdate.seq
+#' 
+#' a sequence of dly flow-pub dates starting at <x> and, if possible, ending at <y>
+#' @param x = a single daily flow-publication date
+#' @param y = a single daily flow-publication date
+#' @param n = a positive integer
+#' @keywords flowdate.seq
+#' @export
+#' @family flowdate
+
+flowdate.seq <- function (x, y, n = 1) 
+{
+    if (any(!flowdate.exists(c(x, y)))) 
+        stop("Inputs are not daily flow-publication dates")
+    z <- yyyymmdd.seq(x, y)
+    z <- z[flowdate.exists(z)]
+    if (n > 1) 
+        z <- z[seq(1, length(z), n)]
+    z
+}
+
 #' fop
 #' 
 #' an array of summary statistics of each quantile, indexed by parameter
@@ -6381,7 +6460,7 @@ ptile <- function (x)
 
 #' publish.daily.last
 #' 
-#' date of last daily publication
+#' last daily flow-publication date
 #' @param x = a YYYYMMDD date
 #' @keywords publish.daily.last
 #' @export
@@ -6391,7 +6470,7 @@ publish.daily.last <- function (x)
 {
     if (missing(x)) 
         x <- today()
-    z <- yyyymmdd.lag(x, 2)
+    z <- flowdate.lag(x, 2)
     z
 }
 
@@ -6528,8 +6607,7 @@ qa.flow <- function (x, y, n, w = "Aggregate")
         "SwtdEx0", "SwtdIn0")) & !isMacro
     cols <- qa.columns(y)
     if (ftp.info(y, n, "frequency", w) == "D") {
-        dts <- yyyymmdd.ex.yyyymm(x, F)
-        dts <- dts[!is.element(txt.right(dts, 4), c("0101", "1225"))]
+        dts <- flowdate.ex.yyyymm(x, F)
     }
     else if (ftp.info(y, n, "frequency", w) == "W") {
         dts <- yyyymmdd.ex.yyyymm(x, F)
@@ -11837,9 +11915,9 @@ yyyymmdd.bulk <- function (x)
 
 #' yyyymmdd.diff
 #' 
-#' returns <x - y> in terms of YYYYMMDD
-#' @param x = a vector of YYYYMMDD
-#' @param y = an isomekic vector of YYYYMMDD
+#' returns <x - y> in terms of weekdays
+#' @param x = a vector of weekdays
+#' @param y = an isomekic vector of weekdays
 #' @keywords yyyymmdd.diff
 #' @export
 #' @family yyyymmdd
@@ -11874,7 +11952,7 @@ yyyymmdd.ex.AllocMo <- function (x)
 
 #' yyyymmdd.ex.day
 #' 
-#' Falls back to the closest YYYYMMDD
+#' Falls back to the closest weekday
 #' @param x = a vector of calendar dates
 #' @keywords yyyymmdd.ex.day
 #' @export
@@ -11903,7 +11981,7 @@ yyyymmdd.ex.int <- function (x)
 
 #' yyyymmdd.ex.txt
 #' 
-#' returns a vector of YYYYMMDD (formerly UIDate2yyyymmdd)
+#' a vector of calendar dates in YYYYMMDD format
 #' @param x = a vector of dates in some format
 #' @param y = separators used within <x>
 #' @param n = order in which month, day and year are represented
@@ -11932,8 +12010,8 @@ yyyymmdd.ex.txt <- function (x, y = "/", n = "MDY")
 
 #' yyyymmdd.ex.yyyymm
 #' 
-#' Returns the last trading day or all trading days
-#' @param x = a SINGLE month in yyyymm format
+#' last/all weekdays in <x>
+#' @param x = a vector/single YYYYMM depending on if y is T/F
 #' @param y = T/F variable depending on whether the last or all trading days in that month are desired
 #' @keywords yyyymmdd.ex.yyyymm
 #' @export
@@ -11960,7 +12038,7 @@ yyyymmdd.ex.yyyymm <- function (x, y = T)
 
 #' yyyymmdd.exists
 #' 
-#' returns T if <x> is YYYYMMDD
+#' returns T if <x> is a weekday
 #' @param x = a vector of calendar dates
 #' @keywords yyyymmdd.exists
 #' @export
@@ -11973,9 +12051,9 @@ yyyymmdd.exists <- function (x)
 
 #' yyyymmdd.lag
 #' 
-#' lags <x> by <y> YYYYMMDD.
-#' @param x = a vector of yyyymmdd-dates that happen to fall on a weekday
-#' @param y = a number
+#' lags <x> by <y> weekdays
+#' @param x = a vector of weekdays
+#' @param y = an integer
 #' @keywords yyyymmdd.lag
 #' @export
 #' @family yyyymmdd
@@ -11987,10 +12065,10 @@ yyyymmdd.lag <- function (x, y)
 
 #' yyyymmdd.seq
 #' 
-#' returns a sequence of YYYYMMDD between (and including) x and y
-#' @param x = a single YYYYMMDD
-#' @param y = a single YYYYMMDD
-#' @param n = quantum size in YYYYMMDD
+#' a sequence of weekdays starting at <x> and, if possible, ending at <y>
+#' @param x = a single weekday
+#' @param y = a single weekday
+#' @param n = a positive integer
 #' @keywords yyyymmdd.seq
 #' @export
 #' @family yyyymmdd
@@ -11998,7 +12076,7 @@ yyyymmdd.lag <- function (x, y)
 yyyymmdd.seq <- function (x, y, n = 1) 
 {
     if (any(!yyyymmdd.exists(c(x, y)))) 
-        stop("Some of your 'weekdays' fall on Sat/Sun!")
+        stop("Inputs are not weekdays")
     z <- obj.seq(x, y, yyyymmdd.to.int, yyyymmdd.ex.int, n)
     z
 }

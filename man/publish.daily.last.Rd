@@ -10,7 +10,7 @@ publish.daily.last(x)
 \item{x}{= a YYYYMMDD date}
 }
 \description{
-date of last daily publication
+last daily flow-publication date
 }
 \seealso{
 Other publish: \code{\link{publish.date}},

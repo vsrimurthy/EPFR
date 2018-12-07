@@ -14,7 +14,7 @@ yyyymmdd.ex.txt(x, y = "/", n = "MDY")
 \item{n}{= order in which month, day and year are represented}
 }
 \description{
-returns a vector of YYYYMMDD (formerly UIDate2yyyymmdd)
+a vector of calendar dates in YYYYMMDD format
 }
 \seealso{
 Other yyyymmdd: \code{\link{yyyymmdd.bulk}},

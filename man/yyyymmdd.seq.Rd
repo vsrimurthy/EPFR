@@ -7,14 +7,14 @@
 yyyymmdd.seq(x, y, n = 1)
 }
 \arguments{
-\item{x}{= a single YYYYMMDD}
+\item{x}{= a single weekday}
 
-\item{y}{= a single YYYYMMDD}
+\item{y}{= a single weekday}
 
-\item{n}{= quantum size in YYYYMMDD}
+\item{n}{= a positive integer}
 }
 \description{
-returns a sequence of YYYYMMDD between (and including) x and y
+a sequence of weekdays starting at <x> and, if possible, ending at <y>
 }
 \seealso{
 Other yyyymmdd: \code{\link{yyyymmdd.bulk}},

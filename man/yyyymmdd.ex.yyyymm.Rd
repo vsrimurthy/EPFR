@@ -7,12 +7,12 @@
 yyyymmdd.ex.yyyymm(x, y = T)
 }
 \arguments{
-\item{x}{= a SINGLE month in yyyymm format}
+\item{x}{= a vector/single YYYYMM depending on if y is T/F}
 
 \item{y}{= T/F variable depending on whether the last or all trading days in that month are desired}
 }
 \description{
-Returns the last trading day or all trading days
+last/all weekdays in <x>
 }
 \seealso{
 Other yyyymmdd: \code{\link{yyyymmdd.bulk}},

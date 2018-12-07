@@ -10,7 +10,7 @@ yyyymmdd.ex.day(x)
 \item{x}{= a vector of calendar dates}
 }
 \description{
-Falls back to the closest YYYYMMDD
+Falls back to the closest weekday
 }
 \seealso{
 Other yyyymmdd: \code{\link{yyyymmdd.bulk}},
