@@ -6471,6 +6471,47 @@ ptile <- function (x)
     z
 }
 
+#' publications.data
+#' 
+#' additional data is got and stale data removed
+#' @param x = a vector of desired dates
+#' @param y = SQL query
+#' @param n = folder where the data live
+#' @param w = one of StockFlows/Regular/Quant
+#' @keywords publications.data
+#' @export
+
+publications.data <- function (x, y, n, w) 
+{
+    h <- dir(n, "*.csv")
+    if (length(h) > 0) 
+        h <- h[!is.element(h, paste(x, ".csv", sep = ""))]
+    if (length(h) > 0) {
+        err.raise(h, F, paste("Removing the following from", 
+            n))
+        file.kill(paste(n, h, sep = "\\"))
+    }
+    h <- dir(n, "*.csv")
+    if (length(h) > 0) {
+        h <- txt.left(h, nchar(h) - nchar(".csv"))
+        h <- h[!is.element(h, x)]
+    }
+    if (length(h) > 0) {
+        cat("Adding data for the following periods:\n")
+        conn <- sql.connect(w)
+        for (i in h) {
+            cat("\t", i, "...\n")
+            x <- txt.replace(y, "'YYYYMMDD'", paste("'", i, "'", 
+                sep = ""))
+            x <- sqlQuery(conn, x)
+            mat.write(x, paste(n, "\\", i, ".csv", sep = ""), 
+                ",")
+        }
+        close(conn)
+    }
+    invisible()
+}
+
 #' publish.daily.last
 #' 
 #' last daily flow-publication date
