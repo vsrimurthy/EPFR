@@ -1878,7 +1878,7 @@ dir.parent <- function (x)
 
 dir.publications <- function (x) 
 {
-    dir.parameters(x)
+    dir.parameters(paste("Publications", x, sep = "\\"))
 }
 
 #' dir.size
