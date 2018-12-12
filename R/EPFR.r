@@ -1868,6 +1868,19 @@ dir.parent <- function (x)
     z
 }
 
+#' dir.publications
+#' 
+#' desired output directory for relevant publication
+#' @param x = desired sub-folder
+#' @keywords dir.publications
+#' @export
+#' @family dir
+
+dir.publications <- function (x) 
+{
+    dir.parameters(x)
+}
+
 #' dir.size
 #' 
 #' size of directory <x> in KB

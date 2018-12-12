@@ -16,6 +16,6 @@ Creates necessary folders so files can be copied to <x>
 Other dir: \code{\link{dir.all.files}},
   \code{\link{dir.kill}}, \code{\link{dir.make}},
   \code{\link{dir.parameters}}, \code{\link{dir.parent}},
-  \code{\link{dir.size}}
+  \code{\link{dir.publications}}, \code{\link{dir.size}}
 }
 \keyword{dir.ensure}
