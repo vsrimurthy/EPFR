@@ -6494,17 +6494,17 @@ publications.data <- function (x, y, n, w)
     h <- dir(n, "*.csv")
     if (length(h) > 0) {
         h <- txt.left(h, nchar(h) - nchar(".csv"))
-        h <- h[!is.element(h, x)]
+        x <- x[!is.element(x, h)]
     }
-    if (length(h) > 0) {
+    if (length(x) > 0) {
         cat("Adding data for the following periods:\n")
         conn <- sql.connect(w)
-        for (i in h) {
+        for (i in x) {
             cat("\t", i, "...\n")
-            x <- txt.replace(y, "'YYYYMMDD'", paste("'", i, "'", 
+            h <- txt.replace(y, "'YYYYMMDD'", paste("'", i, "'", 
                 sep = ""))
-            x <- sqlQuery(conn, x)
-            mat.write(x, paste(n, "\\", i, ".csv", sep = ""), 
+            h <- sqlQuery(conn, h)
+            mat.write(h, paste(n, "\\", i, ".csv", sep = ""), 
                 ",")
         }
         close(conn)
