@@ -6266,80 +6266,6 @@ portfolio.residual <- function (x, y)
     x - portfolio.beta(x, y, F) * y
 }
 
-#' position.ActWtDiff2
-#' 
-#' Current and week-over-week change of ActWtDiff2 on R1 Materials
-#' @param x = One of "StockFlows", "Quant" or "Regular"
-#' @param y = last publication date
-#' @keywords position.ActWtDiff2
-#' @export
-#' @family position
-
-position.ActWtDiff2 <- function (x, y) 
-{
-    conn <- sql.connect(x)
-    mo.end <- yyyymmdd.to.AllocMo(y, 26)
-    w <- sql.and(list(A = "StyleSectorId = 101", B = "GeographicFocusId = 77", 
-        C = "[Index] = 1"))
-    w <- sql.in("HFundId", sql.tbl("HFundId", "FundHistory", 
-        w))
-    w <- list(A = w, B = paste("ReportDate = '", yyyymm.to.day(mo.end), 
-        "'", sep = ""))
-    z <- sql.in("HFundId", sql.tbl("HFundId", "FundHistory", 
-        "FundId = 5152"))
-    z <- sql.and(list(A = z, B = paste("ReportDate = '", yyyymm.to.day(mo.end), 
-        "'", sep = "")))
-    z <- sql.tbl("HSecurityId", "Holdings", z, "HSecurityId")
-    w[["C"]] <- sql.in("HSecurityId", z)
-    w <- sql.tbl("HSecurityId", "Holdings", sql.and(w), "HSecurityId")
-    y <- yyyymmdd.lag(y, 19:0)
-    z <- list()
-    for (j in y) {
-        cat(j, "...\n")
-        x <- sql.1dActWtTrend.underlying(j, "All", w)
-        x <- c(x, sql.1dActWtTrend.topline("ActWtDiff2", , F))
-        x <- sql.query.underlying(x, conn, F)
-        z[[j]] <- x
-    }
-    x <- NULL
-    for (j in names(z)) x <- union(x, z[[j]][, "SecurityId"])
-    for (j in names(z)) {
-        dimnames(z[[j]])[[1]] <- z[[j]][, "SecurityId"]
-        z[[j]] <- map.rname(z[[j]], x)[, "ActWtDiff2"]
-    }
-    z <- mat.ex.matrix(z)
-    Current <- rowSums(z[, 6:20], na.rm = T)
-    RankChg <- rowSums(z[, 1:15], na.rm = T)
-    RankChg <- rank(Current) - rank(RankChg)
-    z <- matrix(c(Current, RankChg), length(x), 2, F, list(x, 
-        c("Current", "RankChg")))
-    z <- mat.ex.matrix(z)
-    z <- z[order(z$Current, decreasing = T), ]
-    x <- paste(dimnames(z)[[1]], collapse = ", ")
-    x <- sql.in("SecurityId", paste("(", x, ")", sep = ""))
-    x <- sql.and(list(A = x, B = "t1.EndDate is null", C = "t3.SecurityCodeTypeId = 4"))
-    y <- c("SecurityHistory t1", "inner join", "CompanyHistory t2 on t1.HCompanyId = t2.HCompanyId")
-    y <- c(y, "inner join", "SecurityCodeMapping t3 on t1.HSecurityId = t3.HSecurityId")
-    y <- c(y, "inner join", "SecurityCode t4 on SecurityCodeId = [Id]")
-    x <- sql.tbl(c("SecurityId", "t4.SecurityCode", "t2.CompanyName"), 
-        y, x)
-    x <- paste(sql.unbracket(x), collapse = "\n")
-    x <- sqlQuery(conn, x)
-    close(conn)
-    x <- x[!duplicated(x[, "SecurityId"]), ]
-    dimnames(x)[[1]] <- x[, "SecurityId"]
-    x <- map.rname(x, dimnames(z)[[1]])
-    z$CompanyName <- x$CompanyName
-    z$Ticker <- x$SecurityCode
-    z <- z[!is.na(z$Ticker) & !duplicated(z$Ticker), ]
-    dimnames(z)[[1]] <- z$Ticker
-    z <- z[, c("CompanyName", "Current", "RankChg")]
-    y <- vec.named(qtl.eq(z$Current), dimnames(z)[[1]])
-    y <- mat.ex.vec(y, z$Current)
-    z <- data.frame(z, y)
-    z
-}
-
 #' position.floPct
 #' 
 #' Latest four-week flow percentage
@@ -6348,7 +6274,6 @@ position.ActWtDiff2 <- function (x, y)
 #' @param n = last publication date
 #' @keywords position.floPct
 #' @export
-#' @family position
 
 position.floPct <- function (x, y, n) 
 {
@@ -6475,7 +6400,7 @@ ptile <- function (x)
 #' 
 #' additional data is got and stale data removed
 #' @param x = a vector of desired dates
-#' @param y = SQL query
+#' @param y = SQL query OR a function taking a date as argument
 #' @param n = folder where the data live
 #' @param w = one of StockFlows/Regular/Quant
 #' @keywords publications.data
@@ -6497,13 +6422,18 @@ publications.data <- function (x, y, n, w)
         x <- x[!is.element(x, h)]
     }
     if (length(x) > 0) {
-        cat("Adding data for the following periods:\n")
+        cat("Updating", n, "for the following periods:\n")
         conn <- sql.connect(w)
         for (i in x) {
             cat("\t", i, "...\n")
-            h <- txt.replace(y, "'YYYYMMDD'", paste("'", i, "'", 
-                sep = ""))
-            h <- sqlQuery(conn, h)
+            if (is.function(y)) {
+                h <- y(i)
+            }
+            else {
+                h <- txt.replace(y, "'YYYYMMDD'", paste("'", 
+                  i, "'", sep = ""))
+            }
+            h <- sql.query.underlying(h, conn, F)
             mat.write(h, paste(n, "\\", i, ".csv", sep = ""), 
                 ",")
         }
@@ -9366,6 +9296,35 @@ sql.1mFloMo <- function (x, y, n, w)
     }
     z <- paste(c(sql.declare("@dy", "datetime", yyyymm.to.day(x)), 
         sql.unbracket(z)), collapse = "\n")
+    z
+}
+
+#' sql.ActWtDiff2
+#' 
+#' ActWtDiff2 on R1 Materials for positioning
+#' @param x = flow date
+#' @keywords sql.ActWtDiff2
+#' @export
+#' @family sql
+
+sql.ActWtDiff2 <- function (x) 
+{
+    mo.end <- yyyymmdd.to.AllocMo(x, 26)
+    w <- sql.and(list(A = "StyleSectorId = 101", B = "GeographicFocusId = 77", 
+        C = "[Index] = 1"))
+    w <- sql.in("HFundId", sql.tbl("HFundId", "FundHistory", 
+        w))
+    w <- list(A = w, B = paste("ReportDate = '", yyyymm.to.day(mo.end), 
+        "'", sep = ""))
+    z <- sql.in("HFundId", sql.tbl("HFundId", "FundHistory", 
+        "FundId = 5152"))
+    z <- sql.and(list(A = z, B = paste("ReportDate = '", yyyymm.to.day(mo.end), 
+        "'", sep = "")))
+    z <- sql.tbl("HSecurityId", "Holdings", z, "HSecurityId")
+    w[["C"]] <- sql.in("HSecurityId", z)
+    w <- sql.tbl("HSecurityId", "Holdings", sql.and(w), "HSecurityId")
+    z <- sql.1dActWtTrend.underlying(x, "All", w)
+    z <- c(z, sql.1dActWtTrend.topline("ActWtDiff2", , F))
     z
 }
 

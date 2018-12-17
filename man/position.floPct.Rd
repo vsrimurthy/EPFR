@@ -16,7 +16,4 @@ position.floPct(x, y, n)
 \description{
 Latest four-week flow percentage
 }
-\seealso{
-Other position: \code{\link{position.ActWtDiff2}}
-}
 \keyword{position.floPct}

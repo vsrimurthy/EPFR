@@ -9,7 +9,7 @@ publications.data(x, y, n, w)
 \arguments{
 \item{x}{= a vector of desired dates}
 
-\item{y}{= SQL query}
+\item{y}{= SQL query OR a function taking a date as argument}
 
 \item{n}{= folder where the data live}
 
