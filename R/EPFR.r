@@ -1365,10 +1365,7 @@ cpt.FloAlphaLt.Ctry <- function (x)
     for (i in names(mo.vbls)) y[[i]] <- compound.flows(y[[i]], 
         mo.vbls[i], 1, T)
     for (i in names(mo.vbls)) y[[i]] <- yyyymmdd.ex.AllocMo(y[[i]])
-    rnames <- dimnames(y[[1]])[[1]]
-    for (i in names(y)) rnames <- intersect(rnames, dimnames(y[[i]])[[1]])
-    rnames <- rnames[order(rnames)]
-    y <- lapply(y, map.rname, rnames)
+    y <- list.common.row.space(intersect, y, NULL)
     y <- lapply(y, zScore)
     z <- matrix(0, dim(y[[1]])[1], dim(y[[1]])[2], F, dimnames(y[[1]]))
     for (i in names(wts)) z <- z + wts[i] * zav(y[[i]])/100
@@ -4702,6 +4699,30 @@ lead.lag.effects <- function (fcn, x, y, n = seq(-10, 10))
     z
 }
 
+#' list.common.row.space
+#' 
+#' list object with the elements mapped to the common row space
+#' @param fcn = function used to combine row spaces
+#' @param x = a list of mat objects
+#' @param y = column containing row names (NULL denotes row names)
+#' @keywords list.common.row.space
+#' @export
+
+list.common.row.space <- function (fcn, x, y) 
+{
+    z <- NULL
+    for (i in names(x)) {
+        if (!is.null(y)) 
+            dimnames(x[[i]])[[1]] <- x[[i]][, y]
+        if (is.null(z)) 
+            z <- dimnames(x[[i]])[[1]]
+        z <- fcn(z, dimnames(x[[i]])[[1]])
+    }
+    z <- z[order(z)]
+    z <- lapply(x, map.rname, z)
+    z
+}
+
 #' load.dy.vbl
 #' 
 #' Loads a daily variable
@@ -5208,9 +5229,14 @@ mat.subset <- function (x, y)
     w <- is.element(y, dimnames(x)[[2]])
     if (any(!w)) {
         err.raise(y[!w], F, "Warning: The following columns are missing")
-        z <- t(map.rname(t(z), y))
+        z <- t(map.rname(t(x), y))
     }
-    else z <- x[, y]
+    else if (length(y) == 1) {
+        z <- vec.named(x[, y], dimnames(x)[[1]])
+    }
+    else {
+        z <- x[, y]
+    }
     z
 }
 
@@ -10491,13 +10517,7 @@ sqlts.wrapper <- function (x, y)
         z[[as.character(i)]] <- sqlQuery(h, y(i))
     }
     close(h)
-    y <- NULL
-    for (i in names(z)) {
-        dimnames(z[[i]])[[1]] <- z[[i]][, 1]
-        y <- union(y, z[[i]][, 1])
-    }
-    y <- y[order(y)]
-    for (i in names(z)) z[[i]] <- map.rname(z[[i]], y)
+    z <- list.common.row.space(union, z, 1)
     if (dim(z[[1]])[2] == 2) {
         x <- matrix(NA, length(y), length(x), F, list(y, x))
         for (i in names(z)) x[, i] <- z[[i]][, 2]
