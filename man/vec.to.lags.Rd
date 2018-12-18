@@ -20,6 +20,7 @@ Other vec: \code{\link{vec.cat}}, \code{\link{vec.count}},
   \code{\link{vec.named}}, \code{\link{vec.read}},
   \code{\link{vec.same}}, \code{\link{vec.swap}},
   \code{\link{vec.to.list}}, \code{\link{vec.unique}},
+  \code{\link{vec.zScore.underlying}},
   \code{\link{vec.zScore}}
 }
 \keyword{vec.to.lags}

@@ -805,8 +805,8 @@ britten.jones <- function (x, y)
     x <- as.matrix(x[, -1])
     z <- matrix(0, n + m, dim(x)[2], F, list(seq(1, m + n), dimnames(x)[[2]]))
     for (i in 0:m) z[1:n + i, ] <- z[1:n + i, ] + x
-    if (det(t(z) %*% z) > 0) {
-        z <- z %*% solve(t(z) %*% z) %*% t(x) %*% x
+    if (det(crossprod(z)) > 0) {
+        z <- z %*% solve(crossprod(z)) %*% crossprod(x)
         z <- data.frame(y, z)
         names(z) <- orig.nms
     }
@@ -6362,7 +6362,7 @@ principal.components <- function (x, y = 2)
 {
     x <- as.matrix(x)
     x <- x - matrix(colMeans(x), dim(x)[1], dim(x)[2], T, dimnames(x))
-    z <- t(x) %*% x
+    z <- crossprod(x)
     z <- svd(z)$v[, 1:y]
     z <- x %*% z
     z
@@ -6948,13 +6948,16 @@ qtl <- function (x, y, n, w)
         n <- rep(1, length(x))
     if (missing(w)) 
         w <- rep(1, length(x))
-    u.grp <- w[!is.na(x) & !is.na(w) & !is.na(n) & n > 0]
-    u.grp <- u.grp[!duplicated(u.grp)]
-    z <- rep(NA, length(x))
-    for (i in u.grp) {
-        w.i <- is.element(w, i)
-        z[w.i] <- qtl.single.grp(x[w.i], y, n[w.i])
+    h <- !is.na(x) & !is.na(w)
+    x <- data.frame(x, n, stringsAsFactors = F)
+    x <- split(x[h, ], w[h])
+    y <- function(x) {
+        qtl.single.grp(x, y)
     }
+    x <- lapply(x, y)
+    x <- unsplit(x, w[h])
+    z <- rep(NA, length(h))
+    z[h] <- x
     z
 }
 
@@ -6974,16 +6977,17 @@ qtl.eq <- function (x, y = 5)
 
 #' qtl.single.grp
 #' 
-#' performs an equal-weight binning on <x> so that the members of <n> are divided into <y> equal bins
-#' @param x = a vector
+#' an equal-weight binning so that the first column of <x> is divided into <y> equal bins. Weights determined by the 2nd column
+#' @param x = a two-column numeric data frame. No NA's in first two columns
 #' @param y = number of desired bins
-#' @param n = a 1/0 membership vector
 #' @keywords qtl.single.grp
 #' @export
 #' @family qtl
 
-qtl.single.grp <- function (x, y, n) 
+qtl.single.grp <- function (x, y) 
 {
+    n <- x[, 2]
+    x <- x[, 1]
     z <- rep(NA, length(x))
     w <- !is.element(n, 0) & !is.na(n)
     w <- w & !is.na(x)
@@ -7562,9 +7566,8 @@ rrw.underlying <- function (prd, vbls, univ, grp.nm, ret.nm, fldr, orth.factor,
 run.cs.reg <- function (x, y) 
 {
     y <- as.matrix(y)
-    y <- solve(t(y) %*% y) %*% t(y)
-    z <- y %*% t(x)
-    z <- t(z)
+    z <- tcrossprod(as.matrix(x), tcrossprod(solve(crossprod(y)), 
+        y))
     z
 }
 
@@ -9417,10 +9420,7 @@ sql.AggrAllocations <- function (x, y, n, w, h)
 
 sql.AllocTbl <- function (x) 
 {
-    z <- "CountryAllocations"
-    if (x == "Sector") 
-        z <- "SectorAllocations"
-    z
+    ifelse(x == "Sector", "SectorAllocations", "CountryAllocations")
 }
 
 #' sql.and
@@ -11753,18 +11753,34 @@ vec.zScore <- function (x, y, n)
         y <- rep(1, length(x))
     if (missing(n)) 
         n <- rep(1, length(x))
-    w <- !is.na(x) & !is.na(n) & is.element(y, 1)
-    u.grp <- n[w]
-    u.grp <- u.grp[!duplicated(u.grp)]
+    y <- is.element(y, 1)
+    w <- !is.na(x) & !is.na(n)
+    x <- data.frame(x, y, stringsAsFactors = F)
+    x <- split(x[w, ], n[w])
+    x <- lapply(x, vec.zScore.underlying)
+    x <- unsplit(x, n[w])
+    z <- rep(NA, length(w))
+    z[w] <- x
+    z
+}
+
+#' vec.zScore.underlying
+#' 
+#' zScores the first column of <x> weighting only the second column
+#' @param x = a two-column data frame without NAs. The first column is numeric and the second logical.
+#' @keywords vec.zScore.underlying
+#' @export
+#' @family vec
+
+vec.zScore.underlying <- function (x) 
+{
+    y <- x[, 2]
+    x <- x[, 1]
     z <- rep(NA, length(x))
-    for (i in u.grp) {
-        w <- !is.na(x) & is.element(n, i) & is.element(y, 1)
-        if (sum(w) > 1) {
-            mx <- mean(x[w])
-            sx <- sd(x[w])
-            w <- !is.na(x) & is.element(n, i)
-            z[w] <- (x[w] - mx)/sx
-        }
+    if (sum(y) > 1) {
+        mx <- mean(x[y])
+        sx <- nonneg(sd(x[y]))
+        z <- (x - mx)/sx
     }
     z
 }

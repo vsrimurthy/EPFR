@@ -4,17 +4,15 @@
 \alias{qtl.single.grp}
 \title{qtl.single.grp}
 \usage{
-qtl.single.grp(x, y, n)
+qtl.single.grp(x, y)
 }
 \arguments{
-\item{x}{= a vector}
+\item{x}{= a two-column numeric data frame. No NA's in first two columns}
 
 \item{y}{= number of desired bins}
-
-\item{n}{= a 1/0 membership vector}
 }
 \description{
-performs an equal-weight binning on <x> so that the members of <n> are divided into <y> equal bins
+an equal-weight binning so that the first column of <x> is divided into <y> equal bins. Weights determined by the 2nd column
 }
 \seealso{
 Other qtl: \code{\link{qtl.eq}},
