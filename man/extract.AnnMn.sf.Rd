@@ -12,7 +12,7 @@ extract.AnnMn.sf(x, y = "AnnMn")
 \item{y}{= a string which must be one of AnnMn/AnnSd/Sharp/HitRate}
 }
 \description{
-Subsets to "AnnMn" and re-lablels columns
+Subsets to "AnnMn" and re-labels columns
 }
 \seealso{
 Other extract: \code{\link{extract.AnnMn.sf.wrapper}}

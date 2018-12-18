@@ -1783,6 +1783,24 @@ dir.all.files <- function (x, y)
     z
 }
 
+#' dir.clear
+#' 
+#' rids <x> of files of type <y>
+#' @param x = a path such as "C:\\\\temp"
+#' @param y = a string such as "*.txt"
+#' @keywords dir.clear
+#' @export
+#' @family dir
+
+dir.clear <- function (x, y) 
+{
+    cat("Ridding folder", x, "of", y, "files ...\n")
+    z <- dir(x, y)
+    if (length(x) > 0) 
+        file.kill(paste(x, z, sep = "\\"))
+    invisible()
+}
+
 #' dir.ensure
 #' 
 #' Creates necessary folders so files can be copied to <x>
@@ -1955,7 +1973,7 @@ excise.zeroes <- function (x)
 
 #' extract.AnnMn.sf
 #' 
-#' Subsets to "AnnMn" and re-lablels columns
+#' Subsets to "AnnMn" and re-labels columns
 #' @param x = a list object, each element of which is a 3D object The first dimension has AnnMn/AnnSd/Sharp/HitRate The second dimension has bins Q1/Q2/Qna/Q3/Q4/Q5 The third dimension is some kind of parameter
 #' @param y = a string which must be one of AnnMn/AnnSd/Sharp/HitRate
 #' @keywords extract.AnnMn.sf

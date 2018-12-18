@@ -14,8 +14,9 @@ returns full path to relevant parameters sub-folder
 }
 \seealso{
 Other dir: \code{\link{dir.all.files}},
-  \code{\link{dir.ensure}}, \code{\link{dir.kill}},
-  \code{\link{dir.make}}, \code{\link{dir.parent}},
-  \code{\link{dir.publications}}, \code{\link{dir.size}}
+  \code{\link{dir.clear}}, \code{\link{dir.ensure}},
+  \code{\link{dir.kill}}, \code{\link{dir.make}},
+  \code{\link{dir.parent}}, \code{\link{dir.publications}},
+  \code{\link{dir.size}}
 }
 \keyword{dir.parameters}
