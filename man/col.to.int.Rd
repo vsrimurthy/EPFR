@@ -7,7 +7,7 @@
 col.to.int(x)
 }
 \arguments{
-\item{x}{= a SINGLE string representation of an excel column}
+\item{x}{= a vector of string representations of excel columns}
 }
 \description{
 Returns the relevant associated integer (1 = "A", 2 = "B", etc.)

@@ -167,7 +167,7 @@ array.unlist <- function (x, y)
 {
     n <- length(dim(x))
     if (missing(y)) 
-        y <- char.seq("A", "Z")[seq(1, n + 1)]
+        y <- col.ex.int(0:n + 1)
     if (length(y) != n + 1) 
         stop("Problem")
     z <- permutations.buckets.many(dimnames(x))
@@ -272,7 +272,7 @@ avg.wtd <- function (x, y)
 #' @export
 #' @family base
 
-base.ex.int <- function (x, y) 
+base.ex.int <- function (x, y = 26) 
 {
     if (x == 0) 
         z <- 0
@@ -293,7 +293,7 @@ base.ex.int <- function (x, y)
 #' @export
 #' @family base
 
-base.to.int <- function (x, y) 
+base.to.int <- function (x, y = 26) 
 {
     m <- length(x)
     z <- x * y^(m:1 - 1)
@@ -1032,7 +1032,7 @@ char.to.num <- function (x)
 #' col.ex.int
 #' 
 #' Returns the relevant excel column (1 = "A", 2 = "B", etc.)
-#' @param x = a positive integer
+#' @param x = a vector of positive integers
 #' @keywords col.ex.int
 #' @export
 #' @family col
@@ -1040,10 +1040,19 @@ char.to.num <- function (x)
 col.ex.int <- function (x) 
 {
     z <- x - 1
-    z <- base.ex.int(z, 26)
-    z[length(z)] <- z[length(z)] + 1
-    z <- char.ex.int(z + 64)
-    z <- paste(z, collapse = "")
+    z <- vec.to.list(z)
+    z <- lapply(z, base.ex.int)
+    z <- lapply(z, vec.last.element.increment)
+    fcn <- function(x) {
+        x + 64
+    }
+    z <- lapply(z, fcn)
+    z <- lapply(z, char.ex.int)
+    fcn <- function(x) {
+        paste(x, collapse = "")
+    }
+    z <- lapply(z, fcn)
+    z <- as.character(unlist(z))
     z
 }
 
@@ -1064,16 +1073,21 @@ col.offset <- function (x, y)
 #' col.to.int
 #' 
 #' Returns the relevant associated integer (1 = "A", 2 = "B", etc.)
-#' @param x = a SINGLE string representation of an excel column
+#' @param x = a vector of string representations of excel columns
 #' @keywords col.to.int
 #' @export
 #' @family col
 
 col.to.int <- function (x) 
 {
-    z <- txt.to.char(x)
-    z <- char.to.int(z) - char.to.int("A") + 1
-    z <- base.to.int(z, 26)
+    z <- vec.to.list(x)
+    z <- lapply(z, txt.to.char)
+    fcn <- function(x) {
+        char.to.int(x) - char.to.int("A") + 1
+    }
+    z <- lapply(z, fcn)
+    z <- lapply(z, base.to.int)
+    z <- as.numeric(unlist(z))
     z
 }
 
@@ -6107,11 +6121,10 @@ phone.list <- function (x = 4)
     y <- parameters("PhoneList")
     y <- mat.read(y, "\t", NULL, F)
     y <- paste(y[, 1], y[, 2], sep = "\t")
-    while (length(y)%%x != 0) y <- c(y, "")
     vec <- seq(0, length(y) - 1)
-    z <- y[vec%%x == 0]
-    if (x > 1) 
-        for (j in 2:x - 1) z <- paste(z, y[vec%%x == j], sep = "\t\t")
+    z <- split(y, vec%%x)
+    z[["sep"]] <- "\t\t"
+    z <- do.call(paste, z)
     z <- paste(z, collapse = "\n")
     cat(z, "\n")
     invisible()
@@ -11450,6 +11463,23 @@ vec.cat <- function (x)
 vec.count <- function (x) 
 {
     pivot.1d(sum, x, rep(1, length(x)))
+}
+
+#' vec.last.element.increment
+#' 
+#' increments last element of <x> by <y>
+#' @param x = a numeric vector
+#' @param y = increment (defaults to unity)
+#' @keywords vec.last.element.increment
+#' @export
+#' @family vec
+
+vec.last.element.increment <- function (x, y = 1) 
+{
+    n <- length(x)
+    x[n] <- x[n] + 1
+    z <- x
+    z
 }
 
 #' vec.max

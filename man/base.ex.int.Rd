@@ -4,7 +4,7 @@
 \alias{base.ex.int}
 \title{base.ex.int}
 \usage{
-base.ex.int(x, y)
+base.ex.int(x, y = 26)
 }
 \arguments{
 \item{x}{= a non-negative integer}

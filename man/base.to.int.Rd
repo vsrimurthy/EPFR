@@ -4,7 +4,7 @@
 \alias{base.to.int}
 \title{base.to.int}
 \usage{
-base.to.int(x, y)
+base.to.int(x, y = 26)
 }
 \arguments{
 \item{x}{= a vector of positive integers}

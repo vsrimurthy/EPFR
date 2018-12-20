@@ -7,7 +7,7 @@
 col.ex.int(x)
 }
 \arguments{
-\item{x}{= a positive integer}
+\item{x}{= a vector of positive integers}
 }
 \description{
 Returns the relevant excel column (1 = "A", 2 = "B", etc.)
