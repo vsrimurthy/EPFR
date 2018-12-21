@@ -9388,10 +9388,11 @@ sql.and <- function (x, y = "", n = "and")
 {
     m <- length(names(x))
     if (m > 1) {
-        z <- unlist(x)
-        z <- paste(y, "\t", z, sep = "")
-        z <- c(z, rep(n, m - 1))
-        z <- z[order(c(1:m, 2:m - 0.5))]
+        fcn <- function(x) {
+            c(n, paste(y, "\t", x, sep = ""))
+        }
+        z <- lapply(x, fcn)
+        z <- unlist(z)[-1]
     }
     else {
         z <- x[[1]]
