@@ -3554,8 +3554,7 @@ fop.wrapper <- function (x, y, retW, prd.size = 5, sum.flows = F, lag = 0, delay
     x <- x[, as.character(lag), , as.character(nBin), c("Sharpe", 
         "AnnMn"), c("Q1", "TxB"), "1"]
     x <- mat.ex.array(x, c("floW", "retW", "stat", "bin"), "floW")
-    dimnames(x)[[1]] <- do.call(paste, x[, c("bin", "stat", "retW")])
-    x <- x[, !is.element(dimnames(x)[[2]], c("bin", "stat", "retW"))]
+    x <- mat.index(x, c("bin", "stat", "retW"))
     z <- data.frame(t(x), z, stringsAsFactors = F)
     z <- z[, txt.expand(c("Q1.Sharpe", "TxB.Sharpe", "IC", "Q1.AnnMn", 
         "TxB.AnnMn"), retW, ".")]
@@ -4744,8 +4743,7 @@ mat.ex.array <- function (x, y, n)
 mat.ex.array3d <- function (x, y = "C", n = "A") 
 {
     z <- mat.ex.array(x, char.seq("A", "C"), n)
-    dimnames(z)[[1]] <- do.call(paste, z[, 1:2])
-    z <- t(z[, -1][, -1])
+    z <- t(mat.index(z, union(y, dimnames(z)[[2]][1:2])))
     z
 }
 
@@ -4814,24 +4812,34 @@ mat.fake <- function ()
 
 #' mat.index
 #' 
-#' indexes <x> by the first column
+#' indexes <x> by, and removes, columns <y>
 #' @param x = a matrix/df
+#' @param y = columns
 #' @keywords mat.index
 #' @export
 #' @family mat
 
-mat.index <- function (x) 
+mat.index <- function (x, y = 1) 
 {
-    if (any(is.na(x[, 1]))) 
-        stop("NA's in row indices ...")
-    if (any(duplicated(x[, 1]))) 
-        stop("Duplicated row indices ...")
-    if (dim(x)[2] > 2) {
-        dimnames(x)[[1]] <- x[, 1]
-        z <- x[, -1]
+    if (all(is.element(y, 1:dim(x)[2]))) {
+        w <- is.element(1:dim(x)[2], y)
     }
     else {
-        z <- vec.named(x[, 2], x[, 1])
+        w <- is.element(dimnames(x)[[2]], y)
+    }
+    if (sum(w) > 1) 
+        z <- do.call(paste, mat.ex.matrix(x)[, y])
+    else z <- x[, w]
+    if (any(is.na(z))) 
+        stop("NA's in row indices ...")
+    if (any(duplicated(z))) 
+        stop("Duplicated row indices ...")
+    if (sum(!w) > 1) {
+        dimnames(x)[[1]] <- z
+        z <- x[, !w]
+    }
+    else {
+        z <- vec.named(x[, !w], z)
     }
     z
 }
@@ -5960,8 +5968,7 @@ plurality.map <- function (x, y)
     names(z) <- c("x", "map", "obs")
     z <- z[order(-z$obs), ]
     z <- z[!duplicated(z$x), ]
-    dimnames(z)[[1]] <- z$x
-    z <- z[, dimnames(z)[[2]] != "x"]
+    z <- mat.index(z, "x")
     z$pct <- 100 * z$obs/map.rname(vec.count(x), dimnames(z)[[1]])
     z <- z[order(-z$pct), ]
     z
@@ -6987,7 +6994,7 @@ refresh.predictors.append <- function (x, y, n = F, w = F)
     if (sum(w) != 1) 
         stop("Problem 5")
     m <- data.frame(unlist(z[w, ]), unlist(x[dimnames(z)[[1]][w], 
-        ]))
+        ]), stringsAsFactors = F)
     m <- correl(m[, 1], m[, 2])
     m <- zav(m)
     if (!n & m < 0.99) 
@@ -7665,8 +7672,8 @@ sf.underlying.data <- function (vbl.nm, univ, ret.nm, ret.prd, trail, sum.flows,
     }
     bin <- qtl(vbl, nBins, mem, grp)
     bin <- ifelse(is.na(bin), "Qna", paste("Q", bin, sep = ""))
-    z <- data.frame(vbl, bin, ret, mem, grp)
-    dimnames(z)[[1]] <- dimnames(classif)[[1]]
+    z <- data.frame(vbl, bin, ret, mem, grp, row.names = dimnames(classif)[[1]], 
+        stringsAsFactors = F)
     z
 }
 

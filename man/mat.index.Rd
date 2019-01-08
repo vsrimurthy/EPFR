@@ -4,13 +4,15 @@
 \alias{mat.index}
 \title{mat.index}
 \usage{
-mat.index(x)
+mat.index(x, y = 1)
 }
 \arguments{
 \item{x}{= a matrix/df}
+
+\item{y}{= columns}
 }
 \description{
-indexes <x> by the first column
+indexes <x> by, and removes, columns <y>
 }
 \seealso{
 Other mat: \code{\link{mat.combine}},
