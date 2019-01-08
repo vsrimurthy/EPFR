@@ -40,10 +40,10 @@ fop(x, y, delay, lags, floWind, retWind, nBins, grp.fcn, convert2df,
 an array of summary statistics of each quantile, indexed by parameter
 }
 \seealso{
-Other fop: \code{\link{fop.Bin}},
-  \code{\link{fop.IC.summ}}, \code{\link{fop.IC}},
+Other fop: \code{\link{fop.Bin.underlying}},
+  \code{\link{fop.Bin}}, \code{\link{fop.IC.summ}},
+  \code{\link{fop.IC}}, \code{\link{fop.correl}},
   \code{\link{fop.grp.map}}, \code{\link{fop.rank.xRet}},
-  \code{\link{fop.stats}}, \code{\link{fop.subset}},
   \code{\link{fop.wrapper}}
 }
 \keyword{fop}

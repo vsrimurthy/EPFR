@@ -19,8 +19,7 @@ bbk.bin.rets.prd.summ(fcn, x, y, n)
 Summarizes bin excess returns by sub-periods of interest (as defined by <y>)
 }
 \seealso{
-Other bbk: \code{\link{bbk.bin.rets.geom.summ}},
-  \code{\link{bbk.bin.rets.summ}},
+Other bbk: \code{\link{bbk.bin.rets.summ}},
   \code{\link{bbk.bin.xRet}}, \code{\link{bbk.data}},
   \code{\link{bbk.doW.bulk}}, \code{\link{bbk.drawdown}},
   \code{\link{bbk.fanChart}}, \code{\link{bbk.fwdRet}},

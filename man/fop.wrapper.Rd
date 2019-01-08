@@ -32,10 +32,10 @@ fop.wrapper(x, y, retW, prd.size = 5, sum.flows = F, lag = 0, delay = 2,
 a table of Sharpes, IC's and annualized mean excess returns for: Q1 - a strategy that goes long the top fifth and short the equal-weight universe TxB - a strategy that goes long and short the top and bottom fifth respectively
 }
 \seealso{
-Other fop: \code{\link{fop.Bin}},
-  \code{\link{fop.IC.summ}}, \code{\link{fop.IC}},
+Other fop: \code{\link{fop.Bin.underlying}},
+  \code{\link{fop.Bin}}, \code{\link{fop.IC.summ}},
+  \code{\link{fop.IC}}, \code{\link{fop.correl}},
   \code{\link{fop.grp.map}}, \code{\link{fop.rank.xRet}},
-  \code{\link{fop.stats}}, \code{\link{fop.subset}},
   \code{\link{fop}}
 }
 \keyword{fop.wrapper}

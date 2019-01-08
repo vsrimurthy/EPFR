@@ -9,7 +9,7 @@ bbk.doW.bulk(x, y, n)
 \arguments{
 \item{x}{= a matrix/data-frame indexed by <yyyymmdd> dates}
 
-\item{y}{= a day of the week from 0:6 (Sun:Sat)}
+\item{y}{= a day of the week from 0:6 (Sun:Sat) or NULL}
 
 \item{n}{= an essential column that cannot be NA}
 }
@@ -17,8 +17,7 @@ bbk.doW.bulk(x, y, n)
 Adds rows to <x> so that day <y> of the week is never missing
 }
 \seealso{
-Other bbk: \code{\link{bbk.bin.rets.geom.summ}},
-  \code{\link{bbk.bin.rets.prd.summ}},
+Other bbk: \code{\link{bbk.bin.rets.prd.summ}},
   \code{\link{bbk.bin.rets.summ}},
   \code{\link{bbk.bin.xRet}}, \code{\link{bbk.data}},
   \code{\link{bbk.drawdown}}, \code{\link{bbk.fanChart}},

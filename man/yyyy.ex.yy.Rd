@@ -12,4 +12,8 @@ yyyy.ex.yy(x)
 \description{
 returns a vector of YYYY
 }
+\seealso{
+Other yyyy: \code{\link{yyyy.ex.period}},
+  \code{\link{yyyy.periods.count}}
+}
 \keyword{yyyy.ex.yy}

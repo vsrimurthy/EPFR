@@ -325,63 +325,9 @@ bbk <- function (x, y, floW = 20, retW = 5, nBin = 5, doW = 4, sum.flows = F,
     x <- bbk.data(x, y, floW, sum.flows, lag, delay, doW, retW, 
         idx, prd.size)
     z <- bbk.bin.xRet(x$x, x$fwdRet, nBin, T, T)
-    x <- z[["rets"]]
     z <- lapply(z, mat.reverse)
     quantum <- ifelse(is.null(doW), 1, 5)
-    if (retW%%quantum != 0) 
-        stop("Something's very wrong!")
-    if (retW > quantum) {
-        n <- retW/quantum
-        y <- NULL
-        for (offset in 1:n - 1) {
-            w <- 1:dim(z$rets)[1]%%n == offset
-            x <- bbk.summ(z$rets[w, ], z$bins[w, ], retW)[["summ"]]
-            if (is.null(y)) 
-                y <- array(NA, c(dim(x), n), list(dimnames(x)[[1]], 
-                  dimnames(x)[[2]], 1:n - 1))
-            y[, , as.character(offset)] <- unlist(x)
-        }
-        z[["summ"]] <- apply(y, 1:2, mean)
-    }
-    else {
-        y <- bbk.summ(z$rets, z$bins, retW)
-        for (i in names(y)) z[[i]] <- y[[i]]
-    }
-    z
-}
-
-#' bbk.bin.rets.geom.summ
-#' 
-#' Summarizes bin excess returns geometrically
-#' @param x = a matrix/df with rows indexed by time and columns indexed by bins
-#' @param y = number of rows of <x> needed to cover an entire calendar year
-#' @param n = T/F depending on if you want to count number of periods (not used)
-#' @keywords bbk.bin.rets.geom.summ
-#' @export
-#' @family bbk
-
-bbk.bin.rets.geom.summ <- function (x, y, n = F) 
-{
-    if (any(dimnames(x)[[2]] == "uRet")) 
-        uRet.vec <- x[, "uRet"]
-    else uRet.vec <- rep(0, dim(x)[1])
-    w <- !is.element(dimnames(x)[[2]], c("uRet", "TxB"))
-    z <- list(por = x, bmk = x)
-    for (i in dimnames(x)[[2]][w]) {
-        z[["bmk"]][, i] <- ifelse(is.na(z[["por"]][, i]), NA, 
-            uRet.vec)
-        z[["por"]][, i] <- z[["por"]][, i] + uRet.vec
-    }
-    z <- lapply(z, ret.to.log)
-    vec <- exp(apply(z[["bmk"]], 2, mean, na.rm = T) * y)
-    vec <- ifelse(w, vec, 1)
-    vec <- exp(apply(z[["por"]], 2, mean, na.rm = T) * y) - vec
-    z <- matrix(NA, 4, dim(x)[2], F, list(c("AnnMn", "AnnSd", 
-        "Sharpe", "HitRate"), dimnames(x)[[2]]))
-    z["AnnMn", ] <- 100 * vec
-    z["AnnSd", ] <- apply(x, 2, sd, na.rm = T) * sqrt(y)
-    z["Sharpe", ] <- 100 * z["AnnMn", ]/z["AnnSd", ]
-    z["HitRate", ] <- apply(sign(x), 2, mean, na.rm = T) * 50
+    z <- c(z, bbk.summ(z$rets, z$bins, retW, quantum))
     z
 }
 
@@ -401,6 +347,7 @@ bbk.bin.rets.prd.summ <- function (fcn, x, y, n)
     w <- !is.na(y)
     y <- y[w]
     x <- x[w, ]
+    x <- mat.ex.matrix(x)
     fcn.loc <- function(x) {
         z <- fcn(x, n, T)
     }
@@ -523,19 +470,15 @@ bbk.data <- function (x, y, floW, sum.flows, lag, delay, doW, retW, idx,
         stop("Returns are fucked")
     x <- compound.flows(x, floW, prd.size, sum.flows)
     x <- mat.lag(x, lag + delay, F)
-    if (!is.null(doW)) {
-        col <- dimnames(x)[[2]][order(-colSums(mat.to.obs(x)))][1]
-        x <- bbk.doW.bulk(x, doW, col)
-    }
-    if (!is.null(doW)) {
-        w <- !is.na(x[, col]) & is.element(day.to.weekday(dimnames(x)[[1]]), 
+    col <- dimnames(x)[[2]][order(-colSums(mat.to.obs(x)))][1]
+    x <- bbk.doW.bulk(x, doW, col)
+    w <- !is.na(x[, col])
+    if (!is.null(doW)) 
+        w <- w & is.element(day.to.weekday(dimnames(x)[[1]]), 
             doW)
-        x <- x[w, ]
-    }
-    if (!is.null(doW)) {
-        col <- dimnames(y)[[2]][order(-colSums(mat.to.obs(y)))][1]
-        y <- bbk.doW.bulk(y, doW, col)
-    }
+    x <- x[w, ]
+    col <- dimnames(y)[[2]][order(-colSums(mat.to.obs(y)))][1]
+    y <- bbk.doW.bulk(y, doW, col)
     fwdRet <- bbk.fwdRet(x, y, retW, 0, 0)
     if (!is.null(idx)) 
         fwdRet <- Ctry.msci.index.changes(fwdRet, idx)
@@ -547,7 +490,7 @@ bbk.data <- function (x, y, floW, sum.flows, lag, delay, doW, retW, idx,
 #' 
 #' Adds rows to <x> so that day <y> of the week is never missing
 #' @param x = a matrix/data-frame indexed by <yyyymmdd> dates
-#' @param y = a day of the week from 0:6 (Sun:Sat)
+#' @param y = a day of the week from 0:6 (Sun:Sat) or NULL
 #' @param n = an essential column that cannot be NA
 #' @keywords bbk.doW.bulk
 #' @export
@@ -555,10 +498,16 @@ bbk.data <- function (x, y, floW, sum.flows, lag, delay, doW, retW, idx,
 
 bbk.doW.bulk <- function (x, y, n) 
 {
-    w <- !is.na(x[, n]) & is.element(day.to.weekday(dimnames(x)[[1]]), 
-        y)
-    dts <- yyyymmdd.seq(dimnames(x)[[1]][w][1], dimnames(x)[[1]][w][sum(w)], 
-        5)
+    w <- !is.na(x[, n])
+    if (!is.null(y)) {
+        w <- w & is.element(day.to.weekday(dimnames(x)[[1]]), 
+            y)
+        dts <- yyyymm.seq(dimnames(x)[[1]][w][1], dimnames(x)[[1]][w][sum(w)], 
+            5)
+    }
+    else {
+        dts <- yyyymm.seq(dimnames(x)[[1]][w][1], dimnames(x)[[1]][w][sum(w)])
+    }
     w <- is.na(map.rname(x, dts)[, n])
     z <- x
     if (any(w)) {
@@ -677,38 +626,51 @@ bbk.holidays <- function (x, y)
 
 #' bbk.summ
 #' 
-#' summarizes by year and overall. Assumes periods are non-overlapping.
+#' summarizes by year and overall
 #' @param x = bin returns
 #' @param y = bin memberships
 #' @param n = return window in days or months depending on whether <x> is YYYYMMDD or YYYYMM
+#' @param w = quantum size (<n> is made up of non-overlapping windows of size <w>)
 #' @keywords bbk.summ
 #' @export
 #' @family bbk
 
-bbk.summ <- function (x, y, n) 
+bbk.summ <- function (x, y, n, w) 
 {
-    prdsPerYr <- ifelse(all(nchar(dimnames(x)[[1]]) == 6), ifelse(all(substring(dimnames(x)[[1]], 
-        5, 5) == "Q"), 4, 12), 260)
-    z <- bbk.bin.rets.summ(x, prdsPerYr/n)
-    y <- bbk.turnover(y)
-    names(y) <- paste("Q", names(y), sep = "")
-    y["TxB"] <- y["Q1"] + y["Q5"]
-    y["uRet"] <- 0
-    y <- y * prdsPerYr/n
-    y <- map.rname(y, dimnames(z)[[2]])
-    y <- matrix(y, 1, dim(z)[2], T, list("AnnTo", dimnames(z)[[2]]))
-    z <- rbind(z, y)
+    if (n%%w != 0) 
+        stop("Quantum size is wrong!")
+    offset <- 1:dim(x)[1]%%(n/w)
+    prdsPerYr <- yyyy.periods.count(dimnames(x)[[1]])
+    fcn <- function(x) {
+        bbk.bin.rets.summ(x, prdsPerYr/n)
+    }
+    if (n == w) 
+        z <- fcn(x)
+    else z <- summ.multi(fcn, x, offset)
     z <- mat.ex.matrix(z)
-    z.ann <- dimnames(x)[[1]]
-    z.ann <- yyyymm.lag(z.ann, -n)
-    z.ann <- txt.left(z.ann, 4)
-    z.ann <- bbk.bin.rets.prd.summ(bbk.bin.rets.summ, x, z.ann, 
-        prdsPerYr/n)
-    z.ann <- rbind(z.ann["AnnMn", , ], z.ann["nPrds", "uRet", 
-        ])
-    z.ann <- t(z.ann)
-    dimnames(z.ann)[[2]][dim(z.ann)[2]] <- "nPrds"
-    z <- list(summ = z, annSumm = z.ann)
+    if (n == w) {
+        y <- bbk.turnover(y)
+    }
+    else {
+        y <- split(mat.ex.matrix(y), offset)
+        y <- lapply(y, bbk.turnover)
+        y <- simplify2array(y)
+        y <- rowMeans(y)
+    }
+    y <- y * prdsPerYr/n
+    z <- map.rname(z, c(dimnames(z)[[1]], "AnnTo"))
+    z["AnnTo", ] <- map.rname(y, dimnames(z)[[2]])
+    z <- list(summ = z)
+    if (n == w) {
+        z.ann <- yyyy.ex.period(dimnames(x)[[1]], n)
+        z.ann <- bbk.bin.rets.prd.summ(bbk.bin.rets.summ, x, 
+            z.ann, prdsPerYr/n)
+        z.ann <- rbind(z.ann["AnnMn", , ], z.ann["nPrds", "uRet", 
+            ])
+        z.ann <- t(z.ann)
+        dimnames(z.ann)[[2]][dim(z.ann)[2]] <- "nPrds"
+        z[["annSumm"]] <- z.ann
+    }
     z
 }
 
@@ -729,6 +691,9 @@ bbk.turnover <- function (x)
     z <- vec.named(rep(NA, length(z)), z)
     for (i in names(z)) z[i] <- mean(nameTo(old == i, new == 
         i), na.rm = T)
+    names(z) <- paste("Q", names(z), sep = "")
+    z["TxB"] <- z["Q1"] + z["Q5"]
+    z["uRet"] <- 0
     z
 }
 
@@ -1756,7 +1721,7 @@ dir.ensure <- function (x)
         x <- union(z, x)
     }
     if (length(x) > 0) 
-        for (z in x) dir.make(z)
+        dir.make(x)
     invisible()
 }
 
@@ -1770,8 +1735,9 @@ dir.ensure <- function (x)
 
 dir.kill <- function (x) 
 {
-    for (z in x) if (dir.exists(z)) 
-        unlink(z, recursive = T)
+    w <- dir.exists(x)
+    if (any(w)) 
+        unlink(x[w], recursive = T)
     invisible()
 }
 
@@ -1955,9 +1921,7 @@ extract.AnnMn.sf.wrapper <- function (x, y = "AnnMn")
 fcn.all.canonical <- function () 
 {
     x <- fcn.list()
-    n <- length(x)
-    w <- rep(F, n)
-    for (j in 1:n) w[j] <- fcn.canonical(x[j])
+    w <- unlist(lapply(vec.to.list(x), fcn.canonical))
     if (all(w)) 
         cat("All functions are canonical ...\n")
     if (any(!w)) 
@@ -2310,10 +2274,10 @@ fcn.direct.sub <- function (x)
 {
     x <- fcn.to.txt(x)
     z <- fcn.list()
-    n <- length(z)
-    w <- rep(NA, n)
-    for (i in 1:n) w[i] <- txt.has(x, paste(z[i], "(", sep = ""), 
-        T)
+    fcn <- function(z) {
+        txt.has(x, paste(z, "(", sep = ""), T)
+    }
+    w <- unlist(lapply(vec.to.list(z), fcn))
     if (any(w)) 
         z <- z[w]
     else z <- NULL
@@ -2332,12 +2296,10 @@ fcn.direct.super <- function (x)
 {
     x <- paste(x, "(", sep = "")
     z <- fcn.list()
-    n <- length(z)
-    w <- rep(NA, n)
-    for (i in 1:n) {
-        y <- fcn.to.txt(z[i])
-        w[i] <- txt.has(y, x, T)
+    fcn <- function(z) {
+        txt.has(fcn.to.txt(z), x, T)
     }
+    w <- unlist(lapply(vec.to.list(z), fcn))
     if (any(w)) 
         z <- z[w]
     else z <- NULL
@@ -2468,6 +2430,7 @@ fcn.indent.increase <- function (x, y)
     h <- c("FOR (", "WHILE (", "IF (")
     z <- any(txt.left(x, nchar(h) + y) == paste(txt.space(y, 
         "\t"), h, sep = ""))
+    z <- z | txt.has(x, " <- FUNCTION(", T)
     z <- z & txt.right(x, 1) == "{"
     z
 }
@@ -3425,11 +3388,9 @@ fop <- function (x, y, delay, lags, floWind, retWind, nBins, grp.fcn,
         }
         cat("\n")
     }
-    if (convert2df) {
-        z <- array.unlist(z, c("floW", "lag", "retW", "nBin", 
-            "stat", "bin", "dtGrp", "val"))
-        z <- fop.stats(z, "stat", "val")
-    }
+    if (convert2df) 
+        z <- mat.ex.array(z, c("floW", "lag", "retW", "nBin", 
+            "stat", "bin", "dtGrp"), "stat")
     z
 }
 
@@ -3447,12 +3408,47 @@ fop <- function (x, y, delay, lags, floWind, retWind, nBins, grp.fcn,
 
 fop.Bin <- function (x, y, n, w, h) 
 {
-    x <- bbk.bin.xRet(x, y, h)
-    m <- nchar(dimnames(x)[[1]][1])
-    if (m == 6) 
-        m <- 12
-    else m <- 260
-    z <- bbk.bin.rets.prd.summ(bbk.bin.rets.summ, x, n, m/w)
+    fop.Bin.underlying(bbk.bin.rets.summ, x, y, n, w, h, bbk.bin.xRet)
+}
+
+#' fop.Bin.underlying
+#' 
+#' Summarizes bin excess returns by sub-periods of interest (as defined by <vec>)
+#' @param fcn = overall summary function
+#' @param x = a matrix/df with rows indexed by time and columns indexed by bins
+#' @param y = a matrix/data frame of returns of the same dimension as <x>
+#' @param n = a vector corresponding to the rows of <x> that maps each row to a sub-period of interest (e.g. calendat year)
+#' @param w = return horizon in weekdays or months
+#' @param h = number of bins into which you are going to divide your predictors
+#' @param fcn.prd = per period summary function
+#' @keywords fop.Bin.underlying
+#' @export
+#' @family fop
+
+fop.Bin.underlying <- function (fcn, x, y, n, w, h, fcn.prd) 
+{
+    x <- fcn.prd(x, y, h)
+    m <- yyyy.periods.count(dimnames(x)[[1]])
+    z <- bbk.bin.rets.prd.summ(fcn, x, n, m/w)
+    z
+}
+
+#' fop.correl
+#' 
+#' computes IC
+#' @param x = a matrix/df with rows indexed by time and columns indexed by bins
+#' @param y = a matrix/data frame of returns of the same dimension as <x>
+#' @param n = an argument which is not used
+#' @keywords fop.correl
+#' @export
+#' @family fop
+
+fop.correl <- function (x, y, n) 
+{
+    x <- fop.rank.xRet(x, y)
+    y <- fop.rank.xRet(y, x)
+    z <- matrix(mat.correl(x, y), dim(x)[1], 2, F, list(dimnames(x)[[1]], 
+        c("IC", "Crap")))
     z
 }
 
@@ -3482,7 +3478,7 @@ fop.grp.map <- function (fcn, x, y, n, w)
 #' Summarizes bin excess returns by sub-periods of interest (as defined by <vec>)
 #' @param x = a matrix/df with rows indexed by time and columns indexed by bins
 #' @param y = a matrix/data frame of returns of the same dimension as <x>
-#' @param n = a vector corresponding to the rows of <x> that maps each row to a sub-period of interest (e.g. calendat year)
+#' @param n = a vector corresponding to the rows of <x> that maps each row to a sub-period of interest (e.g. calendar year)
 #' @param w = return horizon in weekdays
 #' @param h = an argument which is not used
 #' @keywords fop.IC
@@ -3491,12 +3487,7 @@ fop.grp.map <- function (fcn, x, y, n, w)
 
 fop.IC <- function (x, y, n, w, h) 
 {
-    x <- fop.rank.xRet(x, y)
-    y <- fop.rank.xRet(y, x)
-    x <- matrix(mat.correl(x, y), dim(x)[1], 2, F, list(dimnames(x)[[1]], 
-        c("IC", "Crap")))
-    z <- bbk.bin.rets.prd.summ(fop.IC.summ, x, n, 260/w)
-    z
+    fop.Bin.underlying(fop.IC.summ, x, y, n, w, h, fop.correl)
 }
 
 #' fop.IC.summ
@@ -3504,11 +3495,12 @@ fop.IC <- function (x, y, n, w, h)
 #' Summarizes IC's
 #' @param x = a vector of IC's
 #' @param y = an argument which is not used
+#' @param n = an argument which is not used
 #' @keywords fop.IC.summ
 #' @export
 #' @family fop
 
-fop.IC.summ <- function (x, y) 
+fop.IC.summ <- function (x, y, n) 
 {
     z <- matrix(NA, 2, dim(x)[2], F, list(c("Mean", "HitRate"), 
         dimnames(x)[[2]]))
@@ -3530,86 +3522,6 @@ fop.rank.xRet <- function (x, y)
 {
     z <- bbk.holidays(x, y)
     z <- mat.rank(z)
-    z
-}
-
-#' fop.stats
-#' 
-#' puts all the entries corresponding to <y> on one row
-#' @param x = output of <fop>
-#' @param y = a column in <x>
-#' @param n = another column in <x> containing values of interest
-#' @keywords fop.stats
-#' @export
-#' @family fop
-
-fop.stats <- function (x, y, n) 
-{
-    vec <- rep("", dim(x)[1])
-    for (i in setdiff(dimnames(x)[[2]], c(y, n))) vec <- paste(vec, 
-        x[, i], sep = "-")
-    w <- !duplicated(vec)
-    z <- x[w, !is.element(dimnames(x)[[2]], c(y, n))]
-    dimnames(z)[[1]] <- vec[w]
-    z <- mat.ex.matrix(z)
-    for (i in unique(x[, y])) {
-        w <- is.element(x[, y], i)
-        z[, i] <- rep(NA, dim(z)[1])
-        z[vec[w], i] <- x[w, n]
-    }
-    dimnames(z)[[1]] <- 1:dim(z)[1]
-    z
-}
-
-#' fop.subset
-#' 
-#' Subsets to variations that have ALL combinations of Q1/TxB AnnMn/Sharpe in the <y>
-#' @param x = output of <fop>
-#' @param y = number
-#' @keywords fop.subset
-#' @export
-#' @family fop
-
-fop.subset <- function (x, y = 100) 
-{
-    cols <- c("floW", "lag", "retW", "nBin", "dtGrp")
-    vec <- rep("", dim(x)[1])
-    for (i in cols) vec <- paste(vec, x[, i], sep = "-")
-    z <- rep(T, dim(x)[1])
-    if (y > 0) {
-        w <- x$bin == "Q1"
-        z <- z & is.element(vec, vec[w][order(-x$AnnMn[w])][1:y]) & 
-            is.element(vec, vec[w][order(-x$Sharpe[w])][1:y])
-        w <- x$bin == "TxB"
-        z <- z & is.element(vec, vec[w][order(-x$AnnMn[w])][1:y]) & 
-            is.element(vec, vec[w][order(-x$Sharpe[w])][1:y])
-    }
-    z <- z & is.element(x$bin, c("Q1", "TxB"))
-    z <- x[z, ]
-    AnnMn <- fop.stats(mat.subset(z, c(cols, "bin", "AnnMn")), 
-        "bin", "AnnMn")
-    w <- !is.element(dimnames(AnnMn)[[2]], cols)
-    dimnames(AnnMn)[[2]][w] <- paste("AnnMn", dimnames(AnnMn)[[2]][w], 
-        sep = ".")
-    vec <- rep("", dim(AnnMn)[1])
-    for (i in cols) vec <- paste(vec, AnnMn[, i], sep = "-")
-    dimnames(AnnMn)[[1]] <- vec
-    Sharpe <- fop.stats(mat.subset(z, c(cols, "bin", "Sharpe")), 
-        "bin", "Sharpe")
-    w <- !is.element(dimnames(Sharpe)[[2]], cols)
-    dimnames(Sharpe)[[2]][w] <- paste("Sharpe", dimnames(Sharpe)[[2]][w], 
-        sep = ".")
-    vec <- rep("", dim(Sharpe)[1])
-    for (i in cols) vec <- paste(vec, Sharpe[, i], sep = "-")
-    dimnames(Sharpe)[[1]] <- vec
-    if (any(dim(AnnMn) != dim(Sharpe))) 
-        stop("Problem 1")
-    if (any(dimnames(AnnMn)[[1]] != dimnames(Sharpe)[[1]])) 
-        stop("Problem 2")
-    w <- !is.element(dimnames(Sharpe)[[2]], cols)
-    z <- data.frame(AnnMn, Sharpe[, w])
-    z <- z[order(-z[, "Sharpe.Q1"]), ]
-    dimnames(z)[[1]] <- 1:dim(z)[1]
     z
 }
 
@@ -3635,16 +3547,18 @@ fop.wrapper <- function (x, y, retW, prd.size = 5, sum.flows = F, lag = 0, delay
 {
     z <- fop(x, y, delay, lag, floW, retW, 0, yyyymmdd.to.unity, 
         F, reverse.vbl, prd.size, F, fop.IC, sum.flows)
-    z <- list(IC = z[, as.character(lag), , "0", "Mean", "IC", 
-        "1"])
+    z <- z[, as.character(lag), , "0", "Mean", "IC", "1"]
+    dimnames(z)[[2]] <- paste("IC", dimnames(z)[[2]])
     x <- fop(x, y, delay, lag, floW, retW, nBin, yyyymmdd.to.unity, 
         F, reverse.vbl, prd.size, F, fop.Bin, sum.flows)
-    for (i in c("Q1", "TxB")) for (j in c("Sharpe", "AnnMn")) z[[paste(i, 
-        j, sep = ".")]] <- x[, as.character(lag), , as.character(nBin), 
-        j, i, "1"]
-    z <- mat.ex.matrix(z)
-    y <- c("Q1.Sharpe", "TxB.Sharpe", "IC", "Q1.AnnMn", "TxB.AnnMn")
-    z <- mat.subset(z, txt.expand(y, retW, "."))
+    x <- x[, as.character(lag), , as.character(nBin), c("Sharpe", 
+        "AnnMn"), c("Q1", "TxB"), "1"]
+    x <- mat.ex.array(x, c("floW", "retW", "stat", "bin"), "floW")
+    dimnames(x)[[1]] <- do.call(paste, x[, c("bin", "stat", "retW")])
+    x <- x[, !is.element(dimnames(x)[[2]], c("bin", "stat", "retW"))]
+    z <- data.frame(t(x), z, stringsAsFactors = F)
+    z <- z[, txt.expand(c("Q1.Sharpe", "TxB.Sharpe", "IC", "Q1.AnnMn", 
+        "TxB.AnnMn"), retW, ".")]
     z
 }
 
@@ -4366,25 +4280,6 @@ greek.ex.english <- function ()
         "length", "height", "depth"))
 }
 
-#' grp.unique
-#' 
-#' list of unique groups. disentangles memberships separated by "-"
-#' @param x = a string vector
-#' @keywords grp.unique
-#' @export
-
-grp.unique <- function (x) 
-{
-    z <- x[!duplicated(x)]
-    w <- txt.has(z, "-", T)
-    while (any(w)) {
-        w <- w & !duplicated(w)
-        z <- union(z[!w], txt.parse(z[w], "-"))
-        w <- txt.has(z, "-", T)
-    }
-    z
-}
-
 #' GSec.to.GSgrp
 #' 
 #' makes Sector groups
@@ -4443,100 +4338,6 @@ int.to.prime <- function (x)
         z <- x
     else z <- z <- c(int.to.prime(n), int.to.prime(x/n))
     z <- z[order(z)]
-    z
-}
-
-#' isin.check.digit
-#' 
-#' The check digit, derived using the 'Modulus 10 Double Add Double' technique.
-#' @param x = a string of 9-digit nsin's (national security id's)
-#' @param y = the code of the country of origin
-#' @keywords isin.check.digit
-#' @export
-#' @family isin
-
-isin.check.digit <- function (x, y) 
-{
-    z <- paste(y, x, sep = "")
-    for (i in 10:1) {
-        x <- substring(z, i, i)
-        w <- !is.element(x, 0:9)
-        if (i == 11) {
-            z[w] <- paste(substring(z[w], 1, i - 1), char.to.int(x[w]) - 
-                55, sep = "")
-        }
-        else if (i == 1) {
-            z[w] <- paste(char.to.int(x[w]) - 55, substring(z[w], 
-                i + 1, nchar(z[w])), sep = "")
-        }
-        else z[w] <- paste(substring(z[w], 1, i - 1), char.to.int(x[w]) - 
-            55, substring(z[w], i + 1, nchar(z[w])), sep = "")
-    }
-    x <- matrix(NA, length(x), max(nchar(z)), F, list(x, 1:max(nchar(z))))
-    for (i in dim(x)[2]:1) {
-        w <- nchar(z) + i - dim(x)[2]
-        x[w > 0, i] <- as.numeric(substring(z[w > 0], w[w > 0], 
-            w[w > 0]))
-    }
-    w <- dim(x)[2]%%2
-    if (w == 0) 
-        w <- 2
-    w <- seq(w, dim(x)[2], 2)
-    w <- is.element(1:dim(x)[2], w)
-    x[, w] <- 2 * x[, w]
-    z <- rep("", dim(x)[1])
-    for (i in 1:dim(x)[2]) {
-        w <- !is.na(x[, i])
-        if (any(w)) 
-            z[w] <- paste(z[w], x[w, i], sep = "")
-    }
-    x <- rep(0, length(z))
-    n <- max(nchar(z))
-    for (i in 1:n) {
-        w <- i <= nchar(z)
-        if (any(w)) 
-            x[w] <- x[w] + as.numeric(substring(z[w], i, i))
-    }
-    z <- x%%10
-    z <- 10 - z
-    z <- z%%10
-    z
-}
-
-#' isin.ex.cusip
-#' 
-#' a string of isin's
-#' @param x = a string of cusips
-#' @param y = the country of origin (either "CA" or "US")
-#' @keywords isin.ex.cusip
-#' @export
-#' @family isin
-
-isin.ex.cusip <- function (x, y) 
-{
-    if (!is.element(y, c("US", "CA"))) 
-        stop("Can't do this country!")
-    z <- isin.check.digit(x, y)
-    z <- paste(y, x, z, sep = "")
-    z
-}
-
-#' isin.ex.sedol
-#' 
-#' a string of isin's
-#' @param x = a string of 7-digit sedols
-#' @param y = the country of origin
-#' @keywords isin.ex.sedol
-#' @export
-#' @family isin
-
-isin.ex.sedol <- function (x, y) 
-{
-    if (y != "GB") 
-        stop("Can't do this country yet!")
-    x <- paste("00", x, sep = "")
-    z <- isin.check.digit(x, y)
-    z <- paste(y, x, z, sep = "")
     z
 }
 
@@ -4618,38 +4419,6 @@ latin.to.arabic.underlying <- function ()
         1)
     names(z) <- c("m", "cm", "d", "cd", "c", "xc", "l", "xl", 
         "x", "ix", "v", "iv", "i")
-    z
-}
-
-#' lead.lag.effects
-#' 
-#' Correlates predictor with return columns with various leads/lags. Zero is contemporaneous. +ve numbers associated with future returns
-#' @param fcn = a function that maps yyyymmdd dates to groups of interest (e.g. day.to.weekday)
-#' @param x = a matrix/data frame of predictors
-#' @param y = a vector of lags corresponding to each column
-#' @param n = a vector of integers
-#' @keywords lead.lag.effects
-#' @export
-
-lead.lag.effects <- function (fcn, x, y, n = seq(-10, 10)) 
-{
-    z <- fcn(dimnames(x)[[1]])
-    z <- vec.unique(z)
-    z <- array(NA, c(length(n), length(z), dim(x)[2]), list(n, 
-        z, dimnames(x)[[2]]))
-    for (i in n) {
-        cat(i, "")
-        fwdRet <- bbk.fwdRet(x, y, 1, i - 1, 0)
-        for (j in dimnames(x)[[2]]) {
-            cat(j, "")
-            for (k in dimnames(z)[[2]]) {
-                w <- fcn(dimnames(x)[[1]]) == k
-                z[as.character(i), k, j] <- 100 * correl(x[w, 
-                  j], fwdRet[w, j])
-            }
-        }
-        cat("\n")
-    }
     z
 }
 
@@ -4808,7 +4577,7 @@ load.mo.vbl.1obj <- function (beg, end, mk.fcn, optional.args, vbl.name, yyyy, e
 
 map.classif <- function (x, y, n) 
 {
-    z <- c(n, paste(n, 1:3, sep = ""))
+    z <- c(n, paste(n, 1:5, sep = ""))
     z <- matrix(NA, dim(y)[1], length(z), F, list(dimnames(y)[[1]], 
         z))
     for (i in dimnames(z)[[2]]) if (any(dimnames(y)[[2]] == i)) 
@@ -4941,6 +4710,27 @@ mat.daily.to.monthly <- function (x, y = F)
     z
 }
 
+#' mat.ex.array
+#' 
+#' a data frame with dimension <n> forming the column space
+#' @param x = an array
+#' @param y = a string vector representing dimension labels
+#' @param n = dimension of interest
+#' @keywords mat.ex.array
+#' @export
+#' @family mat
+
+mat.ex.array <- function (x, y, n) 
+{
+    x <- array.unlist(x, c(y, "X"))
+    y <- simplify2array(split(x[, "X"], x[, n]))
+    x <- x[is.element(x[, n], x[1, n]), !is.element(dimnames(x)[[2]], 
+        c(n, "X"))]
+    z <- data.frame(x, y, row.names = 1:dim(x)[1], stringsAsFactors = F)
+    dimnames(z)[[2]] <- c(dimnames(x)[[2]], dimnames(y)[[2]])
+    z
+}
+
 #' mat.ex.array3d
 #' 
 #' unlists the contents of an array to a data frame
@@ -4953,20 +4743,9 @@ mat.daily.to.monthly <- function (x, y = F)
 
 mat.ex.array3d <- function (x, y = "C", n = "A") 
 {
-    cols <- char.seq("A", "C")
-    x <- array.unlist(x, c(cols, "X"))
-    x <- mat.subset(x, c(n, setdiff(cols, c(n, y)), y, "X"))
-    names(x) <- c(cols, "X")
-    panl <- x$C[!duplicated(x$C)]
-    cols <- x$B[!duplicated(x$B)]
-    rows <- x$A[!duplicated(x$A)]
-    m <- length(panl) * length(cols)
-    j <- length(rows)
-    x <- vec.named(x$X, paste(x$C, x$B, x$A, sep = "."))
-    z <- txt.expand(panl, cols, ".")
-    z <- matrix(as.numeric(map.rname(x, paste(rep(z, j)[order(rep(1:m, 
-        j))], rep(rows, m), sep = "."))), j, m, F, list(rows, 
-        z))
+    z <- mat.ex.array(x, char.seq("A", "C"), n)
+    dimnames(z)[[1]] <- do.call(paste, z[, 1:2])
+    z <- t(z[, -1][, -1])
     z
 }
 
@@ -7575,9 +7354,8 @@ sf <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trails,
     geom.comp = F, retHz = 1, classif) 
 {
     n.trail <- length(trails)
-    if (geom.comp) 
-        summ.fcn <- bbk.bin.rets.geom.summ
-    else summ.fcn <- bbk.bin.rets.summ
+    summ.fcn <- ifelse(geom.comp, "bbk.bin.rets.geom.summ", "bbk.bin.rets.summ")
+    summ.fcn <- get(summ.fcn)
     for (j in 1:n.trail) {
         cat(trails[j], "")
         if (j%%10 == 0) 
@@ -7665,19 +7443,14 @@ sf.daily <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trail,
     x <- mat.ex.matrix(x)
     x$TxB <- x[, 1] - x[, dim(x)[2]]
     x <- mat.last.to.first(x)
-    if (retHz > 1) {
-        y <- NULL
-        for (offset in 1:retHz - 1) {
-            w <- 1:dim(x)[1]%%retHz == offset
-            z <- bbk.bin.rets.summ(x[w, ], 250/retHz)
-            if (is.null(y)) 
-                y <- array(NA, c(dim(z), retHz), list(dimnames(z)[[1]], 
-                  dimnames(z)[[2]], 1:retHz - 1))
-            y[, , as.character(offset)] <- unlist(z)
-        }
-        z <- apply(y, 1:2, mean)
+    fcn <- function(x) {
+        bbk.bin.rets.summ(x, 250/retHz)
     }
-    else z <- bbk.bin.rets.summ(x, 250/retHz)
+    if (retHz > 1) {
+        offset <- 1:dim(x)[1]%%retHz
+        z <- summ.multi(fcn, x, offset)
+    }
+    else z <- fcn(x)
     z
 }
 
@@ -7799,19 +7572,14 @@ sf.subset <- function (x, y, n, w)
 
 sf.summ <- function (fcn, x, y) 
 {
-    if (y > 1) {
-        z <- NULL
-        for (offset in 1:y - 1) {
-            w <- 1:dim(x)[1]%%y == offset
-            df <- fcn(x[w, ], 12/y)
-            if (is.null(z)) 
-                z <- array(NA, c(dim(df), y), list(dimnames(df)[[1]], 
-                  dimnames(df)[[2]], 1:y - 1))
-            z[, , as.character(offset)] <- unlist(df)
-        }
-        z <- apply(z, 1:2, mean)
+    fcn.loc <- function(x) {
+        fcn(x, 12/y)
     }
-    else z <- fcn(x, 12)
+    if (y > 1) {
+        offset <- 1:dim(x)[1]%%y
+        z <- summ.multi(fcn.loc, x, offset)
+    }
+    else z <- fcn.loc(x)
     z
 }
 
@@ -8055,7 +7823,7 @@ sql.1dActWtTrend.topline <- function (x, y, n)
     else {
         z <- "SecurityId"
     }
-    for (i in x) z <- c(z, sql.1dActWtTrend.select(i))
+    z <- c(z, unlist(lapply(vec.to.list(x), sql.1dActWtTrend.select)))
     x <- sql.1dActWtTrend.topline.from()
     if (!n) 
         x <- c(x, "inner join", "SecurityHistory id on id.HSecurityId = hld.HSecurityId")
@@ -8194,7 +7962,7 @@ sql.1dFloMo.Ctry <- function (x)
     else {
         x <- sql.1dFloMo.Ctry.Allocations(w, x)
     }
-    z <- paste("[", grp.unique(w), "]", sep = "")
+    z <- paste("[", unique(w), "]", sep = "")
     z <- paste(z, sql.Mo("Flow", "AssetsStart", z, T))
     z <- c("DayEnding = convert(char(8), DayEnding, 112)", z)
     w <- c(sql.label(sql.FundHistory("", c("CB", "E"), F, "FundId"), 
@@ -8219,20 +7987,17 @@ sql.1dFloMo.Ctry <- function (x)
 
 sql.1dFloMo.Ctry.Allocations <- function (x, y, n) 
 {
-    u.grp <- grp.unique(x)
+    w <- !duplicated(x)
+    x <- c(vec.named(x[w], x[w]), x)
+    x <- split(names(x), x)
     if (missing(n)) 
-        n <- vec.named(, u.grp)
-    else n <- map.rname(n, u.grp)
-    z <- c("FundId", "WeightDate")
-    for (i in u.grp) {
-        w <- x == i
-        h <- txt.has(x, "-", T)
-        if (any(h)) 
-            for (j in 1:sum(h)) w[h][j] <- any(txt.parse(x[h][j], 
-                "-") == i)
-        z <- c(z, paste("[", i, "] = ", sql.1dFloMo.Ctry.Allocations.term(names(x)[w], 
-            n[i]), sep = ""))
+        n <- vec.named(, names(x))
+    else n <- map.rname(n, names(x))
+    fcn <- function(x) {
+        paste("[", x[1], "] = ", sql.1dFloMo.Ctry.Allocations.term(x[-1], 
+            n[x[1]]), sep = "")
     }
+    z <- c("FundId", "WeightDate", unlist(lapply(x, fcn)))
     z <- sql.tbl(z, sql.AllocTbl(y))
     z
 }
@@ -8250,18 +8015,14 @@ sql.1dFloMo.Ctry.Allocations.GF.avg <- function (x, y)
 {
     y <- c(paste(sql.AllocTbl(y), "x"), "inner join", "FundHistory y", 
         "\ton x.HFundId = y.HFundId")
-    u.grp <- x[!duplicated(x)]
-    z <- c("WeightDate", "GeographicFocus")
-    for (i in u.grp) {
-        w <- x == i
-        if (sum(w) > 1) {
-            z <- c(z, paste("[", x[w][1], "] = sum((", paste(paste("isnull(", 
-                names(x)[w], ", 0)", sep = ""), collapse = " + "), 
-                ") * FundSize)/sum(FundSize)", sep = ""))
-        }
-        else z <- c(z, paste("[", x[w], "] = sum(", names(x)[w], 
-            " * FundSize)/sum(FundSize)", sep = ""))
+    x <- split(names(x), x)
+    fcn <- function(x) {
+        z <- paste(paste("isnull(", x, ", 0)", sep = ""), collapse = " + ")
+        paste("sum((", z, ") * FundSize)/sum(FundSize)", sep = "")
     }
+    z <- unlist(lapply(x, fcn))
+    z <- c("WeightDate", "GeographicFocus", paste("[", names(x), 
+        "] = ", z, sep = ""))
     z <- sql.tbl(z, y, "FundType = 'E'", "WeightDate, GeographicFocus")
     z
 }
@@ -8353,9 +8114,8 @@ sql.1dFloMo.Ctry.List <- function (x)
             "199710", "300012")))
         w.em <- is.element(z, Ctry.msci.members.rng("EM", "199710", 
             "300012"))
-        z <- ifelse(w.dm & w.em, "DM-EM", ifelse(w.dm, "DM", 
-            "EM"))
-        z <- vec.named(z, y$AllocTable)
+        z <- c(vec.named(rep("DM", sum(w.dm)), y$AllocTable[w.dm]), 
+            vec.named(rep("EM", sum(w.em)), y$AllocTable[w.em]))
     }
     else if (x == "FX") {
         z <- vec.named(y$Curr, y$AllocTable)
@@ -8422,15 +8182,14 @@ sql.1dFloMo.CtryFlow <- function (x)
 
 sql.1dFloMo.FI <- function () 
 {
-    z <- "DayEnding = convert(char(8), DayEnding, 112)"
-    for (i in c("GLOBEM", "WESEUR", "HYIELD", "FLOATS", "USTRIN", 
-        "USTRLT", "USTRST", "CASH", "USMUNI", "GLOFIX")) {
-        x <- paste("sum(case when grp = '", i, "' then AssetsStart else NULL end)", 
-            sep = "")
-        x <- sql.nonneg(x)
-        z <- c(z, paste(i, " = 100 * sum(case when grp = '", 
-            i, "' then Flow else NULL end)/", x, sep = ""))
-    }
+    x <- c("GLOBEM", "WESEUR", "HYIELD", "FLOATS", "USTRIN", 
+        "USTRLT", "USTRST", "CASH", "USMUNI", "GLOFIX")
+    z <- paste("sum(case when grp = '", x, "' then AssetsStart else NULL end)", 
+        sep = "")
+    z <- sql.nonneg(z)
+    z <- paste(x, " = 100 * sum(case when grp = '", x, "' then Flow else NULL end)/", 
+        z, sep = "")
+    z <- c("DayEnding = convert(char(8), DayEnding, 112)", z)
     z <- paste(sql.unbracket(sql.tbl(z, sql.1dFloMo.FI.underlying(), 
         , "DayEnding")), collapse = "\n")
     z
@@ -8514,14 +8273,12 @@ sql.1dFloMo.Rgn <- function ()
     rgn <- c(4, 24, 43, 46, 55, 76, 77)
     names(rgn) <- c("AsiaXJP", "EurXGB", "Japan", "LatAm", "PacXJP", 
         "UK", "USA")
-    z <- "DayEnding = convert(char(8), DayEnding, 112)"
-    for (i in names(rgn)) {
-        x <- paste("sum(case when grp = ", rgn[i], " then AssetsStart else NULL end)", 
-            sep = "")
-        x <- sql.nonneg(x)
-        z <- c(z, paste(i, " = 100 * sum(case when grp = ", rgn[i], 
-            " then Flow else NULL end)/", x, sep = ""))
-    }
+    x <- paste("sum(case when grp = ", rgn, " then AssetsStart else NULL end)", 
+        sep = "")
+    x <- sql.nonneg(x)
+    z <- paste(names(rgn), " = 100 * sum(case when grp = ", rgn, 
+        " then Flow else NULL end)/", x, sep = "")
+    z <- c("DayEnding = convert(char(8), DayEnding, 112)", z)
     y <- c("HFundId, grp = case when GeographicFocus in (6, 80, 35, 66) then 55 else GeographicFocus end")
     w <- sql.and(list(A = "FundType = 'E'", B = "Idx = 'N'", 
         C = sql.in("GeographicFocus", "(4, 24, 43, 46, 55, 76, 77, 6, 80, 35, 66)")))
@@ -8674,7 +8431,7 @@ sql.1dFloTrend <- function (x, y, n, w, h)
     else {
         z <- "n1.SecurityId"
     }
-    for (i in y$factor) z <- c(z, sql.1dFloTrend.select(i))
+    z <- c(z, unlist(lapply(vec.to.list(y$factor), sql.1dFloTrend.select)))
     x <- sql.1dFloTrend.underlying(y$filter, w, x, n)
     h <- ifelse(h, "n1.HSecurityId", "n1.SecurityId")
     z <- c(paste(x$PRE, collapse = "\n"), paste(sql.unbracket(sql.tbl(z, 
@@ -8904,18 +8661,10 @@ sql.1dFundRet <- function (x)
 sql.1dION <- function (x, y, n, w) 
 {
     m <- length(y)
-    z <- "SecurityId"
-    for (i in y[-m]) {
-        if (i == "ION$") {
-            z <- c(z, paste("[", i, "] ", sql.ION("Flow", "Flow * HoldingValue/AssetsEnd"), 
-                sep = ""))
-        }
-        else if (i == "ION%") {
-            z <- c(z, paste("[", i, "] ", sql.ION("Flow", "HoldingValue/AssetsEnd"), 
-                sep = ""))
-        }
-        else stop("Bad Argument")
-    }
+    h <- vec.named(c("Flow * HoldingValue/AssetsEnd", "HoldingValue/AssetsEnd"), 
+        c("ION$", "ION%"))
+    z <- c("SecurityId", paste("[", y[-m], "] ", sql.ION("Flow", 
+        h[y[-m]]), sep = ""))
     y <- c(sql.label(sql.FundHistory("", y[m], T, "FundId"), 
         "t0"), "inner join", sql.MonthlyAlloc("@allocDt"))
     y <- c(sql.label(y, "t1"), "\ton t1.FundId = t0.FundId", 
@@ -8942,15 +8691,13 @@ sql.1mActPas.Ctry <- function ()
 {
     rgn <- c(as.character(sql.1dFloMo.Ctry.List("Ctry")), "LK", 
         "VE")
-    z <- "WeightDate = convert(char(6), WeightDate, 112)"
-    for (i in rgn) {
-        x <- paste("avg(case when Idx = 'Y' then ", Ctry.info(i, 
-            "AllocTable"), " else NULL end)", sep = "")
-        x <- sql.nonneg(x)
-        x <- paste("[", i, "] = avg(case when Idx = 'Y' then NULL else ", 
-            Ctry.info(i, "AllocTable"), " end)/", x, sep = "")
-        z <- c(z, paste(x, "- 1"))
-    }
+    x <- paste("avg(case when Idx = 'Y' then ", Ctry.info(rgn, 
+        "AllocTable"), " else NULL end)", sep = "")
+    x <- sql.nonneg(x)
+    x <- paste("[", rgn, "] = avg(case when Idx = 'Y' then NULL else ", 
+        Ctry.info(rgn, "AllocTable"), " end)/", x, sep = "")
+    z <- c("WeightDate = convert(char(6), WeightDate, 112)", 
+        paste(x, "- 1"))
     x <- c(sql.label(sql.FundHistory("", c("CB", "E"), F, c("FundId", 
         "Idx")), "t1"), "inner join", "CountryAllocations t2 on t2.HFundId = t1.HFundId")
     z <- paste(sql.unbracket(sql.tbl(z, x, , "WeightDate")), 
@@ -9186,14 +8933,10 @@ sql.1mAllocSkew <- function (x, y, n, w)
     else {
         x <- "SecurityId"
     }
-    for (i in y$factor) {
-        if (i == "AllocSkew") {
-            h <- "AllocSkew = sum(PortVal * sign(FundWtdExcl0 - n1.HoldingValue/PortVal))"
-            x <- c(x, paste(h, "/", sql.nonneg("sum(PortVal)"), 
-                sep = ""))
-        }
-        else stop("Bad Argument")
-    }
+    if (length(y$factor) != 1 | y$factor[1] != "AllocSkew") 
+        stop("Bad Argument")
+    h <- "AllocSkew = sum(PortVal * sign(FundWtdExcl0 - n1.HoldingValue/PortVal))"
+    x <- c(x, paste(h, "/", sql.nonneg("sum(PortVal)"), sep = ""))
     h <- sql.1mAllocSkew.topline.from(y$filter)
     if (!w) 
         h <- c(h, "inner join", "SecurityHistory id on id.HSecurityId = n1.HSecurityId")
@@ -10538,6 +10281,24 @@ strategy.path <- function (x, y)
     paste(strategy.dir(y), strategy.file(x, y), sep = "\\")
 }
 
+#' summ.multi
+#' 
+#' summarizes the multi-period back test
+#' @param fcn = a function that summarizes the data
+#' @param x = a df of bin returns indexed by time
+#' @param y = offset associated with the rows of <x>
+#' @keywords summ.multi
+#' @export
+
+summ.multi <- function (fcn, x, y) 
+{
+    z <- split(x, y)
+    z <- lapply(z, fcn)
+    z <- simplify2array(z)
+    z <- apply(z, 1:2, mean)
+    z
+}
+
 #' today
 #' 
 #' returns system date as a yyyymmdd
@@ -10928,228 +10689,6 @@ txt.name.format <- function (x)
         x <- txt.right(x, nchar(x) - 1)
         z <- paste(toupper(z), x, sep = "")
     }
-    z
-}
-
-#' txt.palindrome
-#' 
-#' short palindromes that reflect just before the first letter of <x>, or just after the last letter of <x>, or somewhere in-between.
-#' @param x = a SINGLE string
-#' @param y = potentially-usable capitalized words
-#' @keywords txt.palindrome
-#' @export
-#' @family txt
-
-txt.palindrome <- function (x, y) 
-{
-    tempus <- proc.time()[["elapsed"]]
-    x <- toupper(x)
-    x <- txt.to.char(x)
-    x <- x[is.element(x, char.seq("A", "Z"))]
-    x <- paste(x, collapse = "")
-    if (missing(y)) 
-        y <- txt.words()
-    else y <- txt.words(y)
-    y <- y[order(y)]
-    y <- y[order(nchar(y), decreasing = T)]
-    w <- txt.replace(x, " ", "")
-    n <- seq(0.5, nchar(w) + 0.5, 0.5)
-    x <- list(x = rep(x, length(n)), n = n, w = rep(w, length(n)))
-    halt <- F
-    while (!halt) {
-        ord <- order(nchar(x$x))
-        x <- lapply(x, function(x, y) x[y], ord)
-        z <- txt.palindrome.underlying(x$x[1], y, x$n[1], x$w[1])
-        if (length(z$z) > 0) 
-            for (j in z$z) cat(paste(seconds.sho(tempus), j), 
-                "\n")
-        if (!is.null(z$rslt)) {
-            for (j in names(x)) x[[j]] <- c(x[[j]][-1], z$rslt[[j]])
-        }
-        else if (length(x$x) == 1) {
-            halt <- T
-        }
-        else x <- lapply(x, function(x) x[-1])
-    }
-    z <- z$z
-    z
-}
-
-#' txt.palindrome.entire
-#' 
-#' words that entirely fit in the right/left tail
-#' @param x = a SINGLE string
-#' @param y = potentially-usable capitalized words
-#' @param n = T/F depending on whether you want the right/left tail
-#' @keywords txt.palindrome.entire
-#' @export
-#' @family txt
-
-txt.palindrome.entire <- function (x, y, n) 
-{
-    m <- nchar(x)
-    x <- paste(txt.to.char(x)[m:1], collapse = "")
-    if (n) 
-        z <- intersect(txt.left(x, m:1), y)
-    else z <- intersect(txt.right(x, m:1), y)
-    z
-}
-
-#' txt.palindrome.partial
-#' 
-#' single words that fit all of <x> in the right/left tail
-#' @param x = a SINGLE string without spaces
-#' @param y = potentially-usable capitalized words
-#' @param n = T/F depending on whether you want the right/left tail
-#' @keywords txt.palindrome.partial
-#' @export
-#' @family txt
-
-txt.palindrome.partial <- function (x, y, n) 
-{
-    m <- nchar(x)
-    x <- paste(txt.to.char(x)[m:1], collapse = "")
-    if (n) 
-        z <- y[txt.left(y, m) == x]
-    else z <- y[txt.right(y, m) == x]
-    z
-}
-
-#' txt.palindrome.tail
-#' 
-#' words that fit all of <x> in the right/left tail
-#' @param x = a SINGLE string without spaces
-#' @param y = potentially-usable capitalized words
-#' @param n = T/F depending on whether you want the right/left tail
-#' @keywords txt.palindrome.tail
-#' @export
-#' @family txt
-
-txt.palindrome.tail <- function (x, y, n) 
-{
-    m <- nchar(x)
-    h <- txt.palindrome.entire(x, y, n)
-    n.h <- nchar(h)
-    w.h <- n.h == m
-    if (any(w.h)) 
-        z <- h[w.h]
-    else z <- NULL
-    len.h <- sum(!w.h)
-    if (len.h > 0) {
-        h <- h[!w.h]
-        n.h <- nchar(h)
-        if (n) {
-            for (j in 1:len.h) {
-                w <- txt.palindrome.tail(substring(x, 1, m - 
-                  n.h[j]), y, n)
-                if (length(w) > 0) 
-                  z <- c(z, paste(h[j], w))
-            }
-        }
-        else {
-            for (j in 1:len.h) {
-                w <- txt.palindrome.tail(substring(x, n.h[j] + 
-                  1, m), y, n)
-                if (length(w) > 0) 
-                  z <- c(z, paste(w, h[j]))
-            }
-        }
-    }
-    z <- union(z, txt.palindrome.partial(x, y, n))
-    z
-}
-
-#' txt.palindrome.underlying
-#' 
-#' list object with the following elements: z) short palindromes that reflect on position <n> rslt) potential palnidromes that need more work
-#' @param x = a SINGLE string
-#' @param y = potentially-usable capitalized words
-#' @param n = position of the reflection
-#' @param w = <x> with spaces removed (for speed)
-#' @keywords txt.palindrome.underlying
-#' @export
-#' @family txt
-
-txt.palindrome.underlying <- function (x, y, n, w) 
-{
-    m <- nchar(w)
-    if (n == floor(n)) {
-        beg.n <- n - 1
-        end.n <- n + 1
-    }
-    else {
-        beg.n <- floor(n)
-        end.n <- ceiling(n)
-    }
-    h <- min(beg.n, m - end.n + 1)
-    proc.right <- proc.left <- F
-    if (nchar(w) > 100) {
-        rslt <- z <- NULL
-    }
-    else if (h > 0) {
-        vec <- txt.to.char(w)
-        if (all(vec[seq(beg.n, beg.n - h + 1)] == vec[seq(end.n, 
-            end.n + h - 1)])) {
-            proc.right <- end.n + h - 1 < m
-            proc.left <- beg.n > h & !proc.right
-            if (!proc.right & !proc.left) 
-                z <- x
-        }
-        else rslt <- z <- NULL
-    }
-    else {
-        proc.right <- beg.n == 0
-        proc.left <- !proc.right
-    }
-    if (proc.right) {
-        z <- txt.palindrome.tail(substring(w, end.n + h, m), 
-            y, F)
-        len.z <- length(z)
-        if (len.z == 0) {
-            rslt <- NULL
-        }
-        else {
-            m <- m - end.n - h + 1
-            h <- txt.replace(z, " ", "")
-            n.h <- nchar(h)
-            w.h <- n.h == m
-            n <- n.h + n
-            h <- paste(h, w, sep = "")
-            z <- paste(z, x)
-            if (any(w.h)) {
-                z <- z[w.h]
-                rslt <- NULL
-            }
-            else {
-                rslt <- list(x = z, n = n, w = h)
-                z <- NULL
-            }
-        }
-    }
-    else if (proc.left) {
-        z <- txt.palindrome.tail(substring(w, 1, beg.n - h), 
-            y, T)
-        len.z <- length(z)
-        if (len.z == 0) {
-            rslt <- NULL
-        }
-        else {
-            m <- beg.n - h
-            h <- txt.replace(z, " ", "")
-            w.h <- nchar(h) == m
-            h <- paste(w, h, sep = "")
-            z <- paste(x, z)
-            if (any(w.h)) {
-                z <- z[w.h]
-                rslt <- NULL
-            }
-            else {
-                rslt <- list(x = z, n = rep(n, len.z), w = h)
-                z <- NULL
-            }
-        }
-    }
-    z <- list(z = z, rslt = rslt)
     z
 }
 
@@ -11659,18 +11198,47 @@ weekday.to.name <- function (x)
     z
 }
 
+#' yyyy.ex.period
+#' 
+#' the year in which the return window ends
+#' @param x = vector of trade dates
+#' @param y = return window in days or months depending on whether <x> is YYYYMMDD or YYYYMM
+#' @keywords yyyy.ex.period
+#' @export
+#' @family yyyy
+
+yyyy.ex.period <- function (x, y) 
+{
+    txt.left(yyyymm.lag(x, -y), 4)
+}
+
 #' yyyy.ex.yy
 #' 
 #' returns a vector of YYYY
 #' @param x = a vector of non-negative integers
 #' @keywords yyyy.ex.yy
 #' @export
+#' @family yyyy
 
 yyyy.ex.yy <- function (x) 
 {
     x <- as.numeric(x)
     z <- ifelse(x < 100, ifelse(x < 50, 2000, 1900), 0) + x
     z
+}
+
+#' yyyy.periods.count
+#' 
+#' the number of periods that typically fall in a year
+#' @param x = a string vector
+#' @keywords yyyy.periods.count
+#' @export
+#' @family yyyy
+
+yyyy.periods.count <- function (x) 
+{
+    ifelse(all(nchar(x) == 6), ifelse(all(substring(x, 5, 5) == 
+        "Q"), 4, 12), 260)
 }
 
 #' yyyymm.diff

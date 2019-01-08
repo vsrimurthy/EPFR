@@ -21,8 +21,7 @@ bbk.fwdRet(x, y, n, w, h)
 returns a matrix/data frame of the same dimensions as <x>
 }
 \seealso{
-Other bbk: \code{\link{bbk.bin.rets.geom.summ}},
-  \code{\link{bbk.bin.rets.prd.summ}},
+Other bbk: \code{\link{bbk.bin.rets.prd.summ}},
   \code{\link{bbk.bin.rets.summ}},
   \code{\link{bbk.bin.xRet}}, \code{\link{bbk.data}},
   \code{\link{bbk.doW.bulk}}, \code{\link{bbk.drawdown}},

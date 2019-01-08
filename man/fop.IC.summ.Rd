@@ -4,20 +4,23 @@
 \alias{fop.IC.summ}
 \title{fop.IC.summ}
 \usage{
-fop.IC.summ(x, y)
+fop.IC.summ(x, y, n)
 }
 \arguments{
 \item{x}{= a vector of IC's}
 
 \item{y}{= an argument which is not used}
+
+\item{n}{= an argument which is not used}
 }
 \description{
 Summarizes IC's
 }
 \seealso{
-Other fop: \code{\link{fop.Bin}}, \code{\link{fop.IC}},
-  \code{\link{fop.grp.map}}, \code{\link{fop.rank.xRet}},
-  \code{\link{fop.stats}}, \code{\link{fop.subset}},
-  \code{\link{fop.wrapper}}, \code{\link{fop}}
+Other fop: \code{\link{fop.Bin.underlying}},
+  \code{\link{fop.Bin}}, \code{\link{fop.IC}},
+  \code{\link{fop.correl}}, \code{\link{fop.grp.map}},
+  \code{\link{fop.rank.xRet}}, \code{\link{fop.wrapper}},
+  \code{\link{fop}}
 }
 \keyword{fop.IC.summ}

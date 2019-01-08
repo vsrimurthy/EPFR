@@ -4,7 +4,7 @@
 \alias{bbk.summ}
 \title{bbk.summ}
 \usage{
-bbk.summ(x, y, n)
+bbk.summ(x, y, n, w)
 }
 \arguments{
 \item{x}{= bin returns}
@@ -12,13 +12,14 @@ bbk.summ(x, y, n)
 \item{y}{= bin memberships}
 
 \item{n}{= return window in days or months depending on whether <x> is YYYYMMDD or YYYYMM}
+
+\item{w}{= quantum size (<n> is made up of non-overlapping windows of size <w>)}
 }
 \description{
-summarizes by year and overall. Assumes periods are non-overlapping.
+summarizes by year and overall
 }
 \seealso{
-Other bbk: \code{\link{bbk.bin.rets.geom.summ}},
-  \code{\link{bbk.bin.rets.prd.summ}},
+Other bbk: \code{\link{bbk.bin.rets.prd.summ}},
   \code{\link{bbk.bin.rets.summ}},
   \code{\link{bbk.bin.xRet}}, \code{\link{bbk.data}},
   \code{\link{bbk.doW.bulk}}, \code{\link{bbk.drawdown}},

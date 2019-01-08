@@ -13,8 +13,7 @@ bbk.drawdown(x)
 returns a logical vector identifying the contiguous periods corresponding to max drawdown
 }
 \seealso{
-Other bbk: \code{\link{bbk.bin.rets.geom.summ}},
-  \code{\link{bbk.bin.rets.prd.summ}},
+Other bbk: \code{\link{bbk.bin.rets.prd.summ}},
   \code{\link{bbk.bin.rets.summ}},
   \code{\link{bbk.bin.xRet}}, \code{\link{bbk.data}},
   \code{\link{bbk.doW.bulk}}, \code{\link{bbk.fanChart}},
