@@ -47,7 +47,7 @@ runs a stock-flows simulation
 \seealso{
 Other sf: \code{\link{sf.bin.nms}}, \code{\link{sf.daily}},
   \code{\link{sf.detail}}, \code{\link{sf.single.bsim}},
-  \code{\link{sf.subset}}, \code{\link{sf.summ}},
+  \code{\link{sf.subset}},
   \code{\link{sf.underlying.data}},
   \code{\link{sf.underlying.summ}},
   \code{\link{sf.underlying}}

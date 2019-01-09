@@ -639,25 +639,15 @@ bbk.summ <- function (x, y, n, w)
 {
     if (n%%w != 0) 
         stop("Quantum size is wrong!")
-    offset <- 1:dim(x)[1]%%(n/w)
     prdsPerYr <- yyyy.periods.count(dimnames(x)[[1]])
     fcn <- function(x) {
         bbk.bin.rets.summ(x, prdsPerYr/n)
     }
-    if (n == w) 
-        z <- fcn(x)
-    else z <- summ.multi(fcn, x, offset)
-    z <- mat.ex.matrix(z)
-    if (n == w) {
-        y <- bbk.turnover(y)
+    z <- mat.ex.matrix(summ.multi(fcn, x, n/w))
+    fcn <- function(x) {
+        bbk.turnover(x) * prdsPerYr/n
     }
-    else {
-        y <- split(mat.ex.matrix(y), offset)
-        y <- lapply(y, bbk.turnover)
-        y <- simplify2array(y)
-        y <- rowMeans(y)
-    }
-    y <- y * prdsPerYr/n
+    y <- summ.multi(fcn, mat.ex.matrix(y), n/w)
     z <- map.rname(z, c(dimnames(z)[[1]], "AnnTo"))
     z["AnnTo", ] <- map.rname(y, dimnames(z)[[2]])
     z <- list(summ = z)
@@ -4252,18 +4242,14 @@ fwd.probs <- function (x, y, floW, sum.flows, lag, delay, doW, retW, idx,
 
 fwd.probs.wrapper <- function (x, y, floW, sum.flows, lags, delay, doW, hz, idx, prd.size) 
 {
-    z <- NULL
+    z <- list()
     for (retW in hz) {
-        for (lag in lags) {
-            w <- fwd.probs(x, y, floW, sum.flows, lag, delay, 
-                doW, retW, idx, prd.size)
-            if (is.null(z)) 
-                z <- array(NA, c(dim(w), length(lags), length(hz)), 
-                  list(dimnames(w)[[1]], dimnames(w)[[2]], lags, 
-                    hz))
-            z[, , as.character(lag), as.character(retW)] <- unlist(w)
-        }
+        z[[as.character(retW)]] <- list()
+        for (lag in lags) z[[as.character(retW)]][[as.character(lag)]] <- fwd.probs(x, 
+            y, floW, sum.flows, lag, delay, doW, retW, idx, prd.size)
+        z[[as.character(retW)]] <- simplify2array(z[[as.character(retW)]])
     }
+    z <- simplify2array(z)
     z
 }
 
@@ -4721,8 +4707,9 @@ mat.daily.to.monthly <- function (x, y = F)
 
 mat.ex.array <- function (x, y, n) 
 {
+    z <- dimnames(x)[[(1:length(y))[y == n]]]
     x <- array.unlist(x, c(y, "X"))
-    y <- simplify2array(split(x[, "X"], x[, n]))
+    y <- simplify2array(split(x[, "X"], x[, n]))[, z]
     x <- x[is.element(x[, n], x[1, n]), !is.element(dimnames(x)[[2]], 
         c(n, "X"))]
     z <- data.frame(x, y, row.names = 1:dim(x)[1], stringsAsFactors = F)
@@ -7361,8 +7348,12 @@ sf <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trails,
     geom.comp = F, retHz = 1, classif) 
 {
     n.trail <- length(trails)
-    summ.fcn <- ifelse(geom.comp, "bbk.bin.rets.geom.summ", "bbk.bin.rets.summ")
-    summ.fcn <- get(summ.fcn)
+    fcn <- ifelse(geom.comp, "bbk.bin.rets.geom.summ", "bbk.bin.rets.summ")
+    fcn <- get(fcn)
+    fcn.loc <- function(x) {
+        fcn(x, 12/retHz)
+    }
+    z <- list()
     for (j in 1:n.trail) {
         cat(trails[j], "")
         if (j%%10 == 0) 
@@ -7373,13 +7364,10 @@ sf <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trails,
         x <- t(map.rname(t(x), c(dimnames(x)[[2]], "TxB")))
         x[, "TxB"] <- x[, "Q1"] - x[, paste("Q", nBins, sep = "")]
         x <- mat.ex.matrix(x)
-        if (j == 1) {
-            z <- dimnames(summ.fcn(x, 12))[[1]]
-            z <- array(NA, c(length(z), dim(x)[2], n.trail), 
-                list(z, dimnames(x)[[2]], trails))
-        }
-        z[, , j] <- sf.summ(summ.fcn, x, retHz)
+        z[[as.character(trails[j])]] <- summ.multi(fcn.loc, x, 
+            retHz)
     }
+    z <- simplify2array(z)
     cat("\n")
     z
 }
@@ -7453,11 +7441,7 @@ sf.daily <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trail,
     fcn <- function(x) {
         bbk.bin.rets.summ(x, 250/retHz)
     }
-    if (retHz > 1) {
-        offset <- 1:dim(x)[1]%%retHz
-        z <- summ.multi(fcn, x, offset)
-    }
-    else z <- fcn(x)
+    z <- summ.multi(fcn, x, retHz)
     z
 }
 
@@ -7564,29 +7548,6 @@ sf.subset <- function (x, y, n, w)
     if (m > 2) 
         z <- z & is.element(w[, x[3]], x[4])
     z <- as.numeric(z)
-    z
-}
-
-#' sf.summ
-#' 
-#' summarizes the back test
-#' @param fcn = a function that summarizes the data
-#' @param x = a df of bin returns indexed by time
-#' @param y = forward return horizon in months
-#' @keywords sf.summ
-#' @export
-#' @family sf
-
-sf.summ <- function (fcn, x, y) 
-{
-    fcn.loc <- function(x) {
-        fcn(x, 12/y)
-    }
-    if (y > 1) {
-        offset <- 1:dim(x)[1]%%y
-        z <- summ.multi(fcn.loc, x, offset)
-    }
-    else z <- fcn.loc(x)
     z
 }
 
@@ -10293,16 +10254,21 @@ strategy.path <- function (x, y)
 #' summarizes the multi-period back test
 #' @param fcn = a function that summarizes the data
 #' @param x = a df of bin returns indexed by time
-#' @param y = offset associated with the rows of <x>
+#' @param y = forward return horizon size
 #' @keywords summ.multi
 #' @export
 
 summ.multi <- function (fcn, x, y) 
 {
-    z <- split(x, y)
-    z <- lapply(z, fcn)
-    z <- simplify2array(z)
-    z <- apply(z, 1:2, mean)
+    if (y == 1) {
+        z <- fcn(x)
+    }
+    else {
+        z <- split(x, 1:dim(x)[1]%%y)
+        z <- lapply(z, fcn)
+        z <- simplify2array(z)
+        z <- apply(z, 2:length(dim(z)) - 1, mean)
+    }
     z
 }
 

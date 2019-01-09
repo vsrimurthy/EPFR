@@ -11,7 +11,7 @@ summ.multi(fcn, x, y)
 
 \item{x}{= a df of bin returns indexed by time}
 
-\item{y}{= offset associated with the rows of <x>}
+\item{y}{= forward return horizon size}
 }
 \description{
 summarizes the multi-period back test
