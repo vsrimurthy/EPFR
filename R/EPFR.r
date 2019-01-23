@@ -4290,16 +4290,13 @@ GSec.to.GSgrp <- function (x)
 int.format <- function (x) 
 {
     z <- as.character(x)
+    n <- 3
     w <- nchar(z)
-    n <- max(w)
-    if (n > 3) {
-        vec <- seq(4, n, 3)
-        vec <- vec[length(vec):1]
-        for (i in vec) {
-            z[w >= i] <- paste(txt.left(z[w >= i], w[w >= i] - 
-                i + 1), txt.right(z[w >= i], i - 1), sep = ",")
-            w[w >= i] <- w[w >= i] + 1
-        }
+    while (any(w > n)) {
+        z <- ifelse(w > n, paste(txt.left(z, w - n), txt.right(z, 
+            n), sep = ","), z)
+        w <- w + ifelse(w > n, 1, 0)
+        n <- n + 4
     }
     z
 }
@@ -4573,12 +4570,10 @@ load.mo.vbl.1obj <- function (beg, end, mk.fcn, optional.args, vbl.name, yyyy, e
 
 map.classif <- function (x, y, n) 
 {
-    z <- c(n, paste(n, 1:5, sep = ""))
-    z <- matrix(NA, dim(y)[1], length(z), F, list(dimnames(y)[[1]], 
-        z))
-    for (i in dimnames(z)[[2]]) if (any(dimnames(y)[[2]] == i)) 
-        z[, i] <- as.numeric(map.rname(x, y[, i]))
-    z <- avail(z)
+    z <- vec.to.list(intersect(c(n, paste(n, 1:5, sep = "")), 
+        dimnames(y)[[2]]))
+    fcn <- function(i) as.numeric(map.rname(x, y[, i]))
+    z <- avail(simplify2array(lapply(z, fcn)))
     z
 }
 
@@ -5486,7 +5481,7 @@ mk.Mem <- function (x, y, n)
 #' mk.SatoMem
 #' 
 #' Returns a 1/0 membership vector
-#' @param x = a single YYYYMM
+#' @param x = an argument which is never used
 #' @param y = path to a file containing isin's
 #' @param n = list object containing the following items: a) classif - classif file
 #' @keywords mk.SatoMem
@@ -5495,11 +5490,13 @@ mk.Mem <- function (x, y, n)
 
 mk.SatoMem <- function (x, y, n) 
 {
+    n <- n[["classif"]]
     y <- vec.read(y, F)
-    n <- n[["classif"]][, paste("isin", 1:3, sep = "")]
-    for (i in dimnames(n)[[2]]) n[, i] <- is.element(n[, i], 
-        y)
-    z <- as.numeric(apply(n, 1, max))
+    z <- vec.to.list(intersect(c("isin", paste("isin", 1:5, sep = "")), 
+        dimnames(n)[[2]]))
+    fcn <- function(i) is.element(n[, i], y)
+    z <- simplify2array(lapply(z, fcn))
+    z <- as.numeric(apply(z, 1, max))
     z
 }
 
@@ -9928,16 +9925,10 @@ sql.sf.wtd.avg <- function (x, y)
 sql.tbl <- function (x, y, n, w, h) 
 {
     m <- length(x)
-    z <- paste("\t", x[1], sep = "")
-    if (m > 1) {
-        for (i in 2:m) {
-            if (txt.left(x[i], 1) != "\t") 
-                z[i - 1] <- paste(z[i - 1], ",", sep = "")
-            z <- c(z, paste("\t", txt.replace(x[i], "\n", "\n\t"), 
-                sep = ""))
-        }
-    }
-    z <- c("(select", z)
+    z <- c(txt.left(x[-1], 1) != "\t", F)
+    z <- paste(x, ifelse(z, ",", ""), sep = "")
+    z <- c("(select", paste("\t", txt.replace(z, "\n", "\n\t"), 
+        sep = ""))
     x <- txt.right(y, 5) == " join"
     x <- x & txt.left(c(y[-1], ""), 1) != "\t"
     x <- ifelse(x, "", "\t")

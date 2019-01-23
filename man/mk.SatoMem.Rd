@@ -7,7 +7,7 @@
 mk.SatoMem(x, y, n)
 }
 \arguments{
-\item{x}{= a single YYYYMM}
+\item{x}{= an argument which is never used}
 
 \item{y}{= path to a file containing isin's}
 
