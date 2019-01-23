@@ -26,6 +26,7 @@ Loads a daily variable
 }
 \seealso{
 Other load: \code{\link{load.dy.vbl.1obj}},
+  \code{\link{load.dy.vbl.underlying}},
   \code{\link{load.mo.vbl.1obj}}, \code{\link{load.mo.vbl}}
 }
 \keyword{load.dy.vbl}

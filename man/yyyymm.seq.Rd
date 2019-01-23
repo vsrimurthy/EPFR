@@ -7,14 +7,14 @@
 yyyymm.seq(x, y, n = 1)
 }
 \arguments{
-\item{x}{= a YYYYMM or YYYYMMDD}
+\item{x}{= a YYYYMM or YYYYMMDD or YYYY}
 
 \item{y}{= an isotypic element}
 
-\item{n}{= quantum size in YYYYMM or YYYYMMDD}
+\item{n}{= quantum size in YYYYMM or YYYYMMDD or YYYY}
 }
 \description{
-returns a sequence of YYYYMM or YYYYMMDD between (and including) x and y
+returns a sequence between (and including) x and y
 }
 \seealso{
 Other yyyymm: \code{\link{yyyymm.diff}},

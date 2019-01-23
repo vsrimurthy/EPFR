@@ -4,20 +4,22 @@
 \alias{mat.index}
 \title{mat.index}
 \usage{
-mat.index(x, y = 1)
+mat.index(x, y = 1, n = T)
 }
 \arguments{
 \item{x}{= a matrix/df}
 
 \item{y}{= columns}
+
+\item{n}{= T/F depending on whether you remove columns <y>}
 }
 \description{
-indexes <x> by, and removes, columns <y>
+indexes <x> by, and, if <n>, removes, columns <y>
 }
 \seealso{
 Other mat: \code{\link{mat.combine}},
   \code{\link{mat.compound}}, \code{\link{mat.correl}},
-  \code{\link{mat.count}},
+  \code{\link{mat.count}}, \code{\link{mat.cum}},
   \code{\link{mat.daily.to.monthly}},
   \code{\link{mat.ex.array3d}}, \code{\link{mat.ex.array}},
   \code{\link{mat.ex.matrix}}, \code{\link{mat.ex.vec}},

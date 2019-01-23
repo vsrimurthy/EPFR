@@ -4,12 +4,14 @@
 \alias{vec.to.lags}
 \title{vec.to.lags}
 \usage{
-vec.to.lags(x, y)
+vec.to.lags(x, y, n = T)
 }
 \arguments{
 \item{x}{= a numeric vector (time flows forward)}
 
 \item{y}{= number of lagged values desired plus one}
+
+\item{n}{= T/F depending on whether time flows forwards}
 }
 \description{
 a data frame of <x> together with itself lagged 1, ..., <y> - 1 times

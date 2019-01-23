@@ -15,6 +15,7 @@ counts observations of the columns of <x>
 \seealso{
 Other mat: \code{\link{mat.combine}},
   \code{\link{mat.compound}}, \code{\link{mat.correl}},
+  \code{\link{mat.cum}},
   \code{\link{mat.daily.to.monthly}},
   \code{\link{mat.ex.array3d}}, \code{\link{mat.ex.array}},
   \code{\link{mat.ex.matrix}}, \code{\link{mat.ex.vec}},

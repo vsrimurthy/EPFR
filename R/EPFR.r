@@ -202,8 +202,8 @@ ascending <- function (x)
 
 avail <- function (x) 
 {
-    z <- rep(NA, dim(x)[1])
-    for (i in 1:dim(x)[2]) z <- ifelse(is.na(z), x[, i], z)
+    fcn <- function(x, y) ifelse(is.na(x), y, x)
+    z <- Reduce(fcn, mat.ex.matrix(x))
     z
 }
 
@@ -348,9 +348,7 @@ bbk.bin.rets.prd.summ <- function (fcn, x, y, n)
     y <- y[w]
     x <- x[w, ]
     x <- mat.ex.matrix(x)
-    fcn.loc <- function(x) {
-        z <- fcn(x, n, T)
-    }
+    fcn.loc <- function(x) fcn(x, n, T)
     z <- split(x, y)
     z <- lapply(z, fcn.loc)
     z <- simplify2array(z)
@@ -533,11 +531,12 @@ bbk.drawdown <- function (x)
 {
     n <- length(x)
     x <- zav(x)
-    z <- matrix(NA, n, n, F)
-    z[, 1] <- x
-    if (n > 1) {
-        for (i in 2:n) z[, i] <- c(z[-1, i - 1], NA)
-        for (i in 2:n) z[, i] <- z[, i] + z[, i - 1]
+    if (n == 1) {
+        z <- x
+    }
+    else {
+        z <- vec.to.lags(x, n, F)
+        z <- mat.cum(sum, z, T, F)
     }
     prd.num <- order(apply(z, 2, min, na.rm = T))[1]
     prd.beg <- order(z[, prd.num])[1]
@@ -557,9 +556,8 @@ bbk.drawdown <- function (x)
 bbk.fanChart <- function (x) 
 {
     z <- as.matrix(x)[, paste("Q", 1:5, sep = "")]
-    z <- z[!is.na(z[, 1]), ]/100
-    for (j in dim(z)[1]:2) z[j - 1, ] <- (1 + z[j - 1, ]) * (1 + 
-        z[j, ]) - 1
+    z <- z[!is.na(z[, 1]), ]
+    z <- mat.cum(compound, z, F, T)/100
     z
 }
 
@@ -640,13 +638,9 @@ bbk.summ <- function (x, y, n, w)
     if (n%%w != 0) 
         stop("Quantum size is wrong!")
     prdsPerYr <- yyyy.periods.count(dimnames(x)[[1]])
-    fcn <- function(x) {
-        bbk.bin.rets.summ(x, prdsPerYr/n)
-    }
+    fcn <- function(x) bbk.bin.rets.summ(x, prdsPerYr/n)
     z <- mat.ex.matrix(summ.multi(fcn, x, n/w))
-    fcn <- function(x) {
-        bbk.turnover(x) * prdsPerYr/n
-    }
+    fcn <- function(x) bbk.turnover(x) * prdsPerYr/n
     y <- summ.multi(fcn, mat.ex.matrix(y), n/w)
     z <- map.rname(z, c(dimnames(z)[[1]], "AnnTo"))
     z["AnnTo", ] <- map.rname(y, dimnames(z)[[2]])
@@ -998,14 +992,9 @@ col.ex.int <- function (x)
     z <- vec.to.list(z)
     z <- lapply(z, base.ex.int)
     z <- lapply(z, vec.last.element.increment)
-    fcn <- function(x) {
-        x + 64
-    }
-    z <- lapply(z, fcn)
+    z <- lapply(z, sum, 64)
     z <- lapply(z, char.ex.int)
-    fcn <- function(x) {
-        paste(x, collapse = "")
-    }
+    fcn <- function(x) paste(x, collapse = "")
     z <- lapply(z, fcn)
     z <- as.character(unlist(z))
     z
@@ -1037,9 +1026,7 @@ col.to.int <- function (x)
 {
     z <- vec.to.list(x)
     z <- lapply(z, txt.to.char)
-    fcn <- function(x) {
-        char.to.int(x) - char.to.int("A") + 1
-    }
+    fcn <- function(x) char.to.int(x) - char.to.int("A") + 1
     z <- lapply(z, fcn)
     z <- lapply(z, base.to.int)
     z <- as.numeric(unlist(z))
@@ -1891,9 +1878,7 @@ extract.AnnMn.sf <- function (x, y)
 
 extract.AnnMn.sf.wrapper <- function (x, y = "AnnMn") 
 {
-    fcn <- function(x) {
-        extract.AnnMn.sf(x, y)
-    }
+    fcn <- function(x) extract.AnnMn.sf(x, y)
     x <- lapply(x, fcn)
     if (dim(x[[1]])[1] == 1) 
         z <- t(simplify2array(x)[1, , ])
@@ -2360,6 +2345,22 @@ fcn.extract.out <- function (x)
     z
 }
 
+#' fcn.has
+#' 
+#' Checks all functions are in standard form
+#' @param x = substring to be searched for
+#' @keywords fcn.has
+#' @export
+#' @family fcn
+
+fcn.has <- function (x) 
+{
+    fcn <- function(y) txt.has(fcn.to.txt(y, F), x, T)
+    z <- fcn.list()
+    z <- z[unlist(lapply(vec.to.list(z), fcn))]
+    z
+}
+
 #' fcn.indent.decrease
 #' 
 #' T/F depending on whether indent should be decreased
@@ -2733,14 +2734,10 @@ fcn.num.nonNA <- function (fcn, x, y, n)
 fcn.order <- function () 
 {
     x <- fcn.list()
-    append <- F
-    z <- fcn.path()
-    for (i in x) {
-        y <- fcn.to.txt(i, T, F)
-        y <- paste(i, "<-", y)
-        cat(y, file = z, sep = "\n", append = append)
-        append <- T
-    }
+    x <- split(x, x)
+    fcn <- function(x) paste(x, "<-", fcn.to.txt(x, T, F))
+    x <- unlist(lapply(x, fcn))
+    cat(x, file = fcn.path(), sep = "\n")
     invisible()
 }
 
@@ -4418,14 +4415,10 @@ latin.to.arabic.underlying <- function ()
 
 list.common.row.space <- function (fcn, x, y) 
 {
-    z <- NULL
-    for (i in names(x)) {
-        if (!is.null(y)) 
-            dimnames(x[[i]])[[1]] <- x[[i]][, y]
-        if (is.null(z)) 
-            z <- dimnames(x[[i]])[[1]]
-        z <- fcn(z, dimnames(x[[i]])[[1]])
-    }
+    x <- lapply(x, mat.index, y, F)
+    fcn.loc <- function(x) dimnames(x)[[1]]
+    z <- lapply(x, fcn.loc)
+    z <- Reduce(fcn, z)
     z <- z[order(z)]
     z <- lapply(x, map.rname, z)
     z
@@ -4448,14 +4441,8 @@ list.common.row.space <- function (fcn, x, y)
 load.dy.vbl <- function (beg, end, mk.fcn, optional.args, vbl.name, out.fldr, 
     env) 
 {
-    for (mo in yyyymm.seq(yyyymmdd.to.yyyymm(beg), yyyymmdd.to.yyyymm(end))) {
-        cat(mo, ":")
-        z <- load.dy.vbl.1obj(beg, end, mk.fcn, optional.args, 
-            vbl.name, mo, env)
-        saveRDS(z, file = paste(out.fldr, paste(vbl.name, mo, 
-            "r", sep = "."), sep = "\\"), ascii = T)
-        cat("\n")
-    }
+    load.dy.vbl.underlying(beg, end, mk.fcn, optional.args, vbl.name, 
+        out.fldr, env, yyyymmdd.to.yyyymm, load.dy.vbl.1obj)
     invisible()
 }
 
@@ -4491,6 +4478,36 @@ load.dy.vbl.1obj <- function (beg, end, mk.fcn, optional.args, vbl.name, mo, env
     z
 }
 
+#' load.dy.vbl.underlying
+#' 
+#' Loads a variable
+#' @param beg = a single YYYYMMDD
+#' @param end = a single YYYYMMDD
+#' @param mk.fcn = a function
+#' @param optional.args = passed down to <mk.fcn>
+#' @param vbl.name = name under which the variable is to be stored
+#' @param out.fldr = R-object folder
+#' @param env = stock-flows environment
+#' @param fcn.conv = conversion from period of columns to period of objects
+#' @param fcn.load = function to load one object
+#' @keywords load.dy.vbl.underlying
+#' @export
+#' @family load
+
+load.dy.vbl.underlying <- function (beg, end, mk.fcn, optional.args, vbl.name, out.fldr, 
+    env, fcn.conv, fcn.load) 
+{
+    for (mo in yyyymm.seq(fcn.conv(beg), fcn.conv(end))) {
+        cat(mo, ":")
+        z <- fcn.load(beg, end, mk.fcn, optional.args, vbl.name, 
+            mo, env)
+        saveRDS(z, file = paste(out.fldr, paste(vbl.name, mo, 
+            "r", sep = "."), sep = "\\"), ascii = T)
+        cat("\n")
+    }
+    invisible()
+}
+
 #' load.mo.vbl
 #' 
 #' Loads a monthly variable
@@ -4508,14 +4525,8 @@ load.dy.vbl.1obj <- function (beg, end, mk.fcn, optional.args, vbl.name, mo, env
 load.mo.vbl <- function (beg, end, mk.fcn, optional.args, vbl.name, out.fldr, 
     env) 
 {
-    for (yyyy in seq(yyyymm.to.yyyy(beg), yyyymm.to.yyyy(end))) {
-        cat(yyyy, ":")
-        z <- load.mo.vbl.1obj(beg, end, mk.fcn, optional.args, 
-            vbl.name, yyyy, env)
-        saveRDS(z, file = paste(out.fldr, paste(vbl.name, yyyy, 
-            "r", sep = "."), sep = "\\"), ascii = T)
-        cat("\n")
-    }
+    load.dy.vbl.underlying(beg, end, mk.fcn, optional.args, vbl.name, 
+        out.fldr, env, yyyymm.to.yyyy, load.mo.vbl.1obj)
     invisible()
 }
 
@@ -4669,6 +4680,32 @@ mat.count <- function (x)
     z
 }
 
+#' mat.cum
+#' 
+#' cumulatively applies <fcn> to the rows/columns of <x>
+#' @param fcn = function mapping vectors to a single value
+#' @param x = a mat object
+#' @param y = T/F depending on whether time runs forwards
+#' @param n = T/F depending on whether you apply <fcn> to rows or columns
+#' @keywords mat.cum
+#' @export
+#' @family mat
+
+mat.cum <- function (fcn, x, y, n) 
+{
+    if (!n) 
+        x <- t(x)
+    if (!y) 
+        x <- x[dim(x)[1]:1, ]
+    for (j in 2:dim(x)[1]) x[j, ] <- apply(x[j - 1:0, ], 2, fcn)
+    if (!y) 
+        x <- x[dim(x)[1]:1, ]
+    if (!n) 
+        x <- t(x)
+    z <- x
+    z
+}
+
 #' mat.daily.to.monthly
 #' 
 #' returns latest data in each month indexed by <yyyymm> ascending
@@ -4799,14 +4836,15 @@ mat.fake <- function ()
 
 #' mat.index
 #' 
-#' indexes <x> by, and removes, columns <y>
+#' indexes <x> by, and, if <n>, removes, columns <y>
 #' @param x = a matrix/df
 #' @param y = columns
+#' @param n = T/F depending on whether you remove columns <y>
 #' @keywords mat.index
 #' @export
 #' @family mat
 
-mat.index <- function (x, y = 1) 
+mat.index <- function (x, y = 1, n = T) 
 {
     if (all(is.element(y, 1:dim(x)[2]))) {
         w <- is.element(1:dim(x)[2], y)
@@ -4821,7 +4859,11 @@ mat.index <- function (x, y = 1)
         stop("NA's in row indices ...")
     if (any(duplicated(z))) 
         stop("Duplicated row indices ...")
-    if (sum(!w) > 1) {
+    if (!n) {
+        dimnames(x)[[1]] <- z
+        z <- x
+    }
+    else if (sum(!w) > 1) {
         dimnames(x)[[1]] <- z
         z <- x[, !w]
     }
@@ -5028,7 +5070,7 @@ mat.to.matrix <- function (x)
 
 mat.to.obs <- function (x) 
 {
-    fcn <- function(x) ifelse(is.na(x), 0, 1)
+    fcn <- function(x) as.numeric(!is.na(x))
     z <- fcn.mat.vec(fcn, x, , T)
     z
 }
@@ -5405,9 +5447,7 @@ mk.JensensAlpha.fund <- function (x, y, n)
     fndR <- as.matrix(fndR)
     dimnames(fndR)[[2]] <- yyyymm.lag(x, y:1 - 1)
     catR <- n$CATRETS[, dimnames(fndR)[[2]]]
-    w <- rep(T, dim(fndR)[1])
-    for (i in dimnames(fndR)[[2]]) w <- w & !is.na(fndR[, i]) & 
-        !is.na(catR[, i])
+    w <- as.logical(apply(mat.to.obs(cbind(fndR, catR)), 1, min))
     z <- rep(NA, dim(fndR)[1])
     if (any(w)) {
         fndM <- rowMeans(fndR[w, ])
@@ -6672,9 +6712,7 @@ qtl <- function (x, y, n, w)
         w <- rep(1, length(x))
     h <- !is.na(x) & !is.na(w)
     x <- data.frame(x, n, stringsAsFactors = F)
-    fcn <- function(x) {
-        qtl.single.grp(x, y)
-    }
+    fcn <- function(x) qtl.single.grp(x, y)
     z <- rep(NA, length(h))
     if (any(h)) 
         z[h] <- fcn.vec.grp(fcn, x[h, ], w[h])
@@ -7270,11 +7308,8 @@ rrw.underlying <- function (prd, vbls, univ, grp.nm, ret.nm, fldr, orth.factor,
             z[, j] <- mat.zScore(z[, j], z$mem, z$grp)
         }
     }
-    w <- rep(F, dim(z)[1])
-    for (j in vbls) w <- w | !is.na(z[, j])
-    w <- w & !is.na(z$ret)
-    z <- z[w, ]
-    z <- zav(z)
+    w <- apply(mat.to.obs(z[, c(vbls, "ret")]), 1, max) > 0
+    z <- zav(z[w, ])
     z$ret <- z$ret - mean(z$ret)
     z
 }
@@ -7438,9 +7473,7 @@ sf.daily <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trail,
     x <- mat.ex.matrix(x)
     x$TxB <- x[, 1] - x[, dim(x)[2]]
     x <- mat.last.to.first(x)
-    fcn <- function(x) {
-        bbk.bin.rets.summ(x, 250/retHz)
-    }
+    fcn <- function(x) bbk.bin.rets.summ(x, 250/retHz)
     z <- summ.multi(fcn, x, retHz)
     z
 }
@@ -7961,10 +7994,8 @@ sql.1dFloMo.Ctry.Allocations <- function (x, y, n)
     if (missing(n)) 
         n <- vec.named(, names(x))
     else n <- map.rname(n, names(x))
-    fcn <- function(x) {
-        paste("[", x[1], "] = ", sql.1dFloMo.Ctry.Allocations.term(x[-1], 
-            n[x[1]]), sep = "")
-    }
+    fcn <- function(x) paste("[", x[1], "] = ", sql.1dFloMo.Ctry.Allocations.term(x[-1], 
+        n[x[1]]), sep = "")
     z <- c("FundId", "WeightDate", unlist(lapply(x, fcn)))
     z <- sql.tbl(z, sql.AllocTbl(y))
     z
@@ -9099,9 +9130,7 @@ sql.and <- function (x, y = "", n = "and")
 {
     m <- length(names(x))
     if (m > 1) {
-        fcn <- function(x) {
-            c(n, paste(y, "\t", x, sep = ""))
-        }
+        fcn <- function(x) c(n, paste(y, "\t", x, sep = ""))
         z <- lapply(x, fcn)
         z <- unlist(z)[-1]
     }
@@ -11112,16 +11141,21 @@ vec.swap <- function (x, y, n)
 #' a data frame of <x> together with itself lagged 1, ..., <y> - 1 times
 #' @param x = a numeric vector (time flows forward)
 #' @param y = number of lagged values desired plus one
+#' @param n = T/F depending on whether time flows forwards
 #' @keywords vec.to.lags
 #' @export
 #' @family vec
 
-vec.to.lags <- function (x, y) 
+vec.to.lags <- function (x, y, n = T) 
 {
-    n <- length(x)
-    z <- mat.ex.matrix(matrix(NA, n, y, F, list(1:n, paste("lag", 
+    m <- length(x)
+    z <- mat.ex.matrix(matrix(NA, m, y, F, list(1:m, paste("lag", 
         1:y - 1, sep = ""))))
-    for (i in 1:y) z[i:n, i] <- x[i:n - (i - 1)]
+    if (!n) 
+        x <- x[m:1]
+    for (i in 1:y) z[i:m, i] <- x[i:m - i + 1]
+    if (!n) 
+        z <- z[m:1, ]
     z
 }
 
@@ -11286,19 +11320,26 @@ yyyymm.lag <- function (x, y = 1)
 
 #' yyyymm.seq
 #' 
-#' returns a sequence of YYYYMM or YYYYMMDD between (and including) x and y
-#' @param x = a YYYYMM or YYYYMMDD
+#' returns a sequence between (and including) x and y
+#' @param x = a YYYYMM or YYYYMMDD or YYYY
 #' @param y = an isotypic element
-#' @param n = quantum size in YYYYMM or YYYYMMDD
+#' @param n = quantum size in YYYYMM or YYYYMMDD or YYYY
 #' @keywords yyyymm.seq
 #' @export
 #' @family yyyymm
 
 yyyymm.seq <- function (x, y, n = 1) 
 {
-    if (nchar(x) == 8) 
-        yyyymmdd.seq(x, y, n)
-    else obj.seq(x, y, yyyymm.to.int, yyyymm.ex.int, n)
+    if (nchar(x) == 4) {
+        z <- seq(x, y, n)
+    }
+    else if (nchar(x) == 8) {
+        z <- yyyymmdd.seq(x, y, n)
+    }
+    else {
+        z <- obj.seq(x, y, yyyymm.to.int, yyyymm.ex.int, n)
+    }
+    z
 }
 
 #' yyyymm.to.day
