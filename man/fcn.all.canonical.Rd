@@ -29,12 +29,11 @@ Other fcn: \code{\link{fcn.all.roxygenize}},
   \code{\link{fcn.indirect}}, \code{\link{fcn.lines.code}},
   \code{\link{fcn.lines.count}}, \code{\link{fcn.list}},
   \code{\link{fcn.mat.col}}, \code{\link{fcn.mat.num}},
-  \code{\link{fcn.mat.vec}}, \code{\link{fcn.matrix}},
-  \code{\link{fcn.nonNA}}, \code{\link{fcn.num.nonNA}},
-  \code{\link{fcn.order}}, \code{\link{fcn.path}},
-  \code{\link{fcn.roxygenize}}, \code{\link{fcn.sho}},
-  \code{\link{fcn.simple}}, \code{\link{fcn.to.comments}},
-  \code{\link{fcn.to.txt}}, \code{\link{fcn.vec.grp}},
-  \code{\link{fcn.vec.num}}
+  \code{\link{fcn.mat.vec}}, \code{\link{fcn.nonNA}},
+  \code{\link{fcn.num.nonNA}}, \code{\link{fcn.order}},
+  \code{\link{fcn.path}}, \code{\link{fcn.roxygenize}},
+  \code{\link{fcn.sho}}, \code{\link{fcn.simple}},
+  \code{\link{fcn.to.comments}}, \code{\link{fcn.to.txt}},
+  \code{\link{fcn.vec.grp}}, \code{\link{fcn.vec.num}}
 }
 \keyword{fcn.all.canonical}

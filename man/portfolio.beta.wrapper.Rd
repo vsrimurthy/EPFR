@@ -4,7 +4,7 @@
 \alias{portfolio.beta.wrapper}
 \title{portfolio.beta.wrapper}
 \usage{
-portfolio.beta.wrapper(x, y, n, w = 1)
+portfolio.beta.wrapper(x, y, n)
 }
 \arguments{
 \item{x}{= a file of total return indices indexed so that time runs forward}
@@ -12,8 +12,6 @@ portfolio.beta.wrapper(x, y, n, w = 1)
 \item{y}{= the name of the benchmark w.r.t. which beta is to be computed (e.g. "ACWorld")}
 
 \item{n}{= the window in days over which beta is to be computed}
-
-\item{w}{= number of periods over which the return is computed}
 }
 \description{
 <n> day beta of columns of <x> with respect to benchmark <y>

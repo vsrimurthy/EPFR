@@ -218,13 +218,9 @@ avail <- function (x)
 avg.model <- function (x) 
 {
     x <- x[!is.na(x)]
-    n <- length(x)
-    x <- c(x, rep(1, n))
-    x <- matrix(x, n, 2, F, list(1:n, c("y", "x")))
-    x <- mat.ex.matrix(x)
-    x <- lm(y ~ x, x)
-    z <- summary(x)$coefficients
-    z <- as.matrix(z)[1, ]
+    z <- vec.named(mean(x), "Estimate")
+    z["Std. Error"] <- sd(x)/sqrt(length(x))
+    z["t value"] <- z["Estimate"]/nonneg(z["Std. Error"])
     z
 }
 
@@ -392,15 +388,17 @@ bbk.bin.rets.summ <- function (x, y, n = F)
             z[dimnames(vec)[[2]], dimnames(vec)[[1]]] <- t(vec)
         }
     }
-    x <- x[order(dimnames(x)[[1]]), ]
-    w <- fcn.mat.vec(bbk.drawdown, x, , T)
-    z["DDnN", ] <- colSums(w)
-    z["DrawDn", ] <- colSums(w * zav(x))
-    y <- fcn.mat.num(which.max, w, , T)
-    y <- dimnames(x)[[1]][y]
-    if (any(substring(y, 5, 5) == "Q")) 
-        y <- yyyymm.ex.qtr(y)
-    z["DDnBeg", ] <- as.numeric(y)
+    if (dim(x)[1] > 1) {
+        x <- x[order(dimnames(x)[[1]]), ]
+        w <- fcn.mat.vec(bbk.drawdown, x, , T)
+        z["DDnN", ] <- colSums(w)
+        z["DrawDn", ] <- colSums(w * zav(x))
+        y <- fcn.mat.num(which.max, w, , T)
+        y <- dimnames(x)[[1]][y]
+        if (any(substring(y, 5, 5) == "Q")) 
+            y <- yyyymm.ex.qtr(y)
+        z["DDnBeg", ] <- as.numeric(y)
+    }
     z
 }
 
@@ -425,7 +423,7 @@ bbk.bin.xRet <- function (x, y, n = 5, w = F, h = F)
     if (h) 
         rslt[["bins"]] <- x
     uRetVec <- rowMeans(y, na.rm = T)
-    y <- y - uRetVec
+    y <- mat.ex.matrix(y) - uRetVec
     z <- array.unlist(x, c("date", "security", "bin"))
     z$ret <- unlist(y)
     z <- pivot(mean, z$ret, z$date, z$bin)
@@ -532,16 +530,16 @@ bbk.drawdown <- function (x)
     n <- length(x)
     x <- zav(x)
     if (n == 1) {
-        z <- x
+        z <- 1
     }
     else {
         z <- vec.to.lags(x, n, F)
         z <- mat.cum(sum, z, T, F)
+        prd.num <- order(apply(z, 2, min, na.rm = T))[1]
+        prd.beg <- order(z[, prd.num])[1]
+        z <- seq(prd.beg, length.out = prd.num)
+        z <- is.element(1:n, z)
     }
-    prd.num <- order(apply(z, 2, min, na.rm = T))[1]
-    prd.beg <- order(z[, prd.num])[1]
-    z <- seq(prd.beg, length.out = prd.num)
-    z <- is.element(1:n, z)
     z
 }
 
@@ -618,7 +616,7 @@ bbk.histogram <- function (x)
 bbk.holidays <- function (x, y) 
 {
     fcn <- function(x, y) ifelse(is.na(y), NA, x)
-    z <- fcn.matrix(fcn, x, y)
+    z <- fcn.mat.vec(fcn, x, y, T)
     z
 }
 
@@ -2586,26 +2584,19 @@ fcn.mat.num <- function (fcn, x, y, n)
     else if (is.null(dim(x)) & !missing(y)) {
         z <- fcn(x, y)
     }
-    else if (n & missing(y)) {
-        z <- sapply(mat.ex.matrix(x), fcn)
+    else if (missing(y)) {
+        z <- apply(x, as.numeric(n) + 1, fcn)
     }
-    else if (!n & missing(y)) {
-        z <- sapply(mat.ex.matrix(t(x)), fcn)
-    }
-    else if (n & is.null(dim(y))) {
-        z <- sapply(mat.ex.matrix(x), fcn, y)
-    }
-    else if (!n & is.null(dim(y))) {
-        z <- sapply(mat.ex.matrix(t(x)), fcn, y)
-    }
-    else if (n) {
-        z <- rep(NA, dim(x)[2])
-        for (i in 1:dim(x)[2]) z[i] <- fcn(x[, i], y[, i])
+    else if (is.null(dim(y))) {
+        z <- apply(x, as.numeric(n) + 1, fcn, y)
     }
     else {
-        z <- rep(NA, dim(x)[1])
-        for (i in 1:dim(x)[1]) z[i] <- fcn(unlist(x[i, ]), unlist(y[i, 
-            ]))
+        w <- dim(x)[2 - as.numeric(n)]
+        fcn.loc <- function(x) fcn(x[1:w], x[1:w + w])
+        if (n) 
+            x <- rbind(x, y)
+        else x <- cbind(x, y)
+        z <- apply(x, as.numeric(n) + 1, fcn.loc)
     }
     z
 }
@@ -2623,52 +2614,39 @@ fcn.mat.num <- function (fcn, x, y, n)
 
 fcn.mat.vec <- function (fcn, x, y, n) 
 {
-    z <- x
-    if (is.null(dim(z)) & missing(y)) {
-        z <- fcn(z)
+    if (is.null(dim(x)) & missing(y)) {
+        z <- fcn(x)
     }
-    else if (is.null(dim(z)) & !missing(y)) {
-        z <- fcn(z, y)
+    else if (is.null(dim(x)) & !missing(y)) {
+        z <- fcn(x, y)
     }
     else if (n & missing(y)) {
-        for (i in 1:dim(z)[2]) z[, i] <- fcn(z[, i])
+        z <- simplify2array(lapply(mat.ex.matrix(x), fcn))
     }
     else if (!n & missing(y)) {
-        for (i in 1:dim(z)[1]) z[i, ] <- fcn(unlist(z[i, ]))
+        z <- t(simplify2array(lapply(mat.ex.matrix(t(x)), fcn)))
     }
     else if (n & is.null(dim(y))) {
-        for (i in 1:dim(z)[2]) z[, i] <- fcn(z[, i], y)
+        z <- simplify2array(lapply(mat.ex.matrix(x), fcn, y))
     }
     else if (!n & is.null(dim(y))) {
-        for (i in 1:dim(z)[1]) z[i, ] <- fcn(unlist(z[i, ]), 
-            y)
+        z <- t(simplify2array(lapply(mat.ex.matrix(t(x)), fcn, 
+            y)))
     }
     else if (n) {
-        for (i in 1:dim(z)[2]) z[, i] <- fcn(z[, i], y[, i])
+        w <- dim(x)[1]
+        fcn.loc <- function(x) fcn(x[1:w], x[1:w + w])
+        y <- rbind(x, y)
+        z <- simplify2array(lapply(mat.ex.matrix(y), fcn.loc))
     }
     else {
-        for (i in 1:dim(z)[1]) z[i, ] <- fcn(unlist(z[i, ]), 
-            unlist(y[i, ]))
+        w <- dim(x)[2]
+        fcn.loc <- function(x) fcn(x[1:w], x[1:w + w])
+        y <- cbind(x, y)
+        z <- t(simplify2array(lapply(mat.ex.matrix(t(y)), fcn.loc)))
     }
-    z
-}
-
-#' fcn.matrix
-#' 
-#' applies <fcn> to the elements of <x> and <y>
-#' @param fcn = a function mapping values to values
-#' @param x = a matrix/df
-#' @param y = missing, isomekic vector, or isomekic isoplatic matrix/df
-#' @keywords fcn.matrix
-#' @export
-#' @family fcn
-
-fcn.matrix <- function (fcn, x, y) 
-{
-    if (missing(y)) 
-        z <- fcn(unlist(x))
-    else z <- fcn(unlist(x), unlist(y))
-    z <- matrix(z, dim(x)[1], dim(x)[2], F, dimnames(x))
+    if (!is.null(dim(x))) 
+        dimnames(z) <- dimnames(x)
     z
 }
 
@@ -6031,27 +6009,24 @@ portfolio.beta <- function (x, y, n)
 #' @param x = a file of total return indices indexed so that time runs forward
 #' @param y = the name of the benchmark w.r.t. which beta is to be computed (e.g. "ACWorld")
 #' @param n = the window in days over which beta is to be computed
-#' @param w = number of periods over which the return is computed
 #' @keywords portfolio.beta.wrapper
 #' @export
 #' @family portfolio
 
-portfolio.beta.wrapper <- function (x, y, n, w = 1) 
+portfolio.beta.wrapper <- function (x, y, n) 
 {
-    z <- mat.read(paste(dir.parameters("csv"), "IndexReturns-Daily.csv", 
-        sep = "\\"))
-    z <- map.rname(z, dimnames(x)[[1]])
-    x <- mat.ex.matrix(x)
-    x[, y] <- z[, y]
-    z <- ret.ex.idx(x, w, F, F)
-    k <- 2:dim(z)[2] - 1
-    for (j in dim(z)[1]:n) {
-        w <- j - n:1 + 1
-        z[j, k] <- portfolio.beta(z[w, k], z[w, dim(z)[2]], T)[, 
-            1]
-    }
-    z[2:n - 1, ] <- NA
-    z <- z[, -dim(z)[2]]
+    y <- map.rname(mat.read(paste(dir.parameters("csv"), "IndexReturns-Daily.csv", 
+        sep = "\\")), dimnames(x)[[1]])[, y]
+    y <- 100 * y/c(NA, y[-dim(x)[1]]) - 100
+    z <- mat.ex.matrix(ret.ex.idx(x, 1, F, F))
+    y <- vec.to.lags(y, n, T)
+    z <- lapply(z, vec.to.lags, n, T)
+    fcn <- function(x) x - apply(x, 1, mean)
+    y <- fcn(y)
+    z <- lapply(z, fcn)
+    fcn <- function(x) rowSums(x * y)/rowSums(y * y)
+    z <- simplify2array(lapply(z, fcn))
+    dimnames(z)[[1]] <- dimnames(x)[[1]]
     z
 }
 
@@ -10672,7 +10647,7 @@ txt.name.format <- function (x)
 {
     if (any(txt.has(x, " ", T))) {
         z <- txt.parse(x, " ")
-        z <- fcn.matrix(txt.name.format, z)
+        z <- fcn.mat.vec(txt.name.format, z, , T)
         z <- do.call(paste, mat.ex.matrix(z))
         z <- txt.trim(z)
     }
