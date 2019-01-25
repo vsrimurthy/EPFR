@@ -1870,10 +1870,9 @@ extract.AnnMn.sf <- function (x, y)
 extract.AnnMn.sf.wrapper <- function (x, y = "AnnMn") 
 {
     fcn <- function(x) extract.AnnMn.sf(x, y)
-    x <- lapply(x, fcn)
-    if (dim(x[[1]])[1] == 1) 
-        z <- t(simplify2array(x)[1, , ])
-    else z <- mat.ex.matrix(x)
+    if (dim(x[[1]])[3] == 1) 
+        z <- t(sapply(x, fcn))
+    else z <- mat.ex.matrix(lapply(x, fcn))
     z
 }
 
