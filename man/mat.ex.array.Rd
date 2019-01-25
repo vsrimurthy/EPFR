@@ -4,17 +4,13 @@
 \alias{mat.ex.array}
 \title{mat.ex.array}
 \usage{
-mat.ex.array(x, y, n)
+mat.ex.array(x)
 }
 \arguments{
 \item{x}{= an array}
-
-\item{y}{= a string vector representing dimension labels}
-
-\item{n}{= dimension of interest}
 }
 \description{
-a data frame with dimension <n> forming the column space
+a data frame with the first dimension forming the column space
 }
 \seealso{
 Other mat: \code{\link{mat.combine}},

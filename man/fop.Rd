@@ -4,8 +4,8 @@
 \alias{fop}
 \title{fop}
 \usage{
-fop(x, y, delay, lags, floWind, retWind, nBins, grp.fcn, convert2df,
-  reverse.vbl, prd.size, first.ret.date, findOptimalParametersFcn, sum.flows)
+fop(x, y, delay, lags, floW, retW, nBins, grp.fcn, convert2df, reverse.vbl,
+  prd.size, first.ret.date, findOptimalParametersFcn, sum.flows)
 }
 \arguments{
 \item{x}{= a matrix/data frame of predictors}
@@ -16,9 +16,9 @@ fop(x, y, delay, lags, floWind, retWind, nBins, grp.fcn, convert2df,
 
 \item{lags}{= a numeric vector of predictor lags}
 
-\item{floWind}{= a numeric vector of trailing flow windows}
+\item{floW}{= a numeric vector of trailing flow windows}
 
-\item{retWind}{= a numeric vector of forward return windows}
+\item{retW}{= a numeric vector of forward return windows}
 
 \item{nBins}{= a numeric vector}
 

@@ -12,8 +12,4 @@ permutations.next(x)
 \description{
 returns the next permutation in dictionary order
 }
-\seealso{
-Other permutations: \code{\link{permutations.buckets.many}},
-  \code{\link{permutations}}
-}
 \keyword{permutations.next}

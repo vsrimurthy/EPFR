@@ -12,8 +12,4 @@ permutations(x)
 \description{
 all possible permutations of <x>
 }
-\seealso{
-Other permutations: \code{\link{permutations.buckets.many}},
-  \code{\link{permutations.next}}
-}
 \keyword{permutations}

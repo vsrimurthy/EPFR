@@ -170,8 +170,7 @@ array.unlist <- function (x, y)
         y <- col.ex.int(0:n + 1)
     if (length(y) != n + 1) 
         stop("Problem")
-    z <- permutations.buckets.many(dimnames(x))
-    z <- mat.ex.matrix(z)
+    z <- expand.grid(dimnames(x))
     names(z) <- y[1:n]
     z[, y[n + 1]] <- as.vector(x)
     z
@@ -3272,8 +3271,8 @@ flowdate.seq <- function (x, y, n = 1)
 #' @param y = a matrix/data frame of total return indices
 #' @param delay = the number of days needed for the predictors to be known
 #' @param lags = a numeric vector of predictor lags
-#' @param floWind = a numeric vector of trailing flow windows
-#' @param retWind = a numeric vector of forward return windows
+#' @param floW = a numeric vector of trailing flow windows
+#' @param retW = a numeric vector of forward return windows
 #' @param nBins = a numeric vector
 #' @param grp.fcn = a function that maps yyyymmdd dates to groups of interest (e.g. day of the week)
 #' @param convert2df = T/F depending on whether you want the output converted to a data frame
@@ -3286,12 +3285,12 @@ flowdate.seq <- function (x, y, n = 1)
 #' @export
 #' @family fop
 
-fop <- function (x, y, delay, lags, floWind, retWind, nBins, grp.fcn, 
-    convert2df, reverse.vbl, prd.size, first.ret.date, findOptimalParametersFcn, 
+fop <- function (x, y, delay, lags, floW, retW, nBins, grp.fcn, convert2df, 
+    reverse.vbl, prd.size, first.ret.date, findOptimalParametersFcn, 
     sum.flows) 
 {
     z <- NULL
-    for (i in floWind) {
+    for (i in floW) {
         cat(txt.hdr(paste("floW", i, sep = " = ")), "\n")
         x.comp <- compound.flows(x, i, prd.size, sum.flows)
         if (reverse.vbl) 
@@ -3313,8 +3312,8 @@ fop <- function (x, y, delay, lags, floWind, retWind, nBins, grp.fcn,
             }
             vec <- fop.grp.map(grp.fcn, pctFlo, j, delay.loc, 
                 first.ret.date)
-            for (n in retWind) {
-                if (n != retWind[1]) 
+            for (n in retW) {
+                if (n != retW[1]) 
                   cat("\t")
                 cat("retW =", n, ":")
                 fwdRet <- bbk.fwdRet(pctFlo, y, n, j, delay.loc)
@@ -3323,9 +3322,9 @@ fop <- function (x, y, delay, lags, floWind, retWind, nBins, grp.fcn,
                   rslt <- findOptimalParametersFcn(pctFlo, fwdRet, 
                     vec, n, k)
                   if (is.null(z)) 
-                    z <- array(NA, c(length(floWind), length(lags), 
-                      length(retWind), length(nBins), dim(rslt)), 
-                      list(floWind, lags, retWind, nBins, dimnames(rslt)[[1]], 
+                    z <- array(NA, c(length(floW), length(lags), 
+                      length(retW), length(nBins), dim(rslt)), 
+                      list(floW, lags, retW, nBins, dimnames(rslt)[[1]], 
                         dimnames(rslt)[[2]], dimnames(rslt)[[3]]))
                   z[as.character(i), as.character(j), as.character(n), 
                     as.character(k), dimnames(rslt)[[1]], dimnames(rslt)[[2]], 
@@ -3338,8 +3337,7 @@ fop <- function (x, y, delay, lags, floWind, retWind, nBins, grp.fcn,
         cat("\n")
     }
     if (convert2df) 
-        z <- mat.ex.array(z, c("floW", "lag", "retW", "nBin", 
-            "stat", "bin", "dtGrp"), "stat")
+        z <- mat.ex.array(aperm(z, order(1:7 != 5)))
     z
 }
 
@@ -3502,8 +3500,7 @@ fop.wrapper <- function (x, y, retW, prd.size = 5, sum.flows = F, lag = 0, delay
         F, reverse.vbl, prd.size, F, fop.Bin, sum.flows)
     x <- x[, as.character(lag), , as.character(nBin), c("Sharpe", 
         "AnnMn"), c("Q1", "TxB"), "1"]
-    x <- mat.ex.array(x, c("floW", "retW", "stat", "bin"), "floW")
-    x <- mat.index(x, c("bin", "stat", "retW"))
+    x <- mat.ex.array(x)
     z <- data.frame(t(x), z, stringsAsFactors = F)
     z <- z[, txt.expand(c("Q1.Sharpe", "TxB.Sharpe", "IC", "Q1.AnnMn", 
         "TxB.AnnMn"), retW, ".")]
@@ -4691,23 +4688,20 @@ mat.daily.to.monthly <- function (x, y = F)
 
 #' mat.ex.array
 #' 
-#' a data frame with dimension <n> forming the column space
+#' a data frame with the first dimension forming the column space
 #' @param x = an array
-#' @param y = a string vector representing dimension labels
-#' @param n = dimension of interest
 #' @keywords mat.ex.array
 #' @export
 #' @family mat
 
-mat.ex.array <- function (x, y, n) 
+mat.ex.array <- function (x) 
 {
-    z <- dimnames(x)[[(1:length(y))[y == n]]]
-    x <- array.unlist(x, c(y, "X"))
-    y <- simplify2array(split(x[, "X"], x[, n]))[, z]
-    x <- x[is.element(x[, n], x[1, n]), !is.element(dimnames(x)[[2]], 
-        c(n, "X"))]
-    z <- data.frame(x, y, row.names = 1:dim(x)[1], stringsAsFactors = F)
-    dimnames(z)[[2]] <- c(dimnames(x)[[2]], dimnames(y)[[2]])
+    z <- dimnames(x)
+    z[[1]] <- NULL
+    z <- expand.grid(z)[, dim(z)[2]:1]
+    z <- do.call(paste, z)
+    z <- matrix(as.vector(x), length(z), dim(x)[1], T, list(z, 
+        dimnames(x)[[1]]))
     z
 }
 
@@ -4715,16 +4709,15 @@ mat.ex.array <- function (x, y, n)
 #' 
 #' unlists the contents of an array to a data frame
 #' @param x = a three-dimensional numerical array
-#' @param y = dimension which becomes the panel header
-#' @param n = dimension which forms the rows
+#' @param y = a vector of length 3
 #' @keywords mat.ex.array3d
 #' @export
 #' @family mat
 
-mat.ex.array3d <- function (x, y = "C", n = "A") 
+mat.ex.array3d <- function (x, y = 1:3) 
 {
-    z <- mat.ex.array(x, char.seq("A", "C"), n)
-    z <- t(mat.index(z, union(y, dimnames(z)[[2]][1:2])))
+    z <- aperm(x, order(y))
+    z <- t(mat.ex.array(z))
     z
 }
 
@@ -5809,7 +5802,6 @@ parameters <- function (x)
 #' @param x = a string vector without NA's
 #' @keywords permutations
 #' @export
-#' @family permutations
 
 permutations <- function (x) 
 {
@@ -5823,40 +5815,12 @@ permutations <- function (x)
     z
 }
 
-#' permutations.buckets.many
-#' 
-#' all possible choices of one element from each vector
-#' @param x = a list object of string vectors without NA's
-#' @keywords permutations.buckets.many
-#' @export
-#' @family permutations
-
-permutations.buckets.many <- function (x) 
-{
-    h <- length(x)
-    y <- as.numeric(lapply(x, length))
-    z <- round(product(y))
-    z <- matrix("", z, h, F, list(1:z, 1:h))
-    m <- 1
-    n <- y[1]
-    i <- 1
-    while (i < h + 1) {
-        z[, i] <- rep(rep(x[[i]], dim(z)[1]/n), m)[order(rep(seq(1, 
-            dim(z)[1]/m), m))]
-        i <- i + 1
-        m <- m * y[i - 1]
-        n <- n * y[i]
-    }
-    z
-}
-
 #' permutations.next
 #' 
 #' returns the next permutation in dictionary order
 #' @param x = a vector of integers 1:length(<x>) in some order
 #' @keywords permutations.next
 #' @export
-#' @family permutations
 
 permutations.next <- function (x) 
 {

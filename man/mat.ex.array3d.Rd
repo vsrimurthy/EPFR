@@ -4,14 +4,12 @@
 \alias{mat.ex.array3d}
 \title{mat.ex.array3d}
 \usage{
-mat.ex.array3d(x, y = "C", n = "A")
+mat.ex.array3d(x, y = 1:3)
 }
 \arguments{
 \item{x}{= a three-dimensional numerical array}
 
-\item{y}{= dimension which becomes the panel header}
-
-\item{n}{= dimension which forms the rows}
+\item{y}{= a vector of length 3}
 }
 \description{
 unlists the contents of an array to a data frame
