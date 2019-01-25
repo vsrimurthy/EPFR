@@ -346,8 +346,7 @@ bbk.bin.rets.prd.summ <- function (fcn, x, y, n)
     x <- mat.ex.matrix(x)
     fcn.loc <- function(x) fcn(x, n, T)
     z <- split(x, y)
-    z <- lapply(z, fcn.loc)
-    z <- simplify2array(z)
+    z <- sapply(z, fcn.loc, simplify = "array")
     z
 }
 
@@ -986,15 +985,12 @@ char.to.num <- function (x)
 
 col.ex.int <- function (x) 
 {
-    z <- x - 1
-    z <- vec.to.list(z)
-    z <- lapply(z, base.ex.int)
-    z <- lapply(z, vec.last.element.increment)
-    z <- lapply(z, sum, 64)
-    z <- lapply(z, char.ex.int)
-    fcn <- function(x) paste(x, collapse = "")
+    fcn <- function(x) vec.last.element.increment(base.ex.int(x))
+    z <- lapply(vec.to.list(x - 1), fcn)
+    fcn <- function(x) char.ex.int(x + 64)
     z <- lapply(z, fcn)
-    z <- as.character(unlist(z))
+    fcn <- function(x) paste(x, collapse = "")
+    z <- as.character(sapply(z, fcn))
     z
 }
 
@@ -1022,12 +1018,10 @@ col.offset <- function (x, y)
 
 col.to.int <- function (x) 
 {
-    z <- vec.to.list(x)
-    z <- lapply(z, txt.to.char)
+    z <- lapply(vec.to.list(x), txt.to.char)
     fcn <- function(x) char.to.int(x) - char.to.int("A") + 1
     z <- lapply(z, fcn)
-    z <- lapply(z, base.to.int)
-    z <- as.numeric(unlist(z))
+    z <- as.numeric(sapply(z, base.to.int))
     z
 }
 
@@ -1894,7 +1888,7 @@ extract.AnnMn.sf.wrapper <- function (x, y = "AnnMn")
 fcn.all.canonical <- function () 
 {
     x <- fcn.list()
-    w <- unlist(lapply(vec.to.list(x), fcn.canonical))
+    w <- sapply(vec.to.list(x), fcn.canonical)
     if (all(w)) 
         cat("All functions are canonical ...\n")
     if (any(!w)) 
@@ -2250,7 +2244,7 @@ fcn.direct.sub <- function (x)
     fcn <- function(z) {
         txt.has(x, paste(z, "(", sep = ""), T)
     }
-    w <- unlist(lapply(vec.to.list(z), fcn))
+    w <- sapply(vec.to.list(z), fcn)
     if (any(w)) 
         z <- z[w]
     else z <- NULL
@@ -2267,16 +2261,7 @@ fcn.direct.sub <- function (x)
 
 fcn.direct.super <- function (x) 
 {
-    x <- paste(x, "(", sep = "")
-    z <- fcn.list()
-    fcn <- function(z) {
-        txt.has(fcn.to.txt(z), x, T)
-    }
-    w <- unlist(lapply(vec.to.list(z), fcn))
-    if (any(w)) 
-        z <- z[w]
-    else z <- NULL
-    z
+    fcn.has(paste(x, "(", sep = ""))
 }
 
 #' fcn.expressions.count
@@ -2355,7 +2340,7 @@ fcn.has <- function (x)
 {
     fcn <- function(y) txt.has(fcn.to.txt(y, F), x, T)
     z <- fcn.list()
-    z <- z[unlist(lapply(vec.to.list(z), fcn))]
+    z <- z[sapply(vec.to.list(z), fcn)]
     z
 }
 
@@ -2621,29 +2606,28 @@ fcn.mat.vec <- function (fcn, x, y, n)
         z <- fcn(x, y)
     }
     else if (n & missing(y)) {
-        z <- simplify2array(lapply(mat.ex.matrix(x), fcn))
+        z <- sapply(mat.ex.matrix(x), fcn)
     }
     else if (!n & missing(y)) {
-        z <- t(simplify2array(lapply(mat.ex.matrix(t(x)), fcn)))
+        z <- t(sapply(mat.ex.matrix(t(x)), fcn))
     }
     else if (n & is.null(dim(y))) {
-        z <- simplify2array(lapply(mat.ex.matrix(x), fcn, y))
+        z <- sapply(mat.ex.matrix(x), fcn, y)
     }
     else if (!n & is.null(dim(y))) {
-        z <- t(simplify2array(lapply(mat.ex.matrix(t(x)), fcn, 
-            y)))
+        z <- t(sapply(mat.ex.matrix(t(x)), fcn, y))
     }
     else if (n) {
         w <- dim(x)[1]
         fcn.loc <- function(x) fcn(x[1:w], x[1:w + w])
         y <- rbind(x, y)
-        z <- simplify2array(lapply(mat.ex.matrix(y), fcn.loc))
+        z <- sapply(mat.ex.matrix(y), fcn.loc)
     }
     else {
         w <- dim(x)[2]
         fcn.loc <- function(x) fcn(x[1:w], x[1:w + w])
         y <- cbind(x, y)
-        z <- t(simplify2array(lapply(mat.ex.matrix(t(y)), fcn.loc)))
+        z <- t(sapply(mat.ex.matrix(t(y)), fcn.loc))
     }
     if (!is.null(dim(x))) 
         dimnames(z) <- dimnames(x)
@@ -2714,7 +2698,7 @@ fcn.order <- function ()
     x <- fcn.list()
     x <- split(x, x)
     fcn <- function(x) paste(x, "<-", fcn.to.txt(x, T, F))
-    x <- unlist(lapply(x, fcn))
+    x <- sapply(x, fcn)
     cat(x, file = fcn.path(), sep = "\n")
     invisible()
 }
@@ -4551,7 +4535,7 @@ map.classif <- function (x, y, n)
     z <- vec.to.list(intersect(c(n, paste(n, 1:5, sep = "")), 
         dimnames(y)[[2]]))
     fcn <- function(i) as.numeric(map.rname(x, y[, i]))
-    z <- avail(simplify2array(lapply(z, fcn)))
+    z <- avail(sapply(z, fcn))
     z
 }
 
@@ -5473,7 +5457,7 @@ mk.SatoMem <- function (x, y, n)
     z <- vec.to.list(intersect(c("isin", paste("isin", 1:5, sep = "")), 
         dimnames(n)[[2]]))
     fcn <- function(i) is.element(n[, i], y)
-    z <- simplify2array(lapply(z, fcn))
+    z <- sapply(z, fcn)
     z <- as.numeric(apply(z, 1, max))
     z
 }
@@ -6025,7 +6009,7 @@ portfolio.beta.wrapper <- function (x, y, n)
     y <- fcn(y)
     z <- lapply(z, fcn)
     fcn <- function(x) rowSums(x * y)/rowSums(y * y)
-    z <- simplify2array(lapply(z, fcn))
+    z <- sapply(z, fcn)
     dimnames(z)[[1]] <- dimnames(x)[[1]]
     z
 }
@@ -7796,7 +7780,7 @@ sql.1dActWtTrend.topline <- function (x, y, n)
     else {
         z <- "SecurityId"
     }
-    z <- c(z, unlist(lapply(vec.to.list(x), sql.1dActWtTrend.select)))
+    z <- c(z, sapply(vec.to.list(x), sql.1dActWtTrend.select))
     x <- sql.1dActWtTrend.topline.from()
     if (!n) 
         x <- c(x, "inner join", "SecurityHistory id on id.HSecurityId = hld.HSecurityId")
@@ -7968,7 +7952,7 @@ sql.1dFloMo.Ctry.Allocations <- function (x, y, n)
     else n <- map.rname(n, names(x))
     fcn <- function(x) paste("[", x[1], "] = ", sql.1dFloMo.Ctry.Allocations.term(x[-1], 
         n[x[1]]), sep = "")
-    z <- c("FundId", "WeightDate", unlist(lapply(x, fcn)))
+    z <- c("FundId", "WeightDate", sapply(x, fcn))
     z <- sql.tbl(z, sql.AllocTbl(y))
     z
 }
@@ -7991,7 +7975,7 @@ sql.1dFloMo.Ctry.Allocations.GF.avg <- function (x, y)
         z <- paste(paste("isnull(", x, ", 0)", sep = ""), collapse = " + ")
         paste("sum((", z, ") * FundSize)/sum(FundSize)", sep = "")
     }
-    z <- unlist(lapply(x, fcn))
+    z <- sapply(x, fcn)
     z <- c("WeightDate", "GeographicFocus", paste("[", names(x), 
         "] = ", z, sep = ""))
     z <- sql.tbl(z, y, "FundType = 'E'", "WeightDate, GeographicFocus")
@@ -8402,7 +8386,7 @@ sql.1dFloTrend <- function (x, y, n, w, h)
     else {
         z <- "n1.SecurityId"
     }
-    z <- c(z, unlist(lapply(vec.to.list(y$factor), sql.1dFloTrend.select)))
+    z <- c(z, sapply(vec.to.list(y$factor), sql.1dFloTrend.select))
     x <- sql.1dFloTrend.underlying(y$filter, w, x, n)
     h <- ifelse(h, "n1.HSecurityId", "n1.SecurityId")
     z <- c(paste(x$PRE, collapse = "\n"), paste(sql.unbracket(sql.tbl(z, 
@@ -9100,11 +9084,10 @@ sql.AllocTbl <- function (x)
 
 sql.and <- function (x, y = "", n = "and") 
 {
-    m <- length(names(x))
+    m <- length(x)
     if (m > 1) {
         fcn <- function(x) c(n, paste(y, "\t", x, sep = ""))
-        z <- lapply(x, fcn)
-        z <- unlist(z)[-1]
+        z <- sapply(x, fcn)[-1]
     }
     else {
         z <- x[[1]]
@@ -10197,9 +10180,7 @@ sqlts.wrapper <- function (x, y)
     }
     close(h)
     z <- list.common.row.space(union, z, 1)
-    z <- lapply(z, as.matrix)
-    z <- simplify2array(z)
-    z <- z[, -1, ]
+    z <- sapply(z, as.matrix, simplify = "array")[, -1, ]
     z
 }
 
@@ -10260,8 +10241,7 @@ summ.multi <- function (fcn, x, y)
     }
     else {
         z <- split(x, 1:dim(x)[1]%%y)
-        z <- lapply(z, fcn)
-        z <- simplify2array(z)
+        z <- sapply(z, fcn, simplify = "array")
         z <- apply(z, 2:length(dim(z)) - 1, mean)
     }
     z
