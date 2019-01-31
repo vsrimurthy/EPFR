@@ -532,7 +532,7 @@ bbk.drawdown <- function (x)
     }
     else {
         z <- vec.to.lags(x, n, F)
-        z <- mat.cum(sum, z, T, F)
+        for (i in 2:n) z[, i] <- z[, i] + z[, i - 1]
         prd.num <- order(apply(z, 2, min, na.rm = T))[1]
         prd.beg <- order(z[, prd.num])[1]
         z <- seq(prd.beg, length.out = prd.num)
@@ -551,9 +551,9 @@ bbk.drawdown <- function (x)
 
 bbk.fanChart <- function (x) 
 {
-    z <- as.matrix(x)[, paste("Q", 1:5, sep = "")]
-    z <- z[!is.na(z[, 1]), ]
-    z <- mat.cum(compound, z, F, T)/100
+    x <- mat.reverse(x[!is.na(x[, 1]), paste("Q", 1:5, sep = "")])
+    for (j in 2:dim(x)[1]) x[j, ] <- apply(x[j - 1:0, ], 2, compound)
+    z <- mat.reverse(x)/100
     z
 }
 
@@ -1063,17 +1063,16 @@ combinations <- function (x, y)
 combinations.next <- function (x) 
 {
     m <- length(x)
-    n <- (m:1)[!x[m:1] & !duplicated(!x[m:1])]
-    w <- x[n:1] & !duplicated(x[n:1])
-    if (any(w)) {
-        n <- (n:1)[w]
+    n <- find.data(!x, F)
+    if (any(x[1:n])) {
+        n <- find.data(x[1:n], F)
         nT <- sum(x) - sum(x[1:n])
         x[n:m] <- F
         x[n + 1 + 0:nT] <- T
         z <- x
     }
     else {
-        z <- rep(F, length(x))
+        z <- rep(F, m)
     }
     z
 }
@@ -1179,7 +1178,7 @@ compound.sf <- function (x, y)
     x <- zav(x)
     z <- rep(NA, dim(x)[1])
     if (any(w)) 
-        z[w] <- fcn.mat.num(fcn, x[w, ], , F)
+        z[w] <- mat.compound(x[w, ])
     z
 }
 
@@ -1426,7 +1425,7 @@ Ctry.msci.members <- function (x, y)
         w <- w & x$YYYYMM > y
         if (any(w)) {
             x <- mat.reverse(x)
-            w <- w[dim(x)[1]:1]
+            w <- rev(w)
             x[, "ACTION"] <- ifelse(x[, "ACTION"] == "IN", "OUT", 
                 "IN")
             for (i in 1:sum(w)) {
@@ -2873,7 +2872,7 @@ fcn.vec.grp <- function (fcn, x, y)
 #' fcn.vec.num
 #' 
 #' applies <fcn> to <x>
-#' @param fcn = function mapping vector(s) to a single value
+#' @param fcn = function mapping elements to elements
 #' @param x = an element or vector
 #' @param y = an element or isomekic vector
 #' @keywords fcn.vec.num
@@ -3108,11 +3107,12 @@ file.to.last <- function (x)
 
 find.data <- function (x, y = T) 
 {
-    n <- length(x)
-    if (y) 
-        z <- (1:n)[x & !duplicated(x)]
-    if (!y) 
-        z <- (1:n)[x & !duplicated(x[n:1])[n:1]]
+    z <- 1:length(x)
+    if (!y) {
+        x <- rev(x)
+        z <- rev(z)
+    }
+    z <- z[x & !duplicated(x)]
     z
 }
 
@@ -4633,32 +4633,6 @@ mat.count <- function (x)
     z
 }
 
-#' mat.cum
-#' 
-#' cumulatively applies <fcn> to the rows/columns of <x>
-#' @param fcn = function mapping vectors to a single value
-#' @param x = a mat object
-#' @param y = T/F depending on whether time runs forwards
-#' @param n = T/F depending on whether you apply <fcn> to rows or columns
-#' @keywords mat.cum
-#' @export
-#' @family mat
-
-mat.cum <- function (fcn, x, y, n) 
-{
-    if (!n) 
-        x <- t(x)
-    if (!y) 
-        x <- x[dim(x)[1]:1, ]
-    for (j in 2:dim(x)[1]) x[j, ] <- apply(x[j - 1:0, ], 2, fcn)
-    if (!y) 
-        x <- x[dim(x)[1]:1, ]
-    if (!n) 
-        x <- t(x)
-    z <- x
-    z
-}
-
 #' mat.daily.to.monthly
 #' 
 #' returns latest data in each month indexed by <yyyymm> ascending
@@ -4695,10 +4669,7 @@ mat.daily.to.monthly <- function (x, y = F)
 
 mat.ex.array <- function (x) 
 {
-    z <- dimnames(x)
-    z[[1]] <- NULL
-    z <- expand.grid(z)[, dim(z)[2]:1]
-    z <- do.call(paste, z)
+    z <- do.call(paste, rev(expand.grid(dimnames(x)[-1])))
     z <- matrix(as.vector(x), length(z), dim(x)[1], T, list(z, 
         dimnames(x)[[1]]))
     z
@@ -10385,19 +10356,12 @@ txt.excise <- function (x, y)
 
 txt.expand <- function (x, y, n = "-", w = F) 
 {
-    i <- length(x)
-    j <- length(y)
-    y <- rep(y, i)
-    x <- rep(x, j)
-    if (!w) {
-        m <- rep(1:i, j)
-        x <- x[order(m)]
-    }
-    else {
-        m <- rep(1:j, i)
-        y <- y[order(m)]
-    }
-    z <- paste(x, y, sep = n)
+    z <- list(x = x, y = y)
+    if (w) 
+        z <- expand.grid(z)
+    else z <- rev(expand.grid(rev(z)))
+    z[["sep"]] <- n
+    z <- do.call(paste, z)
     z
 }
 
@@ -10704,7 +10668,7 @@ txt.replace <- function (x, y, n)
 
 txt.reverse <- function (x) 
 {
-    fcn <- function(x) paste(txt.to.char(x)[nchar(x):1], collapse = "")
+    fcn <- function(x) paste(rev(txt.to.char(x)), collapse = "")
     z <- fcn.vec.num(fcn, x)
     z
 }
@@ -11061,10 +11025,10 @@ vec.to.lags <- function (x, y, n = T)
     z <- mat.ex.matrix(matrix(NA, m, y, F, list(1:m, paste("lag", 
         1:y - 1, sep = ""))))
     if (!n) 
-        x <- x[m:1]
+        x <- rev(x)
     for (i in 1:y) z[i:m, i] <- x[i:m - i + 1]
     if (!n) 
-        z <- z[m:1, ]
+        z <- mat.reverse(z)
     z
 }
 

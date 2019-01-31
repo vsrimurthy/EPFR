@@ -7,7 +7,7 @@
 fcn.vec.num(fcn, x, y)
 }
 \arguments{
-\item{fcn}{= function mapping vector(s) to a single value}
+\item{fcn}{= function mapping elements to elements}
 
 \item{x}{= an element or vector}
 

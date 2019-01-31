@@ -17,7 +17,7 @@ unlists the contents of an array to a data frame
 \seealso{
 Other mat: \code{\link{mat.combine}},
   \code{\link{mat.compound}}, \code{\link{mat.correl}},
-  \code{\link{mat.count}}, \code{\link{mat.cum}},
+  \code{\link{mat.count}},
   \code{\link{mat.daily.to.monthly}},
   \code{\link{mat.ex.array}}, \code{\link{mat.ex.matrix}},
   \code{\link{mat.ex.vec}}, \code{\link{mat.fake}},
