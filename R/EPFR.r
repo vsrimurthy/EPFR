@@ -5568,7 +5568,7 @@ mk.vbl.trail.fetch <- function (x, y, n)
 #' 
 #' compounded variable over some trailing window
 #' @param x = a single YYYYMM or YYYYMMDD
-#' @param y = a string vector, the elements of which are: 1) variable to fetch (e.g. "AllocMo"/"AllocDiff"/"AllocTrend"/"Ret") 2) T to sum or F to compound (e.g. "T") 3) number of trailing periods to use (e.g. "11") 4) number of periods to lag (defaults to "0") 5) sub-folder to fetch basic variable from (defaults to "derived") 6) T/F depending on whether the compounded variable is daily (defaults to F, matters only if <x> is monthly)
+#' @param y = a string vector, the elements of which are: 1) variable to fetch (e.g. "1mAllocMo"/"1dAllocDiff"/"1dAllocTrend"/"Ret") 2) T to sum or F to compound (e.g. "T") 3) number of trailing periods to use (e.g. "11") 4) number of periods to lag (defaults to "0") 5) sub-folder to fetch basic variable from (defaults to "derived") 6) T/F depending on whether the compounded variable is daily (defaults to F, matters only if <x> is monthly)
 #' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
 #' @keywords mk.vbl.trail.sum
 #' @export
@@ -7191,7 +7191,7 @@ rrw.underlying <- function (prd, vbls, univ, grp.nm, ret.nm, fldr, orth.factor,
     grp <- classif[, grp.nm]
     mem <- fetch(univ, yyyymm.lag(prd, 1), 1, paste(fldr, "\\data", 
         sep = ""), classif)
-    z <- mat.zScore(z, mem, grp)
+    z <- mat.ex.matrix(mat.zScore(z, mem, grp))
     z$grp <- grp
     z$mem <- mem
     z$ret <- fetch(ret.nm, prd, 1, paste(fldr, "\\data", sep = ""), 
@@ -7208,7 +7208,7 @@ rrw.underlying <- function (prd, vbls, univ, grp.nm, ret.nm, fldr, orth.factor,
         }
     }
     w <- apply(mat.to.obs(z[, c(vbls, "ret")]), 1, max) > 0
-    z <- zav(z[w, ])
+    z <- mat.ex.matrix(zav(z[w, ]))
     z$ret <- z$ret - mean(z$ret)
     z
 }
