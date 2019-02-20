@@ -155,6 +155,29 @@ email <- function (x, y, n, w = "")
     invisible()
 }
 
+#' array.relist
+#' 
+#' array indexed by all combinations of elements of <x>
+#' @param x = data frame of dimnames (must be a list)
+#' @param y = vector of values
+#' @param n = T/F depending on whether zav is to be applied
+#' @keywords array.relist
+#' @export
+#' @family array
+
+array.relist <- function (x, y, n = F) 
+{
+    z <- lapply(x, function(x) x[!duplicated(x)])
+    h <- as.numeric(sapply(z, function(x) length(x)))
+    names(y) <- do.call(paste, x)
+    w <- do.call(paste, expand.grid(z))
+    y <- map.rname(y, w)
+    if (n) 
+        y <- zav(y)
+    z <- array(y, h, z)
+    z
+}
+
 #' array.unlist
 #' 
 #' unlists the contents of an array
@@ -162,6 +185,7 @@ email <- function (x, y, n, w = "")
 #' @param y = a vector of names for the columns of the output corresponding to the dimensions of <x>
 #' @keywords array.unlist
 #' @export
+#' @family array
 
 array.unlist <- function (x, y) 
 {
@@ -1229,18 +1253,19 @@ correl.PrcMo <- function (x, y, n, w)
 
 #' covar
 #' 
-#' the estimated covariance between <x> and <y> or the columns of <x>
-#' @param x = a numeric vector
-#' @param y = a numeric isomekic vector
-#' @param n = T/F depending on whether rank correlations are desired
+#' efficient estimated covariance between the columns of <x>
+#' @param x = a matrix
 #' @keywords covar
 #' @export
 
-covar <- function (x, y, n = F) 
+covar <- function (x) 
 {
-    if (missing(y)) 
-        fcn.mat.col(cov, x, , n)
-    else fcn.mat.col(cov, x, y, n)
+    w <- mat.to.obs(x)
+    x <- zav(x)
+    n <- crossprod(w)
+    z <- crossprod(x) - crossprod(x, w) * crossprod(w, x)/n
+    z <- z/(n - 1)
+    z
 }
 
 #' cpt.RgnSec
@@ -5315,6 +5340,42 @@ mk.FloAlphaLt.Ctry <- function (x, y, n)
     z
 }
 
+#' mk.Fragility
+#' 
+#' Generates the fragility measure set forth in Greenwood & Thesmar (2011) "Stock Price Fragility"
+#' @param x = a single YYYYMM
+#' @param y = folder where underlying data live
+#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
+#' @keywords mk.Fragility
+#' @export
+#' @family mk
+
+mk.Fragility <- function (x, y, n) 
+{
+    u <- fetch("HoldValTot", x, 1, paste(n$fldr, "derived", sep = "\\"), 
+        n$classif)
+    u <- nonneg(u^2)
+    x <- yyyymm.lag(x)
+    h <- mat.read(paste(y, "Flows.csv", sep = "\\"))
+    h <- t(h[, yyyymm.lag(x, 59:0)])
+    x <- mat.read(paste(y, "\\Wt-", x, ".csv", sep = ""))
+    h <- h[, is.element(dimnames(h)[[2]], x[, "FundId"])]
+    h <- h[, mat.count(h)[, 1] > 39]
+    h <- covar(h)
+    x <- x[is.element(x[, "FundId"], dimnames(h)[[2]]) & is.element(x[, 
+        "SecurityId"], dimnames(n$classif)[[1]]), ]
+    h <- h[is.element(dimnames(h)[[1]], x[, "FundId"]), ]
+    h <- h[, dimnames(h)[[1]]]
+    x <- array.relist(x[, c("SecurityId", "FundId")], x[, "Wt"], 
+        T)
+    x <- x[, dimnames(h)[[2]]]
+    h <- tcrossprod(h, x)
+    z <- colSums(t(x) * h)
+    z <- as.numeric(map.rname(z, dimnames(n$classif)[[1]]))
+    z <- z/u
+    z
+}
+
 #' mk.FundsMem
 #' 
 #' Returns a 1/0 vector with the same row space as <n> that is 1 whenever it has the right fund type as well as one-month forward return.
@@ -5332,6 +5393,69 @@ mk.FundsMem <- function (x, y, n)
         sep = "\\"), n$classif)
     z <- w & !is.na(z)
     z <- as.numeric(z)
+    z
+}
+
+#' mk.HerdingLSV
+#' 
+#' Generates the herding measure set forth in LSV's 1991 paper "Do institutional investors destabilize stock prices?"
+#' @param x = a single YYYYMM
+#' @param y = a string vector, the elements of which are: 1) file to read from 2) variable to compute (LSV/DIR)
+#' @param n = list object containing the following items: a) fldr - stock-flows folder
+#' @keywords mk.HerdingLSV
+#' @export
+#' @family mk
+
+mk.HerdingLSV <- function (x, y, n) 
+{
+    x <- paste(n$fldr, "\\sqlDump\\", y[1], ".", x, ".r", sep = "")
+    x <- readRDS(x)[, c("B", "S", "expPctBuy")]
+    u <- x[, "expPctBuy"]
+    u <- u[!is.na(u)][1]
+    n <- rowSums(x[, c("B", "S")])
+    h <- vec.unique(nonneg(n))
+    z <- rep(NA, length(n))
+    for (i in h) {
+        w <- is.element(n, i)
+        if (y[2] == "LSV") {
+            z[w] <- abs(x[w, "B"]/n[w] - u) - sum(abs(0:i/i - 
+                u) * dbinom(0:i, i, u))
+        }
+        else if (y[2] == "DIR") {
+            w2 <- w & x[, "B"] >= x[, "S"]
+            if (any(w2)) 
+                z[w2] <- pbinom(x[w2, "B"] - 1, i, u)
+            if (any(w & !w2)) 
+                z[w & !w2] <- -pbinom(x[w & !w2, "B"], i, u, 
+                  F)
+        }
+        else {
+            stop("Bad <y> argument!")
+        }
+    }
+    z
+}
+
+#' mk.HoldValTot
+#' 
+#' Total Holding Value ($MM)
+#' @param x = a single YYYYMM
+#' @param y = one of All/Act/Pas/Etf/Mutual/JP/xJP/CBE
+#' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect
+#' @keywords mk.HoldValTot
+#' @export
+#' @family mk
+
+mk.HoldValTot <- function (x, y, n) 
+{
+    x <- sql.declare("@mo", "datetime", yyyymm.to.day(yyyymm.lag(x)))
+    y <- list(A = sql.in("HFundId", sql.FundHistory("", y, T)), 
+        B = "ReportDate = @mo")
+    w <- "Holdings t1 inner join SecurityHistory t2 on t1.HSecurityId = t2.HSecurityId"
+    z <- sql.tbl("SecurityId, AUM = sum(HoldingValue)", w, sql.and(y), 
+        "SecurityId")
+    z <- paste(c(x, sql.unbracket(z)), collapse = "\n")
+    z <- sql.map.classif(z, "AUM", n$conn, n$classif)
     z
 }
 
@@ -5451,6 +5575,25 @@ mk.sqlDump <- function (x, y, n)
     z
 }
 
+#' mk.SRIMem
+#' 
+#' 1/0 depending on whether <y> or more SRI funds own the stock
+#' @param x = a single YYYYMM
+#' @param y = a positive integer
+#' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) DB - any of StockFlows/Japan/CSI300/Energy
+#' @keywords mk.SRIMem
+#' @export
+#' @family mk
+
+mk.SRIMem <- function (x, y, n) 
+{
+    x <- yyyymm.lag(x)
+    x <- sql.SRI(x, n$DB)
+    z <- sql.map.classif(x, "Ct", n$conn, n$classif)
+    z <- as.numeric(!is.na(z) & z >= y)
+    z
+}
+
 #' mk.vbl.chg
 #' 
 #' Makes the MoM change in the variable
@@ -5533,6 +5676,32 @@ mk.vbl.ratio <- function (x, y, n)
 {
     z <- fetch(y, x, 1, paste(n$fldr, "data", sep = "\\"), n$classif)
     z <- z[, 1]/nonneg(z[, 2])
+    z
+}
+
+#' mk.vbl.scale
+#' 
+#' Linearly scales the first variable based on percentiles of the second. Top decile goes to scaling factor. Bot decile is fixed.
+#' @param x = a single YYYYMM
+#' @param y = a string vector, the elements of which are: 1) the variable to be scaled 2) the secondary variable 3) the universe within which to scale 4) the grouping within which to scale 5) scaling factor on top decile
+#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
+#' @keywords mk.vbl.scale
+#' @export
+#' @family mk
+
+mk.vbl.scale <- function (x, y, n) 
+{
+    w <- is.element(fetch(y[3], x, 1, paste(n$fldr, "data", sep = "\\"), 
+        n$classif), 1)
+    h <- n$classif[, y[4]]
+    x <- fetch(y[1:2], x, 1, paste(n$fldr, "derived", sep = "\\"), 
+        n$classif)
+    y <- as.numeric(y[5])
+    x[w, 2] <- 1 - fcn.vec.grp(ptile, x[w, 2], h[w])/100
+    x[w, 2] <- ifelse(is.na(x[w, 2]), 0.5, x[w, 2])
+    z <- rep(NA, dim(x)[1])
+    z[w] <- (x[w, 2] * 5 * (1 - y)/4 + (9 * y - 1)/8) * x[w, 
+        1]
     z
 }
 
@@ -9394,6 +9563,51 @@ sql.FundHistory.sf <- function (x)
     z
 }
 
+#' sql.HerdingLSV
+#' 
+#' Generates ingredients of the herding measure set forth in LSV's 1991 paper "Do institutional investors destabilize stock prices?"
+#' @param x = the YYYYMM for which you want data (known 26 days later)
+#' @param y = any of StockFlows/Japan/CSI300/Energy
+#' @keywords sql.HerdingLSV
+#' @export
+#' @family sql
+
+sql.HerdingLSV <- function (x, y) 
+{
+    z <- sql.drop(c("#NEW", "#OLD", "#FLO"))
+    z <- c(z, "", sql.into(sql.tbl("HSecurityId, HFundId, FundId, HoldingValue", 
+        "Holdings", paste("ReportDate = '", yyyymm.to.day(x), 
+            "'", sep = "")), "#NEW"))
+    z <- c(z, "", sql.into(sql.tbl("HSecurityId, FundId, HoldingValue", 
+        "Holdings", paste("ReportDate = '", yyyymm.to.day(yyyymm.lag(x)), 
+            "'", sep = "")), "#OLD"))
+    w <- list(A = paste("ReportDate = '", yyyymm.to.day(x), "'", 
+        sep = ""))
+    w[["B"]] <- "t1.HFundId in (select HFundId from FundHistory where [Index] = 0)"
+    w[["C"]] <- "t1.HFundId in (select HFundId from #NEW)"
+    w[["D"]] <- "FundId in (select FundId from #OLD)"
+    w <- sql.tbl("t1.HFundId, FundId, Flow = sum(Flow)", "MonthlyData t1 inner join FundHistory t2 on t2.HFundId = t1.HFundId", 
+        sql.and(w), "t1.HFundId, FundId")
+    z <- paste(c(z, "", sql.into(w, "#FLO")), collapse = "\n")
+    h <- c("t1.HSecurityId", "prcRet = sum(t1.HoldingValue)/sum(t2.HoldingValue)")
+    h <- sql.tbl(h, "#NEW t1 inner join #OLD t2 on t2.FundId = t1.FundId and t2.HSecurityId = t1.HSecurityId", 
+        "t1.HFundId in (select HFundId from FundHistory where [Index] = 1)", 
+        "t1.HSecurityId", "sum(t2.HoldingValue) > 0")
+    h <- c("#FLO t0", "cross join", sql.label(h, "t1"), "cross join")
+    h <- c(h, sql.label(sql.tbl("expPctBuy = sum(case when Flow > 0 then 1.0 else 0.0 end)/count(HFundId)", 
+        "#FLO"), "t4"))
+    h <- c(h, "left join", "#NEW t2 on t2.HFundId = t0.HFundId and t2.HSecurityId = t1.HSecurityId")
+    h <- c(h, "left join", "#OLD t3 on t3.FundId = t0.FundId and t3.HSecurityId = t1.HSecurityId")
+    h <- c(h, "inner join", "SecurityHistory id on id.HSecurityId = t1.HSecurityId")
+    w <- c("SecurityId", "B = sum(case when isnull(t2.HoldingValue, 0) > isnull(t3.HoldingValue, 0) * prcRet then 1 else 0 end)")
+    w <- c(w, "S = sum(case when isnull(t2.HoldingValue, 0) < isnull(t3.HoldingValue, 0) * prcRet then 1 else 0 end)", 
+        "expPctBuy = avg(expPctBuy)")
+    w <- sql.tbl(w, h, sql.in("t1.HSecurityId", sql.RDSuniv(y)), 
+        "SecurityId")
+    z <- c(z, paste(sql.unbracket(w), collapse = "\n"))
+    z
+}
+
 #' sql.Holdings
 #' 
 #' query to access stock-holdings data
@@ -9808,6 +10022,29 @@ sql.sf.wtd.avg <- function (x, y)
     z <- sql.unbracket(sql.tbl(z, w, , "t.HSecurityId, isnull(isin.SecurityCode, '')", 
         "sum(HoldingValue) > 0"))
     z <- paste(c(x, z), collapse = "\n")
+    z
+}
+
+#' sql.SRI
+#' 
+#' number of SRI funds holding the stock at time <x>
+#' @param x = the YYYYMM for which you want data (known 26 days later)
+#' @param y = any of StockFlows/Japan/CSI300/Energy
+#' @keywords sql.SRI
+#' @export
+#' @family sql
+
+sql.SRI <- function (x, y) 
+{
+    w <- list(A = "ReportDate = @holdDt", B = "HFundId in (select HFundId from FundHistory where SRI = 1)")
+    z <- sql.label(sql.tbl("HSecurityId, Ct = count(HFundId)", 
+        "Holdings", sql.and(w), "HSecurityId"), "t1")
+    z <- c(z, "inner join", "SecurityHistory id on id.HSecurityId = t1.HSecurityId")
+    z <- sql.tbl("SecurityId, Ct = sum(Ct)", z, sql.in("t1.HSecurityId", 
+        sql.RDSuniv(y)), "SecurityId")
+    z <- c(sql.declare("@holdDt", "datetime", yyyymm.to.day(x)), 
+        sql.unbracket(z))
+    z <- paste(z, collapse = "\n")
     z
 }
 

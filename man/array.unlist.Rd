@@ -14,4 +14,7 @@ array.unlist(x, y)
 \description{
 unlists the contents of an array
 }
+\seealso{
+Other array: \code{\link{array.relist}}
+}
 \keyword{array.unlist}

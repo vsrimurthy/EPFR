@@ -4,16 +4,12 @@
 \alias{covar}
 \title{covar}
 \usage{
-covar(x, y, n = F)
+covar(x)
 }
 \arguments{
-\item{x}{= a numeric vector}
-
-\item{y}{= a numeric isomekic vector}
-
-\item{n}{= T/F depending on whether rank correlations are desired}
+\item{x}{= a matrix}
 }
 \description{
-the estimated covariance between <x> and <y> or the columns of <x>
+efficient estimated covariance between the columns of <x>
 }
 \keyword{covar}
