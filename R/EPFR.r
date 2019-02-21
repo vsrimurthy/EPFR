@@ -1260,12 +1260,7 @@ correl.PrcMo <- function (x, y, n, w)
 
 covar <- function (x) 
 {
-    w <- mat.to.obs(x)
-    x <- zav(x)
-    n <- crossprod(w)
-    z <- crossprod(x) - crossprod(x, w) * crossprod(w, x)/n
-    z <- z/(n - 1)
-    z
+    cov(x, use = "pairwise.complete.obs")
 }
 
 #' cpt.RgnSec
