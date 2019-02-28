@@ -155,29 +155,6 @@ email <- function (x, y, n, w = "")
     invisible()
 }
 
-#' array.relist
-#' 
-#' array indexed by all combinations of elements of <x>
-#' @param x = data frame of dimnames (must be a list)
-#' @param y = vector of values
-#' @param n = T/F depending on whether zav is to be applied
-#' @keywords array.relist
-#' @export
-#' @family array
-
-array.relist <- function (x, y, n = F) 
-{
-    z <- lapply(x, function(x) x[!duplicated(x)])
-    h <- as.numeric(sapply(z, function(x) length(x)))
-    names(y) <- do.call(paste, x)
-    w <- do.call(paste, expand.grid(z))
-    y <- map.rname(y, w)
-    if (n) 
-        y <- zav(y)
-    z <- array(y, h, z)
-    z
-}
-
 #' array.unlist
 #' 
 #' unlists the contents of an array
@@ -185,7 +162,6 @@ array.relist <- function (x, y, n = F)
 #' @param y = a vector of names for the columns of the output corresponding to the dimensions of <x>
 #' @keywords array.unlist
 #' @export
-#' @family array
 
 array.unlist <- function (x, y) 
 {
@@ -5361,8 +5337,8 @@ mk.Fragility <- function (x, y, n)
         "SecurityId"], dimnames(n$classif)[[1]]), ]
     h <- h[is.element(dimnames(h)[[1]], x[, "FundId"]), ]
     h <- h[, dimnames(h)[[1]]]
-    x <- array.relist(x[, c("SecurityId", "FundId")], x[, "Wt"], 
-        T)
+    x <- reshape(x, idvar = "SecurityId", timevar = "FundId", 
+        direction = "wide")
     x <- x[, dimnames(h)[[2]]]
     h <- tcrossprod(h, x)
     z <- colSums(t(x) * h)
