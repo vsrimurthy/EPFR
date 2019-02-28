@@ -5339,6 +5339,10 @@ mk.Fragility <- function (x, y, n)
     h <- h[, dimnames(h)[[1]]]
     x <- reshape(x, idvar = "SecurityId", timevar = "FundId", 
         direction = "wide")
+    x <- mat.index(x)
+    dimnames(x)[[2]] <- txt.right(dimnames(x)[[2]], nchar(dimnames(x)[[2]]) - 
+        3)
+    x <- zav(x)
     x <- x[, dimnames(h)[[2]]]
     h <- tcrossprod(h, x)
     z <- colSums(t(x) * h)
