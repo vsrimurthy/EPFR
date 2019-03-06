@@ -5142,6 +5142,9 @@ mk.1mAllocMo <- function (x, y, n)
     if (y[1] == "AllocSkew") {
         z <- sql.1mAllocSkew(x, y, n$DB, F)
     }
+    else if (any(y[1] == paste("Herfindahl", c("", "Cap"), sep = ""))) {
+        z <- sql.Herfindahl(x, y, n$DB, F)
+    }
     else if (any(y[1] == paste("Alloc", c("Mo", "Trend", "Diff"), 
         sep = ""))) {
         z <- sql.1mAllocMo(x, y, n$DB, F)
@@ -9580,6 +9583,55 @@ sql.HerdingLSV <- function (x, y)
     w <- sql.tbl(w, h, sql.in("t1.HSecurityId", sql.RDSuniv(y)), 
         "SecurityId")
     z <- c(z, paste(sql.unbracket(w), collapse = "\n"))
+    z
+}
+
+#' sql.Herfindahl
+#' 
+#' Generates the SQL query for Herfindahl dispersion
+#' @param x = the YYYYMM for which you want data (known 26 days later)
+#' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
+#' @param n = any of StockFlows/Japan/CSI300/Energy
+#' @param w = T/F depending on whether you are checking ftp
+#' @keywords sql.Herfindahl
+#' @export
+#' @family sql
+
+sql.Herfindahl <- function (x, y, n, w) 
+{
+    y <- sql.arguments(y)
+    x <- sql.declare("@mo", "datetime", yyyymm.to.day(x))
+    if (n != "All") 
+        n <- list(A = sql.in("h.HSecurityId", sql.RDSuniv(n)))
+    else n <- list()
+    n[["B"]] <- "ReportDate = @mo"
+    if (y$filter != "All") 
+        n[["C"]] <- sql.in("h.HFundId", sql.FundHistory("", y$filter, 
+            T))
+    if (length(n) == 1) 
+        n <- n[[1]]
+    else n <- sql.and(n)
+    z <- "SecurityId"
+    for (j in y$factor) {
+        if (j == "HerfindahlCap") {
+            z <- c(z, paste(j, "1 - sum(square(HoldingValue))/square(sum(HoldingValue))", 
+                sep = " = "))
+        }
+        else if (j == "Herfindahl") {
+            z <- c(z, paste(j, "1 - sum(square(HoldingValue/AssetsEnd))/square(sum(HoldingValue/AssetsEnd))", 
+                sep = " = "))
+        }
+        else {
+            stop("Bad factor", j)
+        }
+    }
+    h <- c("Holdings h", "inner join", "SecurityHistory id on id.HSecurityId = h.HSecurityId")
+    if (any(y$factor == "Herfindahl")) {
+        h <- c(h, "inner join", sql.label(sql.MonthlyAssetsEnd("@mo"), 
+            "t on t.HFundId = h.HFundId"))
+    }
+    z <- sql.tbl(z, h, n, "SecurityId", "sum(HoldingValue) > 0")
+    z <- paste(c(x, sql.unbracket(z)), collapse = "\n")
     z
 }
 
