@@ -3616,8 +3616,15 @@ ftp.credential <- function (x)
 
 ftp.delete.script <- function (x, y, n, w) 
 {
-    c(paste("open", y), n, w, ftp.delete.script.underlying(x, 
+    if (missing(y)) 
+        y <- ftp.credential("ftp")
+    if (missing(n)) 
+        n <- ftp.credential("user")
+    if (missing(w)) 
+        w <- ftp.credential("pwd")
+    z <- c(paste("open", y), n, w, ftp.delete.script.underlying(x, 
         y, n, w))
+    z
 }
 
 #' ftp.delete.script.underlying
@@ -3766,6 +3773,12 @@ ftp.dir.ftp.code <- function (x, y, n, w, h)
 
 ftp.download.script <- function (x, y, n, w, h) 
 {
+    if (missing(n)) 
+        n <- ftp.credential("ftp")
+    if (missing(w)) 
+        w <- ftp.credential("user")
+    if (missing(h)) 
+        h <- ftp.credential("pwd")
     z <- ftp.all.files(x, n, w, h)
     h <- c(paste("open", n), w, h)
     w <- z
@@ -3825,6 +3838,12 @@ ftp.download.script <- function (x, y, n, w, h)
 
 ftp.file.size <- function (x, y, n, w) 
 {
+    if (missing(y)) 
+        y <- ftp.credential("ftp")
+    if (missing(n)) 
+        n <- ftp.credential("user")
+    if (missing(w)) 
+        w <- ftp.credential("pwd")
     ftp.file <- "C:\\temp\\foo.ftp"
     z <- ftp.txt(y, n, w)
     z <- paste(z, "\ndir \"", x, "\"", sep = "")
@@ -3901,6 +3920,12 @@ ftp.info <- function (x, y, n, w)
 
 ftp.is.file <- function (x, y, n, w) 
 {
+    if (missing(y)) 
+        y <- ftp.credential("ftp")
+    if (missing(n)) 
+        n <- ftp.credential("user")
+    if (missing(w)) 
+        w <- ftp.credential("pwd")
     m <- length(x)
     z <- rep(NA, m)
     for (i in 1:m) z[i] <- ftp.is.file.underlying(x[i], y, n, 
@@ -4108,8 +4133,15 @@ ftp.txt <- function (x, y, n)
 
 ftp.upload.script <- function (x, y, n, w, h) 
 {
-    c(paste("open", n), w, h, paste("cd \"", x, "\"", sep = ""), 
+    if (missing(n)) 
+        n <- ftp.credential("ftp")
+    if (missing(w)) 
+        w <- ftp.credential("user")
+    if (missing(h)) 
+        h <- ftp.credential("pwd")
+    z <- c(paste("open", n), w, h, paste("cd \"", x, "\"", sep = ""), 
         ftp.upload.script.underlying(y), "disconnect", "quit")
+    z
 }
 
 #' ftp.upload.script.underlying
