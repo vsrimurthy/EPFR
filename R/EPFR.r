@@ -4312,6 +4312,30 @@ int.to.prime <- function (x)
     z
 }
 
+#' knapsack
+#' 
+#' all the ways to subdivide <x> things amongst <y> people
+#' @param x = a non-negative integer
+#' @param y = a positive integer exceeding unity
+#' @keywords knapsack
+#' @export
+
+knapsack <- function (x, y) 
+{
+    z <- vec.to.list(0:x)
+    m <- 2
+    while (m < y) {
+        z <- lapply(z, function(h) vec.to.list(paste(h, seq(0, 
+            x - sum(as.numeric(txt.parse(h, " ")))))))
+        z <- vec.to.list(as.character(unlist(z)))
+        m <- m + 1
+    }
+    z <- as.character(unlist(z))
+    z <- paste(z, x - rowSums(fcn.mat.vec(as.numeric, txt.parse(z, 
+        " "), , T)))
+    z
+}
+
 #' latin.ex.arabic
 #' 
 #' returns <x> expressed as lower-case latin numerals
@@ -5174,7 +5198,10 @@ mk.1mAllocMo <- function (x, y, n)
     if (y[1] == "AllocSkew") {
         z <- sql.1mAllocSkew(x, y, n$DB, F)
     }
-    else if (any(y[1] == paste("Herfindahl", c("", "Cap"), sep = ""))) {
+    else if (y[1] == "Dispersion") {
+        z <- sql.Dispersion(x, y, n$DB, F)
+    }
+    else if (any(y[1] == c("Herfindahl", "HerfindahlCap", "Breadth"))) {
         z <- sql.Herfindahl(x, y, n$DB, F)
     }
     else if (any(y[1] == paste("Alloc", c("Mo", "Trend", "Diff"), 
@@ -7581,6 +7608,7 @@ sf.detail <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trail,
     sum.flows, fldr, dly.vbl = T, vbl.lag = 0, nBins = 5, reverse.vbl = F, 
     classif) 
 {
+    cat(vbl.nm, univ[1], "...\n")
     x <- sf.single.bsim(prdBeg, prdEnd, vbl.nm, univ, grp.nm, 
         ret.nm, fldr, dly.vbl, trail, sum.flows, vbl.lag, T, 
         nBins, reverse.vbl, 1, classif)
@@ -8961,6 +8989,8 @@ sql.1mAllocMo.underlying.pre <- function (x, y, n)
 {
     z <- sql.into(sql.MonthlyAssetsEnd(paste("'", y, "'", sep = ""), 
         "", T), "#MOFLOW")
+    if (any(x == "Up")) 
+        z <- c(z, "\tand", "\t\tsum(AssetsEnd - AssetsStart - Flow) > 0")
     z <- c(z, "", sql.into(sql.MonthlyAlloc(paste("'", y, "'", 
         sep = "")), "#NEWHLD"))
     z <- c(z, "", sql.into(sql.MonthlyAlloc(paste("'", n, "'", 
@@ -9004,6 +9034,12 @@ sql.1mAllocSkew <- function (x, y, n, w)
     if (any(y$filter == "Pseudo")) 
         z <- c(z, sql.Holdings.bulk("#HLD", cols, x, "#BMKHLD", 
             "#BMKAUM"), "")
+    if (any(y$filter == "Up")) {
+        h <- sql.tbl("HFundId", "MonthlyData", paste("ReportDate = '", 
+            x, "'", sep = ""), "HFundId", "sum(AssetsEnd - AssetsStart - Flow) < 0")
+        z <- c(z, c("delete from #HLD where", sql.in("HFundId", 
+            h)), "")
+    }
     if (w) {
         x <- c(paste("ReportDate = '", x, "'", sep = ""), "n1.HSecurityId")
     }
@@ -9228,7 +9264,7 @@ sql.and <- function (x, y = "", n = "and")
 sql.arguments <- function (x) 
 {
     filters <- c("All", "Act", "Pas", "Etf", "Mutual", "Num", 
-        "Pseudo", "xJP", "JP", "CBE")
+        "Pseudo", "Up", "xJP", "JP", "CBE")
     m <- length(x)
     while (any(x[m] == filters)) m <- m - 1
     if (m == length(x)) 
@@ -9376,6 +9412,66 @@ sql.Diff <- function (x, y)
         sep = "")
 }
 
+#' sql.Dispersion
+#' 
+#' Generates the dispersion measure set forth in Jiang & Sun (2011) "Dispersion in beliefs among active mutual funds and the cross-section of stock returns"
+#' @param x = the YYYYMM for which you want data (known 26 days later)
+#' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
+#' @param n = any of StockFlows/Japan/CSI300/Energy
+#' @param w = T/F depending on whether you are checking ftp
+#' @keywords sql.Dispersion
+#' @export
+#' @family sql
+
+sql.Dispersion <- function (x, y, n, w) 
+{
+    x <- paste("ReportDate = '", yyyymm.to.day(x), "'", sep = "")
+    z <- sql.drop(c("#HLD", "#BMK"))
+    z <- c(z, "", "create table #BMK (BenchIndexId int not null, HSecurityId int not null, HoldingValue float not null)")
+    z <- c(z, "create clustered index TempRandomBmkIndex ON #BMK(BenchIndexId, HSecurityId)")
+    u <- sql.and(list(A = x, B = "[Index] = 1"))
+    h <- "Holdings t1 inner join FundHistory t2 on t2.HFundId = t1.HFundId"
+    h <- sql.tbl("BenchIndexId, HSecurityId, HoldingValue = sum(HoldingValue)", 
+        h, u, "BenchIndexId, HSecurityId", "sum(HoldingValue) > 0")
+    z <- c(z, "insert into #BMK", sql.unbracket(h))
+    h <- sql.label(sql.tbl("BenchIndexId, AUM = sum(HoldingValue)", 
+        "#BMK", , "BenchIndexId", "sum(HoldingValue) > 0"), "t")
+    h <- sql.unbracket(sql.tbl("HoldingValue = HoldingValue/AUM", 
+        h, "#BMK.BenchIndexId = t.BenchIndexId"))
+    z <- c(z, "", "update #BMK set", h[-1])
+    z <- c(z, "", "create table #HLD (HFundId int not null, HSecurityId int not null, HoldingValue float not null)")
+    z <- c(z, "create clustered index TempRandomHldIndex ON #HLD(HFundId, HSecurityId)")
+    u <- "BenchIndexId in (select BenchIndexId from #BMK)"
+    u <- sql.and(list(A = x, B = "[Index] = 0", C = u, D = "HoldingValue > 0"))
+    h <- "Holdings t1 inner join FundHistory t2 on t2.HFundId = t1.HFundId"
+    h <- sql.tbl("t1.HFundId, HSecurityId, HoldingValue", h, 
+        u)
+    z <- c(z, "insert into #HLD", sql.unbracket(h))
+    h <- sql.label(sql.tbl("HFundId, AUM = sum(HoldingValue)", 
+        "#HLD", , "HFundId", "sum(HoldingValue) > 0"), "t")
+    h <- sql.unbracket(sql.tbl("HoldingValue = HoldingValue/AUM", 
+        h, "#HLD.HFundId = t.HFundId"))
+    z <- c(z, "", "update #HLD set", h[-1])
+    h <- c("FundHistory t1", "inner join", "#BMK t2 on t2.BenchIndexId = t1.BenchIndexId")
+    u <- "#HLD.HFundId = t1.HFundId and #HLD.HSecurityId = t2.HSecurityId"
+    h <- sql.unbracket(sql.tbl("HoldingValue = #HLD.HoldingValue - t2.HoldingValue", 
+        h, u))
+    z <- c(z, "", "update #HLD set", h[-1])
+    u <- sql.tbl("HFundId, HSecurityId", "#HLD t", "t1.HFundId = t.HFundId and t2.HSecurityId = t.HSecurityId")
+    u <- sql.and(list(A = sql.exists(u, F), B = "t1.HFundId in (select HFundId from #HLD)"))
+    h <- c("FundHistory t1", "inner join", "#BMK t2 on t2.BenchIndexId = t1.BenchIndexId")
+    h <- sql.tbl("HFundId, HSecurityId, -HoldingValue", h, u)
+    z <- c(z, "", "insert into #HLD", sql.unbracket(h))
+    z <- c(z, "", "delete from #HLD where", sql.in("HSecurityId", 
+        sql.RDSuniv(n), F))
+    z <- paste(z, collapse = "\n")
+    h <- c("#HLD hld", "inner join", "SecurityHistory id on id.HSecurityId = hld.HSecurityId")
+    u <- "SecurityId, Dispersion = 10000 * (avg(square(HoldingValue)) - square(avg(HoldingValue)))"
+    z <- c(z, paste(sql.unbracket(sql.tbl(u, h, , "SecurityId")), 
+        collapse = "\n"))
+    z
+}
+
 #' sql.drop
 #' 
 #' drops the elements of <x> if they exist
@@ -9472,7 +9568,7 @@ sql.floTbl.to.Col <- function (x, y)
 
 sql.FundHistory <- function (x, y, n, w) 
 {
-    if (y[1] == "Pseudo") 
+    if (any(y[1] == c("Pseudo", "Up"))) 
         y <- ifelse(n, "All", "E")
     if (missing(w)) 
         w <- "HFundId"
@@ -9620,7 +9716,7 @@ sql.HerdingLSV <- function (x, y)
 
 #' sql.Herfindahl
 #' 
-#' Generates the SQL query for Herfindahl dispersion
+#' Generates Herfindahl dispersion and the ownership breadth measure set forth in Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
 #' @param x = the YYYYMM for which you want data (known 26 days later)
 #' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
 #' @param n = any of StockFlows/Japan/CSI300/Energy
@@ -9652,6 +9748,9 @@ sql.Herfindahl <- function (x, y, n, w)
         else if (j == "Herfindahl") {
             z <- c(z, paste(j, "1 - sum(square(HoldingValue/AssetsEnd))/square(sum(HoldingValue/AssetsEnd))", 
                 sep = " = "))
+        }
+        else if (j == "Breadth") {
+            z <- c(z, paste(j, "count(h.HFundId)", sep = " = "))
         }
         else {
             stop("Bad factor", j)

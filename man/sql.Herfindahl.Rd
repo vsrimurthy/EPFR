@@ -16,7 +16,7 @@ sql.Herfindahl(x, y, n, w)
 \item{w}{= T/F depending on whether you are checking ftp}
 }
 \description{
-Generates the SQL query for Herfindahl dispersion
+Generates Herfindahl dispersion and the ownership breadth measure set forth in Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
 }
 \seealso{
 Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
@@ -60,7 +60,8 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.ActWtDiff2}},
   \code{\link{sql.AggrAllocations}},
   \code{\link{sql.AllocTbl}}, \code{\link{sql.DailyFlo}},
-  \code{\link{sql.Diff}}, \code{\link{sql.FloMo.Funds}},
+  \code{\link{sql.Diff}}, \code{\link{sql.Dispersion}},
+  \code{\link{sql.FloMo.Funds}},
   \code{\link{sql.FundHistory.macro}},
   \code{\link{sql.FundHistory.sf}},
   \code{\link{sql.FundHistory}},
