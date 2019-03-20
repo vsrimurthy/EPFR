@@ -4312,27 +4312,29 @@ int.to.prime <- function (x)
     z
 }
 
-#' knapsack
+#' knapsack.next
 #' 
-#' all the ways to subdivide <x> things amongst <y> people
-#' @param x = a non-negative integer
-#' @param y = a positive integer exceeding unity
-#' @keywords knapsack
+#' next way to subdivide <sum(x)> things amongst <length(x)> people
+#' @param x = a vector of non-negative integers
+#' @keywords knapsack.next
 #' @export
 
-knapsack <- function (x, y) 
+knapsack.next <- function (x) 
 {
-    z <- vec.to.list(0:x)
-    m <- 2
-    while (m < y) {
-        z <- lapply(z, function(h) vec.to.list(paste(h, seq(0, 
-            x - sum(as.numeric(txt.parse(h, " ")))))))
-        z <- vec.to.list(as.character(unlist(z)))
-        m <- m + 1
+    m <- length(x)
+    w <- x > 0
+    w <- w & !duplicated(w)
+    if (w[1]) {
+        n <- x[1]
+        x[1] <- 0
+        w <- x > 0
+        w <- w & !duplicated(w)
+        x[(1:m)[w] - 1:0] <- x[(1:m)[w] - 1:0] + c(1 + n, -1)
     }
-    z <- as.character(unlist(z))
-    z <- paste(z, x - rowSums(fcn.mat.vec(as.numeric, txt.parse(z, 
-        " "), , T)))
+    else {
+        x[(1:m)[w] - 1:0] <- x[(1:m)[w] - 1:0] + c(1, -1)
+    }
+    z <- x
     z
 }
 
