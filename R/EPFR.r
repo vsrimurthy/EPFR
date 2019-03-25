@@ -4318,6 +4318,7 @@ int.to.prime <- function (x)
 #' @param x = a vector of non-negative integers
 #' @keywords knapsack.next
 #' @export
+#' @family knapsack
 
 knapsack.next <- function (x) 
 {
@@ -4333,6 +4334,31 @@ knapsack.next <- function (x)
     }
     else {
         x[(1:m)[w] - 1:0] <- x[(1:m)[w] - 1:0] + c(1, -1)
+    }
+    z <- x
+    z
+}
+
+#' knapsack.prev
+#' 
+#' inverse of knapsack.next
+#' @param x = a vector of non-negative integers
+#' @keywords knapsack.prev
+#' @export
+#' @family knapsack
+
+knapsack.prev <- function (x) 
+{
+    m <- length(x)
+    w <- x > 0
+    w <- w & !duplicated(w)
+    w <- (1:m)[w]
+    if (x[w] == 1 | w == 1) {
+        x[w + 0:1] <- x[w + 0:1] + c(-1, 1)
+    }
+    else {
+        x[c(1, w + 0:1)] <- x[c(1, w + 0:1)] + c(x[w] - 1, -x[w], 
+            1)
     }
     z <- x
     z
@@ -7347,6 +7373,7 @@ rrw <- function (prdBeg, prdEnd, vbls, univ, grp.nm, ret.nm, fldr, orth.factor =
             df <- x
         else df <- rbind(df, x)
     }
+    cat("\n")
     z <- list(value = map.rname(rrw.factors(df), vbls), corr = correl(df), 
         data = df)
     z

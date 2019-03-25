@@ -12,4 +12,7 @@ knapsack.next(x)
 \description{
 next way to subdivide <sum(x)> things amongst <length(x)> people
 }
+\seealso{
+Other knapsack: \code{\link{knapsack.prev}}
+}
 \keyword{knapsack.next}
