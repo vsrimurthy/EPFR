@@ -15,7 +15,7 @@ qtl.weighted(x, y)
 returns a number <z> so that the sum of x[1:z] is as close as possible to <y>.
 }
 \seealso{
-Other qtl: \code{\link{qtl.eq}},
+Other qtl: \code{\link{qtl.eq}}, \code{\link{qtl.fast}},
   \code{\link{qtl.single.grp}},
   \code{\link{qtl.underlying}},
   \code{\link{qtl.zero.weight}}, \code{\link{qtl}}

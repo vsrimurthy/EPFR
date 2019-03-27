@@ -4312,6 +4312,55 @@ int.to.prime <- function (x)
     z
 }
 
+#' knapsack.count
+#' 
+#' number of ways to subdivide <x> things amongst <y> people
+#' @param x = a non-negative integer
+#' @param y = a positive integer
+#' @keywords knapsack.count
+#' @export
+#' @family knapsack
+
+knapsack.count <- function (x, y) 
+{
+    z <- matrix(1, x + 1, y, F, list(0:x, 1:y))
+    if (x > 0 & y > 1) 
+        for (i in 1:x) for (j in 2:y) z[i + 1, j] <- z[i, j] + 
+            z[i + 1, j - 1]
+    z <- z[x + 1, y]
+    z
+}
+
+#' knapsack.ex.int
+#' 
+#' inverse of knapsack.to.int; returns a vector of length <n>, the elements of which sum to <y>
+#' @param x = a positive integer
+#' @param y = a positive integer
+#' @param n = a positive integer
+#' @keywords knapsack.ex.int
+#' @export
+#' @family knapsack
+
+knapsack.ex.int <- function (x, y, n) 
+{
+    z <- NULL
+    while (x != 1) {
+        x <- x - 1
+        i <- 0
+        while (x > 0) {
+            i <- i + 1
+            h <- knapsack.count(i, n - 1)
+            x <- x - h
+        }
+        z <- c(y - i, z)
+        x <- x + h
+        y <- y - z[1]
+        n <- n - 1
+    }
+    z <- c(rep(0, n - 1), y, z)
+    z
+}
+
 #' knapsack.next
 #' 
 #' next way to subdivide <sum(x)> things amongst <length(x)> people
@@ -4361,6 +4410,30 @@ knapsack.prev <- function (x)
             1)
     }
     z <- x
+    z
+}
+
+#' knapsack.to.int
+#' 
+#' maps each particular way to subdivide <sum(x)> things amongst <length(x)> people to the number line
+#' @param x = a vector of non-negative integers
+#' @keywords knapsack.to.int
+#' @export
+#' @family knapsack
+
+knapsack.to.int <- function (x) 
+{
+    n <- sum(x)
+    z <- 1
+    m <- length(x) - 1
+    while (m > 0) {
+        i <- sum(x[1:m])
+        while (i > 0) {
+            z <- z + knapsack.count(i - 1, m)
+            i <- i - 1
+        }
+        m <- m - 1
+    }
     z
 }
 
@@ -6861,6 +6934,24 @@ qtl <- function (x, y, n, w)
 qtl.eq <- function (x, y = 5) 
 {
     fcn.mat.vec(qtl, x, y, F)
+}
+
+#' qtl.fast
+#' 
+#' performs a FAST equal-weight binning on <x>. Can't handle NAs.
+#' @param x = a vector
+#' @param y = number of desired bins
+#' @keywords qtl.fast
+#' @export
+#' @family qtl
+
+qtl.fast <- function (x, y = 5) 
+{
+    x <- order(-x)
+    z <- ceiling((length(x)/y) * (0:y) + 0.5) - 1
+    z <- z[-1] - z[-(y + 1)]
+    z <- rep(1:y, z)[order(x)]
+    z
 }
 
 #' qtl.single.grp

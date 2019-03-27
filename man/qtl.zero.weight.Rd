@@ -19,7 +19,7 @@ qtl.zero.weight(x, y, n, w)
 assigns the members of <x> to bins
 }
 \seealso{
-Other qtl: \code{\link{qtl.eq}},
+Other qtl: \code{\link{qtl.eq}}, \code{\link{qtl.fast}},
   \code{\link{qtl.single.grp}},
   \code{\link{qtl.underlying}}, \code{\link{qtl.weighted}},
   \code{\link{qtl}}
