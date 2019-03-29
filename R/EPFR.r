@@ -7523,7 +7523,8 @@ rrw.underlying <- function (prd, vbls, univ, grp.nm, ret.nm, fldr, orth.factor,
     z$ret <- fetch(ret.nm, prd, 1, paste(fldr, "\\data", sep = ""), 
         classif)
     z <- mat.last.to.first(z)
-    z <- z[is.element(z$mem, 1) & !is.na(z$grp), ]
+    z <- z[is.element(z$mem, 1) & !is.na(z$grp) & !is.na(z$ret), 
+        ]
     if (!is.null(orth.factor)) {
         z[, orth.factor] <- zav(z[, orth.factor])
         for (j in vbls) {
@@ -7890,7 +7891,8 @@ sf.underlying.data <- function (vbl.nm, univ, ret.nm, ret.prd, trail, sum.flows,
             retHz, paste(fldr, "data", sep = "\\"), classif)
         ret <- mat.compound(ret)
     }
-    bin <- qtl(vbl, nBins, mem, grp)
+    bin <- ifelse(is.na(ret), 0, mem)
+    bin <- qtl(vbl, nBins, bin, grp)
     bin <- ifelse(is.na(bin), "Qna", paste("Q", bin, sep = ""))
     z <- data.frame(vbl, bin, ret, mem, grp, row.names = dimnames(classif)[[1]], 
         stringsAsFactors = F)
