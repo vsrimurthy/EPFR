@@ -7,7 +7,7 @@
 sql.1dFloMo.Ctry.List(x)
 }
 \arguments{
-\item{x}{= one of Ctry/FX/Sector/UBS/EMDM/CtryFlows}
+\item{x}{= one of Ctry/FX/Sector/EMDM}
 }
 \description{
 Generates the SQL query to get daily 1dFloMo for countries
@@ -38,7 +38,7 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.1dFloTrend.Ctry}},
   \code{\link{sql.1dFloTrend.select}},
   \code{\link{sql.1dFloTrend.underlying}},
-  \code{\link{sql.1dFloTrend}},
+  \code{\link{sql.1dFloTrend}}, \code{\link{sql.1dFundCt}},
   \code{\link{sql.1dFundRet}}, \code{\link{sql.1dION}},
   \code{\link{sql.1mActPas.Ctry}},
   \code{\link{sql.1mActWt.underlying}},

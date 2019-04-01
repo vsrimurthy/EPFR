@@ -4004,6 +4004,14 @@ ftp.sql.factor <- function (x, y, n)
         z <- sql.1dFloMo(y, c("FloDollar", qa.filter.map(n)), 
             "All", T)
     }
+    else if (all(x == "FundCtD")) {
+        z <- sql.1dFundCt(y, c("FundCt", qa.filter.map(n)), "All", 
+            T)
+    }
+    else if (all(x == "FundCtM")) {
+        z <- sql.Herfindahl(yyyymmdd.to.yyyymm(y), c("FundCt", 
+            qa.filter.map(n)), "All", T)
+    }
     else if (all(x == "StockM")) {
         z <- sql.1mFloMo(yyyymmdd.to.yyyymm(y), c("FloDollar", 
             qa.filter.map(n)), "All", T)
@@ -5302,7 +5310,7 @@ mk.1mAllocMo <- function (x, y, n)
     else if (y[1] == "Dispersion") {
         z <- sql.Dispersion(x, y, n$DB, F)
     }
-    else if (any(y[1] == c("Herfindahl", "HerfindahlCap", "Breadth"))) {
+    else if (any(y[1] == c("Herfindahl", "HerfindahlCap", "FundCt"))) {
         z <- sql.Herfindahl(x, y, n$DB, F)
     }
     else if (any(y[1] == paste("Alloc", c("Mo", "Trend", "Diff"), 
@@ -8291,20 +8299,17 @@ sql.1dFloMo.Ctry.Allocations.term <- function (x, y)
 #' sql.1dFloMo.Ctry.List
 #' 
 #' Generates the SQL query to get daily 1dFloMo for countries
-#' @param x = one of Ctry/FX/Sector/UBS/EMDM/CtryFlows
+#' @param x = one of Ctry/FX/Sector/EMDM
 #' @keywords sql.1dFloMo.Ctry.List
 #' @export
 #' @family sql
 
 sql.1dFloMo.Ctry.List <- function (x) 
 {
-    EMU <- Ctry.msci.members("EMU", "")
-    EM <- Ctry.msci.members("EM", "201706")
-    EAFE <- Ctry.msci.members("EAFE", "201706")
     classif.type <- x
     sep <- ","
     if (x == "Ctry") {
-        z <- Ctry.msci.members.rng("ACWI", "200704", "201706")
+        z <- Ctry.msci.members.rng("ACWI", "200704", "300012")
         classif.type <- "Ctry"
     }
     else if (x == "EMDM") {
@@ -8312,17 +8317,8 @@ sql.1dFloMo.Ctry.List <- function (x)
         classif.type <- "Ctry"
     }
     else if (x == "FX") {
-        z <- c(EAFE, EM, "CA", "US", "AR", "MA", "CY", "EE", 
-            "LV", "LT", "SK", "SI")
-        z <- setdiff(z, "AE")
-        classif.type <- "Ctry"
-    }
-    else if (x == "UBS") {
-        z <- c(EMU, EM, "CA", "US", "AU", "CH", "GB", "JP")
-        classif.type <- "Ctry"
-    }
-    else if (x == "Commerzbank") {
-        z <- c(EMU, EM, "US", "JP", "GB")
+        z <- Ctry.msci.members.rng("ACWI", "200704", "300012")
+        z <- c(z, "CY", "EE", "LV", "LT", "SK", "SI")
         classif.type <- "Ctry"
     }
     else if (x == "Sector") {
@@ -8346,17 +8342,6 @@ sql.1dFloMo.Ctry.List <- function (x)
     }
     else if (x == "FX") {
         z <- vec.named(y$Curr, y$AllocTable)
-    }
-    else if (x == "UBS") {
-        z <- ifelse(is.element(z, EMU), "EMU", z)
-        z <- ifelse(is.element(z, EM), "EM", z)
-        z <- vec.named(z, y$AllocTable)
-    }
-    else if (x == "Commerzbank") {
-        z <- ifelse(is.element(z, EMU), "EuroZ", z)
-        z <- ifelse(is.element(z, EM), "EM", z)
-        z <- ifelse(z == "GB", "UK", z)
-        z <- vec.named(z, y$AllocTable)
     }
     z
 }
@@ -8851,6 +8836,60 @@ sql.1dFloTrend.underlying <- function (x, y, n, w)
         "AUM ", i, "2 on ", i, "2.FundId = ", i, "1.FundId", 
         sep = ""))
     z <- list(PRE = h, FINAL = z)
+    z
+}
+
+#' sql.1dFundCt
+#' 
+#' Generates FundCt, the ownership breadth measure set forth in Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
+#' @param x = the YYYYMM for which you want data (known 26 days later)
+#' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
+#' @param n = any of StockFlows/Japan/CSI300/Energy
+#' @param w = T/F depending on whether you are checking ftp
+#' @keywords sql.1dFundCt
+#' @export
+#' @family sql
+
+sql.1dFundCt <- function (x, y, n, w) 
+{
+    y <- sql.arguments(y)
+    z <- x
+    x <- sql.declare("@dy", "datetime", z)
+    if (n != "All") 
+        n <- list(A = sql.in("h.HSecurityId", sql.RDSuniv(n)))
+    else n <- list()
+    n[[char.ex.int(length(n) + 65)]] <- "flo.ReportDate = @dy"
+    if (y$filter != "All") 
+        n[[char.ex.int(length(n) + 65)]] <- sql.FundHistory.sf(y$filter)
+    if (length(n) == 1) 
+        n <- n[[1]]
+    else n <- sql.and(n)
+    if (w) {
+        z <- c(paste("ReportDate = '", z, "'", sep = ""), "GeoId = GeographicFocusId", 
+            "HSecurityId")
+    }
+    else {
+        z <- "SecurityId"
+    }
+    for (j in y$factor) {
+        if (j == "FundCt") {
+            z <- c(z, paste(j, "count(distinct flo.HFundId)", 
+                sep = " = "))
+        }
+        else {
+            stop("Bad factor", j)
+        }
+    }
+    h <- "datediff(month, h.ReportDate, flo.ReportDate) = case when day(flo.ReportDate) < 26 then 2 else 1 end"
+    h <- c("inner join", paste("Holdings h on h.FundId = his.FundId", 
+        h, sep = " and "))
+    h <- c("DailyData flo", "inner join", "FundHistory his on his.HFundId = flo.HFundId", 
+        h)
+    if (!w) 
+        h <- c(h, "inner join", "SecurityHistory id on id.HSecurityId = h.HSecurityId")
+    w <- ifelse(w, "HSecurityId, GeographicFocusId", "SecurityId")
+    z <- sql.tbl(z, h, n, w)
+    z <- paste(c(x, sql.unbracket(z)), collapse = "\n")
     z
 }
 
@@ -9838,7 +9877,7 @@ sql.HerdingLSV <- function (x, y)
 
 #' sql.Herfindahl
 #' 
-#' Generates Herfindahl dispersion and the ownership breadth measure set forth in Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
+#' Generates Herfindahl dispersion and FundCt, the ownership breadth measure set forth in Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
 #' @param x = the YYYYMM for which you want data (known 26 days later)
 #' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
 #' @param n = any of StockFlows/Japan/CSI300/Energy
@@ -9850,7 +9889,8 @@ sql.HerdingLSV <- function (x, y)
 sql.Herfindahl <- function (x, y, n, w) 
 {
     y <- sql.arguments(y)
-    x <- sql.declare("@mo", "datetime", yyyymm.to.day(x))
+    z <- yyyymm.to.day(x)
+    x <- sql.declare("@mo", "datetime", z)
     if (n != "All") 
         n <- list(A = sql.in("h.HSecurityId", sql.RDSuniv(n)))
     else n <- list()
@@ -9861,7 +9901,13 @@ sql.Herfindahl <- function (x, y, n, w)
     if (length(n) == 1) 
         n <- n[[1]]
     else n <- sql.and(n)
-    z <- "SecurityId"
+    if (w) {
+        z <- c(paste("ReportDate = '", z, "'", sep = ""), "GeoId = GeographicFocusId", 
+            "HSecurityId")
+    }
+    else {
+        z <- "SecurityId"
+    }
     for (j in y$factor) {
         if (j == "HerfindahlCap") {
             z <- c(z, paste(j, "1 - sum(square(HoldingValue))/square(sum(HoldingValue))", 
@@ -9871,19 +9917,22 @@ sql.Herfindahl <- function (x, y, n, w)
             z <- c(z, paste(j, "1 - sum(square(HoldingValue/AssetsEnd))/square(sum(HoldingValue/AssetsEnd))", 
                 sep = " = "))
         }
-        else if (j == "Breadth") {
+        else if (j == "FundCt") {
             z <- c(z, paste(j, "count(h.HFundId)", sep = " = "))
         }
         else {
             stop("Bad factor", j)
         }
     }
-    h <- c("Holdings h", "inner join", "SecurityHistory id on id.HSecurityId = h.HSecurityId")
+    h <- "Holdings h"
+    if (!w) 
+        h <- c(h, "inner join", "SecurityHistory id on id.HSecurityId = h.HSecurityId")
     if (any(y$factor == "Herfindahl")) {
         h <- c(h, "inner join", sql.label(sql.MonthlyAssetsEnd("@mo"), 
             "t on t.HFundId = h.HFundId"))
     }
-    z <- sql.tbl(z, h, n, "SecurityId", "sum(HoldingValue) > 0")
+    w <- ifelse(w, "HSecurityId, GeographicFocusId", "SecurityId")
+    z <- sql.tbl(z, h, n, w, "sum(HoldingValue) > 0")
     z <- paste(c(x, sql.unbracket(z)), collapse = "\n")
     z
 }
