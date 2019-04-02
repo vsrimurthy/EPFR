@@ -3575,11 +3575,11 @@ ftp.all.files.underlying <- function (x, y, n, w, h)
     z <- NULL
     while (length(x) > 0) {
         cat(x[1], "...\n")
-        j <- ftp.dir(x[1], y, n, w)
+        m <- ftp.dir(x[1], y, n, w, F)
+        j <- names(m)
         if (x[1] != "/" & x[1] != "") 
             j <- paste(x[1], j, sep = "/")
         else j <- paste("/", j, sep = "")
-        m <- ftp.is.file(j, y, n, w)
         if (any(m == h)) 
             z <- c(z, j[m == h])
         if (any(!m)) 
@@ -3641,8 +3641,8 @@ ftp.delete.script <- function (x, y, n, w)
 ftp.delete.script.underlying <- function (x, y, n, w) 
 {
     z <- paste("cd \"", x, "\"", sep = "")
-    h <- ftp.dir(x, y, n, w)
-    m <- ftp.is.file(paste(x, h, sep = "/"), y, n, w)
+    m <- ftp.dir(x, y, n, w, F)
+    h <- names(m)
     if (any(m)) 
         z <- c(z, paste("del \"", h[m], "\"", sep = ""))
     if (any(!m)) {
@@ -3678,29 +3678,31 @@ ftp.dir <- function (x, y, n, w, h = F)
     ftp.file <- "C:\\temp\\foo.ftp"
     month.abbrv <- vec.named(1:12, c("Jan", "Feb", "Mar", "Apr", 
         "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
-    if (h) 
-        cmd <- "dir"
-    else cmd <- "ls"
-    cat(ftp.dir.ftp.code(x, y, n, w, cmd), file = ftp.file)
-    z <- shell(paste("ftp -i -s:", ftp.file, sep = ""), intern = T)
-    z <- ftp.dir.excise.crap(z, "150 Opening data channel for directory listing", 
-        "226 Successfully transferred")
+    cat(ftp.dir.ftp.code(x, y, n, w, "dir"), file = ftp.file)
+    y <- NULL
+    while (is.null(y)) {
+        y <- shell(paste("ftp -i -s:", ftp.file, sep = ""), intern = T)
+        y <- ftp.dir.excise.crap(y, "150 Opening data channel for directory listing", 
+            "226 Successfully transferred")
+    }
+    n <- min(nchar(y)) - 4
+    while (any(!is.element(substring(y, n, n + 4), paste(" ", 
+        names(month.abbrv), " ", sep = "")))) n <- n - 1
+    z <- substring(y, n + 1, nchar(y))
+    y <- substring(y, 1, n - 1)
+    z <- data.frame(substring(z, 1, 3), as.numeric(substring(z, 
+        5, 6)), substring(z, 8, 12), substring(z, 14, nchar(z)), 
+        stringsAsFactors = F)
+    names(z) <- c("mm", "dd", "yyyy", "file")
     if (h) {
-        n <- min(nchar(z)) - 4
-        while (any(!is.element(substring(z, n, n + 4), paste(" ", 
-            names(month.abbrv), " ", sep = "")))) {
-            n <- n - 1
-        }
-        z <- substring(z, n + 1, nchar(z))
-        z <- data.frame(substring(z, 1, 3), as.numeric(substring(z, 
-            5, 6)), substring(z, 8, 12), substring(z, 14, nchar(z)), 
-            stringsAsFactors = F)
-        names(z) <- c("mm", "dd", "yyyy", "file")
         z$mm <- map.rname(month.abbrv, z$mm)
         z$yyyy <- ifelse(txt.has(z$yyyy, ":", T), yyyymm.to.yyyy(yyyymmdd.to.yyyymm(today())), 
             z$yyyy)
         z$yyyy <- as.numeric(z$yyyy)
         z <- vec.named(10000 * z$yyyy + 100 * z$mm + z$dd, z$file)
+    }
+    else {
+        z <- vec.named(substring(y, 1, 1) == "-", z$file)
     }
     z
 }
@@ -3719,18 +3721,24 @@ ftp.dir.excise.crap <- function (x, y, n)
 {
     w <- y
     w <- txt.left(x, nchar(w)) == w
-    if (sum(w) != 1) 
-        stop("Problem 1")
-    m <- length(x)
-    x <- x[seq((1:m)[w] + 1, m)]
-    w <- n
-    w <- txt.left(x, nchar(w)) == w
-    if (sum(w) != 1) 
-        stop("Problem 2")
-    m <- length(x)
-    if (!w[1]) 
-        z <- x[seq(1, (1:m)[w] - 1)]
-    else z <- NULL
+    proceed <- sum(w) == 1
+    if (proceed) {
+        m <- length(x)
+        x <- x[seq((1:m)[w] + 1, m)]
+    }
+    if (proceed) {
+        w <- n
+        w <- txt.left(x, nchar(w)) == w
+        proceed <- sum(w) == 1
+    }
+    if (proceed) {
+        m <- length(x)
+        if (!w[1]) 
+            z <- x[seq(1, (1:m)[w] - 1)]
+        else z <- NULL
+    }
+    if (!proceed) 
+        z <- NULL
     z
 }
 
@@ -3849,9 +3857,12 @@ ftp.file.size <- function (x, y, n, w)
     z <- paste(z, "\ndir \"", x, "\"", sep = "")
     z <- paste(z, "disconnect", "quit", sep = "\n")
     cat(z, file = ftp.file)
-    z <- shell(paste("ftp -i -s:", ftp.file, sep = ""), intern = T)
-    z <- ftp.dir.excise.crap(z, "150 Opening data channel for directory listing", 
-        "226 Successfully transferred")
+    z <- NULL
+    while (is.null(z)) {
+        z <- shell(paste("ftp -i -s:", ftp.file, sep = ""), intern = T)
+        z <- ftp.dir.excise.crap(z, "150 Opening data channel for directory listing", 
+            "226 Successfully transferred")
+    }
     z <- txt.itrim(z)
     z <- as.numeric(txt.parse(z, txt.space(1))[5])
     if (!is.na(z)) 
@@ -3904,56 +3915,6 @@ ftp.info <- function (x, y, n, w)
     z <- mat.read(parameters("classif-ftp"), "\t", NULL)
     z <- z[z[, "Type"] == x & z[, "FundLvl"] == y & z[, "filter"] == 
         w, n]
-    z
-}
-
-#' ftp.is.file
-#' 
-#' T/F depending on whether <x> represents a file or folder
-#' @param x = vector of paths to remote file or folder
-#' @param y = ftp site
-#' @param n = user id
-#' @param w = password
-#' @keywords ftp.is.file
-#' @export
-#' @family ftp
-
-ftp.is.file <- function (x, y, n, w) 
-{
-    if (missing(y)) 
-        y <- ftp.credential("ftp")
-    if (missing(n)) 
-        n <- ftp.credential("user")
-    if (missing(w)) 
-        w <- ftp.credential("pwd")
-    m <- length(x)
-    z <- rep(NA, m)
-    for (i in 1:m) z[i] <- ftp.is.file.underlying(x[i], y, n, 
-        w)
-    z
-}
-
-#' ftp.is.file.underlying
-#' 
-#' T/F depending on whether <x> represents a file or folder
-#' @param x = path to remote file or folder (e.g. "/ftpdata/mystuff")
-#' @param y = ftp site
-#' @param n = user id
-#' @param w = password
-#' @keywords ftp.is.file.underlying
-#' @export
-#' @family ftp
-
-ftp.is.file.underlying <- function (x, y, n, w) 
-{
-    if (txt.left(x, 1) != "/") 
-        x <- paste("/", x, sep = "")
-    ftp.file <- "C:\\temp\\foo.ftp"
-    cat(ftp.dir.ftp.code(x, y, n, w, "pwd"), file = ftp.file)
-    z <- shell(paste("ftp -i -s:", ftp.file, sep = ""), intern = T)
-    z <- ftp.dir.excise.crap(z, "ftp> pwd", "ftp> disconnect")
-    z <- z != paste("257 \"", x, "\" is current directory.", 
-        sep = "")
     z
 }
 
