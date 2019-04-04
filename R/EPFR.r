@@ -5271,7 +5271,7 @@ mk.1mAllocMo <- function (x, y, n)
     else if (y[1] == "Dispersion") {
         z <- sql.Dispersion(x, y, n$DB, F)
     }
-    else if (any(y[1] == c("Herfindahl", "HerfindahlCap", "FundCt"))) {
+    else if (any(y[1] == c("Herfindahl", "HerfindahlEq", "FundCt"))) {
         z <- sql.Herfindahl(x, y, n$DB, F)
     }
     else if (any(y[1] == paste("Alloc", c("Mo", "Trend", "Diff"), 
@@ -9870,11 +9870,11 @@ sql.Herfindahl <- function (x, y, n, w)
         z <- "SecurityId"
     }
     for (j in y$factor) {
-        if (j == "HerfindahlCap") {
+        if (j == "Herfindahl") {
             z <- c(z, paste(j, "1 - sum(square(HoldingValue))/square(sum(HoldingValue))", 
                 sep = " = "))
         }
-        else if (j == "Herfindahl") {
+        else if (j == "HerfindahlEq") {
             z <- c(z, paste(j, "1 - sum(square(HoldingValue/AssetsEnd))/square(sum(HoldingValue/AssetsEnd))", 
                 sep = " = "))
         }
@@ -12048,6 +12048,20 @@ yyyymmdd.to.int <- function (x)
     z <- day.to.int(x)
     z <- z - 2 * (z%/%7)
     z
+}
+
+#' yyyymmdd.to.txt
+#' 
+#' Engineering date format
+#' @param x = a vector of YYYYMMDD
+#' @keywords yyyymmdd.to.txt
+#' @export
+#' @family yyyymmdd
+
+yyyymmdd.to.txt <- function (x) 
+{
+    paste(substring(x, 5, 6), "/", substring(x, 7, 8), "/", substring(x, 
+        1, 4), " 12:00:00 AM", sep = "")
 }
 
 #' yyyymmdd.to.unity

@@ -27,6 +27,7 @@ Other yyyymmdd: \code{\link{yyyymmdd.bulk}},
   \code{\link{yyyymmdd.to.AllocMo}},
   \code{\link{yyyymmdd.to.CalYrDyOfWk}},
   \code{\link{yyyymmdd.to.int}},
+  \code{\link{yyyymmdd.to.txt}},
   \code{\link{yyyymmdd.to.unity}},
   \code{\link{yyyymmdd.to.weekofmonth}}
 }
