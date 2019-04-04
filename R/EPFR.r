@@ -9888,7 +9888,7 @@ sql.Herfindahl <- function (x, y, n, w)
     h <- "Holdings h"
     if (!w) 
         h <- c(h, "inner join", "SecurityHistory id on id.HSecurityId = h.HSecurityId")
-    if (any(y$factor == "Herfindahl")) {
+    if (any(y$factor == "HerfindahlEq")) {
         h <- c(h, "inner join", sql.label(sql.MonthlyAssetsEnd("@mo"), 
             "t on t.HFundId = h.HFundId"))
     }
