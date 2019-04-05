@@ -3969,9 +3969,9 @@ ftp.sql.factor <- function (x, y, n)
         z <- sql.1dFundCt(y, c("FundCt", qa.filter.map(n)), "All", 
             T)
     }
-    else if (all(x == "FundCtM")) {
-        z <- sql.Herfindahl(yyyymmdd.to.yyyymm(y), c("FundCt", 
-            qa.filter.map(n)), "All", T)
+    else if (all(is.element(x, c("FundCt", "Herfindahl")))) {
+        z <- sql.Herfindahl(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
+            "All", T)
     }
     else if (all(x == "StockM")) {
         z <- sql.1mFloMo(yyyymmdd.to.yyyymm(y), c("FloDollar", 
@@ -9862,9 +9862,12 @@ sql.Herfindahl <- function (x, y, n, w)
     if (length(n) == 1) 
         n <- n[[1]]
     else n <- sql.and(n)
-    if (w) {
+    if (w & any(y$factor == "FundCt")) {
         z <- c(paste("ReportDate = '", z, "'", sep = ""), "GeoId = GeographicFocusId", 
             "HSecurityId")
+    }
+    else if (w & all(y$factor != "FundCt")) {
+        z <- c(paste("ReportDate = '", z, "'", sep = ""), "HSecurityId")
     }
     else {
         z <- "SecurityId"
@@ -9886,13 +9889,20 @@ sql.Herfindahl <- function (x, y, n, w)
         }
     }
     h <- "Holdings h"
+    if (any(y$factor == "FundCt") & w) 
+        h <- c(h, "inner join", "FundHistory t on t.HFundId = h.HFundId")
     if (!w) 
         h <- c(h, "inner join", "SecurityHistory id on id.HSecurityId = h.HSecurityId")
     if (any(y$factor == "HerfindahlEq")) {
         h <- c(h, "inner join", sql.label(sql.MonthlyAssetsEnd("@mo"), 
             "t on t.HFundId = h.HFundId"))
     }
-    w <- ifelse(w, "HSecurityId, GeographicFocusId", "SecurityId")
+    if (any(y$factor == "FundCt") & w) {
+        w <- "HSecurityId, GeographicFocusId"
+    }
+    else {
+        w <- ifelse(w, "HSecurityId", "SecurityId")
+    }
     z <- sql.tbl(z, h, n, w, "sum(HoldingValue) > 0")
     z <- paste(c(x, sql.unbracket(z)), collapse = "\n")
     z
