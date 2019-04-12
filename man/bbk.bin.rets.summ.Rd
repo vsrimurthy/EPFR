@@ -19,10 +19,9 @@ Summarizes bin excess returns arithmetically
 \seealso{
 Other bbk: \code{\link{bbk.bin.rets.prd.summ}},
   \code{\link{bbk.bin.xRet}}, \code{\link{bbk.data}},
-  \code{\link{bbk.doW.bulk}}, \code{\link{bbk.drawdown}},
-  \code{\link{bbk.fanChart}}, \code{\link{bbk.fwdRet}},
-  \code{\link{bbk.histogram}}, \code{\link{bbk.holidays}},
-  \code{\link{bbk.summ}}, \code{\link{bbk.turnover}},
-  \code{\link{bbk}}
+  \code{\link{bbk.drawdown}}, \code{\link{bbk.fanChart}},
+  \code{\link{bbk.fwdRet}}, \code{\link{bbk.histogram}},
+  \code{\link{bbk.holidays}}, \code{\link{bbk.summ}},
+  \code{\link{bbk.turnover}}, \code{\link{bbk}}
 }
 \keyword{bbk.bin.rets.summ}

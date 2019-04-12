@@ -15,7 +15,9 @@ flowdate.ex.yyyymm(x, y = T)
 last/all trading days daily flow-publication dates in <x>
 }
 \seealso{
-Other flowdate: \code{\link{flowdate.exists}},
-  \code{\link{flowdate.lag}}, \code{\link{flowdate.seq}}
+Other flowdate: \code{\link{flowdate.ex.int}},
+  \code{\link{flowdate.exists}},
+  \code{\link{flowdate.lag}}, \code{\link{flowdate.seq}},
+  \code{\link{flowdate.to.int}}
 }
 \keyword{flowdate.ex.yyyymm}

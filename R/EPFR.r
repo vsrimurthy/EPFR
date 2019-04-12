@@ -460,60 +460,25 @@ bbk.bin.xRet <- function (x, y, n = 5, w = F, h = F)
 bbk.data <- function (x, y, floW, sum.flows, lag, delay, doW, retW, idx, 
     prd.size, sprds) 
 {
+    x <- x[!is.na(avail(x)), ]
     if (!ascending(dimnames(x)[[1]])) 
         stop("Flows are crap")
+    if (any(yyyymm.lag(dimnames(x)[[1]][dim(x)[1]], dim(x)[1]:1 - 
+        1, F) != dimnames(x)[[1]])) 
+        stop("Missing flow dates")
     if (!ascending(dimnames(y)[[1]])) 
         stop("Returns are crap")
+    if (any(yyyymm.lag(dimnames(y)[[1]][dim(y)[1]], dim(y)[1]:1 - 
+        1) != dimnames(y)[[1]])) 
+        stop("Missing return dates")
     x <- compound.flows(x, floW, prd.size, sum.flows)
-    x <- mat.lag(x, lag + delay, F)
-    col <- dimnames(x)[[2]][order(-colSums(mat.to.obs(x)))][1]
-    x <- bbk.doW.bulk(x, doW, col)
-    w <- !is.na(x[, col])
+    x <- mat.lag(x, lag + delay, F, T, F)
     if (!is.null(doW)) 
-        w <- w & is.element(day.to.weekday(dimnames(x)[[1]]), 
-            doW)
-    x <- x[w, ]
-    col <- dimnames(y)[[2]][order(-colSums(mat.to.obs(y)))][1]
-    y <- bbk.doW.bulk(y, doW, col)
-    fwdRet <- bbk.fwdRet(x, y, retW, 0, 0, !sprds)
+        x <- mat.daily.to.weekly(x, doW)
+    y <- bbk.fwdRet(x, y, retW, 0, 0, !sprds)
     if (!is.null(idx)) 
-        fwdRet <- Ctry.msci.index.changes(fwdRet, idx)
-    z <- list(x = x, fwdRet = fwdRet)
-    z
-}
-
-#' bbk.doW.bulk
-#' 
-#' Adds rows to <x> so that day <y> of the week is never missing
-#' @param x = a matrix/data-frame indexed by <yyyymmdd> dates
-#' @param y = a day of the week from 0:6 (Sun:Sat) or NULL
-#' @param n = an essential column that cannot be NA
-#' @keywords bbk.doW.bulk
-#' @export
-#' @family bbk
-
-bbk.doW.bulk <- function (x, y, n) 
-{
-    w <- !is.na(x[, n])
-    if (!is.null(y)) {
-        w <- w & is.element(day.to.weekday(dimnames(x)[[1]]), 
-            y)
-        dts <- yyyymm.seq(dimnames(x)[[1]][w][1], dimnames(x)[[1]][w][sum(w)], 
-            5)
-    }
-    else {
-        dts <- yyyymm.seq(dimnames(x)[[1]][w][1], dimnames(x)[[1]][w][sum(w)])
-    }
-    w <- is.na(map.rname(x, dts)[, n])
-    z <- x
-    if (any(w)) {
-        h <- dimnames(z)[[1]][!is.na(z[, n])]
-        vec <- h[floor(approx(h, 1:length(h), dts[w])$y)]
-        names(vec) <- dts[w]
-        z <- map.rname(z, union(dimnames(z)[[1]], names(vec)))
-        z[names(vec), ] <- unlist(map.rname(z, vec))
-        z <- z[order(dimnames(z)[[1]]), ]
-    }
+        y <- Ctry.msci.index.changes(y, idx)
+    z <- list(x = x, fwdRet = y)
     z
 }
 
@@ -1558,7 +1523,7 @@ day.ex.date <- function (x)
 
 #' day.ex.int
 #' 
-#' calendar dates
+#' the <x>th day after Monday, January 1, 2018
 #' @param x = an integer or vector of integers
 #' @keywords day.ex.int
 #' @export
@@ -1600,7 +1565,7 @@ day.seq <- function (x, y, n = 1)
 
 #' day.to.int
 #' 
-#' Number of days since Monday, 1/1/18
+#' number of days after Monday, January 1, 2018
 #' @param x = a vector of calendar dates
 #' @keywords day.to.int
 #' @export
@@ -1611,6 +1576,24 @@ day.to.int <- function (x)
     z <- paste(substring(x, 1, 4), substring(x, 5, 6), substring(x, 
         7, 8), sep = "-")
     z <- as.numeric(as.Date(z) - as.Date("2018-01-01"))
+    z
+}
+
+#' day.to.week
+#' 
+#' maps days to weeks
+#' @param x = a vector of calendar dates
+#' @param y = an integer representing the day the week ends on 0 is Sun, 1 is Mon, ..., 6 is Sat
+#' @keywords day.to.week
+#' @export
+#' @family day
+
+day.to.week <- function (x, y) 
+{
+    x <- day.to.int(x)
+    z <- (x + 1)%%7
+    z <- ifelse(z <= y, y - z, 7 + y - z)
+    z <- day.ex.int(x + z)
     z
 }
 
@@ -3183,6 +3166,38 @@ fix.gaps <- function (x)
     z
 }
 
+#' flowdate.ex.int
+#' 
+#' the <x>th daily flow-publication date after Friday, December 29, 2017
+#' @param x = an integer or vector of integers
+#' @keywords flowdate.ex.int
+#' @export
+#' @family flowdate
+
+flowdate.ex.int <- function (x) 
+{
+    z <- c(0, x)
+    z <- y <- seq(min(z), max(z))
+    w <- !flowdate.exists(yyyymmdd.ex.int(z))
+    while (any(w)) {
+        if (any(w & z <= 0)) {
+            for (h in sort(z[w & z <= 0], decreasing = T)) {
+                z <- ifelse(z <= h, z - 1, z)
+            }
+        }
+        if (any(w & z > 0)) {
+            for (h in z[w & z > 0]) {
+                z <- ifelse(z >= h, z + 1, z)
+            }
+        }
+        w <- !flowdate.exists(yyyymmdd.ex.int(z))
+    }
+    if (length(z) > 1) 
+        z <- approx(y, z, x)$y
+    z <- yyyymmdd.ex.int(z)
+    z
+}
+
 #' flowdate.ex.yyyymm
 #' 
 #' last/all trading days daily flow-publication dates in <x>
@@ -3218,27 +3233,14 @@ flowdate.exists <- function (x)
 #' 
 #' lags <x> by <y> daily flow-publication dates
 #' @param x = a vector of daily flow-publication dates
-#' @param y = a SINGLE integer
+#' @param y = an integer
 #' @keywords flowdate.lag
 #' @export
 #' @family flowdate
 
 flowdate.lag <- function (x, y) 
 {
-    while (abs(y) > 1) {
-        z <- yyyymmdd.lag(x, y)
-        if (!flowdate.exists(z)) 
-            z <- yyyymmdd.lag(z, -sign(y))
-        y <- sign(y) * (abs(y) - length(flowdate.seq(z, x)) + 
-            1)
-        x <- z
-    }
-    if (abs(y) == 1) {
-        z <- yyyymmdd.lag(x, y)
-        if (!flowdate.exists(z)) 
-            z <- yyyymmdd.lag(z, y)
-    }
-    z
+    obj.lag(x, y, flowdate.to.int, flowdate.ex.int)
 }
 
 #' flowdate.seq
@@ -3255,10 +3257,30 @@ flowdate.seq <- function (x, y, n = 1)
 {
     if (any(!flowdate.exists(c(x, y)))) 
         stop("Inputs are not daily flow-publication dates")
-    z <- yyyymmdd.seq(x, y)
-    z <- z[flowdate.exists(z)]
-    if (n > 1) 
-        z <- z[seq(1, length(z), n)]
+    z <- obj.seq(x, y, flowdate.to.int, flowdate.ex.int, n)
+    z
+}
+
+#' flowdate.to.int
+#' 
+#' number of daily flow-publication dates after Friday, December 29, 2017
+#' @param x = a vector of flow dates in YYYYMMDD format
+#' @keywords flowdate.to.int
+#' @export
+#' @family flowdate
+
+flowdate.to.int <- function (x) 
+{
+    z <- unique(c("2018", yyyymm.to.yyyy(yyyymmdd.to.yyyymm(x))))
+    z <- as.numeric(z)[order(z)]
+    z <- seq(z[1], z[length(z)])
+    z <- txt.expand(z, c("0101", "1225"), "")
+    z <- z[yyyymmdd.exists(z)]
+    z <- vec.named(1:length(z), z)
+    z <- z - z["20180101"]
+    x <- yyyymmdd.to.int(x)
+    y <- floor(approx(yyyymmdd.to.int(names(z)), z, x, rule = 1:2)$y)
+    z <- x - ifelse(is.na(y), z[1] - 1, y)
     z
 }
 
@@ -4772,8 +4794,7 @@ mat.count <- function (x)
 
 mat.daily.to.monthly <- function (x, y = F) 
 {
-    z <- x[order(dimnames(x)[[1]]), ]
-    z <- mat.reverse(z)
+    z <- x[order(dimnames(x)[[1]], decreasing = T), ]
     z <- z[!duplicated(yyyymmdd.to.yyyymm(dimnames(z)[[1]])), 
         ]
     if (y) {
@@ -4783,6 +4804,24 @@ mat.daily.to.monthly <- function (x, y = F)
         z <- z[w, ]
     }
     dimnames(z)[[1]] <- yyyymmdd.to.yyyymm(dimnames(z)[[1]])
+    z <- mat.reverse(z)
+    z
+}
+
+#' mat.daily.to.weekly
+#' 
+#' returns latest data in each week in ascending order
+#' @param x = a matrix/df of daily data
+#' @param y = an integer representing the day the week ends on 0 is Sun, 1 is Mon, ..., 6 is Sat
+#' @keywords mat.daily.to.weekly
+#' @export
+#' @family mat
+
+mat.daily.to.weekly <- function (x, y) 
+{
+    z <- x[order(dimnames(x)[[1]], decreasing = T), ]
+    z <- z[!duplicated(day.to.week(dimnames(z)[[1]], y)), ]
+    dimnames(z)[[1]] <- day.to.week(dimnames(z)[[1]], y)
     z <- mat.reverse(z)
     z
 }
@@ -4928,11 +4967,12 @@ mat.index <- function (x, y = 1, n = T)
 #' @param y = number of periods over which to lag
 #' @param n = if T simple positional lagging is used. If F, yyyymm.lag is invoked.
 #' @param w = used only when !n. Maps to the original row space of <x>
+#' @param h = T/F depending on whether you wish to lag by yyyymmdd or flowdate
 #' @keywords mat.lag
 #' @export
 #' @family mat
 
-mat.lag <- function (x, y, n, w = T) 
+mat.lag <- function (x, y, n, w = T, h = T) 
 {
     z <- x
     if (n) {
@@ -4948,7 +4988,8 @@ mat.lag <- function (x, y, n, w = T)
         }
     }
     else {
-        dimnames(z)[[1]] <- yyyymm.lag(dimnames(x)[[1]], -y)
+        dimnames(z)[[1]] <- yyyymm.lag(dimnames(x)[[1]], -y, 
+            h)
         if (w) 
             z <- map.rname(z, dimnames(x)[[1]])
     }
@@ -11716,17 +11757,21 @@ yyyymm.ex.qtr <- function (x)
 
 #' yyyymm.lag
 #' 
-#' lags <x> by <y> months
+#' lags <x> by <y> periods
 #' @param x = a vector of <yyyymm> months or <yyyymmdd> days
 #' @param y = an integer or an isomekic vector of integers
+#' @param n = T/F depending on whether you wish to lag by yyyymmdd or flowdate
 #' @keywords yyyymm.lag
 #' @export
 #' @family yyyymm
 
-yyyymm.lag <- function (x, y = 1) 
+yyyymm.lag <- function (x, y = 1, n = T) 
 {
-    if (nchar(x[1]) == 8) {
+    if (nchar(x[1]) == 8 & n) {
         z <- yyyymmdd.lag(x, y)
+    }
+    else if (nchar(x[1]) == 8 & !n) {
+        z <- flowdate.lag(x, y)
     }
     else if (substring(x[1], 5, 5) == "Q") {
         z <- qtr.lag(x, y)
@@ -11894,7 +11939,7 @@ yyyymmdd.ex.day <- function (x)
 
 #' yyyymmdd.ex.int
 #' 
-#' YYYYMMDD
+#' the <x>th weekday after Monday, January 1, 2018
 #' @param x = an integer or vector of integers
 #' @keywords yyyymmdd.ex.int
 #' @export
@@ -12047,8 +12092,8 @@ yyyymmdd.to.CalYrDyOfWk <- function (x)
 
 #' yyyymmdd.to.int
 #' 
-#' Number of week days since Monday, 12/30/46
-#' @param x = a vector of YYYYMMDD
+#' number of weekdays after Monday, January 1, 2018
+#' @param x = a vector of weekdays in YYYYMMDD format
 #' @keywords yyyymmdd.to.int
 #' @export
 #' @family yyyymmdd

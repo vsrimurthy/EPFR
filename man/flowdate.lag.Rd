@@ -9,13 +9,15 @@ flowdate.lag(x, y)
 \arguments{
 \item{x}{= a vector of daily flow-publication dates}
 
-\item{y}{= a SINGLE integer}
+\item{y}{= an integer}
 }
 \description{
 lags <x> by <y> daily flow-publication dates
 }
 \seealso{
-Other flowdate: \code{\link{flowdate.ex.yyyymm}},
-  \code{\link{flowdate.exists}}, \code{\link{flowdate.seq}}
+Other flowdate: \code{\link{flowdate.ex.int}},
+  \code{\link{flowdate.ex.yyyymm}},
+  \code{\link{flowdate.exists}},
+  \code{\link{flowdate.seq}}, \code{\link{flowdate.to.int}}
 }
 \keyword{flowdate.lag}

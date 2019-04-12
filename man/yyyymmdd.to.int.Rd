@@ -7,10 +7,10 @@
 yyyymmdd.to.int(x)
 }
 \arguments{
-\item{x}{= a vector of YYYYMMDD}
+\item{x}{= a vector of weekdays in YYYYMMDD format}
 }
 \description{
-Number of week days since Monday, 12/30/46
+number of weekdays after Monday, January 1, 2018
 }
 \seealso{
 Other yyyymmdd: \code{\link{yyyymmdd.bulk}},

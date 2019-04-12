@@ -4,15 +4,17 @@
 \alias{yyyymm.lag}
 \title{yyyymm.lag}
 \usage{
-yyyymm.lag(x, y = 1)
+yyyymm.lag(x, y = 1, n = T)
 }
 \arguments{
 \item{x}{= a vector of <yyyymm> months or <yyyymmdd> days}
 
 \item{y}{= an integer or an isomekic vector of integers}
+
+\item{n}{= T/F depending on whether you wish to lag by yyyymmdd or flowdate}
 }
 \description{
-lags <x> by <y> months
+lags <x> by <y> periods
 }
 \seealso{
 Other yyyymm: \code{\link{yyyymm.diff}},

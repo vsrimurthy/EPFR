@@ -10,11 +10,12 @@ day.to.int(x)
 \item{x}{= a vector of calendar dates}
 }
 \description{
-Number of days since Monday, 1/1/18
+number of days after Monday, January 1, 2018
 }
 \seealso{
 Other day: \code{\link{day.ex.date}},
   \code{\link{day.ex.int}}, \code{\link{day.lag}},
-  \code{\link{day.seq}}, \code{\link{day.to.weekday}}
+  \code{\link{day.seq}}, \code{\link{day.to.weekday}},
+  \code{\link{day.to.week}}
 }
 \keyword{day.to.int}

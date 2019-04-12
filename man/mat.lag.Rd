@@ -4,7 +4,7 @@
 \alias{mat.lag}
 \title{mat.lag}
 \usage{
-mat.lag(x, y, n, w = T)
+mat.lag(x, y, n, w = T, h = T)
 }
 \arguments{
 \item{x}{= a matrix/df indexed by time running FORWARDS}
@@ -14,6 +14,8 @@ mat.lag(x, y, n, w = T)
 \item{n}{= if T simple positional lagging is used. If F, yyyymm.lag is invoked.}
 
 \item{w}{= used only when !n. Maps to the original row space of <x>}
+
+\item{h}{= T/F depending on whether you wish to lag by yyyymmdd or flowdate}
 }
 \description{
 Returns data lagged <y> periods with the same row space as <x>
@@ -23,6 +25,7 @@ Other mat: \code{\link{mat.combine}},
   \code{\link{mat.compound}}, \code{\link{mat.correl}},
   \code{\link{mat.count}},
   \code{\link{mat.daily.to.monthly}},
+  \code{\link{mat.daily.to.weekly}},
   \code{\link{mat.ex.array3d}}, \code{\link{mat.ex.array}},
   \code{\link{mat.ex.matrix}}, \code{\link{mat.ex.vec}},
   \code{\link{mat.fake}}, \code{\link{mat.index}},
