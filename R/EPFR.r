@@ -472,7 +472,7 @@ bbk.data <- function (x, y, floW, sum.flows, lag, delay, doW, retW, idx,
         1) != dimnames(y)[[1]])) 
         stop("Missing return dates")
     x <- compound.flows(x, floW, prd.size, sum.flows)
-    x <- mat.lag(x, lag + delay, F, T, F)
+    x <- mat.lag(x, lag + delay, F, F, F)
     if (!is.null(doW)) 
         x <- mat.daily.to.weekly(x, doW)
     y <- bbk.fwdRet(x, y, retW, 0, 0, !sprds)
