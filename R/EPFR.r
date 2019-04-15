@@ -4567,7 +4567,7 @@ load.dy.vbl <- function (beg, end, mk.fcn, optional.args, vbl.name, out.fldr,
 
 load.dy.vbl.1obj <- function (beg, end, mk.fcn, optional.args, vbl.name, mo, env) 
 {
-    z <- yyyymmdd.ex.yyyymm(mo, F)
+    z <- flowdate.ex.yyyymm(mo, F)
     z <- paste(vbl.name, txt.right(z, 2), sep = ".")
     z <- matrix(NA, dim(env$classif)[1], length(z), F, list(dimnames(env$classif)[[1]], 
         z))
@@ -5265,7 +5265,7 @@ mat.zScore <- function (x, y, n)
 mk.1dFloMo <- function (x, y, n) 
 {
     vbls <- sql.arguments(y)[["factor"]]
-    x <- yyyymmdd.lag(x, 2)
+    x <- flowdate.lag(x, 2)
     if (any(y[1] == c("FloMo", "FloMoCB", "FloDollar", "FloDollarGross"))) {
         z <- sql.1dFloMo(x, y, n$DB, F)
     }
@@ -5716,7 +5716,7 @@ mk.SatoMem <- function (x, y, n)
 mk.sqlDump <- function (x, y, n) 
 {
     if (length(y) > 2) 
-        x <- yyyymm.lag(x, as.numeric(y[3]))
+        x <- yyyymm.lag(x, as.numeric(y[3], F))
     z <- paste(n$fldr, "\\sqlDump\\", y[1], ".", x, ".r", sep = "")
     z <- readRDS(z)
     z <- z[, y[2]]
