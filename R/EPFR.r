@@ -5496,31 +5496,22 @@ mk.FloAlphaLt.Ctry <- function (x, y, n)
 
 mk.Fragility <- function (x, y, n) 
 {
-    u <- fetch("HoldValTot", x, 1, paste(n$fldr, "derived", sep = "\\"), 
-        n$classif)
-    u <- nonneg(u^2)
     x <- yyyymm.lag(x)
-    h <- mat.read(paste(y, "Flows.csv", sep = "\\"))
+    h <- readRDS(paste(y, "FlowPct.r", sep = "\\"))
     h <- t(h[, yyyymm.lag(x, 59:0)])
-    x <- mat.read(paste(y, "\\Wt-", x, ".csv", sep = ""))
-    h <- h[, is.element(dimnames(h)[[2]], x[, "FundId"])]
+    x <- readRDS(paste(y, "\\HoldingValue-", x, ".r", sep = ""))
+    h <- h[, is.element(dimnames(h)[[2]], dimnames(x)[[2]])]
     h <- h[, mat.count(h)[, 1] > 39]
     h <- covar(h)
-    x <- x[is.element(x[, "FundId"], dimnames(h)[[2]]) & is.element(x[, 
-        "SecurityId"], dimnames(n$classif)[[1]]), ]
-    h <- h[is.element(dimnames(h)[[1]], x[, "FundId"]), ]
+    x <- x[is.element(dimnames(x)[[1]], dimnames(n$classif)[[1]]), 
+        is.element(dimnames(x)[[2]], dimnames(h)[[1]])]
+    h <- h[is.element(dimnames(h)[[1]], dimnames(x)[[2]]), ]
     h <- h[, dimnames(h)[[1]]]
-    x <- reshape(x, idvar = "SecurityId", timevar = "FundId", 
-        direction = "wide")
-    x <- mat.index(x)
-    dimnames(x)[[2]] <- txt.right(dimnames(x)[[2]], nchar(dimnames(x)[[2]]) - 
-        3)
-    x <- zav(x)
-    x <- x[, dimnames(h)[[2]]]
     h <- tcrossprod(h, x)
     z <- colSums(t(x) * h)
+    x <- rowSums(x)^2
+    z <- z/nonneg(x)
     z <- as.numeric(map.rname(z, dimnames(n$classif)[[1]]))
-    z <- z/u
     z
 }
 
