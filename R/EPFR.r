@@ -3598,14 +3598,16 @@ ftp.all.files.underlying <- function (x, y, n, w, h)
     while (length(x) > 0) {
         cat(x[1], "...\n")
         m <- ftp.dir(x[1], y, n, w, F)
-        j <- names(m)
-        if (x[1] != "/" & x[1] != "") 
-            j <- paste(x[1], j, sep = "/")
-        else j <- paste("/", j, sep = "")
-        if (any(m == h)) 
-            z <- c(z, j[m == h])
-        if (any(!m)) 
-            x <- c(x, j[!m])
+        if (!is.null(m)) {
+            j <- names(m)
+            if (x[1] != "/" & x[1] != "") 
+                j <- paste(x[1], j, sep = "/")
+            else j <- paste("/", j, sep = "")
+            if (any(m == h)) 
+                z <- c(z, j[m == h])
+            if (any(!m)) 
+                x <- c(x, j[!m])
+        }
         x <- x[-1]
     }
     z
@@ -3701,30 +3703,33 @@ ftp.dir <- function (x, y, n, w, h = F)
     month.abbrv <- vec.named(1:12, c("Jan", "Feb", "Mar", "Apr", 
         "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
     cat(ftp.dir.ftp.code(x, y, n, w, "dir"), file = ftp.file)
-    y <- NULL
-    while (is.null(y)) {
-        y <- shell(paste("ftp -i -s:", ftp.file, sep = ""), intern = T)
-        y <- ftp.dir.excise.crap(y, "150 Opening data channel for directory listing", 
-            "226 Successfully transferred")
-    }
-    n <- min(nchar(y)) - 4
-    while (any(!is.element(substring(y, n, n + 4), paste(" ", 
-        names(month.abbrv), " ", sep = "")))) n <- n - 1
-    z <- substring(y, n + 1, nchar(y))
-    y <- substring(y, 1, n - 1)
-    z <- data.frame(substring(z, 1, 3), as.numeric(substring(z, 
-        5, 6)), substring(z, 8, 12), substring(z, 14, nchar(z)), 
-        stringsAsFactors = F)
-    names(z) <- c("mm", "dd", "yyyy", "file")
-    if (h) {
-        z$mm <- map.rname(month.abbrv, z$mm)
-        z$yyyy <- ifelse(txt.has(z$yyyy, ":", T), yyyymm.to.yyyy(yyyymmdd.to.yyyymm(today())), 
-            z$yyyy)
-        z$yyyy <- as.numeric(z$yyyy)
-        z <- vec.named(10000 * z$yyyy + 100 * z$mm + z$dd, z$file)
+    y <- shell(paste("ftp -i -s:", ftp.file, sep = ""), intern = T)
+    y <- ftp.dir.excise.crap(y, "150 Opening data channel for directory listing", 
+        "226 Successfully transferred")
+    if (!is.null(y)) {
+        n <- min(nchar(y)) - 4
+        while (any(!is.element(substring(y, n, n + 4), paste(" ", 
+            names(month.abbrv), " ", sep = "")))) n <- n - 1
+        z <- substring(y, n + 1, nchar(y))
+        y <- substring(y, 1, n - 1)
+        z <- data.frame(substring(z, 1, 3), as.numeric(substring(z, 
+            5, 6)), substring(z, 8, 12), substring(z, 14, nchar(z)), 
+            stringsAsFactors = F)
+        names(z) <- c("mm", "dd", "yyyy", "file")
+        if (h) {
+            z$mm <- map.rname(month.abbrv, z$mm)
+            z$yyyy <- ifelse(txt.has(z$yyyy, ":", T), yyyymm.to.yyyy(yyyymmdd.to.yyyymm(today())), 
+                z$yyyy)
+            z$yyyy <- as.numeric(z$yyyy)
+            z <- vec.named(10000 * z$yyyy + 100 * z$mm + z$dd, 
+                z$file)
+        }
+        else {
+            z <- vec.named(substring(y, 1, 1) == "-", z$file)
+        }
     }
     else {
-        z <- vec.named(substring(y, 1, 1) == "-", z$file)
+        z <- NULL
     }
     z
 }
