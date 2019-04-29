@@ -4,13 +4,15 @@
 \alias{mat.last.to.first}
 \title{mat.last.to.first}
 \usage{
-mat.last.to.first(x)
+mat.last.to.first(x, y = 1)
 }
 \arguments{
 \item{x}{= a matrix/df}
+
+\item{y}{= a non-negative integer}
 }
 \description{
-Re-orders so the last column comes first
+Re-orders so the last <y> columns come first
 }
 \seealso{
 Other mat: \code{\link{mat.combine}},

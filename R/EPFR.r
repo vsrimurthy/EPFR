@@ -2399,7 +2399,7 @@ fcn.indent.increase <- function (x, y)
 fcn.indent.proper <- function (x) 
 {
     y <- toupper(fcn.lines.code(x, T))
-    n <- c(char.seq("A", "Z"), 1:9)
+    n <- c(LETTERS, 1:9)
     w <- 1
     i <- 1
     z <- T
@@ -3700,8 +3700,7 @@ ftp.dir <- function (x, y, n, w, h = F)
     if (missing(w)) 
         w <- ftp.credential("pwd")
     ftp.file <- "C:\\temp\\foo.ftp"
-    month.abbrv <- vec.named(1:12, c("Jan", "Feb", "Mar", "Apr", 
-        "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
+    month.abbrv <- vec.named(1:12, month.abb)
     cat(ftp.dir.ftp.code(x, y, n, w, "dir"), file = ftp.file)
     y <- shell(paste("ftp -i -s:", ftp.file, sep = ""), intern = T)
     y <- ftp.dir.excise.crap(y, "150 Opening data channel for directory listing", 
@@ -4236,6 +4235,19 @@ fwd.probs.wrapper <- function (x, y, floW, sum.flows, lags, delay, doW, hz, idx,
     }
     z <- simplify2array(z)
     z
+}
+
+#' gram.schmidt
+#' 
+#' Gram-Schmidt orthogonalization of <x> to <y>
+#' @param x = a numeric vector/matrix/data frame
+#' @param y = a numeric isomekic vector
+#' @keywords gram.schmidt
+#' @export
+
+gram.schmidt <- function (x, y) 
+{
+    x - tcrossprod(y, crossprod(x, y)/sum(y^2))
 }
 
 #' greek.ex.english
@@ -5003,15 +5015,16 @@ mat.lag <- function (x, y, n, w = T, h = T)
 
 #' mat.last.to.first
 #' 
-#' Re-orders so the last column comes first
+#' Re-orders so the last <y> columns come first
 #' @param x = a matrix/df
+#' @param y = a non-negative integer
 #' @keywords mat.last.to.first
 #' @export
 #' @family mat
 
-mat.last.to.first <- function (x) 
+mat.last.to.first <- function (x, y = 1) 
 {
-    x[, order(1:dim(x)[2]%%dim(x)[2])]
+    x[, order((1:dim(x)[2] + y - 1)%%dim(x)[2])]
 }
 
 #' mat.rank
@@ -5493,7 +5506,7 @@ mk.FloAlphaLt.Ctry <- function (x, y, n)
 #' 
 #' Generates the fragility measure set forth in Greenwood & Thesmar (2011) "Stock Price Fragility"
 #' @param x = a single YYYYMM
-#' @param y = folder where underlying data live
+#' @param y = vector containing the following items: a) folder - where the underlying data live b) trail - number of return periods to use c) factors - number of eigenvectors to use
 #' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
 #' @keywords mk.Fragility
 #' @export
@@ -5501,13 +5514,16 @@ mk.FloAlphaLt.Ctry <- function (x, y, n)
 
 mk.Fragility <- function (x, y, n) 
 {
+    trail <- as.numeric(y[2])
+    eigen <- as.numeric(y[3])
+    y <- y[1]
     x <- yyyymm.lag(x)
     h <- readRDS(paste(y, "FlowPct.r", sep = "\\"))
-    h <- t(h[, yyyymm.lag(x, 59:0)])
+    h <- t(h[, yyyymm.lag(x, trail:1 - 1)])
     x <- readRDS(paste(y, "\\HoldingValue-", x, ".r", sep = ""))
-    h <- h[, is.element(dimnames(h)[[2]], dimnames(x)[[2]])]
-    h <- h[, mat.count(h)[, 1] > 39]
-    h <- covar(h)
+    h <- h[, mat.count(h)[, 1] == trail & is.element(dimnames(h)[[2]], 
+        dimnames(x)[[2]])]
+    h <- principal.components.covar(h, eigen)
     x <- x[is.element(dimnames(x)[[1]], dimnames(n$classif)[[1]]), 
         is.element(dimnames(x)[[2]], dimnames(h)[[1]])]
     h <- h[is.element(dimnames(h)[[1]], dimnames(x)[[2]]), ]
@@ -6328,6 +6344,7 @@ position.floPct <- function (x, y, n)
 #' @param y = number of principal components desired
 #' @keywords principal.components
 #' @export
+#' @family principal
 
 principal.components <- function (x, y = 2) 
 {
@@ -6336,6 +6353,31 @@ principal.components <- function (x, y = 2)
     z <- crossprod(x)
     z <- svd(z)$v[, 1:y]
     z <- x %*% z
+    z
+}
+
+#' principal.components.covar
+#' 
+#' covariance using first two components as factors. <n>, when present, is orthogonal to these. Residuals are considered independent.
+#' @param x = a matrix/df
+#' @param y = number of principal components considered important
+#' @param n = missing or a numeric vector of length <dim(x)[2]>
+#' @keywords principal.components.covar
+#' @export
+#' @family principal
+
+principal.components.covar <- function (x, y, n) 
+{
+    x <- as.matrix(x)
+    x <- x - matrix(colMeans(x), dim(x)[1], dim(x)[2], T, dimnames(x))
+    if (!missing(n)) 
+        x <- t(gram.schmidt(t(x), n))
+    z <- svd(x)
+    z <- z$u[, 1:y] %*% (t(z$v) * z$d)[1:y, ]
+    dimnames(z) <- dimnames(x)
+    x <- x - z
+    z <- (t(z) %*% z)/(dim(x)[1] - 1)
+    diag(z) <- diag(z) + colSums(x^2)/(dim(x)[1] - 1)
     z
 }
 
@@ -6594,11 +6636,12 @@ qa.filter.map <- function (x)
 #' @param y = M/W/D depending on whether flows are monthly/weekly/daily
 #' @param n = T for fund or F for share-class level
 #' @param w = filter (e.g. Aggregate/Active/Passive/ETF/Mutual)
+#' @param h = a connection, the output of odbcDriverConnect
 #' @keywords qa.flow
 #' @export
 #' @family qa
 
-qa.flow <- function (x, y, n, w = "Aggregate") 
+qa.flow <- function (x, y, n, w, h) 
 {
     fldr <- "C:\\temp\\crap"
     isMacro <- any(y == c("M", "W", "D", "C", "I", "S"))
@@ -6710,31 +6753,35 @@ qa.flow <- function (x, y, n, w = "Aggregate")
         z[j, "SQLxFTP"] <- 0
         z[j, 9:dim(z)[2]] <- 0
     }
-    if (any(is.element(z[, "goodFile"], 1))) {
-        myconn <- sql.connect(ftp.info(y, n, "connection", w))
+    if (any(is.element(z[, "goodFile"], 1)) & missing(h)) {
+        h <- sql.connect(ftp.info(y, n, "connection", w))
+        close.connection <- T
+    }
+    else {
+        close.connection <- F
     }
     for (j in dimnames(z)[[1]][is.element(z[, "goodFile"], 1)]) {
         if (isMacro) {
-            h <- ftp.sql.other(y, j, w)
+            u <- ftp.sql.other(y, j, w)
         }
         else {
-            h <- ftp.sql.factor(y, j, w)
+            u <- ftp.sql.factor(y, j, w)
         }
-        h <- sql.query.underlying(h, myconn, F)
-        z[j, "isSQL"] <- as.numeric(!is.null(dim(h)))
+        u <- sql.query.underlying(u, h, F)
+        z[j, "isSQL"] <- as.numeric(!is.null(dim(u)))
         if (z[j, "isSQL"] == 1) 
-            z[j, "isSQL"] <- as.numeric(dim(h)[1] > 0)
+            z[j, "isSQL"] <- as.numeric(dim(u)[1] > 0)
         if (z[j, "isSQL"] == 1 & !isMacro) 
-            h <- h[!is.na(h[, dim(h)[2]]), ]
+            u <- u[!is.na(u[, dim(u)[2]]), ]
         if (z[j, "isSQL"] == 1) {
             vec <- qa.index(df, isMacro, isFactor)[df[, "ReportDate"] == 
                 j]
-            dimnames(h)[[1]] <- qa.index(h, isMacro, isFactor)
-            h <- h[, cols]
-            z[j, "SQLxFTP"] <- sum(!is.element(dimnames(h)[[1]], 
+            dimnames(u)[[1]] <- qa.index(u, isMacro, isFactor)
+            u <- u[, cols]
+            z[j, "SQLxFTP"] <- sum(!is.element(dimnames(u)[[1]], 
                 vec))
-            z[j, "FTPxSQL"] <- sum(!is.element(vec, dimnames(h)[[1]]))
-            z[j, "Common"] <- sum(is.element(vec, dimnames(h)[[1]]))
+            z[j, "FTPxSQL"] <- sum(!is.element(vec, dimnames(u)[[1]]))
+            z[j, "Common"] <- sum(is.element(vec, dimnames(u)[[1]]))
         }
         else {
             if (z[j, "goodFile"] == 1) {
@@ -6751,43 +6798,43 @@ qa.flow <- function (x, y, n, w = "Aggregate")
         if (z[j, "Common"] > 100) {
             vec <- qa.index(df, isMacro, isFactor)
             vec <- is.element(df[, "ReportDate"], j) & is.element(vec, 
-                dimnames(h)[[1]])
+                dimnames(u)[[1]])
             if (isMacro) {
-                h <- h[as.character(df[vec, "FundId"]), cols[-1][-1]]
-                h <- abs(zav(df[vec, dimnames(h)[[2]]]) - zav(h))
+                u <- u[as.character(df[vec, "FundId"]), cols[-1][-1]]
+                u <- abs(zav(df[vec, dimnames(u)[[2]]]) - zav(u))
             }
             else if (isFactor) {
-                h <- h[as.character(df[vec, "HSecurityId"]), 
+                u <- u[as.character(df[vec, "HSecurityId"]), 
                   cols[-1][-1]]
                 if (any(y == c("IONM", "IOND"))) {
-                  h <- abs(zav(df[vec, dimnames(h)[[2]]]) - zav(h))
+                  u <- abs(zav(df[vec, dimnames(u)[[2]]]) - zav(u))
                 }
                 else {
-                  h <- abs(zav(df[vec, y]) - zav(h))
+                  u <- abs(zav(df[vec, y]) - zav(u))
                 }
             }
             else {
-                h <- h[paste(df[vec, "HSecurityId"], df[vec, 
-                  "GeoId"]), dim(h)[2]]
-                h <- abs(zav(df[vec, dim(df)[2]]) - zav(h))
+                u <- u[paste(df[vec, "HSecurityId"], df[vec, 
+                  "GeoId"]), dim(u)[2]]
+                u <- abs(zav(df[vec, dim(df)[2]]) - zav(u))
             }
             if (any(y == c("M", "W", "D"))) {
-                z[j, paste("sum", dimnames(h)[[2]], sep = "Abs")] <- apply(h, 
+                z[j, paste("sum", dimnames(u)[[2]], sep = "Abs")] <- apply(u, 
                   2, sum)
-                z[j, paste("max", dimnames(h)[[2]], sep = "Abs")] <- apply(h, 
+                z[j, paste("max", dimnames(u)[[2]], sep = "Abs")] <- apply(u, 
                   2, max)
             }
             else if (!isMacro & !isFactor) {
-                z[j, 9] <- sum(h)
-                z[j, 10] <- max(h)
+                z[j, 9] <- sum(u)
+                z[j, 10] <- max(u)
             }
             else {
-                z[j, 9] <- sum(unlist(h))
-                if (is.null(dim(h))) {
-                  z[j, 10] <- max(h)
+                z[j, 9] <- sum(unlist(u))
+                if (is.null(dim(u))) {
+                  z[j, 10] <- max(u)
                 }
                 else {
-                  z[j, 10] <- max(rowSums(h))
+                  z[j, 10] <- max(rowSums(u))
                 }
             }
         }
@@ -6795,9 +6842,8 @@ qa.flow <- function (x, y, n, w = "Aggregate")
             z[j, 9:dim(z)[2]] <- 0
         }
     }
-    if (any(is.element(z[, "goodFile"], 1))) {
-        close(myconn)
-    }
+    if (close.connection) 
+        close(h)
     z
 }
 
@@ -7559,6 +7605,23 @@ run.cs.reg <- function (x, y)
     y <- as.matrix(y)
     z <- tcrossprod(as.matrix(x), tcrossprod(solve(crossprod(y)), 
         y))
+    z
+}
+
+#' scree
+#' 
+#' number of eigenvectors to use (by looking at the "kink")
+#' @param x = a decreasing numerical vector
+#' @keywords scree
+#' @export
+
+scree <- function (x) 
+{
+    n <- length(x)
+    y <- x[1]/n
+    x <- x[-n] - x[-1]
+    x <- 1.5 * pi - atan(x[1 - n]/y) - atan(y/x[-1])
+    z <- (3:n - 1)[order(x)][1]
     z
 }
 
@@ -10791,7 +10854,7 @@ txt.anagram <- function (x, y, n = 0)
 {
     x <- toupper(x)
     x <- txt.to.char(x)
-    x <- x[is.element(x, char.seq("A", "Z"))]
+    x <- x[is.element(x, LETTERS)]
     x <- paste(x, collapse = "")
     if (missing(y)) 
         y <- txt.words()
@@ -10853,8 +10916,8 @@ txt.core <- function (x)
     n <- max(m)
     while (n > 0) {
         w <- m >= n
-        w[w] <- !is.element(substring(x[w], n, n), c(" ", char.seq("A", 
-            "Z"), 0:9))
+        w[w] <- !is.element(substring(x[w], n, n), c(" ", LETTERS, 
+            0:9))
         h <- w & m == n
         if (any(h)) {
             x[h] <- txt.left(x[h], n - 1)
@@ -10965,7 +11028,7 @@ txt.gunning <- function (x, y, n)
     x <- txt.replace(x, "?", ".")
     x <- txt.replace(x, "!", ".")
     x <- txt.to.char(x)
-    x <- x[is.element(x, c(char.seq("A", "Z"), " ", "."))]
+    x <- x[is.element(x, c(LETTERS, " ", "."))]
     x <- paste(x, collapse = "")
     x <- txt.replace(x, ".", " . ")
     x <- txt.trim(x)

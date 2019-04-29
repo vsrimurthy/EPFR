@@ -14,4 +14,7 @@ principal.components(x, y = 2)
 \description{
 first <y> principal components
 }
+\seealso{
+Other principal: \code{\link{principal.components.covar}}
+}
 \keyword{principal.components}

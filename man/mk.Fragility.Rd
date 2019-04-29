@@ -9,7 +9,7 @@ mk.Fragility(x, y, n)
 \arguments{
 \item{x}{= a single YYYYMM}
 
-\item{y}{= folder where underlying data live}
+\item{y}{= vector containing the following items: a) folder - where the underlying data live b) trail - number of return periods to use c) factors - number of eigenvectors to use}
 
 \item{n}{= list object containing the following items: a) classif - classif file b) fldr - stock-flows folder}
 }
