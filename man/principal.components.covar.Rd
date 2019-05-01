@@ -14,7 +14,7 @@ principal.components.covar(x, y, n)
 \item{n}{= missing or a numeric vector of length <dim(x)[2]>}
 }
 \description{
-covariance using first two components as factors. <n>, when present, is orthogonal to these. Residuals are considered independent.
+covariance using first <y> components as factors. <n>, when present, becomes one of the factors. Residuals are considered independent.
 }
 \seealso{
 Other principal: \code{\link{principal.components}}

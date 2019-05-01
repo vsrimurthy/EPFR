@@ -6358,7 +6358,7 @@ principal.components <- function (x, y = 2)
 
 #' principal.components.covar
 #' 
-#' covariance using first two components as factors. <n>, when present, is orthogonal to these. Residuals are considered independent.
+#' covariance using first <y> components as factors. <n>, when present, becomes one of the factors. Residuals are considered independent.
 #' @param x = a matrix/df
 #' @param y = number of principal components considered important
 #' @param n = missing or a numeric vector of length <dim(x)[2]>
@@ -6370,13 +6370,22 @@ principal.components.covar <- function (x, y, n)
 {
     x <- as.matrix(x)
     x <- x - matrix(colMeans(x), dim(x)[1], dim(x)[2], T, dimnames(x))
-    if (!missing(n)) 
-        x <- t(gram.schmidt(t(x), n))
+    if (!missing(n)) {
+        h <- x %*% n
+        x <- gram.schmidt(x, h)
+    }
     z <- svd(x)
-    z <- z$u[, 1:y] %*% (t(z$v) * z$d)[1:y, ]
-    dimnames(z) <- dimnames(x)
+    if (!missing(n)) {
+        z <- z$u[, 2:y - 1]
+        z <- cbind(h, z)
+        z <- z %*% solve(crossprod(z)) %*% crossprod(z, x)
+    }
+    else {
+        z <- z$u[, 1:y] %*% (t(z$v) * z$d)[1:y, ]
+        dimnames(z) <- dimnames(x)
+    }
     x <- x - z
-    z <- (t(z) %*% z)/(dim(x)[1] - 1)
+    z <- crossprod(z)/(dim(x)[1] - 1)
     diag(z) <- diag(z) + colSums(x^2)/(dim(x)[1] - 1)
     z
 }
