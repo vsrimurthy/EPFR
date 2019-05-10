@@ -3901,9 +3901,9 @@ ftp.file.size <- function (x, y, n, w)
 #' file <x> from remote site
 #' @param x = remote file on an ftp site (e.g. "/ftpdata/mystuff/foo.txt")
 #' @param y = local folder (e.g. "C:\\\\temp")
-#' @param n = ftp site
-#' @param w = user id
-#' @param h = password
+#' @param n = ftp site (defaults to standard)
+#' @param w = user id (defaults to standard)
+#' @param h = password (defaults to standard)
 #' @keywords ftp.get
 #' @export
 #' @family ftp
@@ -3994,6 +3994,10 @@ ftp.sql.factor <- function (x, y, n)
     else if (all(x == "FundCtD")) {
         z <- sql.1dFundCt(y, c("FundCt", qa.filter.map(n)), "All", 
             T)
+    }
+    else if (all(x == "FundCtM")) {
+        z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c("FundCt", 
+            qa.filter.map(n)), "All", T)
     }
     else if (all(is.element(x, c("FundCt", "Herfindahl")))) {
         z <- sql.Herfindahl(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
@@ -6386,6 +6390,7 @@ principal.components.covar <- function (x, y, n)
     }
     x <- x - z
     z <- crossprod(z)/(dim(x)[1] - 1)
+    z <- z/(1 - y/dim(x)[1])^2
     diag(z) <- diag(z) + colSums(x^2)/(dim(x)[1] - 1)
     z
 }
@@ -6609,6 +6614,9 @@ qa.columns <- function (x)
     }
     else if (any(x == c("StockM", "StockD"))) {
         z <- c("ReportDate", "HSecurityId", "GeoId", "CalculatedStockFlow")
+    }
+    else if (any(x == c("FundCtM", "FundCtD"))) {
+        z <- c("ReportDate", "HSecurityId", "GeoId", "FundCt")
     }
     else if (any(x == c("IOND", "IONM"))) {
         z <- c("ReportDate", "HSecurityId", "Inflow", "Outflow")
@@ -9381,6 +9389,57 @@ sql.1mFloMo <- function (x, y, n, w)
     }
     z <- paste(c(sql.declare("@dy", "datetime", yyyymm.to.day(x)), 
         sql.unbracket(z)), collapse = "\n")
+    z
+}
+
+#' sql.1mFundCt
+#' 
+#' Generates FundCt, the ownership breadth measure set forth in Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
+#' @param x = the YYYYMM for which you want data (known 26 days later)
+#' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
+#' @param n = any of StockFlows/Japan/CSI300/Energy
+#' @param w = T/F depending on whether you are checking ftp
+#' @keywords sql.1mFundCt
+#' @export
+#' @family sql
+
+sql.1mFundCt <- function (x, y, n, w) 
+{
+    y <- sql.arguments(y)
+    z <- yyyymm.to.day(x)
+    x <- sql.declare("@dy", "datetime", z)
+    if (n != "All") 
+        n <- list(A = sql.in("h.HSecurityId", sql.RDSuniv(n)))
+    else n <- list()
+    n[[char.ex.int(length(n) + 65)]] <- "flo.ReportDate = @dy"
+    if (y$filter != "All") 
+        n[[char.ex.int(length(n) + 65)]] <- sql.FundHistory.sf(y$filter)
+    if (length(n) == 1) 
+        n <- n[[1]]
+    else n <- sql.and(n)
+    if (w) {
+        z <- c(paste("ReportDate = '", z, "'", sep = ""), "GeoId = GeographicFocusId", 
+            "HSecurityId")
+    }
+    else {
+        z <- "SecurityId"
+    }
+    for (j in y$factor) {
+        if (j == "FundCt") {
+            z <- c(z, paste(j, "count(distinct flo.HFundId)", 
+                sep = " = "))
+        }
+        else {
+            stop("Bad factor", j)
+        }
+    }
+    h <- c("MonthlyData flo", "inner join", "FundHistory his on his.HFundId = flo.HFundId")
+    h <- c(h, "inner join", "Holdings h on h.FundId = his.FundId and h.ReportDate = flo.ReportDate")
+    if (!w) 
+        h <- c(h, "inner join", "SecurityHistory id on id.HSecurityId = h.HSecurityId")
+    w <- ifelse(w, "HSecurityId, GeographicFocusId", "SecurityId")
+    z <- sql.tbl(z, h, n, w)
+    z <- paste(c(x, sql.unbracket(z)), collapse = "\n")
     z
 }
 
