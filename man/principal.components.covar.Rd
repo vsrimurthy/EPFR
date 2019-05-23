@@ -4,19 +4,18 @@
 \alias{principal.components.covar}
 \title{principal.components.covar}
 \usage{
-principal.components.covar(x, y, n)
+principal.components.covar(x, y)
 }
 \arguments{
 \item{x}{= a matrix/df}
 
 \item{y}{= number of principal components considered important}
-
-\item{n}{= missing or a numeric vector of length <dim(x)[2]>}
 }
 \description{
-covariance using first <y> components as factors. <n>, when present, becomes one of the factors. Residuals are considered independent.
+covariance using first <y> components as factors
 }
 \seealso{
-Other principal: \code{\link{principal.components}}
+Other principal: \code{\link{principal.components.underlying}},
+  \code{\link{principal.components}}
 }
 \keyword{principal.components.covar}

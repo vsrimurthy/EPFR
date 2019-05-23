@@ -11,11 +11,11 @@ ftp.upload.script(x, y, n, w, h)
 
 \item{y}{= local folder containing the data (e.g. "C:\\\\temp\\\\mystuff")}
 
-\item{n}{= ftp site}
+\item{n}{= ftp site (defaults to standard)}
 
-\item{w}{= user id}
+\item{w}{= user id (defaults to standard)}
 
-\item{h}{= password}
+\item{h}{= password (defaults to standard)}
 }
 \description{
 returns ftp script to copy up files from the local machine

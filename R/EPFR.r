@@ -1857,6 +1857,108 @@ extract.AnnMn.sf.wrapper <- function (x, y = "AnnMn")
     z
 }
 
+#' factordump.rds
+#' 
+#' Dumps variable <x> to folder <y> in standard text format
+#' @param x = variable name (e.g. "HerdingLSV")
+#' @param y = local folder (e.g. "C:\\\\temp\\\\mystuff")
+#' @param n = starting QTR
+#' @param w = ending QTR
+#' @param h = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) fldr - stock-flows folder
+#' @param u = output variable name
+#' @keywords factordump.rds
+#' @export
+#' @family factordump
+
+factordump.rds <- function (x, y, n, w, h, u) 
+{
+    for (j in qtr.seq(n, w)) {
+        z <- list()
+        for (k in yyyymm.lag(yyyymm.ex.qtr(j), 2:0)) {
+            cat(k, "")
+            df <- sql.query.underlying(sql.HSIdmap(k), h$conn, 
+                F)
+            is.dup <- duplicated(df$SecurityId)
+            if (any(is.dup)) {
+                df <- df[!is.dup, ]
+                cat("Removing", sum(is.dup), "duplicated SecurityId at", 
+                  k, "...\n")
+            }
+            df <- vec.named(df[, "HSecurityId"], df[, "SecurityId"])
+            vbl <- fetch(x, yyyymm.lag(k, -1), 1, paste(h$fldr, 
+                "derived", sep = "\\"), h$classif)
+            is.data <- !is.na(vbl) & is.element(dimnames(h$classif)[[1]], 
+                names(df))
+            vbl <- vbl[is.data]
+            df <- as.character(df[dimnames(h$classif)[[1]][is.data]])
+            df <- data.frame(rep(yyyymm.to.day(k), length(vbl)), 
+                df, vbl)
+            dimnames(df)[[2]] <- c("ReportDate", "HSecurityId", 
+                x)
+            z[[k]] <- df
+        }
+        z <- Reduce(rbind, z)
+        factordump.write(z, paste(y, "\\", u, j, ".txt", sep = ""))
+        cat("\n")
+    }
+    invisible()
+}
+
+#' factordump.sql
+#' 
+#' Dumps variable <x> to folder <y> in standard text format
+#' @param x = variable name (e.g. "Herfindahl")
+#' @param y = local folder (e.g. "C:\\\\temp\\\\mystuff")
+#' @param n = starting QTR
+#' @param w = ending QTR
+#' @param h = one of StockFlows/Regular/Quant
+#' @keywords factordump.sql
+#' @export
+#' @family factordump
+
+factordump.sql <- function (x, y, n, w, h) 
+{
+    filters <- vec.named(c("", "AllActive", "AllPassive", "AllETF", 
+        "AllMF"), c("Aggregate", "Active", "Passive", "ETF", 
+        "Mutual"))
+    for (filter in names(filters)) {
+        cat(txt.hdr(filter), "\n")
+        myconn <- sql.connect(h)
+        for (j in qtr.seq(n, w)) {
+            z <- list()
+            for (k in yyyymm.lag(yyyymm.ex.qtr(j), 2:0)) {
+                cat(k, "")
+                z[[k]] <- sql.query.underlying(ftp.sql.factor(x, 
+                  yyyymm.to.day(k), filter), myconn, F)
+            }
+            z <- Reduce(rbind, z)
+            factordump.write(z, paste(y, "\\", x, "\\", filter, 
+                "\\", x, filters[filter], j, ".txt", sep = ""))
+            cat("\n")
+        }
+        close(myconn)
+    }
+    invisible()
+}
+
+#' factordump.write
+#' 
+#' Dumps variable <x> to path <y> in standard text format
+#' @param x = a matrix/data-frame
+#' @param y = output path
+#' @keywords factordump.write
+#' @export
+#' @family factordump
+
+factordump.write <- function (x, y) 
+{
+    x[, "ReportDate"] <- yyyymmdd.to.txt(x[, "ReportDate"])
+    dir.ensure(y)
+    write.table(x, y, sep = "\t", , row.names = F, col.names = T, 
+        quote = F)
+    invisible()
+}
+
 #' fcn.all.canonical
 #' 
 #' Checks all functions are in standard form
@@ -2937,13 +3039,24 @@ fetch <- function (x, y, n, w, h)
         for (i in dimnames(z)[[2]]) {
             df <- paste(w, "\\", i, ".", yyyy, ".r", sep = "")
             lCol <- paste(i, mm, sep = ".")
-            z[, i] <- readRDS(df)[, lCol]
+            if (file.exists(df)) {
+                z[, i] <- readRDS(df)[, lCol]
+            }
+            else {
+                cat("Warning:", df, "does not exist. Proceeding regardless ...\n")
+            }
         }
     }
     else {
         z <- paste(w, "\\", x, ".", yyyy, ".r", sep = "")
         lCol <- paste(x, mm, sep = ".")
-        z <- readRDS(z)[, lCol]
+        if (file.exists(z)) {
+            z <- readRDS(z)[, lCol]
+        }
+        else {
+            cat("Warning:", z, "does not exist. Proceeding regardless ...\n")
+            z <- rep(NA, dim(h)[1])
+        }
     }
     z
 }
@@ -3999,6 +4112,10 @@ ftp.sql.factor <- function (x, y, n)
         z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c("FundCt", 
             qa.filter.map(n)), "All", T)
     }
+    else if (all(x == "Dispersion")) {
+        z <- sql.Dispersion(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
+            "All", T)
+    }
     else if (all(is.element(x, c("FundCt", "Herfindahl")))) {
         z <- sql.Herfindahl(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
             "All", T)
@@ -4123,9 +4240,9 @@ ftp.txt <- function (x, y, n)
 #' returns ftp script to copy up files from the local machine
 #' @param x = empty remote folder on an ftp site (e.g. "/ftpdata/mystuff")
 #' @param y = local folder containing the data (e.g. "C:\\\\temp\\\\mystuff")
-#' @param n = ftp site
-#' @param w = user id
-#' @param h = password
+#' @param n = ftp site (defaults to standard)
+#' @param w = user id (defaults to standard)
+#' @param h = password (defaults to standard)
 #' @keywords ftp.upload.script
 #' @export
 #' @family ftp
@@ -6093,6 +6210,56 @@ obj.seq <- function (x, y, n, w, h)
     z
 }
 
+#' optimal
+#' 
+#' Performance statistics of the optimal zero-cost unit-variance portfolio
+#' @param x = a matrix/df of indicators
+#' @param y = an isomekic isoplatic matrix/df containing associated forward returns
+#' @param n = an isoplatic matrix/df of daily returns on which to train the risk model
+#' @param w = a numeric vector, the elements of which are: 1) number of trailing days to train the risk model on 2) number of principal components (when 0 raw return matrix is used) 3) number of bins (when 0, indicator is ptiled) 4) forward return window in days or months depending on the row space of <x>
+#' @keywords optimal
+#' @export
+
+optimal <- function (x, y, n, w) 
+{
+    period.count <- yyyy.periods.count(dimnames(x)[[1]])
+    if (w[3] > 0) {
+        x <- qtl.eq(x, w[3])
+        x <- (1 + w[3] - 2 * x)/(w[3] - 1)
+        x <- ifelse(!is.na(x) & abs(x) < 1, 0, x)
+    }
+    else x <- ptile(x)
+    for (j in dimnames(x)[[1]]) {
+        if (period.count == 260) 
+            z <- j
+        else z <- yyyymmdd.ex.yyyymm(j)
+        z <- map.rname(n, flowdate.lag(z, w[1]:1 - 1))
+        z <- z[, mat.count(z)[, 1] == w[1] & !is.na(x[j, ])]
+        if (w[2] != 0) {
+            z <- principal.components.covar(z, w[2])
+        }
+        else {
+            z <- covar(z)/(1 - 1/w[1] + 1/w[1]^2)
+        }
+        opt <- solve(z) %*% map.rname(x[j, ], dimnames(z)[[2]])
+        unity <- solve(z) %*% rep(1, dim(z)[1])
+        opt <- opt - unity * as.numeric(crossprod(opt, z) %*% 
+            unity)/as.numeric(crossprod(unity, z) %*% unity)
+        opt <- opt[, 1]/sqrt(260 * (crossprod(opt, z) %*% opt)[1, 
+            1])
+        x[j, ] <- zav(map.rname(opt, dimnames(x)[[2]]))
+    }
+    x <- rowSums(x * zav(y))
+    y <- period.count/w[4]
+    z <- vec.named(, c("AnnMn", "AnnSd", "Sharpe", "HitRate"))
+    z["AnnMn"] <- mean(x) * y
+    z["AnnSd"] <- sd(x) * sqrt(y)
+    z["Sharpe"] <- 100 * z["AnnMn"]/z["AnnSd"]
+    z["HitRate"] <- mean(sign(x)) * 50
+    z <- z/100
+    z
+}
+
 #' parameters
 #' 
 #' returns full path to relevant parameters file
@@ -6352,46 +6519,58 @@ position.floPct <- function (x, y, n)
 
 principal.components <- function (x, y = 2) 
 {
-    x <- as.matrix(x)
-    x <- x - matrix(colMeans(x), dim(x)[1], dim(x)[2], T, dimnames(x))
-    z <- crossprod(x)
-    z <- svd(z)$v[, 1:y]
-    z <- x %*% z
-    z
+    principal.components.underlying(x, y)$factor
 }
 
 #' principal.components.covar
 #' 
-#' covariance using first <y> components as factors. <n>, when present, becomes one of the factors. Residuals are considered independent.
+#' covariance using first <y> components as factors
 #' @param x = a matrix/df
 #' @param y = number of principal components considered important
-#' @param n = missing or a numeric vector of length <dim(x)[2]>
 #' @keywords principal.components.covar
 #' @export
 #' @family principal
 
-principal.components.covar <- function (x, y, n) 
+principal.components.covar <- function (x, y) 
 {
-    x <- as.matrix(x)
-    x <- x - matrix(colMeans(x), dim(x)[1], dim(x)[2], T, dimnames(x))
-    if (!missing(n)) {
-        h <- x %*% n
-        x <- gram.schmidt(x, h)
-    }
-    z <- svd(x)
-    if (!missing(n)) {
-        z <- z$u[, 2:y - 1]
-        z <- cbind(h, z)
-        z <- z %*% solve(crossprod(z)) %*% crossprod(z, x)
+    z <- principal.components.underlying(x, y)
+    if (is.null(dim(z$factor))) {
+        z <- tcrossprod(as.matrix(z$factor), as.matrix(z$exposure))
     }
     else {
-        z <- z$u[, 1:y] %*% (t(z$v) * z$d)[1:y, ]
-        dimnames(z) <- dimnames(x)
+        z <- tcrossprod(z$factor, z$exposure)
     }
     x <- x - z
     z <- crossprod(z)/(dim(x)[1] - 1)
-    z <- z/(1 - y/dim(x)[1])^2
     diag(z) <- diag(z) + colSums(x^2)/(dim(x)[1] - 1)
+    z
+}
+
+#' principal.components.underlying
+#' 
+#' first <y> principal components
+#' @param x = a matrix/df
+#' @param y = number of principal components desired
+#' @keywords principal.components.underlying
+#' @export
+#' @family principal
+
+principal.components.underlying <- function (x, y) 
+{
+    x <- scale(x, scale = F)
+    z <- svd(x)
+    dimnames(z$u)[[1]] <- dimnames(x)[[1]]
+    dimnames(z$v)[[1]] <- dimnames(x)[[2]]
+    if (y < 1) 
+        y <- scree(z$d)
+    if (y == 1) {
+        z <- list(factor = z$u[, 1] * z$d[1], exposure = z$v[, 
+            1])
+    }
+    else {
+        z <- list(factor = z$u[, 1:y] %*% diag(z$d[1:y]), exposure = z$v[, 
+            1:y])
+    }
     z
 }
 
@@ -9752,13 +9931,21 @@ sql.Dispersion <- function (x, y, n, w)
     h <- c("FundHistory t1", "inner join", "#BMK t2 on t2.BenchIndexId = t1.BenchIndexId")
     h <- sql.tbl("HFundId, HSecurityId, -HoldingValue", h, u)
     z <- c(z, "", "insert into #HLD", sql.unbracket(h))
-    z <- c(z, "", "delete from #HLD where", sql.in("HSecurityId", 
-        sql.RDSuniv(n), F))
+    if (n != "All") 
+        z <- c(z, "", "delete from #HLD where", sql.in("HSecurityId", 
+            sql.RDSuniv(n), F))
     z <- paste(z, collapse = "\n")
-    h <- c("#HLD hld", "inner join", "SecurityHistory id on id.HSecurityId = hld.HSecurityId")
-    u <- "SecurityId, Dispersion = 10000 * (avg(square(HoldingValue)) - square(avg(HoldingValue)))"
-    z <- c(z, paste(sql.unbracket(sql.tbl(u, h, , "SecurityId")), 
-        collapse = "\n"))
+    h <- "#HLD hld"
+    if (w) {
+        u <- c(x, "HSecurityId")
+    }
+    else {
+        h <- c(h, "inner join", "SecurityHistory id on id.HSecurityId = hld.HSecurityId")
+        u <- "SecurityId"
+    }
+    w <- ifelse(w, "HSecurityId", "SecurityId")
+    u <- c(u, "Dispersion = 10000 * (avg(square(HoldingValue)) - square(avg(HoldingValue)))")
+    z <- c(z, paste(sql.unbracket(sql.tbl(u, h, , w)), collapse = "\n"))
     z
 }
 
@@ -10147,6 +10334,25 @@ sql.Holdings.bulk <- function (x, y, n, w, h)
         y)
     z <- c(z, "", "insert into", paste("\t", x, sep = ""), sql.unbracket(sql.tbl(y, 
         w, h)), "", sql.drop(vec[1]))
+    z
+}
+
+#' sql.HSIdmap
+#' 
+#' Generates the SQL query to map SecurityId to HSecurityId
+#' @param x = the YYYYMM for which you want data (known 26 days later)
+#' @keywords sql.HSIdmap
+#' @export
+#' @family sql
+
+sql.HSIdmap <- function (x) 
+{
+    z <- sql.in("HSecurityId", sql.tbl("HSecurityId", "Holdings", 
+        "ReportDate = @mo", "HSecurityId"))
+    z <- sql.unbracket(sql.tbl(c("SecurityId", "HSecurityId"), 
+        "SecurityHistory", z))
+    z <- paste(c(sql.declare("@mo", "datetime", yyyymm.to.day(x)), 
+        z), collapse = "\n")
     z
 }
 
