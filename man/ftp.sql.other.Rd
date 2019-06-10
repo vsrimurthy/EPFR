@@ -7,7 +7,7 @@
 ftp.sql.other(x, y, n)
 }
 \arguments{
-\item{x}{= M/W/D depending on whether flows are monthly/weekly/daily}
+\item{x}{= M/W/D/C/I/S depending on flows or allocations}
 
 \item{y}{= flow date in YYYYMMDD format}
 

@@ -4155,7 +4155,7 @@ ftp.sql.factor <- function (x, y, n)
 #' ftp.sql.other
 #' 
 #' SQL code to validate <x> flows at the <y> level
-#' @param x = M/W/D depending on whether flows are monthly/weekly/daily
+#' @param x = M/W/D/C/I/S depending on flows or allocations
 #' @param y = flow date in YYYYMMDD format
 #' @param n = filter (e.g. Aggregate/Active/Passive/ETF/Mutual)
 #' @keywords ftp.sql.other
@@ -4190,30 +4190,6 @@ ftp.sql.other <- function (x, y, n)
     }
     else {
         stop("Bad Argument")
-    }
-    if (n == "Aggregate") {
-        z <- sql.tbl(c("ReportDate = convert(char(8), t1.ReportDate, 112)", 
-            "GeoId = GeographicFocusId", "HSecurityId", x), z, 
-            , "t1.ReportDate, GeographicFocusId, HSecurityId", 
-            h)
-    }
-    else {
-        if (n == "Active") {
-            n <- "[Index] = 0"
-        }
-        else if (n == "Passive") {
-            n <- "[Index] = 1"
-        }
-        else if (n == "Mutual") {
-            n <- "EtfTypeId is NULL"
-        }
-        else if (n == "ETF") {
-            n <- "EtfTypeId is not NULL"
-        }
-        z <- sql.tbl(c("ReportDate = convert(char(8), t1.ReportDate, 112)", 
-            "GeoId = GeographicFocusId", "HSecurityId", x), z, 
-            n, "t1.ReportDate, GeographicFocusId, HSecurityId", 
-            h)
     }
     z <- c(sql.declare("@dy", "datetime", y), sql.unbracket(z))
     z <- paste(z, collapse = "\n")
