@@ -170,7 +170,7 @@ array.unlist <- function (x, y)
         y <- col.ex.int(0:n + 1)
     if (length(y) != n + 1) 
         stop("Problem")
-    z <- expand.grid(dimnames(x))
+    z <- expand.grid(dimnames(x), stringsAsFactors = F)
     names(z) <- y[1:n]
     z[, y[n + 1]] <- as.vector(x)
     z
@@ -4950,7 +4950,7 @@ mat.daily.to.weekly <- function (x, y)
 
 mat.ex.array <- function (x) 
 {
-    z <- do.call(paste, rev(expand.grid(dimnames(x)[-1])))
+    z <- do.call(paste, rev(expand.grid(dimnames(x)[-1], stringsAsFactors = F)))
     z <- matrix(as.vector(x), length(z), dim(x)[1], T, list(z, 
         dimnames(x)[[1]]))
     z
@@ -11254,8 +11254,8 @@ txt.expand <- function (x, y, n = "-", w = F)
 {
     z <- list(x = x, y = y)
     if (w) 
-        z <- expand.grid(z)
-    else z <- rev(expand.grid(rev(z)))
+        z <- expand.grid(z, stringsAsFactors = F)
+    else z <- rev(expand.grid(rev(z), stringsAsFactors = F))
     z[["sep"]] <- n
     z <- do.call(paste, z)
     z
