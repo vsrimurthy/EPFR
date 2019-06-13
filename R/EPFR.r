@@ -3279,6 +3279,20 @@ fix.gaps <- function (x)
     z
 }
 
+#' flowdate.diff
+#' 
+#' returns <x - y> in terms of flowdates
+#' @param x = a vector of flow dates in YYYYMMDD format
+#' @param y = an isomekic vector of flow dates in YYYYMMDD format
+#' @keywords flowdate.diff
+#' @export
+#' @family flowdate
+
+flowdate.diff <- function (x, y) 
+{
+    obj.diff(flowdate.to.int, x, y)
+}
+
 #' flowdate.ex.int
 #' 
 #' the <x>th daily flow-publication date after Friday, December 29, 2017
