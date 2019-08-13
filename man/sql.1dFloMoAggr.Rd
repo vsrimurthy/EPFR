@@ -11,7 +11,7 @@ sql.1dFloMoAggr(x, y, n)
 
 \item{y}{= one or more of FwtdIn0/FwtdEx0/SwtdIn0/SwtdEx0}
 
-\item{n}{= any of StockFlows/Japan/CSI300/Energy}
+\item{n}{= any of StockFlows/China/Japan/CSI300/Energy}
 }
 \description{
 Generates the SQL query to get the data for aggregate 1dFloMo

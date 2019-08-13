@@ -13,7 +13,7 @@ sql.1dION(x, y, n, w)
 
 \item{n}{= the delay in knowing allocations}
 
-\item{w}{= any of StockFlows/Japan/CSI300/Energy}
+\item{w}{= any of StockFlows/China/Japan/CSI300/Energy}
 }
 \description{
 Generates the SQL query to get the data for 1dION$ & 1dION\%

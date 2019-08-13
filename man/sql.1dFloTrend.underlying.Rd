@@ -9,7 +9,7 @@ sql.1dFloTrend.underlying(x, y, n, w)
 \arguments{
 \item{x}{= a vector of filters}
 
-\item{y}{= any of All/StockFlows/Japan/CSI300/Energy}
+\item{y}{= any of All/StockFlows/China/Japan/CSI300/Energy}
 
 \item{n}{= flow date in YYYYMMDD (known two days later)}
 

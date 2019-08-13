@@ -56,7 +56,7 @@ ret.outliers <- function (x, y = 1.5)
 #' Returns a variable with the same row space as <n>
 #' @param x = a single YYYYMM
 #' @param y = variable to build
-#' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) uiconn - a connection to EPFRUI, the output of odbcDriverConnect d) DB - any of StockFlows/Japan/CSI300/Energy
+#' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) uiconn - a connection to EPFRUI, the output of odbcDriverConnect d) DB - any of StockFlows/China/Japan/CSI300/Energy
 #' @keywords mk.1mPerfTrend
 #' @export
 #' @family mk
@@ -1929,7 +1929,7 @@ factordump.sql <- function (x, y, n, w, h)
             for (k in yyyymm.lag(yyyymm.ex.qtr(j), 2:0)) {
                 cat(k, "")
                 z[[k]] <- sql.query.underlying(ftp.sql.factor(x, 
-                  yyyymm.to.day(k), filter), myconn, F)
+                  yyyymm.to.day(k), filter, "All"), myconn, F)
             }
             z <- Reduce(rbind, z)
             factordump.write(z, paste(y, "\\", x, "\\", filter, 
@@ -4094,71 +4094,71 @@ ftp.put <- function (x, y, n)
 #' SQL code to validate <x> flows at the <y> level
 #' @param x = vector of M/W/D depending on whether flows are monthly/weekly/daily
 #' @param y = flow date in YYYYMMDD format
-#' @param n = filter (e.g. Aggregate/Active/Passive/ETF/Mutual)
+#' @param n = fund filter (e.g. Aggregate/Active/Passive/ETF/Mutual)
+#' @param w = stock filter (e.g. All/China/Japan)
 #' @keywords ftp.sql.factor
 #' @export
 #' @family ftp
 
-ftp.sql.factor <- function (x, y, n) 
+ftp.sql.factor <- function (x, y, n, w) 
 {
     if (all(is.element(x, paste("Flo", c("Trend", "Diff", "Diff2"), 
         sep = "")))) {
-        z <- sql.1dFloTrend(y, c(x, qa.filter.map(n)), 26, "All", 
+        z <- sql.1dFloTrend(y, c(x, qa.filter.map(n)), 26, w, 
             T)
     }
     else if (all(is.element(x, paste("ActWt", c("Trend", "Diff", 
         "Diff2"), sep = "")))) {
-        z <- sql.1dActWtTrend(y, c(x, qa.filter.map(n)), "All", 
-            T)
+        z <- sql.1dActWtTrend(y, c(x, qa.filter.map(n)), w, T)
     }
     else if (all(x == "FloMo")) {
-        z <- sql.1dFloMo(y, c(x, qa.filter.map(n)), "All", T)
+        z <- sql.1dFloMo(y, c(x, qa.filter.map(n)), w, T)
     }
     else if (all(x == "StockD")) {
         z <- sql.1dFloMo(y, c("FloDollar", qa.filter.map(n)), 
-            "All", T)
+            w, T)
     }
     else if (all(x == "FundCtD")) {
-        z <- sql.1dFundCt(y, c("FundCt", qa.filter.map(n)), "All", 
+        z <- sql.1dFundCt(y, c("FundCt", qa.filter.map(n)), w, 
             T)
     }
     else if (all(x == "FundCtM")) {
         z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c("FundCt", 
-            qa.filter.map(n)), "All", T)
+            qa.filter.map(n)), w, T)
     }
     else if (all(x == "Dispersion")) {
         z <- sql.Dispersion(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
-            "All", T)
+            w, T)
     }
     else if (all(is.element(x, c("FundCt", "Herfindahl")))) {
         z <- sql.Herfindahl(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
-            "All", T)
+            w, T)
     }
     else if (all(x == "StockM")) {
         z <- sql.1mFloMo(yyyymmdd.to.yyyymm(y), c("FloDollar", 
-            qa.filter.map(n)), "All", T)
+            qa.filter.map(n)), w, T)
     }
     else if (all(x == "IOND")) {
         z <- sql.1dFloMo(y, c("Inflow", "Outflow", qa.filter.map(n)), 
-            "All", T)
+            w, T)
     }
     else if (all(x == "IONM")) {
         z <- sql.1mFloMo(yyyymmdd.to.yyyymm(y), c("Inflow", "Outflow", 
-            qa.filter.map(n)), "All", T)
+            qa.filter.map(n)), w, T)
     }
     else if (all(is.element(x, paste("Alloc", c("Trend", "Diff", 
         "Mo"), sep = "")))) {
         z <- sql.1mAllocMo(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
-            "All", T)
+            w, T)
     }
     else if (all(x == "AllocSkew")) {
         z <- sql.1mAllocSkew(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
-            "All", T)
+            w, T)
     }
     else if (all(is.element(x, c("FwtdEx0", "FwtdIn0", "SwtdEx0", 
         "SwtdIn0")))) {
         z <- sql.TopDownAllocs(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
-            "All", T)
+            w, T)
     }
     else {
         stop("Bad factor")
@@ -4642,7 +4642,7 @@ latin.to.arabic.underlying <- function ()
 #' list object with the elements mapped to the common row space
 #' @param fcn = function used to combine row spaces
 #' @param x = a list of mat objects
-#' @param y = column containing row names (NULL denotes row names)
+#' @param y = column containing row names
 #' @keywords list.common.row.space
 #' @export
 
@@ -5386,7 +5386,7 @@ mat.zScore <- function (x, y, n)
 #' Returns a flow variable with the same row space as <n>
 #' @param x = a single YYYYMMDD
 #' @param y = a string vector of variables to build with the last elements specifying the type of funds to use
-#' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) DB - any of StockFlows/Japan/CSI300/Energy
+#' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) DB - any of StockFlows/China/Japan/CSI300/Energy
 #' @keywords mk.1dFloMo
 #' @export
 #' @family mk
@@ -5426,7 +5426,7 @@ mk.1dFloMo <- function (x, y, n)
 #' Returns a flow variable with the same row space as <n>
 #' @param x = a single YYYYMM
 #' @param y = a string vector of variables to build with the last elements specifying the type of funds to use
-#' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) DB - any of StockFlows/Japan/CSI300/Energy
+#' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) DB - any of StockFlows/China/Japan/CSI300/Energy
 #' @keywords mk.1mAllocMo
 #' @export
 #' @family mk
@@ -5851,7 +5851,7 @@ mk.sqlDump <- function (x, y, n)
 #' 1/0 depending on whether <y> or more SRI funds own the stock
 #' @param x = a single YYYYMM
 #' @param y = a positive integer
-#' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) DB - any of StockFlows/Japan/CSI300/Energy
+#' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) DB - any of StockFlows/China/Japan/CSI300/Energy
 #' @keywords mk.SRIMem
 #' @export
 #' @family mk
@@ -6821,13 +6821,14 @@ qa.filter.map <- function (x)
 #' @param x = a YYYYMM month
 #' @param y = M/W/D depending on whether flows are monthly/weekly/daily
 #' @param n = T for fund or F for share-class level
-#' @param w = filter (e.g. Aggregate/Active/Passive/ETF/Mutual)
+#' @param w = fund filter (e.g. Aggregate/Active/Passive/ETF/Mutual)
 #' @param h = a connection, the output of odbcDriverConnect
+#' @param u = stock filter (e.g. All/CN)
 #' @keywords qa.flow
 #' @export
 #' @family qa
 
-qa.flow <- function (x, y, n, w, h) 
+qa.flow <- function (x, y, n, w, h, u) 
 {
     fldr <- "C:\\temp\\crap"
     isMacro <- any(y == c("M", "W", "D", "C", "I", "S"))
@@ -6948,26 +6949,26 @@ qa.flow <- function (x, y, n, w, h)
     }
     for (j in dimnames(z)[[1]][is.element(z[, "goodFile"], 1)]) {
         if (isMacro) {
-            u <- ftp.sql.other(y, j, w)
+            v <- ftp.sql.other(y, j, w)
         }
         else {
-            u <- ftp.sql.factor(y, j, w)
+            v <- ftp.sql.factor(y, j, w, u)
         }
-        u <- sql.query.underlying(u, h, F)
-        z[j, "isSQL"] <- as.numeric(!is.null(dim(u)))
+        v <- sql.query.underlying(v, h, F)
+        z[j, "isSQL"] <- as.numeric(!is.null(dim(v)))
         if (z[j, "isSQL"] == 1) 
-            z[j, "isSQL"] <- as.numeric(dim(u)[1] > 0)
+            z[j, "isSQL"] <- as.numeric(dim(v)[1] > 0)
         if (z[j, "isSQL"] == 1 & !isMacro) 
-            u <- u[!is.na(u[, dim(u)[2]]), ]
+            v <- v[!is.na(v[, dim(v)[2]]), ]
         if (z[j, "isSQL"] == 1) {
             vec <- qa.index(df, isMacro, isFactor)[df[, "ReportDate"] == 
                 j]
-            dimnames(u)[[1]] <- qa.index(u, isMacro, isFactor)
-            u <- u[, cols]
-            z[j, "SQLxFTP"] <- sum(!is.element(dimnames(u)[[1]], 
+            dimnames(v)[[1]] <- qa.index(v, isMacro, isFactor)
+            v <- v[, cols]
+            z[j, "SQLxFTP"] <- sum(!is.element(dimnames(v)[[1]], 
                 vec))
-            z[j, "FTPxSQL"] <- sum(!is.element(vec, dimnames(u)[[1]]))
-            z[j, "Common"] <- sum(is.element(vec, dimnames(u)[[1]]))
+            z[j, "FTPxSQL"] <- sum(!is.element(vec, dimnames(v)[[1]]))
+            z[j, "Common"] <- sum(is.element(vec, dimnames(v)[[1]]))
         }
         else {
             if (z[j, "goodFile"] == 1) {
@@ -6984,43 +6985,43 @@ qa.flow <- function (x, y, n, w, h)
         if (z[j, "Common"] > 100) {
             vec <- qa.index(df, isMacro, isFactor)
             vec <- is.element(df[, "ReportDate"], j) & is.element(vec, 
-                dimnames(u)[[1]])
+                dimnames(v)[[1]])
             if (isMacro) {
-                u <- u[as.character(df[vec, "FundId"]), cols[-1][-1]]
-                u <- abs(zav(df[vec, dimnames(u)[[2]]]) - zav(u))
+                v <- v[as.character(df[vec, "FundId"]), cols[-1][-1]]
+                v <- abs(zav(df[vec, dimnames(v)[[2]]]) - zav(v))
             }
             else if (isFactor) {
-                u <- u[as.character(df[vec, "HSecurityId"]), 
+                v <- v[as.character(df[vec, "HSecurityId"]), 
                   cols[-1][-1]]
                 if (any(y == c("IONM", "IOND"))) {
-                  u <- abs(zav(df[vec, dimnames(u)[[2]]]) - zav(u))
+                  v <- abs(zav(df[vec, dimnames(v)[[2]]]) - zav(v))
                 }
                 else {
-                  u <- abs(zav(df[vec, y]) - zav(u))
+                  v <- abs(zav(df[vec, y]) - zav(v))
                 }
             }
             else {
-                u <- u[paste(df[vec, "HSecurityId"], df[vec, 
-                  "GeoId"]), dim(u)[2]]
-                u <- abs(zav(df[vec, dim(df)[2]]) - zav(u))
+                v <- v[paste(df[vec, "HSecurityId"], df[vec, 
+                  "GeoId"]), dim(v)[2]]
+                v <- abs(zav(df[vec, dim(df)[2]]) - zav(v))
             }
             if (any(y == c("M", "W", "D"))) {
-                z[j, paste("sum", dimnames(u)[[2]], sep = "Abs")] <- apply(u, 
+                z[j, paste("sum", dimnames(v)[[2]], sep = "Abs")] <- apply(v, 
                   2, sum)
-                z[j, paste("max", dimnames(u)[[2]], sep = "Abs")] <- apply(u, 
+                z[j, paste("max", dimnames(v)[[2]], sep = "Abs")] <- apply(v, 
                   2, max)
             }
             else if (!isMacro & !isFactor) {
-                z[j, 9] <- sum(u)
-                z[j, 10] <- max(u)
+                z[j, 9] <- sum(v)
+                z[j, 10] <- max(v)
             }
             else {
-                z[j, 9] <- sum(unlist(u))
-                if (is.null(dim(u))) {
-                  z[j, 10] <- max(u)
+                z[j, 9] <- sum(unlist(v))
+                if (is.null(dim(v))) {
+                  z[j, 10] <- max(v)
                 }
                 else {
-                  z[j, 10] <- max(rowSums(u))
+                  z[j, 10] <- max(rowSums(v))
                 }
             }
         }
@@ -8221,7 +8222,7 @@ smear.Q1 <- function (x)
 #' the SQL query to get 1dActWtTrend
 #' @param x = the YYYYMMDD for which you want flows (known one day later)
 #' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
-#' @param n = any of StockFlows/Japan/CSI300/Energy
+#' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
 #' @keywords sql.1dActWtTrend
 #' @export
@@ -8392,7 +8393,7 @@ sql.1dActWtTrend.underlying <- function (x, y, n)
 #' Generates the SQL query to get the data for 1dFloMo for individual stocks
 #' @param x = the date for which you want flows (known one day later)
 #' @param y = a string vector of factors to be computed, the last element of which is the type of fund used
-#' @param n = any of StockFlows/Japan/CSI300/Energy
+#' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
 #' @keywords sql.1dFloMo
 #' @export
@@ -8836,7 +8837,7 @@ sql.1dFloMo.underlying <- function (x)
 #' Generates the SQL query to get the data for aggregate 1dFloMo
 #' @param x = the YYYYMMDD for which you want flows (known two days later)
 #' @param y = one or more of FwtdIn0/FwtdEx0/SwtdIn0/SwtdEx0
-#' @param n = any of StockFlows/Japan/CSI300/Energy
+#' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @keywords sql.1dFloMoAggr
 #' @export
 #' @family sql
@@ -8875,7 +8876,7 @@ sql.1dFloMoAggr <- function (x, y, n)
 #' @param x = data date in YYYYMMDD (known two days later)
 #' @param y = a string vector of factors to be computed,       the last element of which is the type of fund used.
 #' @param n = the delay in knowing allocations
-#' @param w = any of StockFlows/Japan/CSI300/Energy
+#' @param w = any of StockFlows/China/Japan/CSI300/Energy
 #' @param h = T/F depending on whether you are checking ftp
 #' @keywords sql.1dFloTrend
 #' @export
@@ -9033,7 +9034,7 @@ sql.1dFloTrend.select <- function (x)
 #' 
 #' Generates the SQL query to get the data for 1dFloTrend
 #' @param x = a vector of filters
-#' @param y = any of All/StockFlows/Japan/CSI300/Energy
+#' @param y = any of All/StockFlows/China/Japan/CSI300/Energy
 #' @param n = flow date in YYYYMMDD (known two days later)
 #' @param w = the delay in knowing allocations
 #' @keywords sql.1dFloTrend.underlying
@@ -9091,7 +9092,7 @@ sql.1dFloTrend.underlying <- function (x, y, n, w)
 #' Generates FundCt, the ownership breadth measure set forth in Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
 #' @param x = the YYYYMM for which you want data (known 26 days later)
 #' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
-#' @param n = any of StockFlows/Japan/CSI300/Energy
+#' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
 #' @keywords sql.1dFundCt
 #' @export
@@ -9166,7 +9167,7 @@ sql.1dFundRet <- function (x)
 #' @param x = data date (known two days later)
 #' @param y = a vector of variables, the last element of which is ignored
 #' @param n = the delay in knowing allocations
-#' @param w = any of StockFlows/Japan/CSI300/Energy
+#' @param w = any of StockFlows/China/Japan/CSI300/Energy
 #' @keywords sql.1dION
 #' @export
 #' @family sql
@@ -9291,7 +9292,7 @@ sql.1mActWt.underlying <- function (x, y)
 #' Generates the SQL query to get the data for 1mAllocMo
 #' @param x = the YYYYMM for which you want data (known 26 days later)
 #' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
-#' @param n = any of StockFlows/Japan/CSI300/Energy
+#' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
 #' @keywords sql.1mAllocMo
 #' @export
@@ -9420,7 +9421,7 @@ sql.1mAllocMo.underlying.pre <- function (x, y, n)
 #' Generates the SQL query to get the data for 1mAllocTrend
 #' @param x = the YYYYMM for which you want data (known 26 days later)
 #' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
-#' @param n = any of StockFlows/Japan/CSI300/Energy
+#' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
 #' @keywords sql.1mAllocSkew
 #' @export
@@ -9529,7 +9530,7 @@ sql.1mChActWt <- function (x, y)
 #' Generates the SQL query to get the data for 1mFloMo for individual stocks
 #' @param x = the YYYYMM for which you want data (known 16 days later)
 #' @param y = a string vector of factors to be computed, the last element of which is the type of fund used
-#' @param n = any of StockFlows/Japan/CSI300/Energy
+#' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
 #' @keywords sql.1mFloMo
 #' @export
@@ -9566,7 +9567,7 @@ sql.1mFloMo <- function (x, y, n, w)
 #' Generates FundCt, the ownership breadth measure set forth in Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
 #' @param x = the YYYYMM for which you want data (known 26 days later)
 #' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
-#' @param n = any of StockFlows/Japan/CSI300/Energy
+#' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
 #' @keywords sql.1mFundCt
 #' @export
@@ -9876,7 +9877,7 @@ sql.Diff <- function (x, y)
 #' Generates the dispersion measure set forth in Jiang & Sun (2011) "Dispersion in beliefs among active mutual funds and the cross-section of stock returns"
 #' @param x = the YYYYMM for which you want data (known 26 days later)
 #' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
-#' @param n = any of StockFlows/Japan/CSI300/Energy
+#' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
 #' @keywords sql.Dispersion
 #' @export
@@ -10140,7 +10141,7 @@ sql.FundHistory.sf <- function (x)
 #' 
 #' Generates ingredients of the herding measure set forth in LSV's 1991 paper "Do institutional investors destabilize stock prices?"
 #' @param x = the YYYYMM for which you want data (known 26 days later)
-#' @param y = any of StockFlows/Japan/CSI300/Energy
+#' @param y = any of StockFlows/China/Japan/CSI300/Energy
 #' @keywords sql.HerdingLSV
 #' @export
 #' @family sql
@@ -10186,7 +10187,7 @@ sql.HerdingLSV <- function (x, y)
 #' Generates Herfindahl dispersion and FundCt, the ownership breadth measure set forth in Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
 #' @param x = the YYYYMM for which you want data (known 26 days later)
 #' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
-#' @param n = any of StockFlows/Japan/CSI300/Energy
+#' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
 #' @keywords sql.Herfindahl
 #' @export
@@ -10596,7 +10597,7 @@ sql.query.underlying <- function (x, y, n = T)
 #' sql.RDSuniv
 #' 
 #' Generates the SQL query to get the row space for a stock flows research data set
-#' @param x = any of StockFlows/Japan/CSI300/Energy
+#' @param x = any of StockFlows/China/Japan/CSI300/Energy
 #' @keywords sql.RDSuniv
 #' @export
 #' @family sql
@@ -10629,6 +10630,11 @@ sql.RDSuniv <- function (x)
         z <- "(340228, 696775, 561380, 656067, 308571, 420631, 902846, 673356, 911907, 763388,"
         z <- c(z, "\t98654, 664044, 742638, 401296, 308355, 588468, 612083, 682720, 836332, 143750)")
         z <- sql.tbl("HSecurityId", "SecurityHistory", sql.in("SecurityId", 
+            z))
+    }
+    else if (x == "China") {
+        z <- sql.tbl("HCompanyId", "CompanyHistory", "CountryCode = 'CN'")
+        z <- sql.tbl("HSecurityId", "SecurityHistory", sql.in("HCompanyId", 
             z))
     }
     else if (x == "All") {

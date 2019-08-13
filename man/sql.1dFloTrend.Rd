@@ -13,7 +13,7 @@ sql.1dFloTrend(x, y, n, w, h)
 
 \item{n}{= the delay in knowing allocations}
 
-\item{w}{= any of StockFlows/Japan/CSI300/Energy}
+\item{w}{= any of StockFlows/China/Japan/CSI300/Energy}
 
 \item{h}{= T/F depending on whether you are checking ftp}
 }

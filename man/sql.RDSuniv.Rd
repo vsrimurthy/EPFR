@@ -7,7 +7,7 @@
 sql.RDSuniv(x)
 }
 \arguments{
-\item{x}{= any of StockFlows/Japan/CSI300/Energy}
+\item{x}{= any of StockFlows/China/Japan/CSI300/Energy}
 }
 \description{
 Generates the SQL query to get the row space for a stock flows research data set

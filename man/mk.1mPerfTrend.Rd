@@ -11,7 +11,7 @@ mk.1mPerfTrend(x, y, n)
 
 \item{y}{= variable to build}
 
-\item{n}{= list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) uiconn - a connection to EPFRUI, the output of odbcDriverConnect d) DB - any of StockFlows/Japan/CSI300/Energy}
+\item{n}{= list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) uiconn - a connection to EPFRUI, the output of odbcDriverConnect d) DB - any of StockFlows/China/Japan/CSI300/Energy}
 }
 \description{
 Returns a variable with the same row space as <n>

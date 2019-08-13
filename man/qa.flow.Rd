@@ -4,7 +4,7 @@
 \alias{qa.flow}
 \title{qa.flow}
 \usage{
-qa.flow(x, y, n, w, h)
+qa.flow(x, y, n, w, h, u)
 }
 \arguments{
 \item{x}{= a YYYYMM month}
@@ -13,9 +13,11 @@ qa.flow(x, y, n, w, h)
 
 \item{n}{= T for fund or F for share-class level}
 
-\item{w}{= filter (e.g. Aggregate/Active/Passive/ETF/Mutual)}
+\item{w}{= fund filter (e.g. Aggregate/Active/Passive/ETF/Mutual)}
 
 \item{h}{= a connection, the output of odbcDriverConnect}
+
+\item{u}{= stock filter (e.g. All/CN)}
 }
 \description{
 Compares flow file to data from Quant server

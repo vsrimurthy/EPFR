@@ -9,7 +9,7 @@ sql.HerdingLSV(x, y)
 \arguments{
 \item{x}{= the YYYYMM for which you want data (known 26 days later)}
 
-\item{y}{= any of StockFlows/Japan/CSI300/Energy}
+\item{y}{= any of StockFlows/China/Japan/CSI300/Energy}
 }
 \description{
 Generates ingredients of the herding measure set forth in LSV's 1991 paper "Do institutional investors destabilize stock prices?"

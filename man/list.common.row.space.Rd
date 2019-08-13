@@ -11,7 +11,7 @@ list.common.row.space(fcn, x, y)
 
 \item{x}{= a list of mat objects}
 
-\item{y}{= column containing row names (NULL denotes row names)}
+\item{y}{= column containing row names}
 }
 \description{
 list object with the elements mapped to the common row space
