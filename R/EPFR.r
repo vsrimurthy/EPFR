@@ -6823,7 +6823,7 @@ qa.filter.map <- function (x)
 #' @param n = T for fund or F for share-class level
 #' @param w = fund filter (e.g. Aggregate/Active/Passive/ETF/Mutual)
 #' @param h = a connection, the output of odbcDriverConnect
-#' @param u = stock filter (e.g. All/CN)
+#' @param u = stock filter (e.g. All/China/Japan)
 #' @keywords qa.flow
 #' @export
 #' @family qa
@@ -6845,6 +6845,9 @@ qa.flow <- function (x, y, n, w, h, u)
     }
     else if (ftp.info(y, n, "frequency", w) == "M") {
         dts <- yyyymm.to.day(x)
+    }
+    else if (ftp.info(y, n, "frequency", w) == "U") {
+        dts <- x
     }
     else if (ftp.info(y, n, "frequency", w) == "Q") {
         dts <- yyyymm.to.day(yyyymm.lag(yyyymm.ex.qtr(x), 2:0))

@@ -17,7 +17,7 @@ qa.flow(x, y, n, w, h, u)
 
 \item{h}{= a connection, the output of odbcDriverConnect}
 
-\item{u}{= stock filter (e.g. All/CN)}
+\item{u}{= stock filter (e.g. All/China/Japan)}
 }
 \description{
 Compares flow file to data from Quant server
