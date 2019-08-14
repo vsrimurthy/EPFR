@@ -6832,8 +6832,8 @@ qa.flow <- function (x, y, n, w, h, u)
 {
     fldr <- "C:\\temp\\crap"
     isMacro <- any(y == c("M", "W", "D", "C", "I", "S"))
-    isFactor <- all(y != c("StockM", "StockD", "FwtdEx0", "FwtdIn0", 
-        "SwtdEx0", "SwtdIn0")) & !isMacro
+    isFactor <- all(y != c("FundCtM", "FundCtD", "StockM", "StockD", 
+        "FwtdEx0", "FwtdIn0", "SwtdEx0", "SwtdIn0")) & !isMacro
     cols <- qa.columns(y)
     if (ftp.info(y, n, "frequency", w) == "D") {
         dts <- flowdate.ex.yyyymm(x, F)
@@ -9314,7 +9314,13 @@ sql.1mAllocMo <- function (x, y, n, w)
         yyyymm.to.day(yyyymm.lag(x)))
     y <- sql.1mAllocMo.underlying.from(y$filter)
     if (w) {
-        z <- sql.tbl(z, y, , "n1.HSecurityId")
+        if (n == "All") {
+            z <- sql.tbl(z, y, , "n1.HSecurityId")
+        }
+        else {
+            z <- sql.tbl(z, y, sql.in("n1.HSecurityId", sql.RDSuniv(n)), 
+                "n1.HSecurityId")
+        }
     }
     else {
         y <- c(y, "inner join", "SecurityHistory id on id.HSecurityId = n1.HSecurityId")
