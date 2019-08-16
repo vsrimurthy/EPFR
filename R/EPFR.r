@@ -7072,20 +7072,25 @@ qa.index <- function (x, y, n)
 
 qa.mat.read <- function (x, y, n, w, h) 
 {
-    if (missing(n)) 
-        n <- ftp.credential("ftp")
-    if (missing(w)) 
-        w <- ftp.credential("user")
-    if (missing(h)) 
-        h <- ftp.credential("pwd")
-    ftp.get(x, y, n, w, h)
-    x <- txt.right(x, nchar(x) - nchar(dirname(x)) - 1)
-    x <- paste(y, x, sep = "\\")
+    local <- txt.left(x, 1) != "/"
+    if (!local) {
+        if (missing(n)) 
+            n <- ftp.credential("ftp")
+        if (missing(w)) 
+            w <- ftp.credential("user")
+        if (missing(h)) 
+            h <- ftp.credential("pwd")
+        ftp.get(x, y, n, w, h)
+        x <- txt.right(x, nchar(x) - nchar(dirname(x)) - 1)
+        x <- paste(y, x, sep = "\\")
+    }
     z <- NULL
     if (file.exists(x)) {
         z <- mat.read(x, "\t", NULL)
-        Sys.sleep(1)
-        file.kill(x)
+        if (!local) {
+            Sys.sleep(1)
+            file.kill(x)
+        }
         dimnames(z)[[2]][1] <- "ReportDate"
         z[, "ReportDate"] <- yyyymmdd.ex.txt(z[, "ReportDate"])
     }
