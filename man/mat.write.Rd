@@ -4,7 +4,7 @@
 \alias{mat.write}
 \title{mat.write}
 \usage{
-mat.write(x, y = "C:\\\\temp\\\\write.csv", n = ",")
+mat.write(x, y, n = ",")
 }
 \arguments{
 \item{x}{= any matrix/df}

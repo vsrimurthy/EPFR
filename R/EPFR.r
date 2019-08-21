@@ -2307,7 +2307,9 @@ fcn.dates.parse <- function (x)
 
 fcn.dir <- function () 
 {
-    vec.read("C:\\temp\\Automation\\root.txt", F)
+    z <- machine("C:\\temp\\Automation", "C:\\Users\\vik\\Documents")
+    z <- vec.read(paste(z, "root.txt", sep = "\\"), F)
+    z
 }
 
 #' fcn.direct.sub
@@ -4126,6 +4128,10 @@ ftp.sql.factor <- function (x, y, n, w)
         z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c("FundCt", 
             qa.filter.map(n)), w, T)
     }
+    else if (all(x == "HoldSum")) {
+        z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c("HoldSum", 
+            qa.filter.map(n)), w, T)
+    }
     else if (all(x == "Dispersion")) {
         z <- sql.Dispersion(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
             w, T)
@@ -4794,6 +4800,21 @@ load.mo.vbl.1obj <- function (beg, end, mk.fcn, optional.args, vbl.name, yyyy, e
     z
 }
 
+#' machine
+#' 
+#' folder of function source file
+#' @param x = argument that applies to Vik's machine
+#' @param y = argument that applies to prod dev
+#' @keywords machine
+#' @export
+
+machine <- function (x, y) 
+{
+    if (Sys.info()[["nodename"]] != "OpsServerDev") 
+        x
+    else y
+}
+
 #' map.classif
 #' 
 #' Maps data to the row space of <y>
@@ -5337,9 +5358,12 @@ mat.to.xlModel <- function (x, y = 2, n = 5, w = F)
 #' @export
 #' @family mat
 
-mat.write <- function (x, y = "C:\\temp\\write.csv", n = ",") 
+mat.write <- function (x, y, n = ",") 
 {
-    write.table(x, y, sep = n, col.names = NA, quote = F)
+    if (missing(y)) 
+        y <- machine("C:\\temp", "C:\\Users\\vik\\Documents\\temp")
+    write.table(x, paste(y, "write.csv", sep = "\\"), sep = n, 
+        col.names = NA, quote = F)
     invisible()
 }
 
@@ -9609,6 +9633,9 @@ sql.1mFundCt <- function (x, y, n, w)
         if (j == "FundCt") {
             z <- c(z, paste(j, "count(distinct flo.HFundId)", 
                 sep = " = "))
+        }
+        else if (j == "HoldSum") {
+            z <- c(z, paste(j, "sum(HoldingValue)", sep = " = "))
         }
         else {
             stop("Bad factor", j)
