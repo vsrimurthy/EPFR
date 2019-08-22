@@ -5361,9 +5361,9 @@ mat.to.xlModel <- function (x, y = 2, n = 5, w = F)
 mat.write <- function (x, y, n = ",") 
 {
     if (missing(y)) 
-        y <- machine("C:\\temp", "C:\\Users\\vik\\Documents\\temp")
-    write.table(x, paste(y, "write.csv", sep = "\\"), sep = n, 
-        col.names = NA, quote = F)
+        y <- paste(machine("C:\\temp", "C:\\Users\\vik\\Documents\\temp"), 
+            "write.csv", sep = "\\")
+    write.table(x, y, sep = n, col.names = NA, quote = F)
     invisible()
 }
 
