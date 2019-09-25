@@ -6749,16 +6749,17 @@ publish.date <- function (x)
 #' 
 #' date of last monthly publication
 #' @param x = a YYYYMMDD date
+#' @param y = calendar day in the next month when allocations are known (usually the 23rd)
 #' @keywords publish.monthly.last
 #' @export
 #' @family publish
 
-publish.monthly.last <- function (x) 
+publish.monthly.last <- function (x, y = 23) 
 {
     if (missing(x)) 
         x <- today()
     z <- yyyymmdd.lag(x, 1)
-    z <- yyyymmdd.to.AllocMo(z)
+    z <- yyyymmdd.to.AllocMo(z, y)
     z <- yyyymm.to.day(z)
     z
 }
@@ -12525,7 +12526,7 @@ yyyymmdd.seq <- function (x, y, n = 1)
 #' 
 #' Returns the month for which you need to get allocations Flows as of the 23rd of each month are known by the 24th. By this time allocations from the previous month are known
 #' @param x = the date for which you want flows (known one day later)
-#' @param y = calendar day in the next month when allocations are known (usually 24 for countries)
+#' @param y = calendar day in the next month when allocations are known (usually the 23rd)
 #' @keywords yyyymmdd.to.AllocMo
 #' @export
 #' @family yyyymmdd

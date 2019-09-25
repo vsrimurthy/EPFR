@@ -4,10 +4,12 @@
 \alias{publish.monthly.last}
 \title{publish.monthly.last}
 \usage{
-publish.monthly.last(x)
+publish.monthly.last(x, y = 23)
 }
 \arguments{
 \item{x}{= a YYYYMMDD date}
+
+\item{y}{= calendar day in the next month when allocations are known (usually the 23rd)}
 }
 \description{
 date of last monthly publication
