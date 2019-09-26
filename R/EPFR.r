@@ -9711,12 +9711,12 @@ sql.1mFundCt <- function (x, y, n, w)
     if (n != "All") 
         n <- list(A = sql.in("h.HSecurityId", sql.RDSuniv(n)))
     else n <- list()
-    n[[char.ex.int(length(n) + 65)]] <- "flo.ReportDate = @dy"
+    n[[char.ex.int(length(n) + 65)]] <- "ReportDate = @dy"
     if (y$filter != "All") 
         n[[char.ex.int(length(n) + 65)]] <- sql.FundHistory.sf(y$filter)
-    if (length(n) == 1) 
-        n <- n[[1]]
-    else n <- sql.and(n)
+    n[[char.ex.int(length(n) + 65)]] <- sql.in("his.HFundId", 
+        sql.tbl("HFundId", "MonthlyData", "ReportDate = @dy"))
+    n <- sql.and(n)
     if (w) {
         z <- c(paste("ReportDate = '", z, "'", sep = ""), "GeoId = GeographicFocusId", 
             "HSecurityId")
@@ -9726,8 +9726,7 @@ sql.1mFundCt <- function (x, y, n, w)
     }
     for (j in y$factor) {
         if (j == "FundCt") {
-            z <- c(z, paste(j, "count(distinct flo.HFundId)", 
-                sep = " = "))
+            z <- c(z, paste(j, "count(h.HFundId)", sep = " = "))
         }
         else if (j == "HoldSum") {
             z <- c(z, paste(j, "sum(HoldingValue)", sep = " = "))
@@ -9736,8 +9735,7 @@ sql.1mFundCt <- function (x, y, n, w)
             stop("Bad factor", j)
         }
     }
-    h <- c("MonthlyData flo", "inner join", "FundHistory his on his.HFundId = flo.HFundId")
-    h <- c(h, "inner join", "Holdings h on h.FundId = his.FundId and h.ReportDate = flo.ReportDate")
+    h <- c("Holdings h", "inner join", "FundHistory his on his.FundId = h.FundId")
     if (!w) 
         h <- c(h, "inner join", "SecurityHistory id on id.HSecurityId = h.HSecurityId")
     w <- ifelse(w, "HSecurityId, GeographicFocusId", "SecurityId")
