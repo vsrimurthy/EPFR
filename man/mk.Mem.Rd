@@ -30,7 +30,7 @@ Other mk: \code{\link{mk.1dFloMo}},
   \code{\link{mk.sqlDump}}, \code{\link{mk.vbl.chg}},
   \code{\link{mk.vbl.diff}}, \code{\link{mk.vbl.lag}},
   \code{\link{mk.vbl.max}}, \code{\link{mk.vbl.ratio}},
-  \code{\link{mk.vbl.scale}},
+  \code{\link{mk.vbl.scale}}, \code{\link{mk.vbl.sum}},
   \code{\link{mk.vbl.trail.fetch}},
   \code{\link{mk.vbl.trail.sum}}, \code{\link{mk.vbl.vol}}
 }

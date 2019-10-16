@@ -999,6 +999,7 @@ col.to.int <- function (x)
 #' @param y = an integer between 1 and <length(x)>
 #' @keywords combinations
 #' @export
+#' @family combinations
 
 combinations <- function (x, y) 
 {
@@ -1021,12 +1022,36 @@ combinations <- function (x, y)
     z
 }
 
+#' combinations.ex.int
+#' 
+#' inverse of combinations.to.int; returns a logical vector of length <n>, <y> of which elements are T
+#' @param x = a positive integer
+#' @param y = a positive integer
+#' @param n = a positive integer
+#' @keywords combinations.ex.int
+#' @export
+#' @family combinations
+
+combinations.ex.int <- function (x, y, n) 
+{
+    z <- x <= choose(n - 1, y - 1)
+    if (n > 1 & z) {
+        z <- c(z, combinations.ex.int(x, y - 1, n - 1))
+    }
+    else if (n > 1 & !z) {
+        z <- c(z, combinations.ex.int(x - choose(n - 1, y - 1), 
+            y, n - 1))
+    }
+    z
+}
+
 #' combinations.next
 #' 
 #' returns the next combination in dictionary order
 #' @param x = a logical vector
 #' @keywords combinations.next
 #' @export
+#' @family combinations
 
 combinations.next <- function (x) 
 {
@@ -1041,6 +1066,30 @@ combinations.next <- function (x)
     }
     else {
         z <- rep(F, m)
+    }
+    z
+}
+
+#' combinations.to.int
+#' 
+#' maps each particular way to choose <sum(x)> things amongst <length(x)> things to the number line
+#' @param x = a logical vector
+#' @keywords combinations.to.int
+#' @export
+#' @family combinations
+
+combinations.to.int <- function (x) 
+{
+    n <- length(x)
+    m <- sum(x)
+    if (m == 0 | n == 1) {
+        z <- 1
+    }
+    else if (x[1]) {
+        z <- combinations.to.int(x[-1])
+    }
+    else {
+        z <- choose(n - 1, m - 1) + combinations.to.int(x[-1])
     }
     z
 }
@@ -4157,8 +4206,8 @@ ftp.sql.factor <- function (x, y, n, w)
         z <- sql.1mAllocMo(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
             w, T)
     }
-    else if (all(x == "AllocChg")) {
-        z <- sql.1mAllocChg(yyyymmdd.to.yyyymm(y), c("AllocDA", 
+    else if (all(x == "AllocD")) {
+        z <- sql.1mAllocD(yyyymmdd.to.yyyymm(y), c("AllocDA", 
             "AllocDInc", "AllocDDec", "AllocDAdd", "AllocDRem", 
             qa.filter.map(n)), w, T)
     }
@@ -5473,6 +5522,10 @@ mk.1mAllocMo <- function (x, y, n)
     else if (any(y[1] == c("Herfindahl", "HerfindahlEq", "FundCt"))) {
         z <- sql.Herfindahl(x, y, n$DB, F)
     }
+    else if (any(y[1] == c("AllocDInc", "AllocDDec", "AllocDAdd", 
+        "AllocDRem"))) {
+        z <- sql.1mAllocD(x, y, n$DB, F)
+    }
     else if (any(y[1] == paste("Alloc", c("Mo", "Trend", "Diff"), 
         sep = ""))) {
         z <- sql.1mAllocMo(x, y, n$DB, F)
@@ -6002,6 +6055,23 @@ mk.vbl.scale <- function (x, y, n)
     z <- rep(NA, dim(x)[1])
     z[w] <- (x[w, 2] * 5 * (1 - y)/4 + (9 * y - 1)/8) * x[w, 
         1]
+    z
+}
+
+#' mk.vbl.sum
+#' 
+#' Computes the sum of the two variables
+#' @param x = a single YYYYMM
+#' @param y = a string vector, the elements of which are the variables to be added.
+#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
+#' @keywords mk.vbl.sum
+#' @export
+#' @family mk
+
+mk.vbl.sum <- function (x, y, n) 
+{
+    z <- fetch(y, x, 1, paste(n$fldr, "data", sep = "\\"), n$classif)
+    z <- z[, 1] + z[, 2]
     z
 }
 
@@ -6823,7 +6893,7 @@ qa.columns <- function (x)
     else if (any(x == c("FwtdEx0", "FwtdIn0", "SwtdEx0", "SwtdIn0"))) {
         z <- c("ReportDate", "HSecurityId", "GeoId", "AverageAllocation")
     }
-    else if (x == "AllocChg") {
+    else if (x == "AllocD") {
         z <- c("ReportDate", "SecurityId", "AllocDA", "AllocDInc", 
             "AllocDDec", "AllocDAdd", "AllocDRem")
     }
@@ -7031,7 +7101,7 @@ qa.flow <- function (x, y, n, w, h, u)
             else if (isFactor) {
                 v <- v[as.character(qa.index(df, isMacro, isFactor)[vec]), 
                   cols[-1][-1]]
-                if (any(y == c("IONM", "IOND", "AllocChg"))) {
+                if (any(y == c("IONM", "IOND", "AllocD"))) {
                   v <- abs(zav(df[vec, dimnames(v)[[2]]]) - zav(v))
                 }
                 else {
@@ -9332,18 +9402,18 @@ sql.1mActWt.underlying <- function (x, y)
     z
 }
 
-#' sql.1mAllocChg
+#' sql.1mAllocD
 #' 
 #' Generates the SQL query to get the data for 1mAllocMo
 #' @param x = the YYYYMM for which you want data (known 26 days later)
 #' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
-#' @keywords sql.1mAllocChg
+#' @keywords sql.1mAllocD
 #' @export
 #' @family sql
 
-sql.1mAllocChg <- function (x, y, n, w) 
+sql.1mAllocD <- function (x, y, n, w) 
 {
     y <- sql.arguments(y)
     h <- paste("'", yyyymm.to.day(x), "'", sep = "")
@@ -9373,7 +9443,7 @@ sql.1mAllocChg <- function (x, y, n, w)
     if (w) 
         z <- c(paste("ReportDate = '", yyyymm.to.day(x), "'", 
             sep = ""), z)
-    for (i in y$factor) z <- c(z, sql.1mAllocChg.select(i))
+    for (i in y$factor) z <- c(z, sql.1mAllocD.select(i))
     u <- c("#NEW t1", "full outer join", "#OLD t2 on t2.FundId = t1.FundId and t2.SecurityId = t1.SecurityId")
     z <- paste(sql.unbracket(sql.tbl(z, u, , "isnull(t1.SecurityId, t2.SecurityId)")), 
         collapse = "\n")
@@ -9381,15 +9451,15 @@ sql.1mAllocChg <- function (x, y, n, w)
     z
 }
 
-#' sql.1mAllocChg.select
+#' sql.1mAllocD.select
 #' 
 #' select term to compute <x>
 #' @param x = the factor to be computed
-#' @keywords sql.1mAllocChg.select
+#' @keywords sql.1mAllocD.select
 #' @export
 #' @family sql
 
-sql.1mAllocChg.select <- function (x) 
+sql.1mAllocD.select <- function (x) 
 {
     if (x == "AllocDA") {
         z <- "count(isnull(t1.SecurityId, t2.SecurityId))"

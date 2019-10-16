@@ -12,4 +12,9 @@ combinations.next(x)
 \description{
 returns the next combination in dictionary order
 }
+\seealso{
+Other combinations: \code{\link{combinations.ex.int}},
+  \code{\link{combinations.to.int}},
+  \code{\link{combinations}}
+}
 \keyword{combinations.next}
