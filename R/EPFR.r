@@ -5676,6 +5676,64 @@ mk.beta <- function (x, y, n)
     z
 }
 
+#' mk.EigenCentrality
+#' 
+#' Returns EigenCentrality with the same row space as <n>
+#' @param x = a single YYYYMM
+#' @param y = a string vector of variables to build with the last elements specifying the type of funds to use
+#' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) DB - any of StockFlows/China/Japan/CSI300/Energy
+#' @keywords mk.EigenCentrality
+#' @export
+#' @family mk
+
+mk.EigenCentrality <- function (x, y, n) 
+{
+    x <- yyyymm.lag(x, 1)
+    x <- sql.declare("@floDt", "datetime", yyyymm.to.day(x))
+    z <- sql.and(list(A = "ReportDate = @floDt", B = sql.in("t1.HSecurityId", 
+        sql.RDSuniv(n[["DB"]]))))
+    h <- c("Holdings t1", "inner join", "SecurityHistory id on id.HSecurityId = t1.HSecurityId")
+    z <- c(x, sql.unbracket(sql.tbl("HFundId, SecurityId", h, 
+        z, "HFundId, SecurityId")))
+    z <- paste(z, collapse = "\n")
+    x <- sql.query.underlying(z, n$conn, F)
+    x <- x[is.element(x[, "SecurityId"], dimnames(n$classif)[[1]]), 
+        ]
+    x <- split(x[, "HFundId"], x[, "SecurityId"])
+    w <- Reduce(union, x)
+    x <- sapply(x, function(x) is.element(w, x))
+    dimnames(x)[[1]] <- w
+    x <- crossprod(x)
+    x <- x[order(diag(x)), order(diag(x))]
+    x <- x[diag(x) > 9, diag(x) > 9]
+    w <- floor(dim(x)[2]/50)
+    w <- qtl.fast(diag(x), w)
+    diag(x) <- NA
+    z <- matrix(F, dim(x)[1], dim(x)[2], F, dimnames(x))
+    for (j in 1:max(w)) {
+        for (k in 1:max(w)) {
+            y <- x[w == j, w == k]
+            y <- as.numeric(unlist(y))
+            y[!is.na(y)] <- is.element(qtl.fast(y[!is.na(y)], 
+                20), 1)
+            y[is.na(y)] <- F
+            z[w == j, w == k] <- as.logical(y)
+        }
+    }
+    x <- rep(1, dim(z)[1])
+    x <- x/sqrt(sum(x^2))
+    y <- z %*% x
+    y <- y/sqrt(sum(y^2))
+    while (sqrt(sum((y - x)^2)) > 1e-06) {
+        x <- y
+        y <- z %*% x
+        y <- y/sqrt(sum(y^2))
+    }
+    z <- dim(z)[1] * y
+    z <- as.numeric(map.rname(z, dimnames(n[["classif"]])[[1]]))
+    z
+}
+
 #' mk.FloAlphaLt.Ctry
 #' 
 #' Monthly Country Flow Alpha
@@ -6918,7 +6976,10 @@ qa.filter.map <- function (x)
 {
     z <- c("All", "Act", "Pas", "Etf", "Mutual")
     names(z) <- c("Aggregate", "Active", "Passive", "ETF", "Mutual")
+    x <- as.character(txt.parse(x, ","))
     z <- as.character(map.rname(z, x))
+    z <- ifelse(is.na(z), x, z)
+    z <- paste(z, collapse = ",")
     z
 }
 
@@ -10237,6 +10298,10 @@ sql.floTbl.to.Col <- function (x, y)
 
 sql.FundHistory <- function (x, y, n, w) 
 {
+    if (length(y) == 1) 
+        y <- as.character(txt.parse(y, ","))
+    if (y[1] == "All" & n & length(y) > 1) 
+        y <- y[-1]
     if (any(y[1] == c("Pseudo", "Up"))) 
         y <- ifelse(n, "All", "E")
     if (missing(w)) 
@@ -10323,6 +10388,9 @@ sql.FundHistory.sf <- function (x)
         }
         else if (h == "JP") {
             z[[char.ex.int(length(z) + 65)]] <- "DomicileId = 'JP'"
+        }
+        else if (h == "Europe") {
+            z[[char.ex.int(length(z) + 65)]] <- "DomicileId in ('BE', 'BG', 'DK', 'DE', 'IE', 'GR', 'ES', 'FR', 'IT', 'LU', 'HU', 'NL', 'AT', 'PL', 'PT', 'RO', 'FI', 'SE', 'GB', 'SI', 'EE')"
         }
         else if (h == "xJP") {
             z[[char.ex.int(length(z) + 65)]] <- "not DomicileId = 'JP'"
