@@ -4,12 +4,16 @@
 \alias{qa.secMenu}
 \title{qa.secMenu}
 \usage{
-qa.secMenu(x, y)
+qa.secMenu(x, y, n, w)
 }
 \arguments{
 \item{x}{= a YYYYMM month}
 
 \item{y}{= SecMenuM/SecMenuD}
+
+\item{n}{= a connection, the output of odbcDriverConnect}
+
+\item{w}{= stock filter (e.g. All/China/Japan)}
 }
 \description{
 compares HSecurityId/ReportDate pairs in Security Menu versus Flow Dollar

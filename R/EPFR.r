@@ -78,7 +78,7 @@ mk.1mPerfTrend <- function (x, y, n)
         "t1"), "inner join", "FundHistory t2", "\ton t2.HFundId = t1.HFundId"))
     ui <- paste(c(sql.declare("@newDt", "datetime", yyyymm.to.day(x)), 
         sql.unbracket(ui)), collapse = "\n")
-    ui <- sqlQuery(n$uiconn, ui)
+    ui <- sqlQuery(n$uiconn, ui, stringsAsFactors = F)
     ui[, "FundRet"] <- ui[, "FundRet"] - map.rname(pivot.1d(mean, 
         ui[, "GeographicFocus"], ui[, "FundRet"]), ui[, "GeographicFocus"])
     if (any(duplicated(ui[, "HFundId"]))) 
@@ -106,7 +106,7 @@ mk.1mPerfTrend <- function (x, y, n)
         sf <- paste(c(sql.declare("@newDt", "datetime", yyyymm.to.day(x)), 
             sql.unbracket(sf)), collapse = "\n")
     }
-    sf <- sqlQuery(n$conn, sf)
+    sf <- sqlQuery(n$conn, sf, stringsAsFactors = F)
     sf <- sf[is.element(sf[, "HFundId"], names(ui)), ]
     if (is.element(y, paste("PerfActWt", c("Trend", "Diff", "Diff2"), 
         sep = ""))) {
@@ -5704,8 +5704,10 @@ mk.EigenCentrality <- function (x, y, n)
     x <- sapply(x, function(x) is.element(w, x))
     dimnames(x)[[1]] <- w
     x <- crossprod(x)
-    x <- x[order(diag(x)), order(diag(x))]
-    x <- x[diag(x) > 9, diag(x) > 9]
+    w <- diag(x) > 9
+    x <- x[w, w]
+    w <- order(diag(x))
+    x <- x[w, w]
     w <- floor(dim(x)[2]/50)
     w <- qtl.fast(diag(x), w)
     diag(x) <- NA
@@ -7273,27 +7275,28 @@ qa.mat.read <- function (x, y, n, w, h)
 #' compares HSecurityId/ReportDate pairs in Security Menu versus Flow Dollar
 #' @param x = a YYYYMM month
 #' @param y = SecMenuM/SecMenuD
+#' @param n = a connection, the output of odbcDriverConnect
+#' @param w = stock filter (e.g. All/China/Japan)
 #' @keywords qa.secMenu
 #' @export
 #' @family qa
 
-qa.secMenu <- function (x, y) 
+qa.secMenu <- function (x, y, n, w) 
 {
     fldr <- "C:\\temp\\crap"
-    z <- vec.named(, c("isSEC", "isFLO", "DUP", "SEC", "FLO", 
-        "SECxFLO", "FLOxSEC"))
+    z <- vec.named(, c("isFTP", "isSQL", "DUP", "FTP", "SQL", 
+        "FTPxSQL", "SQLxFTP"))
     secMenuFile <- txt.replace(ftp.info(y, T, "ftp.path", "Aggregate"), 
         "YYYYMM", x)
     secMenuFile <- qa.mat.read(secMenuFile, fldr)
-    z["isSEC"] <- as.numeric(!is.null(secMenuFile))
-    if (z["isSEC"] == 1) {
-        floDolrFile <- txt.replace(ftp.info(txt.replace(y, "SecMenu", 
-            "Stock"), T, "ftp.path", "Aggregate"), "YYYYMM", 
-            x)
-        floDolrFile <- qa.mat.read(floDolrFile, fldr)
-        z["isFLO"] <- as.numeric(!is.null(floDolrFile))
+    z["isFTP"] <- as.numeric(!is.null(secMenuFile))
+    if (z["isFTP"] == 1) {
+        floDolrFile <- ftp.sql.factor(txt.replace(y, "SecMenu", 
+            "Stock"), yyyymm.to.day(x), "Aggregate", w)
+        floDolrFile <- sql.query.underlying(floDolrFile, n, F)
+        z["isSQL"] <- as.numeric(!is.null(floDolrFile))
     }
-    if (z["isSEC"] == 1 & z["isFLO"] == 1) {
+    if (z["isFTP"] == 1 & z["isSQL"] == 1) {
         x <- paste(floDolrFile[, "ReportDate"], floDolrFile[, 
             "HSecurityId"])
         x <- x[!duplicated(x)]
@@ -7302,11 +7305,11 @@ qa.secMenu <- function (x, y)
         z["DUP"] <- sum(duplicated(y))
         y <- y[!duplicated(y)]
     }
-    if (z["isSEC"] == 1 & z["isFLO"] == 1) {
-        z["SEC"] <- sum(length(y))
-        z["FLO"] <- sum(length(x))
-        z["SECxFLO"] <- sum(!is.element(y, x))
-        z["FLOxSEC"] <- sum(!is.element(x, y))
+    if (z["isFTP"] == 1 & z["isSQL"] == 1) {
+        z["FTP"] <- sum(length(y))
+        z["SQL"] <- sum(length(x))
+        z["FTPxSQL"] <- sum(!is.element(y, x))
+        z["SQLxFTP"] <- sum(!is.element(x, y))
     }
     z
 }
@@ -10858,7 +10861,7 @@ sql.query <- function (x, y, n = T)
 
 sql.query.underlying <- function (x, y, n = T) 
 {
-    for (i in x) z <- sqlQuery(y, i)
+    for (i in x) z <- sqlQuery(y, i, stringsAsFactors = F)
     if (n) 
         cat("Getting ", dim(z)[1], " new rows of data ...\n")
     z
@@ -10876,12 +10879,11 @@ sql.RDSuniv <- function (x)
 {
     if (any(x == c("StockFlows", "Japan", "CSI300"))) {
         if (x == "CSI300") {
-            bmks <- "CSI300"
-            names(bmks) <- 31873
+            bmks <- vec.named("CSI300", 31873)
         }
         else if (x == "Japan") {
-            bmks <- c("Nikkei", "Topix")
-            names(bmks) <- c(13667, 17558)
+            bmks <- vec.named(c("Nikkei", "Topix"), c(13667, 
+                17558))
         }
         else if (x == "StockFlows") {
             bmks <- c("S&P500", "Eafe", "Gem", "R3", "EafeSc", 
@@ -10903,15 +10905,13 @@ sql.RDSuniv <- function (x)
             z))
     }
     else if (x == "China") {
-        z <- paste(vec.read(parameters("PingAnBmkIds"), F), collapse = ", ")
-        z <- sql.in("BenchIndexId", paste("(", z, ")", sep = ""))
-        z <- sql.in("HFundId", sql.tbl("HFundId", "FundHistory", 
+        z <- sql.tbl("HCompanyId", "CompanyHistory", "CountryCode = 'CN'")
+        z <- sql.tbl("HSecurityId", "SecurityHistory", sql.in("HCompanyId", 
             z))
-        y <- sql.tbl("HCompanyId", "CompanyHistory", "CountryCode = 'CN'")
-        y <- sql.tbl("HSecurityId", "SecurityHistory", sql.in("HCompanyId", 
-            y))
-        y <- sql.in("HSecurityId", y)
-        z <- sql.and(list(A = z, B = y), n = "or")
+        z <- sql.in("HSecurityId", z)
+        z <- list(A = z, B = sql.in("HFundId", sql.tbl("HFundId", 
+            "FundHistory", "GeographicFocusId = 16")))
+        z <- sql.and(z, n = "or")
         z <- sql.tbl("HSecurityId", "Holdings", z, "HSecurityId")
     }
     else if (x == "All") {
@@ -11303,7 +11303,7 @@ sqlts.wrapper <- function (x, y)
     h <- sql.connect("StockFlows")
     for (i in x) {
         cat(i, "...\n")
-        z[[as.character(i)]] <- sqlQuery(h, y(i))
+        z[[as.character(i)]] <- sqlQuery(h, y(i), stringsAsFactors = F)
     }
     close(h)
     z <- list.common.row.space(union, z, 1)
