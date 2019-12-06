@@ -7800,9 +7800,31 @@ report.flow <- function (x, y, n)
         sep = "")
     w <- x > 0
     w <- seq(1, length(w))[!duplicated(w)][2] - 1
-    z <- paste(z, "\ni.\tThese ", ifelse(x[1] > 0, "inflows", 
-        "outflows"), sep = "")
-    z <- paste(z, "have been taking place for", w, "straight weeks")
+    if (w > 1) {
+        z <- paste(z, "\ni.\tThese ", ifelse(x[1] > 0, "inflows", 
+            "outflows"), sep = "")
+        if (w > 4) {
+            z <- paste(z, "have been taking place for", w, "straight weeks")
+        }
+        else {
+            z <- paste(z, "have been taking place for", w, "consecutive weeks")
+        }
+    }
+    else {
+        w <- x > 0
+        w <- w[-1]
+        w <- seq(1, length(w))[!duplicated(w)][2] - 1
+        z <- paste(z, "\ni.\tThis is the first week of ", ifelse(x[1] > 
+            0, "inflows", "outflows"), sep = "")
+        if (w > 1) {
+            z <- paste(z, ", the prior ", w, " weeks seeing ", 
+                ifelse(x[1] > 0, "outflows", "inflows"), sep = "")
+        }
+        else {
+            z <- paste(z, ", the prior week seeing ", ifelse(x[1] > 
+                0, "outflows", "inflows"), sep = "")
+        }
+    }
     w <- x[txt.left(names(x), 4) == txt.left(names(x)[1], 4)]
     z <- paste(z, "\nii.\t", txt.left(names(w)[1], 4), " YTD has seen ", 
         report.flow.annual(w), sep = "")
