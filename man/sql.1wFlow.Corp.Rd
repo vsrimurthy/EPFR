@@ -4,7 +4,10 @@
 \alias{sql.1wFlow.Corp}
 \title{sql.1wFlow.Corp}
 \usage{
-sql.1wFlow.Corp()
+sql.1wFlow.Corp(x)
+}
+\arguments{
+\item{x}{= YYYYMMDD from which flows are to be computed}
 }
 \description{
 Generates the SQL query to get weekly corporate flow ($MM)

@@ -7733,8 +7733,14 @@ refresh.predictors.monthly <- function (x, y, n, w, h)
 
 refresh.predictors.script <- function (x, y, n, w) 
 {
-    paste(txt.left(x, nchar(x) - nchar(y)), "where\n\t", n, " >= '", 
-        w, "'\n", y, sep = "")
+    if (nchar(y) > 0) {
+        z <- paste(txt.left(x, nchar(x) - nchar(y)), "where\n\t", 
+            n, " >= '", w, "'\n", y, sep = "")
+    }
+    else {
+        z <- x
+    }
+    z
 }
 
 #' refresh.predictors.weekly
@@ -10021,28 +10027,30 @@ sql.1mFundCt <- function (x, y, n, w)
 #' sql.1wFlow.Corp
 #' 
 #' Generates the SQL query to get weekly corporate flow ($MM)
+#' @param x = YYYYMMDD from which flows are to be computed
 #' @keywords sql.1wFlow.Corp
 #' @export
 #' @family sql
 
-sql.1wFlow.Corp <- function () 
+sql.1wFlow.Corp <- function (x) 
 {
-    x <- mat.read(parameters("classif-StyleSector"))
-    x <- map.rname(x, c(136, 133, 140, 135, 132, 139, 142, 125))
-    x$Domicile <- ifelse(dimnames(x)[[1]] == 125, "US", NA)
-    z <- vec.named(paste("StyleSector", dimnames(x)[[1]], sep = " = "), 
-        x[, "Abbrv"])
-    z[!is.na(x$Domicile)] <- paste(z[!is.na(x$Domicile)], "Domicile = 'US'", 
+    h <- mat.read(parameters("classif-StyleSector"))
+    h <- map.rname(h, c(136, 133, 140, 135, 132, 139, 142, 125))
+    h$Domicile <- ifelse(dimnames(h)[[1]] == 125, "US", NA)
+    z <- vec.named(paste("StyleSector", dimnames(h)[[1]], sep = " = "), 
+        h[, "Abbrv"])
+    z[!is.na(h$Domicile)] <- paste(z[!is.na(h$Domicile)], "Domicile = 'US'", 
         sep = " and ")
-    names(z)[!is.na(x$Domicile)] <- paste(names(z)[!is.na(x$Domicile)], 
+    names(z)[!is.na(h$Domicile)] <- paste(names(z)[!is.na(h$Domicile)], 
         "US")
     z <- paste("[", names(z), "] = sum(case when ", z, " then Flow else NULL end)", 
         sep = "")
     z <- c("WeekEnding = convert(char(8), WeekEnding, 112)", 
         z)
     y <- list(A = "FundType = 'B'", B = "GeographicFocus = 77")
-    y[["C"]] <- sql.in("StyleSector", paste("(", paste(dimnames(x)[[1]], 
+    y[["C"]] <- sql.in("StyleSector", paste("(", paste(dimnames(h)[[1]], 
         collapse = ", "), ")", sep = ""))
+    y[["D"]] <- paste("WeekEnding >= '", x, "'", sep = "")
     z <- sql.tbl(z, c("WeeklyData t1", "inner join", "FundHistory t2 on t2.HFundId = t1.HFundId"), 
         sql.and(y), "WeekEnding")
     z <- paste(sql.unbracket(z), collapse = "\n")
