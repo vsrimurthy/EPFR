@@ -1612,6 +1612,20 @@ day.seq <- function (x, y, n = 1)
     obj.seq(x, y, day.to.int, day.ex.int, n)
 }
 
+#' day.to.date
+#' 
+#' converts to an R date
+#' @param x = a vector of calendar dates
+#' @keywords day.to.date
+#' @export
+#' @family day
+
+day.to.date <- function (x) 
+{
+    as.Date(paste(substring(x, 1, 4), substring(x, 5, 6), substring(x, 
+        7, 8), sep = "-"))
+}
+
 #' day.to.int
 #' 
 #' number of days after Monday, January 1, 2018
@@ -1622,10 +1636,7 @@ day.seq <- function (x, y, n = 1)
 
 day.to.int <- function (x) 
 {
-    z <- paste(substring(x, 1, 4), substring(x, 5, 6), substring(x, 
-        7, 8), sep = "-")
-    z <- as.numeric(as.Date(z) - as.Date("2018-01-01"))
-    z
+    as.numeric(day.to.date(x) - as.Date("2018-01-01"))
 }
 
 #' day.to.week
@@ -7017,6 +7028,9 @@ qa.flow <- function (x, y, n, w, h, u)
     else if (ftp.info(y, n, "frequency", w) == "M") {
         dts <- yyyymm.to.day(x)
     }
+    else if (ftp.info(y, n, "frequency", w) == "S") {
+        dts <- x
+    }
     else if (ftp.info(y, n, "frequency", w) == "Q") {
         dts <- yyyymm.to.day(yyyymm.lag(yyyymm.ex.qtr(x), 2:0))
     }
@@ -7752,6 +7766,132 @@ renorm <- function (x)
     fcn <- function(x) 100 * x/excise.zeroes(sum(abs(x)))
     fcn2 <- function(x) fcn.nonNA(fcn, x)
     z <- fcn.mat.vec(fcn2, x, , F)
+    z
+}
+
+#' report.flow
+#' 
+#' writes a flow report
+#' @param x = a numeric vector indexed by YYYYMMDD
+#' @param y = character string representing name of the asset class
+#' @param n = numeric value representing AUM
+#' @keywords report.flow
+#' @export
+#' @family report
+
+report.flow <- function (x, y, n) 
+{
+    x <- x[order(names(x), decreasing = T)]
+    z <- format(day.to.date(names(x)[1]), "%B %d %Y")
+    z <- paste("For the week ended", z, "fund flow data from EPFR for", 
+        y, "($")
+    z <- paste(z, int.format(round(n)), "m total assets) reported net", 
+        sep = "")
+    z <- paste(z, ifelse(x[1] > 0, "INFLOWS", "OUTFLOWS"), "of $")
+    z <- paste(z, int.format(round(x[1])), "m vs an", sep = "")
+    z <- paste(z, ifelse(x[2] > 0, "inflow", "outflow"), "of $")
+    z <- paste(z, int.format(round(x[2])), "m the prior week.", 
+        sep = "")
+    w <- x > 0
+    w <- seq(1, length(w))[!duplicated(w)][2] - 1
+    z <- paste(z, "\ni.\tThese ", ifelse(x[1] > 0, "inflows", 
+        "outflows"), sep = "")
+    z <- paste(z, "have been taking place for", w, "straight weeks")
+    w <- x[txt.left(names(x), 4) == txt.left(names(x)[1], 4)]
+    z <- paste(z, "\nii.\t", txt.left(names(w)[1], 4), " YTD has seen ", 
+        report.flow.annual(w), sep = "")
+    w <- x[txt.left(names(x), 4) != txt.left(names(x)[1], 4)]
+    w <- w[txt.left(names(w), 4) == txt.left(names(w)[1], 4)]
+    z <- paste(z, "\niii.\tFor ", txt.left(names(w)[1], 4), " there were ", 
+        report.flow.annual(w), sep = "")
+    w <- mean(x[1:4])
+    if (w > 0) {
+        z <- paste(z, "\niv.\t4-week moving average: $", int.format(round(w)), 
+            "m inflow (4-week cumulative: $", int.format(round(4 * 
+                w)), "m inflow)", sep = "")
+    }
+    else {
+        z <- paste(z, "\niv.\t4-week moving average: $", int.format(round(-w)), 
+            "m outflow (4-week cumulative: $", int.format(round(-4 * 
+                w)), "m outflow)", sep = "")
+    }
+    w <- x[txt.left(names(x), 4) == txt.left(names(x)[1], 4)]
+    z <- paste(z, report.flow.annual.cumulative(w), sep = "\nv.\t")
+    w <- x[txt.left(names(x), 4) != txt.left(names(x)[1], 4)]
+    w <- w[txt.left(names(w), 4) == txt.left(names(w)[1], 4)]
+    w <- w[order(names(w))]
+    w <- w[1:sum(txt.left(names(x), 4) == txt.left(names(x)[1], 
+        4))]
+    w <- w[order(names(w), decreasing = T)]
+    z <- paste(z, report.flow.annual.cumulative(w), sep = "\nvi.\t")
+    z
+}
+
+#' report.flow.annual
+#' 
+#' summarizes flows for one year
+#' @param x = a numeric vector indexed by YYYYMMDD
+#' @keywords report.flow.annual
+#' @export
+#' @family report
+
+report.flow.annual <- function (x) 
+{
+    if (sum(x > 0) == 0) {
+        z <- "no weeks of inflows and"
+    }
+    else if (sum(x > 0) == 1) {
+        z <- "one week of inflows and"
+    }
+    else {
+        z <- paste(sum(x > 0), "weeks of inflows and")
+    }
+    if (sum(x < 0) == 0) {
+        z <- paste(z, "no weeks of outflows")
+    }
+    else if (sum(x < 0) == 1) {
+        z <- paste(z, "one week of outflows")
+    }
+    else {
+        z <- paste(z, sum(x < 0), "weeks of outflows")
+    }
+    if (max(x) > 0 & min(x) < 0) {
+        z <- paste(z, " (largest inflow $", int.format(round(max(x))), 
+            "m; largest outflow $", int.format(round(max(-x))), 
+            "m)", sep = "")
+    }
+    else if (max(x) > 0) {
+        z <- paste(z, " (largest inflow $", int.format(round(max(x))), 
+            "m)", sep = "")
+    }
+    else {
+        z <- paste(z, " (largest outflow $", int.format(round(max(-x))), 
+            "m)", sep = "")
+    }
+    z
+}
+
+#' report.flow.annual.cumulative
+#' 
+#' summarizes flows for one year
+#' @param x = a numeric vector indexed by YYYYMMDD
+#' @keywords report.flow.annual.cumulative
+#' @export
+#' @family report
+
+report.flow.annual.cumulative <- function (x) 
+{
+    z <- format(day.to.date(names(x)[1]), "%B %d")
+    z <- paste(txt.left(names(x)[1], 4), "flow data (through", 
+        z)
+    if (sum(x) > 0) {
+        z <- paste(z, "): $", int.format(round(sum(x))), "m cumulative INFLOW, or weekly average of $", 
+            int.format(round(mean(x))), "m inflow", sep = "")
+    }
+    else {
+        z <- paste(z, "): $", int.format(round(sum(-x))), "m cumulative OUTFLOW, or weekly average of $", 
+            int.format(round(mean(-x))), "m outflow", sep = "")
+    }
     z
 }
 
@@ -9875,6 +10015,37 @@ sql.1mFundCt <- function (x, y, n, w)
     w <- ifelse(w, "HSecurityId, GeographicFocusId", "SecurityId")
     z <- sql.tbl(z, h, n, w)
     z <- paste(c(x, sql.unbracket(z)), collapse = "\n")
+    z
+}
+
+#' sql.1wFlow.Corp
+#' 
+#' Generates the SQL query to get weekly corporate flow ($MM)
+#' @keywords sql.1wFlow.Corp
+#' @export
+#' @family sql
+
+sql.1wFlow.Corp <- function () 
+{
+    x <- mat.read(parameters("classif-StyleSector"))
+    x <- map.rname(x, c(136, 133, 140, 135, 132, 139, 142, 125))
+    x$Domicile <- ifelse(dimnames(x)[[1]] == 125, "US", NA)
+    z <- vec.named(paste("StyleSector", dimnames(x)[[1]], sep = " = "), 
+        x[, "Abbrv"])
+    z[!is.na(x$Domicile)] <- paste(z[!is.na(x$Domicile)], "Domicile = 'US'", 
+        sep = " and ")
+    names(z)[!is.na(x$Domicile)] <- paste(names(z)[!is.na(x$Domicile)], 
+        "US")
+    z <- paste("[", names(z), "] = sum(case when ", z, " then Flow else NULL end)", 
+        sep = "")
+    z <- c("WeekEnding = convert(char(8), WeekEnding, 112)", 
+        z)
+    y <- list(A = "FundType = 'B'", B = "GeographicFocus = 77")
+    y[["C"]] <- sql.in("StyleSector", paste("(", paste(dimnames(x)[[1]], 
+        collapse = ", "), ")", sep = ""))
+    z <- sql.tbl(z, c("WeeklyData t1", "inner join", "FundHistory t2 on t2.HFundId = t1.HFundId"), 
+        sql.and(y), "WeekEnding")
+    z <- paste(sql.unbracket(z), collapse = "\n")
     z
 }
 
@@ -12721,8 +12892,7 @@ yyyymmdd.to.int <- function (x)
 
 yyyymmdd.to.txt <- function (x) 
 {
-    paste(substring(x, 5, 6), "/", substring(x, 7, 8), "/", substring(x, 
-        1, 4), " 12:00:00 AM", sep = "")
+    paste(format(day.to.date(x), "%m/%d/%Y"), "12:00:00 AM")
 }
 
 #' yyyymmdd.to.unity

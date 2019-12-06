@@ -17,7 +17,7 @@ maps days to weeks
 \seealso{
 Other day: \code{\link{day.ex.date}},
   \code{\link{day.ex.int}}, \code{\link{day.lag}},
-  \code{\link{day.seq}}, \code{\link{day.to.int}},
-  \code{\link{day.to.weekday}}
+  \code{\link{day.seq}}, \code{\link{day.to.date}},
+  \code{\link{day.to.int}}, \code{\link{day.to.weekday}}
 }
 \keyword{day.to.week}

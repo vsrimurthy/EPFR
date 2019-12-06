@@ -15,7 +15,7 @@ Converts to 0 = Sun, 1 = Mon, ..., 6 = Sat
 \seealso{
 Other day: \code{\link{day.ex.date}},
   \code{\link{day.ex.int}}, \code{\link{day.lag}},
-  \code{\link{day.seq}}, \code{\link{day.to.int}},
-  \code{\link{day.to.week}}
+  \code{\link{day.seq}}, \code{\link{day.to.date}},
+  \code{\link{day.to.int}}, \code{\link{day.to.week}}
 }
 \keyword{day.to.weekday}
