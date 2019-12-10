@@ -4,10 +4,16 @@
 \alias{sql.1dFloMo.CtryFlow}
 \title{sql.1dFloMo.CtryFlow}
 \usage{
-sql.1dFloMo.CtryFlow(x)
+sql.1dFloMo.CtryFlow(x, y, n, w)
 }
 \arguments{
 \item{x}{= the date for which you want flows (known one day later)}
+
+\item{y}{= FundType (one of E/B)}
+
+\item{n}{= item (one of Flow/AssetsStart/AssetsEnd/Flow\%)}
+
+\item{w}{= country list (one of Ctry/LatAm)}
 }
 \description{
 SQL query for country-flow percentage for date <x>

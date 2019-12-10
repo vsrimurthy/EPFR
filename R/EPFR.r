@@ -7781,11 +7781,13 @@ renorm <- function (x)
 #' @param x = a numeric vector indexed by YYYYMMDD
 #' @param y = character string representing name of the asset class
 #' @param n = numeric value representing AUM
+#' @param w = line number at which to insert a statement
+#' @param h = statement to be inserted
 #' @keywords report.flow
 #' @export
 #' @family report
 
-report.flow <- function (x, y, n) 
+report.flow <- function (x, y, n, w, h) 
 {
     x <- x[order(names(x), decreasing = T)]
     z <- format(day.to.date(names(x)[1]), "%B %d %Y")
@@ -7798,60 +7800,66 @@ report.flow <- function (x, y, n)
     z <- paste(z, ifelse(x[2] > 0, "inflow", "outflow"), "of $")
     z <- paste(z, int.format(round(x[2])), "m the prior week.", 
         sep = "")
-    w <- x > 0
-    w <- seq(1, length(w))[!duplicated(w)][2] - 1
-    if (w > 1) {
-        z <- paste(z, "\ni.\tThese ", ifelse(x[1] > 0, "inflows", 
-            "outflows"), sep = "")
-        if (w > 4) {
-            z <- paste(z, "have been taking place for", w, "straight weeks")
+    y <- x > 0
+    y <- seq(1, length(y))[!duplicated(y)][2] - 1
+    if (y > 1) {
+        u <- paste("These ", ifelse(x[1] > 0, "inflows", "outflows"), 
+            sep = "")
+        if (y > 4) {
+            u <- paste(u, "have been taking place for", y, "straight weeks")
         }
         else {
-            z <- paste(z, "have been taking place for", w, "consecutive weeks")
+            u <- paste(u, "have been taking place for", y, "consecutive weeks")
         }
     }
     else {
-        w <- x > 0
-        w <- w[-1]
-        w <- seq(1, length(w))[!duplicated(w)][2] - 1
-        z <- paste(z, "\ni.\tThis is the first week of ", ifelse(x[1] > 
+        y <- x > 0
+        y <- y[-1]
+        y <- seq(1, length(y))[!duplicated(y)][2] - 1
+        u <- paste("This is the first week of ", ifelse(x[1] > 
             0, "inflows", "outflows"), sep = "")
-        if (w > 1) {
-            z <- paste(z, ", the prior ", w, " weeks seeing ", 
+        if (y > 1) {
+            u <- paste(u, ", the prior ", y, " weeks seeing ", 
                 ifelse(x[1] > 0, "outflows", "inflows"), sep = "")
         }
         else {
-            z <- paste(z, ", the prior week seeing ", ifelse(x[1] > 
+            u <- paste(u, ", the prior week seeing ", ifelse(x[1] > 
                 0, "outflows", "inflows"), sep = "")
         }
     }
-    w <- x[txt.left(names(x), 4) == txt.left(names(x)[1], 4)]
-    z <- paste(z, "\nii.\t", txt.left(names(w)[1], 4), " YTD has seen ", 
-        report.flow.annual(w), sep = "")
-    w <- x[txt.left(names(x), 4) != txt.left(names(x)[1], 4)]
-    w <- w[txt.left(names(w), 4) == txt.left(names(w)[1], 4)]
-    z <- paste(z, "\niii.\tFor ", txt.left(names(w)[1], 4), " there were ", 
-        report.flow.annual(w), sep = "")
-    w <- mean(x[1:4])
-    if (w > 0) {
-        z <- paste(z, "\niv.\t4-week moving average: $", int.format(round(w)), 
+    z <- c(z, u)
+    y <- x[txt.left(names(x), 4) == txt.left(names(x)[1], 4)]
+    z <- c(z, paste(txt.left(names(y)[1], 4), " YTD has seen ", 
+        report.flow.annual(y), sep = ""))
+    y <- x[txt.left(names(x), 4) != txt.left(names(x)[1], 4)]
+    y <- y[txt.left(names(y), 4) == txt.left(names(y)[1], 4)]
+    z <- c(z, paste("For ", txt.left(names(y)[1], 4), " there were ", 
+        report.flow.annual(y), sep = ""))
+    y <- mean(x[1:4])
+    if (y > 0) {
+        u <- paste("4-week moving average: $", int.format(round(y)), 
             "m inflow (4-week cumulative: $", int.format(round(4 * 
-                w)), "m inflow)", sep = "")
+                y)), "m inflow)", sep = "")
     }
     else {
-        z <- paste(z, "\niv.\t4-week moving average: $", int.format(round(-w)), 
+        u <- paste("4-week moving average: $", int.format(round(-y)), 
             "m outflow (4-week cumulative: $", int.format(round(-4 * 
-                w)), "m outflow)", sep = "")
+                y)), "m outflow)", sep = "")
     }
-    w <- x[txt.left(names(x), 4) == txt.left(names(x)[1], 4)]
-    z <- paste(z, report.flow.annual.cumulative(w), sep = "\nv.\t")
-    w <- x[txt.left(names(x), 4) != txt.left(names(x)[1], 4)]
-    w <- w[txt.left(names(w), 4) == txt.left(names(w)[1], 4)]
-    w <- w[order(names(w))]
-    w <- w[1:sum(txt.left(names(x), 4) == txt.left(names(x)[1], 
+    z <- c(z, u)
+    y <- x[txt.left(names(x), 4) == txt.left(names(x)[1], 4)]
+    z <- c(z, report.flow.annual.cumulative(y))
+    y <- x[txt.left(names(x), 4) != txt.left(names(x)[1], 4)]
+    y <- y[txt.left(names(y), 4) == txt.left(names(y)[1], 4)]
+    y <- y[order(names(y))]
+    y <- y[1:sum(txt.left(names(x), 4) == txt.left(names(x)[1], 
         4))]
-    w <- w[order(names(w), decreasing = T)]
-    z <- paste(z, report.flow.annual.cumulative(w), sep = "\nvi.\t")
+    y <- y[order(names(y), decreasing = T)]
+    z <- c(z, report.flow.annual.cumulative(y))
+    if (!missing(w) & !missing(h)) 
+        z <- c(z[1:w], h, z[seq(w + 1, length(z))])
+    z[-1] <- paste(latin.ex.arabic(2:length(z) - 1), z[-1], sep = ".\t")
+    z <- paste(z, collapse = "\n")
     z
 }
 
@@ -8907,6 +8915,11 @@ sql.1dFloMo.Ctry.List <- function (x)
         z <- Ctry.msci.members.rng("ACWI", "200704", "300012")
         classif.type <- "Ctry"
     }
+    else if (x == "LatAm") {
+        z <- mat.read(parameters("classif-Ctry"))
+        z <- dimnames(z)[[1]][is.element(z$EpfrRgn, x)]
+        classif.type <- "Ctry"
+    }
     else if (x == "EMDM") {
         z <- Ctry.msci.members.rng("ACWI", "199710", "300012")
         classif.type <- "Ctry"
@@ -8924,7 +8937,7 @@ sql.1dFloMo.Ctry.List <- function (x)
     y <- parameters(paste("classif", classif.type, sep = "-"))
     y <- mat.read(y, sep)
     y <- map.rname(y, z)
-    if (x == "Ctry" | x == "Sector") {
+    if (any(x == c("Ctry", "Sector", "LatAm"))) {
         z <- vec.named(z, y$AllocTable)
     }
     else if (x == "EMDM") {
@@ -8945,36 +8958,58 @@ sql.1dFloMo.Ctry.List <- function (x)
 #' 
 #' SQL query for country-flow percentage for date <x>
 #' @param x = the date for which you want flows (known one day later)
+#' @param y = FundType (one of E/B)
+#' @param n = item (one of Flow/AssetsStart/AssetsEnd/Flow\%)
+#' @param w = country list (one of Ctry/LatAm)
 #' @keywords sql.1dFloMo.CtryFlow
 #' @export
 #' @family sql
 
-sql.1dFloMo.CtryFlow <- function (x) 
+sql.1dFloMo.CtryFlow <- function (x, y, n, w) 
 {
-    h <- sql.1dFloMo.Ctry.List("Ctry")
-    w <- "datediff(month, WeightDate, @floDt) = case when day(@floDt) < 23 then 2 else 1 end"
+    h <- sql.1dFloMo.Ctry.List(w)
     z <- paste("[", h, "] = avg(", names(h), ")", sep = "")
-    z <- c("GeographicFocus", "Advisor", z)
-    y <- sql.label(sql.FundHistory("", c("CB", "E", "UI"), F, 
-        c("GeographicFocus", "Advisor")), "t2")
-    y <- c("CountryAllocations t1", "inner join", y, "\ton t2.HFundId = t1.HFundId")
-    z <- sql.label(sql.tbl(z, y, w, "GeographicFocus, Advisor"), 
+    z <- c("WeightDate", "GeographicFocus", "Advisor", z)
+    u <- sql.label(sql.FundHistory("", c("CB", y, "UI"), F, c("GeographicFocus", 
+        "Advisor")), "t2")
+    u <- c("CountryAllocations t1", "inner join", u, "\ton t2.HFundId = t1.HFundId")
+    z <- sql.label(sql.tbl(z, u, , "WeightDate, GeographicFocus, Advisor"), 
         "t")
-    y <- c("GeographicFocus", paste("[", h, "] = avg([", h, "])", 
+    u <- c("WeightDate", "GeographicFocus", paste("[", h, "] = avg([", 
+        h, "])", sep = ""))
+    u <- sql.tbl(u, z, , "WeightDate, GeographicFocus")
+    if (n == "Flow%") {
+        z <- c("Flow", "AssetsStart")
+    }
+    else {
+        z <- n
+    }
+    z <- c("DayEnding", "HFundId", paste(z, " = sum(", z, ")", 
         sep = ""))
-    y <- sql.tbl(y, z, , "GeographicFocus")
-    z <- sql.label(sql.FundHistory("", c("E", "UI"), F, "GeographicFocus"), 
+    z <- sql.tbl(z, "DailyData", "DayEnding >= @floDt", "DayEnding, HFundId")
+    w <- sql.label(sql.FundHistory("", c(y, "UI"), F, "GeographicFocus"), 
         "t2")
-    z <- c(sql.label(sql.DailyFlo("@floDt", , F), "t1"), "inner join", 
-        z, "\ton t2.HFundId = t1.HFundId")
-    z <- c(z, "left join", sql.label(y, "t3"), "\ton t3.GeographicFocus = t2.GeographicFocus")
+    z <- c(sql.label(z, "t1"), "inner join", w, "\ton t2.HFundId = t1.HFundId")
+    z <- c(z, "left join", sql.label(u, "t3"), "\ton t3.GeographicFocus = t2.GeographicFocus")
+    z <- c(z, "\t\tand datediff(month, WeightDate, DayEnding) = case when day(DayEnding) < 23 then 2 else 1 end")
     w <- Ctry.info(h, "GeoId")
-    y <- paste("case when t2.GeographicFocus = ", w, " then 100 else [", 
-        h, "] end", sep = "")
-    y <- ifelse(is.na(w), paste("[", h, "]", sep = ""), y)
-    y <- sql.Mo("Flow", "AssetsStart", y, T)
-    y <- paste("[", h, "] ", y, sep = "")
-    z <- sql.tbl(y, z)
+    if (n == "Flow%") {
+        u <- paste("case when t2.GeographicFocus = ", w, " then 100 else [", 
+            h, "] end", sep = "")
+        u <- ifelse(is.na(w), paste("[", h, "]", sep = ""), u)
+        u <- sql.Mo("Flow", "AssetsStart", u, T)
+        u <- paste("[", h, "] ", u, sep = "")
+    }
+    else {
+        u <- paste("case when t2.GeographicFocus = ", w, " then 100 else [", 
+            h, "] end", sep = "")
+        u <- ifelse(is.na(w), paste("[", h, "]", sep = ""), u)
+        u <- paste("sum(0.01 * ", n, " * cast(", u, " as float))", 
+            sep = "")
+        u <- paste("[", h, "] = ", u, sep = "")
+    }
+    u <- c("DayEnding = convert(char(8), DayEnding, 112)", u)
+    z <- sql.tbl(u, z, , "DayEnding")
     z <- c(sql.declare("@floDt", "datetime", x), sql.unbracket(z))
     z <- paste(z, collapse = "\n")
     z

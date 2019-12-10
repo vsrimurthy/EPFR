@@ -4,7 +4,7 @@
 \alias{report.flow}
 \title{report.flow}
 \usage{
-report.flow(x, y, n)
+report.flow(x, y, n, w, h)
 }
 \arguments{
 \item{x}{= a numeric vector indexed by YYYYMMDD}
@@ -12,6 +12,10 @@ report.flow(x, y, n)
 \item{y}{= character string representing name of the asset class}
 
 \item{n}{= numeric value representing AUM}
+
+\item{w}{= line number at which to insert a statement}
+
+\item{h}{= statement to be inserted}
 }
 \description{
 writes a flow report
