@@ -7796,9 +7796,9 @@ report.flow <- function (x, y, n, w, h)
     z <- paste(z, int.format(round(n)), "m total assets) reported net", 
         sep = "")
     z <- paste(z, ifelse(x[1] > 0, "INFLOWS", "OUTFLOWS"), "of $")
-    z <- paste(z, int.format(round(x[1])), "m vs an", sep = "")
+    z <- paste(z, int.format(round(abs(x[1]))), "m vs an", sep = "")
     z <- paste(z, ifelse(x[2] > 0, "inflow", "outflow"), "of $")
-    z <- paste(z, int.format(round(x[2])), "m the prior week.", 
+    z <- paste(z, int.format(round(abs(x[2]))), "m the prior week.", 
         sep = "")
     y <- x > 0
     y <- seq(1, length(y))[!duplicated(y)][2] - 1
