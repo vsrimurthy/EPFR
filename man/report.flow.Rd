@@ -4,7 +4,7 @@
 \alias{report.flow}
 \title{report.flow}
 \usage{
-report.flow(x, y, n, w, h)
+report.flow(x, y, n, w, h, u = T)
 }
 \arguments{
 \item{x}{= a numeric vector indexed by YYYYMMDD}
@@ -16,6 +16,8 @@ report.flow(x, y, n, w, h)
 \item{w}{= line number at which to insert a statement}
 
 \item{h}{= statement to be inserted}
+
+\item{u}{= T/F depending on whether you want to use html}
 }
 \description{
 writes a flow report

@@ -138,17 +138,23 @@ mk.1mPerfTrend <- function (x, y, n)
 #' @param y = subject of the email
 #' @param n = text of the email
 #' @param w = a vector of paths to attachement
+#' @param h = T/F depending on whether you want to use html
 #' @keywords email
 #' @export
 #' @import RDCOMClient
 
-email <- function (x, y, n, w = "") 
+email <- function (x, y, n, w = "", h = F) 
 {
     z <- COMCreate("Outlook.Application")
     z <- z$CreateItem(0)
     z[["To"]] <- x
     z[["subject"]] <- y
-    z[["body"]] <- n
+    if (h) {
+        z[["HTMLBody"]] <- n
+    }
+    else {
+        z[["body"]] <- n
+    }
     for (j in w) if (file.exists(j)) 
         z[["Attachments"]]$Add(j)
     z$Send()
@@ -7070,6 +7076,9 @@ qa.flow <- function (x, y, n, w, h, u)
         z[, "badDts"] <- as.numeric(any(yyyymm.to.qtr(yyyymmdd.to.yyyymm(dimnames(z)[[1]])) != 
             x))
     }
+    else if (ftp.info(y, n, "frequency", w) == "S") {
+        z[, "badDts"] <- as.numeric(any(dimnames(z)[[1]] != x))
+    }
     else if (z[, "goodFile"][1] == 1) {
         z[, "badDts"] <- as.numeric(any(yyyymmdd.to.yyyymm(dimnames(z)[[1]]) != 
             x))
@@ -7783,11 +7792,12 @@ renorm <- function (x)
 #' @param n = numeric value representing AUM
 #' @param w = line number at which to insert a statement
 #' @param h = statement to be inserted
+#' @param u = T/F depending on whether you want to use html
 #' @keywords report.flow
 #' @export
 #' @family report
 
-report.flow <- function (x, y, n, w, h) 
+report.flow <- function (x, y, n, w, h, u = T) 
 {
     x <- x[order(names(x), decreasing = T)]
     z <- format(day.to.date(names(x)[1]), "%B %d %Y")
@@ -7803,31 +7813,31 @@ report.flow <- function (x, y, n, w, h)
     y <- x > 0
     y <- seq(1, length(y))[!duplicated(y)][2] - 1
     if (y > 1) {
-        u <- paste("These ", ifelse(x[1] > 0, "inflows", "outflows"), 
+        n <- paste("These ", ifelse(x[1] > 0, "inflows", "outflows"), 
             sep = "")
         if (y > 4) {
-            u <- paste(u, "have been taking place for", y, "straight weeks")
+            n <- paste(n, "have been taking place for", y, "straight weeks")
         }
         else {
-            u <- paste(u, "have been taking place for", y, "consecutive weeks")
+            n <- paste(n, "have been taking place for", y, "consecutive weeks")
         }
     }
     else {
         y <- x > 0
         y <- y[-1]
         y <- seq(1, length(y))[!duplicated(y)][2] - 1
-        u <- paste("This is the first week of ", ifelse(x[1] > 
+        n <- paste("This is the first week of ", ifelse(x[1] > 
             0, "inflows", "outflows"), sep = "")
         if (y > 1) {
-            u <- paste(u, ", the prior ", y, " weeks seeing ", 
+            n <- paste(n, ", the prior ", y, " weeks seeing ", 
                 ifelse(x[1] > 0, "outflows", "inflows"), sep = "")
         }
         else {
-            u <- paste(u, ", the prior week seeing ", ifelse(x[1] > 
+            n <- paste(n, ", the prior week seeing ", ifelse(x[1] > 
                 0, "outflows", "inflows"), sep = "")
         }
     }
-    z <- c(z, u)
+    z <- c(z, n)
     y <- x[txt.left(names(x), 4) == txt.left(names(x)[1], 4)]
     z <- c(z, paste(txt.left(names(y)[1], 4), " YTD has seen ", 
         report.flow.annual(y), sep = ""))
@@ -7837,16 +7847,16 @@ report.flow <- function (x, y, n, w, h)
         report.flow.annual(y), sep = ""))
     y <- mean(x[1:4])
     if (y > 0) {
-        u <- paste("4-week moving average: $", int.format(round(y)), 
+        n <- paste("4-week moving average: $", int.format(round(y)), 
             "m inflow (4-week cumulative: $", int.format(round(4 * 
                 y)), "m inflow)", sep = "")
     }
     else {
-        u <- paste("4-week moving average: $", int.format(round(-y)), 
+        n <- paste("4-week moving average: $", int.format(round(-y)), 
             "m outflow (4-week cumulative: $", int.format(round(-4 * 
                 y)), "m outflow)", sep = "")
     }
-    z <- c(z, u)
+    z <- c(z, n)
     y <- x[txt.left(names(x), 4) == txt.left(names(x)[1], 4)]
     z <- c(z, report.flow.annual.cumulative(y))
     y <- x[txt.left(names(x), 4) != txt.left(names(x)[1], 4)]
@@ -7858,7 +7868,15 @@ report.flow <- function (x, y, n, w, h)
     z <- c(z, report.flow.annual.cumulative(y))
     if (!missing(w) & !missing(h)) 
         z <- c(z[1:w], h, z[seq(w + 1, length(z))])
-    z[-1] <- paste(latin.ex.arabic(2:length(z) - 1), z[-1], sep = ".\t")
+    if (u) {
+        z[1] <- paste("<br>", z[1], "<ul>", sep = "")
+        z[-1] <- paste("<li>", z[-1], "</li>", sep = "")
+        z <- c(z, "</ul></p>")
+    }
+    else {
+        z[-1] <- paste(latin.ex.arabic(2:length(z) - 1), z[-1], 
+            sep = ".\t")
+    }
     z <- paste(z, collapse = "\n")
     z
 }

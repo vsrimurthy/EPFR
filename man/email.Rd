@@ -4,7 +4,7 @@
 \alias{email}
 \title{email}
 \usage{
-email(x, y, n, w = "")
+email(x, y, n, w = "", h = F)
 }
 \arguments{
 \item{x}{= the email address of the recipient}
@@ -14,6 +14,8 @@ email(x, y, n, w = "")
 \item{n}{= text of the email}
 
 \item{w}{= a vector of paths to attachement}
+
+\item{h}{= T/F depending on whether you want to use html}
 }
 \description{
 emails <x>
