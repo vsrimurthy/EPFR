@@ -7784,168 +7784,211 @@ renorm <- function (x)
     z
 }
 
-#' report.flow
+#' report.flow.english
 #' 
-#' writes a flow report
-#' @param x = a numeric vector indexed by YYYYMMDD
-#' @param y = character string representing name of the asset class
-#' @param n = numeric value representing AUM
-#' @param w = line number at which to insert a statement
-#' @param h = statement to be inserted
-#' @param u = T/F depending on whether you want to use html
-#' @keywords report.flow
+#' writes a flow report in English
+#' @param x = a named vector of integers (numbers need to be rounded)
+#' @param y = a named text vector
+#' @param n = line number at which to insert a statement
+#' @param w = statement to be inserted
+#' @keywords report.flow.english
 #' @export
 #' @family report
 
-report.flow <- function (x, y, n, w, h, u = T) 
+report.flow.english <- function (x, y, n, w) 
+{
+    z <- format(day.to.date(y["date"]), "%B %d %Y")
+    z <- paste("For the week ended", z, "fund flow data from EPFR for", 
+        y["AssetClass"], "($")
+    z <- paste(z, int.format(x["AUM"]), "m total assets) reported net", 
+        sep = "")
+    z <- paste(z, ifelse(x["last"] > 0, "INFLOWS", "OUTFLOWS"), 
+        "of $")
+    z <- paste(z, int.format(abs(x["last"])), "m vs an", sep = "")
+    z <- paste(z, ifelse(x["prior"] > 0, "inflow", "outflow"), 
+        "of $")
+    z <- paste(z, int.format(abs(x["prior"])), "m the prior week.", 
+        sep = "")
+    if (x["straight"] > 0) {
+        u <- paste("These", ifelse(x["last"] > 0, "inflows", 
+            "outflows"), "have been taking place for")
+        u <- paste(u, x["straight"], ifelse(x["straight"] > 4, 
+            "straight", "consecutive"), "weeks")
+    }
+    else if (x["straight"] == -1) {
+        u <- paste("This is the first week of", ifelse(x["last"] > 
+            0, "inflows,", "outflows,"))
+        u <- paste(u, "the prior week seeing", ifelse(x["last"] > 
+            0, "outflows", "inflows"))
+    }
+    else {
+        u <- paste("This is the first week of", ifelse(x["last"] > 
+            0, "inflows,", "outflows,"))
+        u <- paste(u, "the prior", -x["straight"], "weeks seeing", 
+            ifelse(x["last"] > 0, "outflows", "inflows"))
+    }
+    z <- c(z, u)
+    u <- paste(txt.left(y["date"], 4), "YTD has seen")
+    if (x["YtdCountInWks"] == 0) {
+        u <- paste(u, "no weeks of inflows and")
+    }
+    else if (x["YtdCountInWks"] == 1) {
+        u <- paste(u, "one week of inflows and")
+    }
+    else {
+        u <- paste(u, x["YtdCountInWks"], "weeks of inflows and")
+    }
+    if (x["YtdCountOutWks"] == 0) {
+        u <- paste(u, "no weeks of outflows")
+    }
+    else if (x["YtdCountOutWks"] == 1) {
+        u <- paste(u, "one week of outflows")
+    }
+    else {
+        u <- paste(u, x["YtdCountOutWks"], "weeks of outflows")
+    }
+    if (x["YtdCountInWks"] > 0 & x["YtdCountOutWks"] > 0) {
+        u <- paste(u, " (largest inflow $", int.format(x["YtdBigIn"]), 
+            "m; largest outflow $", int.format(x["YtdBigOut"]), 
+            "m)", sep = "")
+    }
+    else if (x["YtdCountInWks"] > 0) {
+        u <- paste(u, " (largest inflow $", int.format(x["YtdBigIn"]), 
+            "m)", sep = "")
+    }
+    else {
+        u <- paste(u, " (largest outflow $", int.format(x["YtdBigOut"]), 
+            "m)", sep = "")
+    }
+    z <- c(z, u)
+    u <- paste("For", txt.left(y["PriorYrWeek"], 4), "there were")
+    if (x["PriorYrCountInWks"] == 0) {
+        u <- paste(u, "no weeks of inflows and")
+    }
+    else if (x["PriorYrCountInWks"] == 1) {
+        u <- paste(u, "one week of inflows and")
+    }
+    else {
+        u <- paste(u, x["PriorYrCountInWks"], "weeks of inflows and")
+    }
+    if (x["PriorYrCountOutWks"] == 0) {
+        u <- paste(u, "no weeks of outflows")
+    }
+    else if (x["PriorYrCountOutWks"] == 1) {
+        u <- paste(u, "one week of outflows")
+    }
+    else {
+        u <- paste(u, x["PriorYrCountOutWks"], "weeks of outflows")
+    }
+    if (x["PriorYrCountInWks"] > 0 & x["PriorYrCountOutWks"] > 
+        0) {
+        u <- paste(u, " (largest inflow $", int.format(x["PriorYrBigIn"]), 
+            "m; largest outflow $", int.format(x["PriorYrBigOut"]), 
+            "m)", sep = "")
+    }
+    else if (x["PriorYrCountInWks"] > 0) {
+        u <- paste(u, " (largest inflow $", int.format(x["PriorYrBigIn"]), 
+            "m)", sep = "")
+    }
+    else {
+        u <- paste(u, " (largest outflow $", int.format(x["PriorYrBigOut"]), 
+            "m)", sep = "")
+    }
+    z <- c(z, u)
+    if (x["FourWeekAvg"] > 0) {
+        u <- paste("4-week moving average: $", int.format(x["FourWeekAvg"]), 
+            "m inflow (4-week cumulative: $", int.format(x["FourWeekSum"]), 
+            "m inflow)", sep = "")
+    }
+    else {
+        u <- paste("4-week moving average: $", int.format(-x["FourWeekAvg"]), 
+            "m outflow (4-week cumulative: $", int.format(-x["FourWeekSum"]), 
+            "m outflow)", sep = "")
+    }
+    z <- c(z, u)
+    u <- paste(txt.left(y["date"], 4), "flow data (through", 
+        format(day.to.date(y["date"]), "%B %d"))
+    if (x["YtdCumSum"] > 0) {
+        u <- paste(u, "): $", int.format(x["YtdCumSum"]), "m cumulative INFLOW, or weekly average of $", 
+            int.format(x["YtdCumAvg"]), "m inflow", sep = "")
+    }
+    else {
+        u <- paste(u, "): $", int.format(-x["YtdCumSum"]), "m cumulative OUTFLOW, or weekly average of $", 
+            int.format(-x["YtdCumAvg"]), "m outflow", sep = "")
+    }
+    z <- c(z, u)
+    u <- paste(txt.left(y["PriorYrWeek"], 4), "flow data (through", 
+        format(day.to.date(y["PriorYrWeek"]), "%B %d"))
+    if (x["PriorYrCumSum"] > 0) {
+        u <- paste(u, "): $", int.format(x["PriorYrCumSum"]), 
+            "m cumulative INFLOW, or weekly average of $", int.format(x["PriorYrCumAvg"]), 
+            "m inflow", sep = "")
+    }
+    else {
+        u <- paste(u, "): $", int.format(-x["PriorYrCumSum"]), 
+            "m cumulative OUTFLOW, or weekly average of $", int.format(-x["PriorYrCumAvg"]), 
+            "m outflow", sep = "")
+    }
+    z <- c(z, u)
+    if (!missing(n) & !missing(w)) 
+        z <- c(z[1:n], w, z[seq(n + 1, length(z))])
+    z[1] <- paste("<br>", z[1], "<ul>", sep = "")
+    z[-1] <- paste("<li>", z[-1], "</li>", sep = "")
+    z <- c(z, "</ul></p>")
+    z <- paste(z, collapse = "\n")
+    z
+}
+
+#' report.flow.underlying
+#' 
+#' list object containing the following items: a) text - dates and text information about flows b) numbers - numeric summary of the flows
+#' @param x = a numeric vector indexed by YYYYMMDD
+#' @keywords report.flow.underlying
+#' @export
+#' @family report
+
+report.flow.underlying <- function (x) 
 {
     x <- x[order(names(x), decreasing = T)]
-    z <- format(day.to.date(names(x)[1]), "%B %d %Y")
-    z <- paste("For the week ended", z, "fund flow data from EPFR for", 
-        y, "($")
-    z <- paste(z, int.format(round(n)), "m total assets) reported net", 
-        sep = "")
-    z <- paste(z, ifelse(x[1] > 0, "INFLOWS", "OUTFLOWS"), "of $")
-    z <- paste(z, int.format(round(abs(x[1]))), "m vs an", sep = "")
-    z <- paste(z, ifelse(x[2] > 0, "inflow", "outflow"), "of $")
-    z <- paste(z, int.format(round(abs(x[2]))), "m the prior week.", 
-        sep = "")
+    z <- vec.named(x[1:2], c("last", "prior"))
+    n <- vec.named(names(x)[1], "date")
+    z["FourWeekAvg"] <- mean(x[1:4])
+    z["FourWeekSum"] <- sum(x[1:4])
     y <- x > 0
     y <- seq(1, length(y))[!duplicated(y)][2] - 1
     if (y > 1) {
-        n <- paste("These ", ifelse(x[1] > 0, "inflows", "outflows"), 
-            sep = "")
-        if (y > 4) {
-            n <- paste(n, "have been taking place for", y, "straight weeks")
-        }
-        else {
-            n <- paste(n, "have been taking place for", y, "consecutive weeks")
-        }
+        z["straight"] <- y
     }
     else {
         y <- x > 0
         y <- y[-1]
         y <- seq(1, length(y))[!duplicated(y)][2] - 1
-        n <- paste("This is the first week of ", ifelse(x[1] > 
-            0, "inflows", "outflows"), sep = "")
-        if (y > 1) {
-            n <- paste(n, ", the prior ", y, " weeks seeing ", 
-                ifelse(x[1] > 0, "outflows", "inflows"), sep = "")
-        }
-        else {
-            n <- paste(n, ", the prior week seeing ", ifelse(x[1] > 
-                0, "outflows", "inflows"), sep = "")
-        }
+        z["straight"] <- -y
     }
-    z <- c(z, n)
     y <- x[txt.left(names(x), 4) == txt.left(names(x)[1], 4)]
-    z <- c(z, paste(txt.left(names(y)[1], 4), " YTD has seen ", 
-        report.flow.annual(y), sep = ""))
+    z["YtdCountInWks"] <- sum(y > 0)
+    z["YtdCountOutWks"] <- sum(y < 0)
+    z["YtdBigIn"] <- max(y)
+    z["YtdBigOut"] <- -min(y)
     y <- x[txt.left(names(x), 4) != txt.left(names(x)[1], 4)]
     y <- y[txt.left(names(y), 4) == txt.left(names(y)[1], 4)]
-    z <- c(z, paste("For ", txt.left(names(y)[1], 4), " there were ", 
-        report.flow.annual(y), sep = ""))
-    y <- mean(x[1:4])
-    if (y > 0) {
-        n <- paste("4-week moving average: $", int.format(round(y)), 
-            "m inflow (4-week cumulative: $", int.format(round(4 * 
-                y)), "m inflow)", sep = "")
-    }
-    else {
-        n <- paste("4-week moving average: $", int.format(round(-y)), 
-            "m outflow (4-week cumulative: $", int.format(round(-4 * 
-                y)), "m outflow)", sep = "")
-    }
-    z <- c(z, n)
+    z["PriorYrCountInWks"] <- sum(y > 0)
+    z["PriorYrCountOutWks"] <- sum(y < 0)
+    z["PriorYrBigIn"] <- max(y)
+    z["PriorYrBigOut"] <- -min(y)
     y <- x[txt.left(names(x), 4) == txt.left(names(x)[1], 4)]
-    z <- c(z, report.flow.annual.cumulative(y))
+    z["YtdCumAvg"] <- mean(y)
+    z["YtdCumSum"] <- sum(y)
     y <- x[txt.left(names(x), 4) != txt.left(names(x)[1], 4)]
     y <- y[txt.left(names(y), 4) == txt.left(names(y)[1], 4)]
     y <- y[order(names(y))]
     y <- y[1:sum(txt.left(names(x), 4) == txt.left(names(x)[1], 
         4))]
     y <- y[order(names(y), decreasing = T)]
-    z <- c(z, report.flow.annual.cumulative(y))
-    if (!missing(w) & !missing(h)) 
-        z <- c(z[1:w], h, z[seq(w + 1, length(z))])
-    if (u) {
-        z[1] <- paste("<br>", z[1], "<ul>", sep = "")
-        z[-1] <- paste("<li>", z[-1], "</li>", sep = "")
-        z <- c(z, "</ul></p>")
-    }
-    else {
-        z[-1] <- paste(latin.ex.arabic(2:length(z) - 1), z[-1], 
-            sep = ".\t")
-    }
-    z <- paste(z, collapse = "\n")
-    z
-}
-
-#' report.flow.annual
-#' 
-#' summarizes flows for one year
-#' @param x = a numeric vector indexed by YYYYMMDD
-#' @keywords report.flow.annual
-#' @export
-#' @family report
-
-report.flow.annual <- function (x) 
-{
-    if (sum(x > 0) == 0) {
-        z <- "no weeks of inflows and"
-    }
-    else if (sum(x > 0) == 1) {
-        z <- "one week of inflows and"
-    }
-    else {
-        z <- paste(sum(x > 0), "weeks of inflows and")
-    }
-    if (sum(x < 0) == 0) {
-        z <- paste(z, "no weeks of outflows")
-    }
-    else if (sum(x < 0) == 1) {
-        z <- paste(z, "one week of outflows")
-    }
-    else {
-        z <- paste(z, sum(x < 0), "weeks of outflows")
-    }
-    if (max(x) > 0 & min(x) < 0) {
-        z <- paste(z, " (largest inflow $", int.format(round(max(x))), 
-            "m; largest outflow $", int.format(round(max(-x))), 
-            "m)", sep = "")
-    }
-    else if (max(x) > 0) {
-        z <- paste(z, " (largest inflow $", int.format(round(max(x))), 
-            "m)", sep = "")
-    }
-    else {
-        z <- paste(z, " (largest outflow $", int.format(round(max(-x))), 
-            "m)", sep = "")
-    }
-    z
-}
-
-#' report.flow.annual.cumulative
-#' 
-#' summarizes flows for one year
-#' @param x = a numeric vector indexed by YYYYMMDD
-#' @keywords report.flow.annual.cumulative
-#' @export
-#' @family report
-
-report.flow.annual.cumulative <- function (x) 
-{
-    z <- format(day.to.date(names(x)[1]), "%B %d")
-    z <- paste(txt.left(names(x)[1], 4), "flow data (through", 
-        z)
-    if (sum(x) > 0) {
-        z <- paste(z, "): $", int.format(round(sum(x))), "m cumulative INFLOW, or weekly average of $", 
-            int.format(round(mean(x))), "m inflow", sep = "")
-    }
-    else {
-        z <- paste(z, "): $", int.format(round(sum(-x))), "m cumulative OUTFLOW, or weekly average of $", 
-            int.format(round(mean(-x))), "m outflow", sep = "")
-    }
+    n["PriorYrWeek"] <- names(y)[1]
+    z["PriorYrCumAvg"] <- mean(y)
+    z["PriorYrCumSum"] <- sum(y)
+    z <- list(numbers = z, text = n)
     z
 }
 
