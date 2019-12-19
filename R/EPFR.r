@@ -11129,7 +11129,10 @@ sql.mat.crossprod.vector <- function (x, y, n)
 sql.mat.determinant <- function (x) 
 {
     n <- dim(x)[2]
-    if (n == 2) {
+    if (is.null(n)) {
+        z <- x
+    }
+    else if (n == 2) {
         z <- sql.mat.multiply(x[1, 2], x[2, 1])
         z <- paste(sql.mat.multiply(x[1, 1], x[2, 2]), " - ", 
             z, sep = "")
@@ -11173,17 +11176,24 @@ sql.mat.flip <- function (x)
         }
         i <- i + 1
     }
-    h <- c(-1, h, n + 2)
-    i <- 2
-    z <- substring(x, h[i] + 2, h[i + 1] - 2)
-    while (i + 3 <= length(h)) {
-        i <- i + 2
-        z <- paste(z, substring(x, h[i] + 2, h[i + 1] - 2), sep = " + ")
+    if (!is.null(h)) {
+        h <- c(-1, h, n + 2)
+        i <- 2
+        z <- substring(x, h[i] + 2, h[i + 1] - 2)
+        while (i + 3 <= length(h)) {
+            i <- i + 2
+            z <- paste(z, substring(x, h[i] + 2, h[i + 1] - 2), 
+                sep = " + ")
+        }
+        i <- -1
+        while (i + 3 <= length(h)) {
+            i <- i + 2
+            z <- paste(z, substring(x, h[i] + 2, h[i + 1] - 2), 
+                sep = " - ")
+        }
     }
-    i <- -1
-    while (i + 3 <= length(h)) {
-        i <- i + 2
-        z <- paste(z, substring(x, h[i] + 2, h[i + 1] - 2), sep = " - ")
+    else {
+        z <- paste("(-", x, ")", sep = "")
     }
     z
 }
