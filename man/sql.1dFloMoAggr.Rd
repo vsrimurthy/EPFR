@@ -84,10 +84,15 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.floTbl.to.Col}}, \code{\link{sql.into}},
   \code{\link{sql.in}}, \code{\link{sql.isin.old.to.new}},
   \code{\link{sql.label}}, \code{\link{sql.map.classif}},
-  \code{\link{sql.nonneg}},
+  \code{\link{sql.mat.cofactor}},
+  \code{\link{sql.mat.crossprod.vector}},
+  \code{\link{sql.mat.crossprod}},
+  \code{\link{sql.mat.determinant}},
+  \code{\link{sql.mat.flip}},
+  \code{\link{sql.mat.multiply}}, \code{\link{sql.nonneg}},
   \code{\link{sql.query.underlying}},
-  \code{\link{sql.query}}, \code{\link{sql.sf.wtd.avg}},
-  \code{\link{sql.tbl}}, \code{\link{sql.ui}},
-  \code{\link{sql.unbracket}}
+  \code{\link{sql.query}}, \code{\link{sql.regr}},
+  \code{\link{sql.sf.wtd.avg}}, \code{\link{sql.tbl}},
+  \code{\link{sql.ui}}, \code{\link{sql.unbracket}}
 }
 \keyword{sql.1dFloMoAggr}

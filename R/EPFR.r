@@ -11044,6 +11044,170 @@ sql.map.classif <- function (x, y, n, w)
     z
 }
 
+#' sql.mat.cofactor
+#' 
+#' SQL for the cofactor matrix
+#' @param x = square character matrix
+#' @keywords sql.mat.cofactor
+#' @export
+#' @family sql
+
+sql.mat.cofactor <- function (x) 
+{
+    z <- matrix("", dim(x)[1], dim(x)[2], F, dimnames(x))
+    for (i in 1:dim(z)[1]) {
+        for (j in 1:dim(z)[2]) {
+            z[i, j] <- sql.mat.determinant(x[-i, -j])
+            if ((i + j)%%2 == 1) 
+                z[i, j] <- sql.mat.flip(z[i, j])
+        }
+    }
+    z
+}
+
+#' sql.mat.crossprod
+#' 
+#' SQL for entries of X'X
+#' @param x = vector of names
+#' @param y = T/F depending on whether there's an intercept term
+#' @keywords sql.mat.crossprod
+#' @export
+#' @family sql
+
+sql.mat.crossprod <- function (x, y) 
+{
+    m <- length(x)
+    names(x) <- 1:m
+    z <- rep(1:m, m)
+    w <- z[order(rep(1:m, m))]
+    h <- vec.max(w, z)
+    z <- vec.min(w, z)
+    z <- map.rname(x, z)
+    h <- map.rname(x, h)
+    z <- ifelse(z == h, paste("sum(square(", z, "))", sep = ""), 
+        paste("sum(", z, " * ", h, ")", sep = ""))
+    z <- matrix(z, m, m, F, list(x, x))
+    if (y) {
+        z <- map.rname(z, c("Unity", x))
+        z <- t(map.rname(t(z), c("Unity", x)))
+        z[1, -1] <- z[-1, 1] <- paste("sum(", x, ")", sep = "")
+        z[1, 1] <- paste("count(", x[1], ")", sep = "")
+    }
+    z
+}
+
+#' sql.mat.crossprod.vector
+#' 
+#' SQL for entries of X'Y
+#' @param x = vector of names
+#' @param y = a string
+#' @param n = T/F depending on whether there's an intercept term
+#' @keywords sql.mat.crossprod.vector
+#' @export
+#' @family sql
+
+sql.mat.crossprod.vector <- function (x, y, n) 
+{
+    z <- vec.named(paste("sum(", x, " * ", y, ")", sep = ""), 
+        x)
+    if (n) {
+        z["Unity"] <- paste("sum(", y, ")", sep = "")
+        w <- length(z)
+        z <- z[order(1:w%%w)]
+    }
+    z
+}
+
+#' sql.mat.determinant
+#' 
+#' SQL for the determinant
+#' @param x = square character matrix
+#' @keywords sql.mat.determinant
+#' @export
+#' @family sql
+
+sql.mat.determinant <- function (x) 
+{
+    n <- dim(x)[2]
+    if (n == 2) {
+        z <- sql.mat.multiply(x[1, 2], x[2, 1])
+        z <- paste(sql.mat.multiply(x[1, 1], x[2, 2]), " - ", 
+            z, sep = "")
+    }
+    else {
+        i <- 1
+        z <- paste(x[1, i], " * (", sql.mat.determinant(x[-1, 
+            -i]), ")", sep = "")
+        for (i in 2:n) {
+            h <- ifelse(i%%2 == 0, " - ", " + ")
+            z <- paste(z, paste(x[1, i], " * (", sql.mat.determinant(x[-1, 
+                -i]), ")", sep = ""), sep = h)
+        }
+    }
+    z
+}
+
+#' sql.mat.flip
+#' 
+#' flips the sign for a term in a matrix
+#' @param x = square character matrix
+#' @keywords sql.mat.flip
+#' @export
+#' @family sql
+
+sql.mat.flip <- function (x) 
+{
+    h <- NULL
+    n <- nchar(x)
+    i <- 1
+    m <- 0
+    while (i <= n) {
+        if (m == 0 & is.element(substring(x, i, i), c("+", "-"))) {
+            h <- c(h, i)
+        }
+        else if (substring(x, i, i) == "(") {
+            m <- m + 1
+        }
+        else if (substring(x, i, i) == ")") {
+            m <- m - 1
+        }
+        i <- i + 1
+    }
+    h <- c(-1, h, n + 2)
+    i <- 2
+    z <- substring(x, h[i] + 2, h[i + 1] - 2)
+    while (i + 3 <= length(h)) {
+        i <- i + 2
+        z <- paste(z, substring(x, h[i] + 2, h[i + 1] - 2), sep = " + ")
+    }
+    i <- -1
+    while (i + 3 <= length(h)) {
+        i <- i + 2
+        z <- paste(z, substring(x, h[i] + 2, h[i + 1] - 2), sep = " - ")
+    }
+    z
+}
+
+#' sql.mat.multiply
+#' 
+#' SQL for the determinant
+#' @param x = string
+#' @param y = string
+#' @keywords sql.mat.multiply
+#' @export
+#' @family sql
+
+sql.mat.multiply <- function (x, y) 
+{
+    if (x == y) {
+        z <- paste("square(", x, ")", sep = "")
+    }
+    else {
+        z <- paste(x, y, sep = " * ")
+    }
+    z
+}
+
 #' sql.Mo
 #' 
 #' SQL statement for momentum
@@ -11213,6 +11377,31 @@ sql.RDSuniv <- function (x)
     }
     else if (x == "All") {
         z <- ""
+    }
+    z
+}
+
+#' sql.regr
+#' 
+#' SQL for regression coefficients
+#' @param x = a string vector (independent variable(s))
+#' @param y = a string (dependent variable)
+#' @param n = T/F depending on whether there's an intercept term
+#' @keywords sql.regr
+#' @export
+#' @family sql
+
+sql.regr <- function (x, y, n) 
+{
+    y <- sql.mat.crossprod.vector(x, y, n)
+    x <- sql.mat.crossprod(x, n)
+    h <- sql.mat.cofactor(x)
+    n <- sql.mat.determinant(x)
+    z <- NULL
+    for (j in 1:length(y)) {
+        w <- paste(paste(y, " * (", h[, j], ")", sep = ""), collapse = " + ")
+        w <- paste("(", w, ")/(", n, ")", sep = "")
+        z <- c(z, paste(names(y)[j], w, sep = " = "))
     }
     z
 }
