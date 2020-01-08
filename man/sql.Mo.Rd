@@ -11,7 +11,7 @@ sql.Mo(x, y, n, w)
 
 \item{y}{= isomekic vector of "assets"}
 
-\item{n}{= isomekic vector of "weights"}
+\item{n}{= isomekic vector of "weights" (can be NULL)}
 
 \item{w}{= T/F depending on whether to handle division by zero}
 }

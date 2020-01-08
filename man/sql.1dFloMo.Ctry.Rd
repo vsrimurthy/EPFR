@@ -4,10 +4,12 @@
 \alias{sql.1dFloMo.Ctry}
 \title{sql.1dFloMo.Ctry}
 \usage{
-sql.1dFloMo.Ctry(x)
+sql.1dFloMo.Ctry(x, y = "Flow\%")
 }
 \arguments{
 \item{x}{= Ctry/FX/Sector}
+
+\item{y}{= item (Flow/AssetsStart/AssetsEnd)}
 }
 \description{
 Generates the SQL query to get daily 1dFloMo for countries
