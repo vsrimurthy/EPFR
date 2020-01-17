@@ -997,41 +997,6 @@ col.to.int <- function (x)
     z
 }
 
-#' colours
-#' 
-#' vector of R colours
-#' @param x = number of colours needed
-#' @keywords colours
-#' @export
-
-colours <- function (x) 
-{
-    if (x == 5) {
-        z <- c(178, 61, 150, 0, 0, 0, 90, 176, 49, 64, 70, 80, 
-            172, 218, 160)
-    }
-    else if (x == 4) {
-        z <- c(178, 61, 150, 0, 0, 0, 0, 113, 60, 165, 207, 128)
-    }
-    else if (x == 3) {
-        z <- c(178, 61, 150, 0, 0, 0, 90, 176, 49)
-    }
-    else if (x == 2) {
-        z <- c(178, 61, 150, 90, 176, 49)
-    }
-    else if (x == 1) {
-        z <- c(178, 61, 150)
-    }
-    else {
-        stop("colours: Can't handle this!")
-    }
-    z <- mat.ex.matrix(matrix(z, 3, x))
-    z <- lapply(z, function(x) paste(txt.right(paste0("0", as.hexmode(x)), 
-        2), collapse = ""))
-    z <- paste0("#", toupper(as.character(unlist(z))))
-    z
-}
-
 #' combinations
 #' 
 #' returns all possible combinations of <y> values of <x>
@@ -2117,6 +2082,41 @@ factordump.write <- function (x, y)
     write.table(x, y, sep = "\t", , row.names = F, col.names = T, 
         quote = F)
     invisible()
+}
+
+#' farben
+#' 
+#' vector of R colours
+#' @param x = number of colours needed
+#' @keywords farben
+#' @export
+
+farben <- function (x) 
+{
+    if (x == 5) {
+        z <- c(178, 61, 150, 0, 0, 0, 90, 176, 49, 64, 70, 80, 
+            172, 218, 160)
+    }
+    else if (x == 4) {
+        z <- c(178, 61, 150, 0, 0, 0, 0, 113, 60, 165, 207, 128)
+    }
+    else if (x == 3) {
+        z <- c(178, 61, 150, 0, 0, 0, 90, 176, 49)
+    }
+    else if (x == 2) {
+        z <- c(178, 61, 150, 90, 176, 49)
+    }
+    else if (x == 1) {
+        z <- c(178, 61, 150)
+    }
+    else {
+        stop("farben: Can't handle this!")
+    }
+    z <- mat.ex.matrix(matrix(z, 3, x))
+    z <- lapply(z, function(x) paste(txt.right(paste0("0", as.hexmode(x)), 
+        2), collapse = ""))
+    z <- paste0("#", toupper(as.character(unlist(z))))
+    z
 }
 
 #' fcn.all.canonical
