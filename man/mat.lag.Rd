@@ -21,9 +21,8 @@ mat.lag(x, y, n, w = T, h = T)
 Returns data lagged <y> periods with the same row space as <x>
 }
 \seealso{
-Other mat: \code{\link{mat.combine}},
-  \code{\link{mat.compound}}, \code{\link{mat.correl}},
-  \code{\link{mat.count}},
+Other mat: \code{\link{mat.compound}},
+  \code{\link{mat.correl}}, \code{\link{mat.count}},
   \code{\link{mat.daily.to.monthly}},
   \code{\link{mat.daily.to.weekly}},
   \code{\link{mat.ex.array3d}}, \code{\link{mat.ex.array}},

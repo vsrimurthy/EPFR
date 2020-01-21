@@ -17,9 +17,8 @@ mat.ex.vec(x, y, n = T)
 transforms into a 1/0 matrix of bin memberships if <y> is missing or the values of <y> otherwise
 }
 \seealso{
-Other mat: \code{\link{mat.combine}},
-  \code{\link{mat.compound}}, \code{\link{mat.correl}},
-  \code{\link{mat.count}},
+Other mat: \code{\link{mat.compound}},
+  \code{\link{mat.correl}}, \code{\link{mat.count}},
   \code{\link{mat.daily.to.monthly}},
   \code{\link{mat.daily.to.weekly}},
   \code{\link{mat.ex.array3d}}, \code{\link{mat.ex.array}},

@@ -15,9 +15,8 @@ mat.daily.to.monthly(x, y = F)
 returns latest data in each month indexed by <yyyymm> ascending
 }
 \seealso{
-Other mat: \code{\link{mat.combine}},
-  \code{\link{mat.compound}}, \code{\link{mat.correl}},
-  \code{\link{mat.count}},
+Other mat: \code{\link{mat.compound}},
+  \code{\link{mat.correl}}, \code{\link{mat.count}},
   \code{\link{mat.daily.to.weekly}},
   \code{\link{mat.ex.array3d}}, \code{\link{mat.ex.array}},
   \code{\link{mat.ex.matrix}}, \code{\link{mat.ex.vec}},

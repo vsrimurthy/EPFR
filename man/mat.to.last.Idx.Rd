@@ -13,9 +13,8 @@ mat.to.last.Idx(x)
 the last row index for which we have data
 }
 \seealso{
-Other mat: \code{\link{mat.combine}},
-  \code{\link{mat.compound}}, \code{\link{mat.correl}},
-  \code{\link{mat.count}},
+Other mat: \code{\link{mat.compound}},
+  \code{\link{mat.correl}}, \code{\link{mat.count}},
   \code{\link{mat.daily.to.monthly}},
   \code{\link{mat.daily.to.weekly}},
   \code{\link{mat.ex.array3d}}, \code{\link{mat.ex.array}},

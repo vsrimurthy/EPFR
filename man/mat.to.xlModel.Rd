@@ -19,9 +19,8 @@ mat.to.xlModel(x, y = 2, n = 5, w = F)
 prepends the trade open and close dates and re-indexes by data date (as needed)
 }
 \seealso{
-Other mat: \code{\link{mat.combine}},
-  \code{\link{mat.compound}}, \code{\link{mat.correl}},
-  \code{\link{mat.count}},
+Other mat: \code{\link{mat.compound}},
+  \code{\link{mat.correl}}, \code{\link{mat.count}},
   \code{\link{mat.daily.to.monthly}},
   \code{\link{mat.daily.to.weekly}},
   \code{\link{mat.ex.array3d}}, \code{\link{mat.ex.array}},

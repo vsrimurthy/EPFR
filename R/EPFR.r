@@ -1959,7 +1959,7 @@ extract.AnnMn.sf <- function (x, y)
 {
     z <- x
     w <- dimnames(z)[[2]] != "uRet"
-    z <- as.data.frame(t(z[y, w, ]))
+    z <- mat.ex.matrix(t(z[y, w, ]))
     z <- mat.last.to.first(z)
     z
 }
@@ -5266,26 +5266,6 @@ map.rname <- function (x, y)
     z
 }
 
-#' mat.combine
-#' 
-#' Combines <x> and <y>
-#' @param fcn = the function you want applied to row space of <x> and <y>
-#' @param x = a matrix/df
-#' @param y = a matrix/df
-#' @keywords mat.combine
-#' @export
-#' @family mat
-
-mat.combine <- function (fcn, x, y) 
-{
-    z <- fcn(dimnames(x)[[1]], dimnames(y)[[1]])
-    z <- z[order(z)]
-    x <- map.rname(x, z)
-    y <- map.rname(y, z)
-    z <- data.frame(x, y)
-    z
-}
-
 #' mat.compound
 #' 
 #' Compounds across the rows
@@ -6577,13 +6557,10 @@ mk.Wt <- function (x, y, n)
 
 multi.asset <- function (x) 
 {
-    n <- length(x)
-    i <- 1
-    z <- mat.read(x[i], ",")
-    while (i < n) {
-        i <- i + 1
-        z <- mat.combine(intersect, z, mat.read(x[i], ","))
-    }
+    x <- vec.to.list(x)
+    x <- lapply(x, mat.read)
+    z <- Reduce(function(x, y) mat.index(merge(x, y, by = 0)), 
+        x)
     z
 }
 
