@@ -969,18 +969,18 @@ col.ex.int <- function (x)
     z
 }
 
-#' col.offset
+#' col.lag
 #' 
-#' Offsets <x> by <y> columns
+#' Lags <x> by <y> columns
 #' @param x = string representation of an excel column
-#' @param y = an integer representing the desired column offset
-#' @keywords col.offset
+#' @param y = an integer representing the desired column lag
+#' @keywords col.lag
 #' @export
 #' @family col
 
-col.offset <- function (x, y) 
+col.lag <- function (x, y) 
 {
-    obj.lag(x, -y, col.to.int, col.ex.int)
+    obj.lag(x, y, col.to.int, col.ex.int)
 }
 
 #' col.to.int

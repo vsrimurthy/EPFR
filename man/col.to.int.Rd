@@ -13,7 +13,6 @@ col.to.int(x)
 Returns the relevant associated integer (1 = "A", 2 = "B", etc.)
 }
 \seealso{
-Other col: \code{\link{col.ex.int}},
-  \code{\link{col.offset}}
+Other col: \code{\link{col.ex.int}}, \code{\link{col.lag}}
 }
 \keyword{col.to.int}

@@ -13,7 +13,6 @@ col.ex.int(x)
 Returns the relevant excel column (1 = "A", 2 = "B", etc.)
 }
 \seealso{
-Other col: \code{\link{col.offset}},
-  \code{\link{col.to.int}}
+Other col: \code{\link{col.lag}}, \code{\link{col.to.int}}
 }
 \keyword{col.ex.int}
