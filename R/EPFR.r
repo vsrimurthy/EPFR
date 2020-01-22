@@ -957,12 +957,15 @@ char.to.num <- function (x)
 
 col.ex.int <- function (x) 
 {
-    fcn <- function(x) vec.last.element.increment(base.ex.int(x))
-    z <- lapply(vec.to.list(x - 1), fcn)
-    fcn <- function(x) char.ex.int(x + 64)
-    z <- lapply(z, fcn)
-    fcn <- function(x) paste(x, collapse = "")
-    z <- as.character(sapply(z, fcn))
+    n <- ceiling(log(1 + 25 * x/26)/log(26))
+    x <- x - (26^n - 26)/25 - 1
+    z <- sapply(x, function(x) paste(char.ex.int(base.ex.int(x) + 
+        65), collapse = ""))
+    w <- nchar(z) < n
+    while (any(w)) {
+        z[w] <- paste0("A", z[w])
+        w <- nchar(z) < n
+    }
     z
 }
 
@@ -12657,23 +12660,6 @@ vec.cat <- function (x)
 vec.count <- function (x) 
 {
     pivot.1d(sum, x, rep(1, length(x)))
-}
-
-#' vec.last.element.increment
-#' 
-#' increments last element of <x> by <y>
-#' @param x = a numeric vector
-#' @param y = increment (defaults to unity)
-#' @keywords vec.last.element.increment
-#' @export
-#' @family vec
-
-vec.last.element.increment <- function (x, y = 1) 
-{
-    n <- length(x)
-    x[n] <- x[n] + 1
-    z <- x
-    z
 }
 
 #' vec.max
