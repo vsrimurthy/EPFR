@@ -957,14 +957,14 @@ char.to.num <- function (x)
 
 col.ex.int <- function (x) 
 {
-    n <- ceiling(log(1 + 25 * x/26)/log(26))
-    x <- x - (26^n - 26)/25 - 1
-    z <- sapply(x, function(x) paste(char.ex.int(base.ex.int(x) + 
-        65), collapse = ""))
-    w <- nchar(z) < n
+    z <- rep("", length(x))
+    w <- x > 0
     while (any(w)) {
-        z[w] <- paste0("A", z[w])
-        w <- nchar(z) < n
+        h <- x[w]%%26
+        h <- ifelse(h == 0, 26, h)
+        x[w] <- (x[w] - h)/26
+        z[w] <- paste0(char.ex.int(h + 64), z[w])
+        w <- x > 0
     }
     z
 }
@@ -994,8 +994,7 @@ col.offset <- function (x, y)
 col.to.int <- function (x) 
 {
     z <- lapply(vec.to.list(x), txt.to.char)
-    fcn <- function(x) char.to.int(x) - char.to.int("A") + 1
-    z <- lapply(z, fcn)
+    z <- lapply(z, function(x) char.to.int(x) - 64)
     z <- as.numeric(sapply(z, base.to.int))
     z
 }
