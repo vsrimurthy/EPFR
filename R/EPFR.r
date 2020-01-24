@@ -4561,6 +4561,49 @@ GSec.to.GSgrp <- function (x)
     z
 }
 
+#' html.flow.breakdown
+#' 
+#' html breaking down flows into constituents
+#' @param x = a named numeric vector
+#' @param y = a string
+#' @keywords html.flow.breakdown
+#' @export
+#' @family html
+
+html.flow.breakdown <- function (x, y) 
+{
+    x <- x[order(abs(x), decreasing = T)]
+    x <- x[order(x > 0, decreasing = sum(x) > 0)]
+    z <- as.numeric(sign(x[1]))
+    x <- x * z
+    n <- sum(x > 0)
+    m <- length(x) - n
+    x <- paste(names(x), "($", int.format(round(abs(x))), "m)")
+    w <- rep("", length(x))
+    if (n > 1) 
+        w[n - 1] <- " and"
+    if (n > 2) 
+        w[3:n - 2] <- ","
+    if (m > 1) 
+        w[n + m - 1] <- " and"
+    if (m > 2) 
+        w[n + 3:m - 2] <- ","
+    x <- paste0(x, w)
+    if (m == 0) {
+        z <- paste("This week's", ifelse(z > 0, "inflows", "outflows"), 
+            "came from", paste(x, collapse = " "), paste0(y, 
+                "."))
+    }
+    else {
+        z <- paste("This week's", ifelse(z > 0, "inflows", "outflows"), 
+            "were driven by", paste(x[1:n], collapse = " "), 
+            paste0(y, ", but offset by"), ifelse(z > 0, "outflows", 
+                "inflows"), "from", paste(x[n + 1:m], collapse = " "), 
+            paste0(y, "."))
+    }
+    z
+}
+
 #' html.flow.english
 #' 
 #' writes a flow report in English

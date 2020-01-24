@@ -13,7 +13,7 @@ html.flow.underlying(x)
 list object containing the following items: a) text - dates and text information about flows b) numbers - numeric summary of the flows
 }
 \seealso{
-Other html: \code{\link{html.flow.english}},
-  \code{\link{html.tbl}}
+Other html: \code{\link{html.flow.breakdown}},
+  \code{\link{html.flow.english}}, \code{\link{html.tbl}}
 }
 \keyword{html.flow.underlying}
