@@ -133,7 +133,7 @@ mk.1mPerfTrend <- function (x, y, n)
 #' email
 #' 
 #' emails <x>
-#' @param x = the email address of the recipient
+#' @param x = the email address(es) of the recipient(s)
 #' @param y = subject of the email
 #' @param n = text of the email
 #' @param w = a vector of paths to attachement
@@ -4247,8 +4247,8 @@ ftp.info <- function (x, y, n, w)
 ftp.put <- function (x, y, n) 
 {
     z <- paste0("cd /\ncd \"", n, "\"")
-    z <- paste0(z, "\ndel ", strategy.file(x, y))
-    z <- paste0(z, "\nput \"", strategy.path(x, y), "\"")
+    z <- paste0(z, "\ndel ", strat.file(x, y))
+    z <- paste0(z, "\nput \"", strat.path(x, y), "\"")
     z
 }
 
@@ -4561,45 +4561,73 @@ GSec.to.GSgrp <- function (x)
     z
 }
 
+#' html.and
+#' 
+#' <x> stated in a grammatical phrase
+#' @param x = a string vector
+#' @keywords html.and
+#' @export
+#' @family html
+
+html.and <- function (x) 
+{
+    n <- length(x)
+    w <- rep("", n)
+    if (n > 1) 
+        w[n - 1] <- " and"
+    if (n > 2) 
+        w[3:n - 2] <- ","
+    z <- paste(paste0(x, w), collapse = " ")
+    z
+}
+
 #' html.flow.breakdown
 #' 
 #' html breaking down flows into constituents
 #' @param x = a named numeric vector
 #' @param y = a string
+#' @param n = a number representing miscellaneous flows
 #' @keywords html.flow.breakdown
 #' @export
 #' @family html
 
-html.flow.breakdown <- function (x, y) 
+html.flow.breakdown <- function (x, y, n = 0) 
 {
+    if (y != "") 
+        y <- paste0(" ", y)
     x <- x[order(abs(x), decreasing = T)]
-    x <- x[order(x > 0, decreasing = sum(x) > 0)]
-    z <- as.numeric(sign(x[1]))
+    x <- x[order(x > 0, decreasing = sum(x) + n > 0)]
+    z <- as.numeric(sign(sum(x) + n))
     x <- x * z
-    n <- sum(x > 0)
-    m <- length(x) - n
+    h <- sum(x > 0)
+    m <- length(x) - h
     x <- paste(names(x), "($", int.format(round(abs(x))), "m)")
-    w <- rep("", length(x))
-    if (n > 1) 
-        w[n - 1] <- " and"
-    if (n > 2) 
-        w[3:n - 2] <- ","
-    if (m > 1) 
-        w[n + m - 1] <- " and"
-    if (m > 2) 
-        w[n + 3:m - 2] <- ","
-    x <- paste0(x, w)
-    if (m == 0) {
+    if (h == 0) {
         z <- paste("This week's", ifelse(z > 0, "inflows", "outflows"), 
-            "came from", paste(x, collapse = " "), paste0(y, 
-                "."))
+            "were driven by sundry small contributions which overwhelmed", 
+            ifelse(z > 0, "outflows from", "inflows into"), html.and(x))
+        z <- paste0(z, y, ".")
+    }
+    else if (m == 0) {
+        if (z > 0) {
+            z <- paste0("inflows ", ifelse(abs(n) > 0, "primarily ", 
+                ""), "went into")
+        }
+        else {
+            z <- paste0("outflows ", ifelse(abs(n) > 0, "primarily ", 
+                ""), "came from")
+        }
+        z <- paste("This week's", z, html.and(x))
+        z <- paste0(z, y, ".")
     }
     else {
         z <- paste("This week's", ifelse(z > 0, "inflows", "outflows"), 
-            "were driven by", paste(x[1:n], collapse = " "), 
-            paste0(y, ", but offset by"), ifelse(z > 0, "outflows", 
-                "inflows"), "from", paste(x[n + 1:m], collapse = " "), 
-            paste0(y, "."))
+            ifelse(abs(n) > 0, "were primarily", "were"), "driven by", 
+            html.and(x[1:h]))
+        z <- paste0(z, y, ", but offset by")
+        z <- paste(z, ifelse(z > 0, "outflows from", "inflows into"), 
+            html.and(x[h + 1:m]))
+        z <- paste0(z, y, ".")
     }
     z
 }
@@ -6993,7 +7021,7 @@ portfolio.residual <- function (x, y)
 
 position.floPct <- function (x, y, n) 
 {
-    x <- strategy.path(x, "daily")
+    x <- strat.path(x, "daily")
     x <- multi.asset(x)
     if (all(n != dimnames(x)[[1]])) {
         cat("Date", n, "not recognized! No output will be published ...\n")
@@ -11921,45 +11949,98 @@ sqlts.wrapper <- function (x, y)
     z
 }
 
-#' strategy.dir
+#' strat.dir
 #' 
-#' factor folder
-#' @param x = "daily" or "weekly"
-#' @keywords strategy.dir
+#' the folder where <x> factors live
+#' @param x = frequency (e.g. "daily", "weekly" or "monthly")
+#' @keywords strat.dir
 #' @export
-#' @family strategy
+#' @family strat
 
-strategy.dir <- function (x) 
+strat.dir <- function (x) 
 {
     paste(dir.parameters("data"), x, sep = "\\")
 }
 
-#' strategy.file
+#' strat.email
 #' 
-#' Returns the file in which the factor lives
-#' @param x = name of the strategy (e.g. "FX" or "PremSec-JP")
-#' @param y = "daily" or "weekly"
-#' @keywords strategy.file
+#' emails strategies <x> of frequency <y>
+#' @param x = vector of strategy names (e.g. "FX" or "FloPctCtry")
+#' @param y = frequency (e.g. "daily", "weekly" or "monthly")
+#' @param n = the email address(es) of the recipient(s)
+#' @param w = the salutation
+#' @keywords strat.email
 #' @export
-#' @family strategy
+#' @family strat
 
-strategy.file <- function (x, y) 
+strat.email <- function (x, y, n, w = "All") 
+{
+    z <- paste0("Dear ", w, ",<p>Please find attached the latest")
+    z <- paste(z, ifelse(length(x) > 1, "files", "file"), "for the")
+    z <- paste(z, y, html.and(x), ifelse(length(x) > 1, "strategies.", 
+        "strategy."), "</p>\n<p>The data in")
+    z <- paste(z, ifelse(length(x) > 1, "these files", "this file"), 
+        "are indexed by the period they are as of")
+    if (y == "monthly") {
+        z <- paste(z, "and known the following month, before midnight, New York time, on the first")
+        z <- paste(z, "business day after the 22nd.</p>")
+    }
+    else {
+        z <- paste(z, "and known the following business day, usually before 5:00 PM New York time.</p>")
+    }
+    z <- paste(z, "<p>A business day is one that does not fall on Saturday, Sunday, Christmas or New Year's.</p>")
+    z <- paste(z, "<p>The data in", ifelse(length(x) > 1, "these files", 
+        "this file"), "are for a single")
+    z <- paste(z, "period only. For multi-period lookbacks aggregate across time.</p>")
+    z <- paste0(z, "<p>Sincerely,</p><p>Vikram K. Srimurthy<br>Quantitative Team, EPFR</p>")
+    email(n, paste(txt.name.format(y), html.and(x)), z, strat.path(x, 
+        y), T)
+    invisible()
+}
+
+#' strat.file
+#' 
+#' the path to the factor file
+#' @param x = vector of strategy names (e.g. "FX" or "FloPctCtry")
+#' @param y = frequency (e.g. "daily", "weekly" or "monthly")
+#' @keywords strat.file
+#' @export
+#' @family strat
+
+strat.file <- function (x, y) 
 {
     paste0(x, "-", y, ".csv")
 }
 
-#' strategy.path
+#' strat.list
+#' 
+#' lists strategies of that frequency
+#' @param x = frequency (e.g. "daily", "weekly" or "monthly")
+#' @keywords strat.list
+#' @export
+#' @family strat
+
+strat.list <- function (x) 
+{
+    z <- dir(strat.dir(x))
+    x <- paste0("-", x, ".csv")
+    z <- z[txt.right(z, nchar(x)) == x]
+    z <- txt.left(z, nchar(z) - nchar(x))
+    z
+}
+
+#' strat.path
 #' 
 #' Returns the full path to the factor file
-#' @param x = name of the strategy (e.g. "FX" or "PremSec-JP")
-#' @param y = "daily" or "weekly"
-#' @keywords strategy.path
+#' @param x = name of the strategy (e.g. "FX" or "FloPctCtry")
+#' @param y = frequency (e.g. "daily", "weekly" or "monthly")
+#' @keywords strat.path
 #' @export
-#' @family strategy
+#' @family strat
 
-strategy.path <- function (x, y) 
+strat.path <- function (x, y) 
 {
-    paste(strategy.dir(y), strategy.file(x, y), sep = "\\")
+    paste(strat.dir(y), strat.file(x, y), sep = "\\")
 }
 
 #' stunden

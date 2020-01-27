@@ -15,7 +15,8 @@ html.tbl(x, y)
 renders <x> in html
 }
 \seealso{
-Other html: \code{\link{html.flow.breakdown}},
+Other html: \code{\link{html.and}},
+  \code{\link{html.flow.breakdown}},
   \code{\link{html.flow.english}},
   \code{\link{html.flow.underlying}}
 }

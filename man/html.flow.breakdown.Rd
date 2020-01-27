@@ -4,18 +4,21 @@
 \alias{html.flow.breakdown}
 \title{html.flow.breakdown}
 \usage{
-html.flow.breakdown(x, y)
+html.flow.breakdown(x, y, n = 0)
 }
 \arguments{
 \item{x}{= a named numeric vector}
 
 \item{y}{= a string}
+
+\item{n}{= a number representing miscellaneous flows}
 }
 \description{
 html breaking down flows into constituents
 }
 \seealso{
-Other html: \code{\link{html.flow.english}},
+Other html: \code{\link{html.and}},
+  \code{\link{html.flow.english}},
   \code{\link{html.flow.underlying}},
   \code{\link{html.tbl}}
 }

@@ -19,7 +19,8 @@ html.flow.english(x, y, n, w)
 writes a flow report in English
 }
 \seealso{
-Other html: \code{\link{html.flow.breakdown}},
+Other html: \code{\link{html.and}},
+  \code{\link{html.flow.breakdown}},
   \code{\link{html.flow.underlying}},
   \code{\link{html.tbl}}
 }

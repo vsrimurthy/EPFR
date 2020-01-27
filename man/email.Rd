@@ -7,7 +7,7 @@
 email(x, y, n, w = "", h = F)
 }
 \arguments{
-\item{x}{= the email address of the recipient}
+\item{x}{= the email address(es) of the recipient(s)}
 
 \item{y}{= subject of the email}
 
