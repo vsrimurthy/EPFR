@@ -4838,6 +4838,18 @@ html.flow.underlying <- function (x)
     z
 }
 
+#' html.signature
+#' 
+#' signature at the end of an email
+#' @keywords html.signature
+#' @export
+#' @family html
+
+html.signature <- function () 
+{
+    paste0("<p>Sincerely,</p><p>Vikram K. Srimurthy<br>Quantitative Team, EPFR</p>")
+}
+
 #' html.tbl
 #' 
 #' renders <x> in html
@@ -11992,7 +12004,7 @@ strat.email <- function (x, y, n, w = "All")
     z <- paste(z, "<p>The data in", ifelse(length(x) > 1, "these files", 
         "this file"), "are for a single")
     z <- paste(z, "period only. For multi-period lookbacks aggregate across time.</p>")
-    z <- paste0(z, "<p>Sincerely,</p><p>Vikram K. Srimurthy<br>Quantitative Team, EPFR</p>")
+    z <- paste0(z, html.signature())
     email(n, paste(txt.name.format(y), html.and(x)), z, strat.path(x, 
         y), T)
     invisible()

@@ -16,6 +16,6 @@ html.and(x)
 Other html: \code{\link{html.flow.breakdown}},
   \code{\link{html.flow.english}},
   \code{\link{html.flow.underlying}},
-  \code{\link{html.tbl}}
+  \code{\link{html.signature}}, \code{\link{html.tbl}}
 }
 \keyword{html.and}

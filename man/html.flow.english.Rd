@@ -22,6 +22,6 @@ writes a flow report in English
 Other html: \code{\link{html.and}},
   \code{\link{html.flow.breakdown}},
   \code{\link{html.flow.underlying}},
-  \code{\link{html.tbl}}
+  \code{\link{html.signature}}, \code{\link{html.tbl}}
 }
 \keyword{html.flow.english}
