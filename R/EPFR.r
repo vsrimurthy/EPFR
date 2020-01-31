@@ -8265,6 +8265,59 @@ rgb.diff <- function (x, y)
     z
 }
 
+#' rpt.email
+#' 
+#' emails report
+#' @param x = report name
+#' @param y = output type (".csv", ".pdf", etc.)
+#' @param n = T/F depending on whether you're checking latest
+#' @param w = T/F depending on whether you're sending the email or testing
+#' @keywords rpt.email
+#' @export
+
+rpt.email <- function (x, y, n, w) 
+{
+    fldr <- paste0("C:\\temp\\Automation\\R\\", x)
+    log.file <- paste0(fldr, "\\", x, "Email.log")
+    file.kill(log.file)
+    if (w) 
+        sink(file = log.file, append = FALSE, type = c("output", 
+            "message"), split = FALSE)
+    flo.dt <- paste(fldr, "Exhibits", "FlowDate.txt", sep = "\\")
+    proceed <- file.exists(flo.dt)
+    if (proceed) {
+        cat("Reading date from", flo.dt, "...\n")
+        flo.dt <- vec.read(flo.dt, F)[1]
+    }
+    else {
+        cat("File", flo.dt, "does not exist ...\n")
+    }
+    if (proceed & n) {
+        proceed <- flo.dt == publish.weekly.last()
+        if (!proceed) 
+            cat("Aborting. Data date", flo.dt, "does not correspond to latest publication week", 
+                publish.weekly.last(), "...\n")
+    }
+    if (proceed) {
+        out.file <- paste0(dir.publications(x), "\\", x, "-", 
+            flo.dt, y)
+        proceed <- file.exists(out.file)
+        if (!proceed) {
+            cat("Aborting: File", out.file, "does not exist ...\n")
+        }
+    }
+    if (proceed) {
+        cat("Emailing document", out.file, "to", paste0(x, "List"), 
+            "...\n")
+        if (w) 
+            email(paste0(x, "List"), paste0(x, ": ", flo.dt), 
+                flo.dt, out.file)
+    }
+    if (w) 
+        sink()
+    invisible()
+}
+
 #' rrw
 #' 
 #' regression results
