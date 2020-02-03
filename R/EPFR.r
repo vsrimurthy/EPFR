@@ -8309,9 +8309,14 @@ rpt.email <- function (x, y, n, w)
     if (proceed) {
         cat("Emailing document", out.file, "to", paste0(x, "List"), 
             "...\n")
+        y <- paste0("reflecting flows to ", format(day.to.date(flo.dt), 
+            "%A, %B %d, %Y"), ".")
+        y <- paste0("Please find below the latest copy of the ", 
+            x, " report, ", y)
+        y <- paste0("Dear All,<p>", y, "</p>", html.signature())
         if (w) 
             email(paste0(x, "List"), paste0(x, ": ", flo.dt), 
-                flo.dt, out.file)
+                y, out.file, T)
     }
     if (w) 
         sink()
