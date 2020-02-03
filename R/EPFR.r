@@ -8274,15 +8274,35 @@ rgb.diff <- function (x, y)
 #' @param w = T/F depending on whether you're sending the email or testing
 #' @keywords rpt.email
 #' @export
+#' @family rpt
 
 rpt.email <- function (x, y, n, w) 
 {
+    rpt.email.underlying(x, y, n, w, paste0(x, "List"), paste0(x, 
+        "Email.log"))
+}
+
+#' rpt.email.underlying
+#' 
+#' emails report
+#' @param x = report name
+#' @param y = output type (".csv", ".pdf", etc.)
+#' @param n = T/F depending on whether you're checking latest
+#' @param w = T/F depending on whether you're sending the email or testing
+#' @param h = the email address(es) of the recipient(s)
+#' @param u = path to log file
+#' @keywords rpt.email.underlying
+#' @export
+#' @family rpt
+
+rpt.email.underlying <- function (x, y, n, w, h, u) 
+{
     fldr <- paste0("C:\\temp\\Automation\\R\\", x)
-    log.file <- paste0(fldr, "\\", x, "Email.log")
-    file.kill(log.file)
+    u <- paste(fldr, u, sep = "\\")
+    file.kill(u)
     if (w) 
-        sink(file = log.file, append = FALSE, type = c("output", 
-            "message"), split = FALSE)
+        sink(file = u, append = FALSE, type = c("output", "message"), 
+            split = FALSE)
     flo.dt <- paste(fldr, "Exhibits", "FlowDate.txt", sep = "\\")
     proceed <- file.exists(flo.dt)
     if (proceed) {
@@ -8307,16 +8327,14 @@ rpt.email <- function (x, y, n, w)
         }
     }
     if (proceed) {
-        cat("Emailing document", out.file, "to", paste0(x, "List"), 
-            "...\n")
+        cat("Emailing document", out.file, "to", h, "...\n")
         y <- paste0("reflecting flows to ", format(day.to.date(flo.dt), 
             "%A, %B %d, %Y"), ".")
         y <- paste0("Please find below the latest copy of the ", 
             x, " report, ", y)
         y <- paste0("Dear All,<p>", y, "</p>", html.signature())
         if (w) 
-            email(paste0(x, "List"), paste0(x, ": ", flo.dt), 
-                y, out.file, T)
+            email(h, paste0(x, ": ", flo.dt), y, out.file, T)
     }
     if (w) 
         sink()
