@@ -8268,41 +8268,32 @@ rgb.diff <- function (x, y)
 #' rpt.email
 #' 
 #' emails report
-#' @param x = report name
-#' @param y = output type (".csv", ".pdf", etc.)
-#' @param n = T/F depending on whether you're checking latest
-#' @param w = T/F depending on whether you're sending the email or testing
-#' @keywords rpt.email
-#' @export
-#' @family rpt
-
-rpt.email <- function (x, y, n, w) 
-{
-    rpt.email.underlying(x, y, n, w, paste0(x, "List"), paste0(x, 
-        "Email.log"))
-}
-
-#' rpt.email.underlying
-#' 
-#' emails report
-#' @param x = report name
+#' @param x = folder where the report is generated
 #' @param y = output type (".csv", ".pdf", etc.)
 #' @param n = T/F depending on whether you're checking latest
 #' @param w = T/F depending on whether you're sending the email or testing
 #' @param h = the email address(es) of the recipient(s)
 #' @param u = path to log file
-#' @keywords rpt.email.underlying
+#' @param v = report name(s)
+#' @keywords rpt.email
 #' @export
 #' @family rpt
 
-rpt.email.underlying <- function (x, y, n, w, h, u) 
+rpt.email <- function (x, y, n, w, h, u, v) 
 {
+    if (missing(h)) 
+        h <- paste0(x, "List")
+    if (missing(u)) 
+        u <- paste0(x, "Email.log")
+    if (missing(v)) 
+        v <- x
     fldr <- paste0("C:\\temp\\Automation\\R\\", x)
     u <- paste(fldr, u, sep = "\\")
-    file.kill(u)
-    if (w) 
+    if (w) {
+        file.kill(u)
         sink(file = u, append = FALSE, type = c("output", "message"), 
             split = FALSE)
+    }
     flo.dt <- paste(fldr, "Exhibits", "FlowDate.txt", sep = "\\")
     proceed <- file.exists(flo.dt)
     if (proceed) {
@@ -8319,25 +8310,62 @@ rpt.email.underlying <- function (x, y, n, w, h, u)
                 publish.weekly.last(), "...\n")
     }
     if (proceed) {
-        out.file <- paste0(dir.publications(x), "\\", x, "-", 
+        out.files <- paste0(dir.publications(x), "\\", v, "-", 
             flo.dt, y)
-        proceed <- file.exists(out.file)
-        if (!proceed) {
-            cat("Aborting: File", out.file, "does not exist ...\n")
+        proceed <- file.exists(out.files)
+        if (any(!proceed)) {
+            err.raise(out.files[!proceed], T, "Aborting: The following files do not exist")
         }
+        proceed <- all(proceed)
     }
     if (proceed) {
-        cat("Emailing document", out.file, "to", h, "...\n")
-        y <- paste0("reflecting flows to ", format(day.to.date(flo.dt), 
-            "%A, %B %d, %Y"), ".")
-        y <- paste0("Please find below the latest copy of the ", 
-            x, " report, ", y)
-        y <- paste0("Dear All,<p>", y, "</p>", html.signature())
-        if (w) 
-            email(h, paste0(x, ": ", flo.dt), y, out.file, T)
+        if (length(h) == length(v)) {
+            for (i in 1:length(h)) rpt.email.send(v[i], h[i], 
+                flo.dt, w, out.files[i])
+        }
+        else if (length(h) == 1) {
+            rpt.email.send(x, h, flo.dt, w, out.files)
+        }
+        else if (length(v) == 1) {
+            stop("Can't handle this yet ...\n")
+        }
+        else {
+            stop("Can't handle this yet ...\n")
+        }
     }
     if (w) 
         sink()
+    invisible()
+}
+
+#' rpt.email.send
+#' 
+#' emails report
+#' @param x = report name
+#' @param y = the email address(es) of the recipient(s)
+#' @param n = flow date
+#' @param w = T/F depending on whether you're sending the email or testing
+#' @param h = file(s) to email
+#' @keywords rpt.email.send
+#' @export
+#' @family rpt
+
+rpt.email.send <- function (x, y, n, w, h) 
+{
+    err.raise(h, T, paste("Emailing the following to", y))
+    z <- paste0("reflecting flows to ", format(day.to.date(n), 
+        "%A, %B %d, %Y"), ".")
+    if (length(h) == 1) {
+        z <- paste0("Please find below the latest copy of the ", 
+            x, " report, ", z)
+    }
+    else {
+        z <- paste0("Please find below the latest copies of the ", 
+            x, " reports, ", z)
+    }
+    z <- paste0("Dear All,<p>", z, "</p>", html.signature())
+    y <- ifelse(w, y, "Vikram.C.Srimurthy@epfrglobal.com")
+    email(y, paste0(x, ": ", n), z, h, T)
     invisible()
 }
 

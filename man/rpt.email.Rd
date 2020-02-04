@@ -4,21 +4,27 @@
 \alias{rpt.email}
 \title{rpt.email}
 \usage{
-rpt.email(x, y, n, w)
+rpt.email(x, y, n, w, h, u, v)
 }
 \arguments{
-\item{x}{= report name}
+\item{x}{= folder where the report is generated}
 
 \item{y}{= output type (".csv", ".pdf", etc.)}
 
 \item{n}{= T/F depending on whether you're checking latest}
 
 \item{w}{= T/F depending on whether you're sending the email or testing}
+
+\item{h}{= the email address(es) of the recipient(s)}
+
+\item{u}{= path to log file}
+
+\item{v}{= report name(s)}
 }
 \description{
 emails report
 }
 \seealso{
-Other rpt: \code{\link{rpt.email.underlying}}
+Other rpt: \code{\link{rpt.email.send}}
 }
 \keyword{rpt.email}
