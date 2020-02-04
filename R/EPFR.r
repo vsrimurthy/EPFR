@@ -2469,7 +2469,12 @@ fcn.dates.parse <- function (x)
 
 fcn.dir <- function () 
 {
-    z <- machine("C:\\temp\\Automation", "C:\\Users\\vik\\Documents")
+    if (Sys.info()[["nodename"]] != "OpsServerDev") {
+        z <- "C:\\temp\\Automation"
+    }
+    else {
+        z <- "C:\\Users\\vik\\Documents"
+    }
     z <- vec.read(paste(z, "root.txt", sep = "\\"), F)
     z
 }
@@ -4847,7 +4852,9 @@ html.flow.underlying <- function (x)
 
 html.signature <- function () 
 {
-    paste0("<p>Sincerely,</p><p>Vikram K. Srimurthy<br>Quantitative Team, EPFR</p>")
+    z <- quant.info(machine.info("Quant"), "Name")
+    z <- paste0("<p>Sincerely,</p><p>", z, "<br>Quantitative Team, EPFR</p>")
+    z
 }
 
 #' html.tbl
@@ -5285,19 +5292,17 @@ load.mo.vbl.1obj <- function (beg, end, mk.fcn, optional.args, vbl.name, yyyy, e
     z
 }
 
-#' machine
+#' machine.info
 #' 
 #' folder of function source file
-#' @param x = argument that applies to Vik's machine
-#' @param y = argument that applies to prod dev
-#' @keywords machine
+#' @param x = a column in the classif-Machines file
+#' @keywords machine.info
 #' @export
 
-machine <- function (x, y) 
+machine.info <- function (x) 
 {
-    if (Sys.info()[["nodename"]] != "OpsServerDev") 
-        x
-    else y
+    mat.read(parameters("classif-Machines"), "\t")[Sys.info()[["nodename"]], 
+        x]
 }
 
 #' map.classif
@@ -5825,8 +5830,7 @@ mat.to.xlModel <- function (x, y = 2, n = 5, w = F)
 mat.write <- function (x, y, n = ",") 
 {
     if (missing(y)) 
-        y <- paste(machine("C:\\temp", "C:\\Users\\vik\\Documents\\temp"), 
-            "write.csv", sep = "\\")
+        y <- paste(machine.info("temp"), "write.csv", sep = "\\")
     write.table(x, y, sep = n, col.names = NA, quote = F)
     invisible()
 }
@@ -7944,6 +7948,19 @@ qtr.to.int <- function (x)
     z
 }
 
+#' quant.info
+#' 
+#' folder of function source file
+#' @param x = unique identifier of the quant
+#' @param y = a column in the classif-Quants file
+#' @keywords quant.info
+#' @export
+
+quant.info <- function (x, y) 
+{
+    mat.read(parameters("classif-Quants"), "\t")[x, y]
+}
+
 #' read.EPFR
 #' 
 #' reads in the file
@@ -8364,7 +8381,7 @@ rpt.email.send <- function (x, y, n, w, h)
             x, " reports, ", z)
     }
     z <- paste0("Dear All,<p>", z, "</p>", html.signature())
-    y <- ifelse(w, y, "Vikram.C.Srimurthy@epfrglobal.com")
+    y <- ifelse(w, y, quant.info(machine.info("Quant"), "email"))
     email(y, paste0(x, ": ", n), z, h, T)
     invisible()
 }
