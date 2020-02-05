@@ -138,22 +138,25 @@ mk.1mPerfTrend <- function (x, y, n)
 #' @param n = text of the email
 #' @param w = a vector of paths to attachement
 #' @param h = T/F depending on whether you want to use html
+#' @param u = the email address(es) being CC'ed
+#' @param v = the email address(es) being BCC'ed
 #' @keywords email
 #' @export
 #' @import RDCOMClient
 
-email <- function (x, y, n, w = "", h = F) 
+email <- function (x, y, n, w = "", h = F, u, v) 
 {
     z <- COMCreate("Outlook.Application")
     z <- z$CreateItem(0)
     z[["To"]] <- x
+    if (!missing(u)) 
+        z[["Cc"]] <- u
+    if (!missing(v)) 
+        z[["Bcc"]] <- v
     z[["subject"]] <- y
-    if (h) {
+    if (h) 
         z[["HTMLBody"]] <- n
-    }
-    else {
-        z[["body"]] <- n
-    }
+    else z[["body"]] <- n
     for (j in w) if (file.exists(j)) 
         z[["Attachments"]]$Add(j)
     z$Send()

@@ -4,7 +4,7 @@
 \alias{email}
 \title{email}
 \usage{
-email(x, y, n, w = "", h = F)
+email(x, y, n, w = "", h = F, u, v)
 }
 \arguments{
 \item{x}{= the email address(es) of the recipient(s)}
@@ -16,6 +16,10 @@ email(x, y, n, w = "", h = F)
 \item{w}{= a vector of paths to attachement}
 
 \item{h}{= T/F depending on whether you want to use html}
+
+\item{u}{= the email address(es) being CC'ed}
+
+\item{v}{= the email address(es) being BCC'ed}
 }
 \description{
 emails <x>
