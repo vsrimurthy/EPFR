@@ -806,7 +806,7 @@ britten.jones.data <- function (x, y, n, w = NULL)
             n.beg <- find.data(w1, T)
             n.end <- find.data(w1, F)
             if (n == 1 | n.end - n.beg + 1 == sum(w1)) {
-                z <- britten.jones.data.stack(z, df[n.beg:n.end, 
+                z <- britten.jones.data.stack(df[n.beg:n.end, 
                   ], n, prd.ret, n.beg, i)
             }
             else {
@@ -819,9 +819,8 @@ britten.jones.data <- function (x, y, n, w = NULL)
                   n.beg <- c(n.beg, as.numeric(names(vec)) + 
                     as.numeric(vec))
                   n.end <- c(as.numeric(names(vec)) - 1, n.end)
-                  for (j in 1:length(n.beg)) z <- britten.jones.data.stack(z, 
-                    df[n.beg[j]:n.end[j], ], n, prd.ret, n.beg[j], 
-                    i)
+                  for (j in 1:length(n.beg)) z <- britten.jones.data.stack(df[n.beg[j]:n.end[j], 
+                    ], n, prd.ret, n.beg[j], i)
                 }
             }
         }
@@ -832,44 +831,41 @@ britten.jones.data <- function (x, y, n, w = NULL)
 #' britten.jones.data.stack
 #' 
 #' applies the Britten-Jones transformation to a subset and then stacks
-#' @param rslt =
-#' @param df =
-#' @param retHz =
-#' @param prd.ret =
-#' @param n.beg =
-#' @param entity =
+#' @param x =
+#' @param y =
+#' @param n =
+#' @param w =
+#' @param h =
 #' @keywords britten.jones.data.stack
 #' @export
 #' @family britten
 
-britten.jones.data.stack <- function (rslt, df, retHz, prd.ret, n.beg, entity) 
+britten.jones.data.stack <- function (x, y, n, w, h) 
 {
-    w <- colSums(df[, -1] == 0) == dim(df)[1]
-    if (any(w)) {
-        w <- !is.element(dimnames(df)[[2]], dimnames(df)[[2]][-1][w])
-        df <- df[, w]
+    u <- colSums(x[, -1] == 0) == dim(x)[1]
+    if (any(u)) {
+        u <- !is.element(dimnames(x)[[2]], dimnames(x)[[2]][-1][u])
+        x <- x[, u]
     }
-    if (retHz > 1) {
+    if (y > 1) {
         vec <- NULL
-        for (j in names(prd.ret)[-retHz]) vec <- c(vec, prd.ret[[j]][n.beg, 
-            entity])
-        n <- dim(df)[1]
-        df <- britten.jones(df, vec)
-        if (is.null(df)) 
-            cat("Discarding", n, "observations for", entity, 
-                "due to Britten-Jones singularity ...\n")
+        for (j in names(n)[-y]) vec <- c(vec, n[[j]][w, h])
+        n <- dim(x)[1]
+        x <- britten.jones(x, vec)
+        if (is.null(x)) 
+            cat("Discarding", n, "observations for", h, "due to Britten-Jones singularity ...\n")
     }
-    if (!is.null(df)) 
-        df <- mat.ex.matrix(zav(t(map.rname(t(df), c("ActRet", 
+    if (!is.null(x)) 
+        x <- mat.ex.matrix(zav(t(map.rname(t(x), c("ActRet", 
             paste0("Q", 2:4), "TxB")))))
-    if (!is.null(df)) {
+    if (!is.null(x)) {
         if (is.null(z)) {
-            dimnames(df)[[1]] <- 1:dim(df)[1]
-            z <- df
+            dimnames(x)[[1]] <- 1:dim(x)[1]
+            z <- x
         }
         else {
-            dimnames(df)[[1]] <- 1:dim(df)[1] + dim(z)[1]
-            z <- rbind(z, df)
+            dimnames(x)[[1]] <- 1:dim(x)[1] + dim(z)[1]
+            z <- rbind(z, x)
         }
     }
     z
@@ -2246,7 +2242,7 @@ fcn.canonical <- function (x)
             z$canonical <- F
         }
     }
-    canon <- c("fcn", "x", "y", "n", "w", "h")
+    canon <- c("fcn", "x", "y", "n", "w", "h", "u")
     if (z$canonical) {
         if (length(z$args) < length(canon)) {
             n <- length(z$args)
@@ -12187,7 +12183,7 @@ strat.path <- function (x, y)
 #' @keywords stunden
 #' @export
 
-stunden <- function (x, y = 8) 
+stunden <- function (x = 5, y = 8) 
 {
     z <- y - 1
     while (mean(z) != y) {

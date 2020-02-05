@@ -4,20 +4,18 @@
 \alias{britten.jones.data.stack}
 \title{britten.jones.data.stack}
 \usage{
-britten.jones.data.stack(rslt, df, retHz, prd.ret, n.beg, entity)
+britten.jones.data.stack(x, y, n, w, h)
 }
 \arguments{
-\item{rslt}{=}
+\item{x}{=}
 
-\item{df}{=}
+\item{y}{=}
 
-\item{retHz}{=}
+\item{n}{=}
 
-\item{prd.ret}{=}
+\item{w}{=}
 
-\item{n.beg}{=}
-
-\item{entity}{=}
+\item{h}{=}
 }
 \description{
 applies the Britten-Jones transformation to a subset and then stacks
