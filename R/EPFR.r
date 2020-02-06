@@ -13083,6 +13083,17 @@ vec.unique <- function (x)
     z
 }
 
+#' version
+#' 
+#' current version of R
+#' @keywords version
+#' @export
+
+version <- function () 
+{
+    version[["version.string"]]
+}
+
 #' weekday.to.name
 #' 
 #' Converts to 0 = Sun, 1 = Mon, ..., 6 = Sat
