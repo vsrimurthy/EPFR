@@ -8343,7 +8343,8 @@ rpt.email <- function (x, y, n, w, h, u, v)
             rpt.email.send(x, h, flo.dt, w, out.files)
         }
         else if (length(v) == 1) {
-            stop("Can't handle this yet ...\n")
+            for (i in 1:length(h)) rpt.email.send(x, h[i], flo.dt, 
+                w, out.files)
         }
         else {
             stop("Can't handle this yet ...\n")
