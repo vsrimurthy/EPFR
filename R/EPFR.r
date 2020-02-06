@@ -13083,13 +13083,13 @@ vec.unique <- function (x)
     z
 }
 
-#' version
+#' versionR
 #' 
 #' current version of R
-#' @keywords version
+#' @keywords versionR
 #' @export
 
-version <- function () 
+versionR <- function () 
 {
     version[["version.string"]]
 }
