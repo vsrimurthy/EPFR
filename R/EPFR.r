@@ -8334,6 +8334,15 @@ rpt.email <- function (x, y, n, w, h, u, v)
         }
         proceed <- all(proceed)
     }
+    y <- paste(dir.parameters("parameters"), "emails.txt", sep = "\\")
+    z <- vec.read(y, T)
+    if (proceed & any(names(z) == x)) {
+        if (z[x] >= flo.dt) {
+            cat("Aborting: The email for", x, "has already gone out for", 
+                z[x], "... \n")
+            proceed <- F
+        }
+    }
     if (proceed) {
         if (length(h) == length(v)) {
             for (i in 1:length(h)) rpt.email.send(v[i], h[i], 
@@ -8349,6 +8358,8 @@ rpt.email <- function (x, y, n, w, h, u, v)
         else {
             stop("Can't handle this yet ...\n")
         }
+        z[x] <- flo.dt
+        vec.write(z, y)
     }
     if (w) 
         sink()
@@ -13081,6 +13092,21 @@ vec.unique <- function (x)
     z <- z[!duplicated(z)]
     z <- z[order(z)]
     z
+}
+
+#' vec.write
+#' 
+#' writes <x> to <y>
+#' @param x = a named vector
+#' @param y = path to a vector
+#' @keywords vec.write
+#' @export
+#' @family vec
+
+vec.write <- function (x, y) 
+{
+    write.table(matrix(c(names(x), x), length(x), 2), y, row.names = F, 
+        col.names = F, quote = F, sep = ",")
 }
 
 #' versionR
