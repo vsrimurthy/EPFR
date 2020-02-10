@@ -142,6 +142,7 @@ mk.1mPerfTrend <- function (x, y, n)
 #' @param v = the email address(es) being BCC'ed
 #' @keywords email
 #' @export
+#' @family email
 #' @import RDCOMClient
 
 email <- function (x, y, n, w = "", h = F, u, v) 
@@ -1873,6 +1874,53 @@ EHD <- function (x, y, n, w, h, u = NULL)
     z <- mat.index(z)
     z <- z[order(names(z))]
     z
+}
+
+#' email.exists
+#' 
+#' T/F depending on whether email already went out
+#' @param x = report name
+#' @param y = date for which you want to send the report
+#' @keywords email.exists
+#' @export
+#' @family email
+
+email.exists <- function (x, y) 
+{
+    z <- F
+    n <- paste(dir.parameters("parameters"), "emails.txt", sep = "\\")
+    if (file.exists(n)) {
+        n <- vec.read(n, T)
+        if (any(names(n) == x)) {
+            z <- n[x] >= y
+        }
+    }
+    z
+}
+
+#' email.record
+#' 
+#' updates the email record. Returns nothing.
+#' @param x = report name
+#' @param y = date for which you sent the report
+#' @keywords email.record
+#' @export
+#' @family email
+
+email.record <- function (x, y) 
+{
+    n <- paste(dir.parameters("parameters"), "emails.txt", sep = "\\")
+    if (file.exists(n)) {
+        z <- vec.read(n, T)
+        if (any(names(z) == x)) {
+            z[x] <- max(z[x], y)
+        }
+        else {
+            z[x] <- y
+        }
+        vec.write(z, n)
+    }
+    invisible()
 }
 
 #' err.raise
@@ -8334,14 +8382,9 @@ rpt.email <- function (x, y, n, w, h, u, v)
         }
         proceed <- all(proceed)
     }
-    y <- paste(dir.parameters("parameters"), "emails.txt", sep = "\\")
-    z <- vec.read(y, T)
-    if (proceed & any(names(z) == x)) {
-        if (z[x] >= flo.dt) {
-            cat("Aborting: The email for", x, "has already gone out for", 
-                z[x], "... \n")
-            proceed <- F
-        }
+    if (proceed & email.exists(x, flo.dt)) {
+        cat("Aborting: The email for", x, "has already gone out ... \n")
+        proceed <- F
     }
     if (proceed) {
         if (length(h) == length(v)) {
@@ -8358,8 +8401,7 @@ rpt.email <- function (x, y, n, w, h, u, v)
         else {
             stop("Can't handle this yet ...\n")
         }
-        z[x] <- flo.dt
-        vec.write(z, y)
+        email.record(x, flo.dt)
     }
     if (w) 
         sink()
