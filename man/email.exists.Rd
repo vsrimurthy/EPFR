@@ -15,7 +15,8 @@ email.exists(x, y)
 T/F depending on whether email already went out
 }
 \seealso{
-Other email: \code{\link{email.record}},
+Other email: \code{\link{email.kill}},
+  \code{\link{email.list}}, \code{\link{email.record}},
   \code{\link{email}}
 }
 \keyword{email.exists}

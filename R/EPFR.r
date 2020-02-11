@@ -1887,14 +1887,47 @@ EHD <- function (x, y, n, w, h, u = NULL)
 
 email.exists <- function (x, y) 
 {
-    z <- F
+    z <- email.list()
+    if (!is.null(z) & any(names(z) == x)) 
+        z <- z[x] >= y
+    else z <- F
+    z
+}
+
+#' email.kill
+#' 
+#' deletes entry <x> in the email record. Returns nothing.
+#' @param x = report name
+#' @keywords email.kill
+#' @export
+#' @family email
+
+email.kill <- function (x) 
+{
     n <- paste(dir.parameters("parameters"), "emails.txt", sep = "\\")
     if (file.exists(n)) {
-        n <- vec.read(n, T)
-        if (any(names(n) == x)) {
-            z <- n[x] >= y
+        z <- vec.read(n, T)
+        if (any(names(z) == x)) {
+            z <- z[!is.element(names(z), x)]
+            vec.write(z, n)
         }
     }
+    invisible()
+}
+
+#' email.list
+#' 
+#' named vector of emails and sent dates
+#' @keywords email.list
+#' @export
+#' @family email
+
+email.list <- function () 
+{
+    z <- paste(dir.parameters("parameters"), "emails.txt", sep = "\\")
+    if (file.exists(z)) 
+        z <- vec.read(z, T)
+    else z <- NULL
     z
 }
 
