@@ -4686,7 +4686,7 @@ html.flow.breakdown <- function (x, y, n = 0)
     x <- x * z
     h <- sum(x > 0)
     m <- length(x) - h
-    x <- paste(names(x), "($", int.format(round(abs(x))), "m)")
+    x <- paste(names(x), "($", int.format(round(abs(x))), " million)")
     if (h == 0) {
         z <- paste("This week's", ifelse(z > 0, "inflows", "outflows"), 
             "were driven by sundry small contributions which overwhelmed", 
@@ -4733,13 +4733,13 @@ html.flow.english <- function (x, y, n, w)
     z <- format(day.to.date(y["date"]), "%B %d %Y")
     z <- paste("For the week ended", z, "fund flow data from EPFR for", 
         y["AssetClass"], "($")
-    z <- paste0(z, int.format(x["AUM"]), "m total assets) reported net")
+    z <- paste0(z, int.format(x["AUM"]), " million in total assets) reported net")
     z <- paste(z, ifelse(x["last"] > 0, "INFLOWS", "OUTFLOWS"), 
         "of $")
-    z <- paste0(z, int.format(abs(x["last"])), "m vs an")
+    z <- paste0(z, int.format(abs(x["last"])), " million vs an")
     z <- paste(z, ifelse(x["prior"] > 0, "inflow", "outflow"), 
         "of $")
-    z <- paste0(z, int.format(abs(x["prior"])), "m the prior week.")
+    z <- paste0(z, int.format(abs(x["prior"])), " million the prior week.")
     if (x["straight"] > 0) {
         u <- paste("These", ifelse(x["last"] > 0, "inflows", 
             "outflows"), "have been taking place for")
@@ -4780,16 +4780,16 @@ html.flow.english <- function (x, y, n, w)
     }
     if (x["YtdCountInWks"] > 0 & x["YtdCountOutWks"] > 0) {
         u <- paste0(u, " (largest inflow $", int.format(x["YtdBigIn"]), 
-            "m; largest outflow $", int.format(x["YtdBigOut"]), 
-            "m)")
+            " million; largest outflow $", int.format(x["YtdBigOut"]), 
+            " million)")
     }
     else if (x["YtdCountInWks"] > 0) {
         u <- paste0(u, " (largest inflow $", int.format(x["YtdBigIn"]), 
-            "m)")
+            " million)")
     }
     else {
         u <- paste0(u, " (largest outflow $", int.format(x["YtdBigOut"]), 
-            "m)")
+            " million)")
     }
     z <- c(z, u)
     u <- paste("For", txt.left(y["PriorYrWeek"], 4), "there were")
@@ -4814,51 +4814,51 @@ html.flow.english <- function (x, y, n, w)
     if (x["PriorYrCountInWks"] > 0 & x["PriorYrCountOutWks"] > 
         0) {
         u <- paste0(u, " (largest inflow $", int.format(x["PriorYrBigIn"]), 
-            "m; largest outflow $", int.format(x["PriorYrBigOut"]), 
-            "m)")
+            " million; largest outflow $", int.format(x["PriorYrBigOut"]), 
+            " million)")
     }
     else if (x["PriorYrCountInWks"] > 0) {
         u <- paste0(u, " (largest inflow $", int.format(x["PriorYrBigIn"]), 
-            "m)")
+            " million)")
     }
     else {
         u <- paste0(u, " (largest outflow $", int.format(x["PriorYrBigOut"]), 
-            "m)")
+            " million)")
     }
     z <- c(z, u)
     if (x["FourWeekAvg"] > 0) {
         u <- paste0("4-week moving average: $", int.format(x["FourWeekAvg"]), 
-            "m inflow (4-week cumulative: $", int.format(x["FourWeekSum"]), 
-            "m inflow)")
+            " million inflow (4-week cumulative: $", int.format(x["FourWeekSum"]), 
+            " million inflow)")
     }
     else {
         u <- paste0("4-week moving average: $", int.format(-x["FourWeekAvg"]), 
-            "m outflow (4-week cumulative: $", int.format(-x["FourWeekSum"]), 
-            "m outflow)")
+            " million outflow (4-week cumulative: $", int.format(-x["FourWeekSum"]), 
+            " million outflow)")
     }
     z <- c(z, u)
     u <- paste(txt.left(y["date"], 4), "flow data (through", 
         format(day.to.date(y["date"]), "%B %d"))
     if (x["YtdCumSum"] > 0) {
-        u <- paste0(u, "): $", int.format(x["YtdCumSum"]), "m cumulative INFLOW, or weekly average of $", 
-            int.format(x["YtdCumAvg"]), "m inflow")
+        u <- paste0(u, "): $", int.format(x["YtdCumSum"]), " million cumulative INFLOW, or a weekly average inflow of $", 
+            int.format(x["YtdCumAvg"]), " million")
     }
     else {
-        u <- paste0(u, "): $", int.format(-x["YtdCumSum"]), "m cumulative OUTFLOW, or weekly average of $", 
-            int.format(-x["YtdCumAvg"]), "m outflow")
+        u <- paste0(u, "): $", int.format(-x["YtdCumSum"]), " million cumulative OUTFLOW, or a weekly average outflow of $", 
+            int.format(-x["YtdCumAvg"]), " million")
     }
     z <- c(z, u)
     u <- paste(txt.left(y["PriorYrWeek"], 4), "flow data (through", 
         format(day.to.date(y["PriorYrWeek"]), "%B %d"))
     if (x["PriorYrCumSum"] > 0) {
         u <- paste0(u, "): $", int.format(x["PriorYrCumSum"]), 
-            "m cumulative INFLOW, or weekly average of $", int.format(x["PriorYrCumAvg"]), 
-            "m inflow")
+            " million cumulative INFLOW, or a weekly average inflow of $", 
+            int.format(x["PriorYrCumAvg"]), " million")
     }
     else {
         u <- paste0(u, "): $", int.format(-x["PriorYrCumSum"]), 
-            "m cumulative OUTFLOW, or weekly average of $", int.format(-x["PriorYrCumAvg"]), 
-            "m outflow")
+            " million cumulative OUTFLOW, or a weekly average outflow of $", 
+            int.format(-x["PriorYrCumAvg"]), " million")
     }
     z <- c(z, u)
     if (!missing(n) & !missing(w)) 
@@ -8415,8 +8415,9 @@ rpt.email <- function (x, y, n, w, h, u, v)
         }
         proceed <- all(proceed)
     }
-    if (proceed & email.exists(x, flo.dt)) {
-        cat("Aborting: The email for", x, "has already gone out ... \n")
+    u <- substring(u, nchar(fldr) + 2, nchar(u) - nchar("Email.log"))
+    if (proceed & email.exists(u, flo.dt)) {
+        cat("Aborting: The email for", u, "has already gone out ... \n")
         proceed <- F
     }
     if (proceed) {
@@ -8434,7 +8435,7 @@ rpt.email <- function (x, y, n, w, h, u, v)
         else {
             stop("Can't handle this yet ...\n")
         }
-        email.record(x, flo.dt)
+        email.record(u, flo.dt)
     }
     if (w) 
         sink()
@@ -8468,7 +8469,7 @@ rpt.email.send <- function (x, y, n, w, h)
     }
     z <- paste0("Dear All,<p>", z, "</p>", html.signature())
     y <- ifelse(w, y, quant.info(machine.info("Quant"), "email"))
-    email(y, paste0(x, ": ", n), z, h, T)
+    email(y, paste0("EPFR ", x, ": ", n), z, h, T)
     invisible()
 }
 
@@ -12212,8 +12213,8 @@ strat.email <- function (x, y, n, w = "All")
         "this file"), "are for a single")
     z <- paste(z, "period only. For multi-period lookbacks aggregate across time.</p>")
     z <- paste0(z, html.signature())
-    email(n, paste(txt.name.format(y), html.and(x)), z, strat.path(x, 
-        y), T)
+    email(n, paste("EPFR", txt.name.format(y), html.and(x)), 
+        z, strat.path(x, y), T)
     invisible()
 }
 
