@@ -4501,7 +4501,7 @@ ftp.upload.script <- function (x, y, n, w, h)
         w <- ftp.credential("user")
     if (missing(h)) 
         h <- ftp.credential("pwd")
-    z <- c(paste0("open", n), w, h, paste("cd \"", x, "\""), 
+    z <- c(paste("open", n), w, h, paste0("cd \"", x, "\""), 
         ftp.upload.script.underlying(y), "disconnect", "quit")
     z
 }
