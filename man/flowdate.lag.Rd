@@ -16,6 +16,7 @@ lags <x> by <y> daily flow-publication dates
 }
 \seealso{
 Other flowdate: \code{\link{flowdate.diff}},
+  \code{\link{flowdate.ex.AllocMo}},
   \code{\link{flowdate.ex.int}},
   \code{\link{flowdate.ex.yyyymm}},
   \code{\link{flowdate.exists}},

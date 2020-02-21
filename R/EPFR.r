@@ -3542,6 +3542,27 @@ flowdate.diff <- function (x, y)
     obj.diff(flowdate.to.int, x, y)
 }
 
+#' flowdate.ex.AllocMo
+#' 
+#' Returns the flowdates corresponding to <x> (inverse of yyyymmdd.to.AllocMo)
+#' @param x = a single yyyymm
+#' @param y = calendar day in the next month when allocations are known (usually the 23rd)
+#' @keywords flowdate.ex.AllocMo
+#' @export
+#' @family flowdate
+
+flowdate.ex.AllocMo <- function (x, y = 23) 
+{
+    x <- yyyymm.lag(x, -1)
+    z <- flowdate.ex.yyyymm(x, F)
+    z <- z[as.numeric(txt.right(z, 2)) >= y]
+    x <- yyyymm.lag(x, -1)
+    z <- c(z, flowdate.ex.yyyymm(x, F))
+    z <- z[as.numeric(txt.right(z, 2)) < y | yyyymmdd.to.yyyymm(z) < 
+        x]
+    z
+}
+
 #' flowdate.ex.int
 #' 
 #' the <x>th daily flow-publication date after Friday, December 29, 2017

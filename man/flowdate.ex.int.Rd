@@ -14,6 +14,7 @@ the <x>th daily flow-publication date after Friday, December 29, 2017
 }
 \seealso{
 Other flowdate: \code{\link{flowdate.diff}},
+  \code{\link{flowdate.ex.AllocMo}},
   \code{\link{flowdate.ex.yyyymm}},
   \code{\link{flowdate.exists}},
   \code{\link{flowdate.lag}}, \code{\link{flowdate.seq}},

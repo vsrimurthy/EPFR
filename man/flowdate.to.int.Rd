@@ -14,6 +14,7 @@ number of daily flow-publication dates after Friday, December 29, 2017
 }
 \seealso{
 Other flowdate: \code{\link{flowdate.diff}},
+  \code{\link{flowdate.ex.AllocMo}},
   \code{\link{flowdate.ex.int}},
   \code{\link{flowdate.ex.yyyymm}},
   \code{\link{flowdate.exists}},
