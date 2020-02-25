@@ -9641,17 +9641,16 @@ sql.1dFloMo.SecFlow <- function (x, y, n)
     w <- as.matrix(mat.read(parameters("classif-GSec")))[, "StyleSector"]
     w["Fins"] <- paste(w[c("Fins", "REst")], collapse = ", ")
     w <- map.rname(w, h)
+    u <- paste0("case when t2.StyleSector in (", w, ") then 100 else 0 end")
+    u <- ifelse(is.na(w), 0, u)
+    w <- paste0("case when t2.StyleSector in (", paste(w[!is.na(w)], 
+        collapse = ", "), ") then ")
+    u <- paste0(w, u, " else [", h, "] end")
     if (y == "Flow%") {
-        u <- paste0("case when t2.StyleSector in (", w, ") then 100 else [", 
-            h, "] end")
-        u <- ifelse(is.na(w), paste0("[", h, "]"), u)
         u <- sql.Mo("Flow", "AssetsStart", u, T)
         u <- paste0("[", h, "] ", u)
     }
     else {
-        u <- paste0("case when t2.StyleSector in (", w, ") then 100 else [", 
-            h, "] end")
-        u <- ifelse(is.na(w), paste0("[", h, "]"), u)
         u <- paste0("sum(0.01 * ", y, " * cast(", u, " as float))")
         u <- paste0("[", h, "] = ", u)
     }
