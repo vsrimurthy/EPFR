@@ -9427,7 +9427,7 @@ sql.1dFloMo.Ctry.List <- function (x)
 
 #' sql.1dFloMo.CtryFlow
 #' 
-#' SQL query for country-flow percentage for date <x>
+#' SQL query for country-flow percentage from date <x>
 #' @param x = the date for which you want flows (known one day later)
 #' @param y = FundType (one of E/B)
 #' @param n = item (one of Flow/AssetsStart/AssetsEnd/Flow\%)
@@ -9594,6 +9594,71 @@ sql.1dFloMo.Rgn <- function ()
     y <- c(sql.label(sql.tbl(y, "FundHistory", w), "t1"), "inner join", 
         "DailyData t2", "\ton t2.HFundId = t1.HFundId")
     z <- paste(sql.unbracket(sql.tbl(z, y, , "DayEnding")), collapse = "\n")
+    z
+}
+
+#' sql.1dFloMo.SecFlow
+#' 
+#' SQL query for sector-flow from date <x> for GeoId <n>
+#' @param x = the date for which you want flows (known one day later)
+#' @param y = item (one of Flow/AssetsStart/AssetsEnd/Flow\%)
+#' @param n = missing or a vector of GeoIds
+#' @keywords sql.1dFloMo.SecFlow
+#' @export
+#' @family sql
+
+sql.1dFloMo.SecFlow <- function (x, y, n) 
+{
+    h <- sql.1dFloMo.Ctry.List("Sector")
+    h <- h[h != "REst"]
+    z <- paste0("[", h, "] = avg(", names(h), ")")
+    z <- c("WeightDate", "GeographicFocus", "Advisor", z)
+    u <- c("CB", "E", "UI")
+    if (!missing(n)) 
+        u <- c(u, paste0("GeographicFocus in (", paste(n, collapse = ", "), 
+            ")"))
+    u <- sql.label(sql.FundHistory("", u, F, c("GeographicFocus", 
+        "Advisor")), "t2")
+    u <- c("SectorAllocations t1", "inner join", u, "\ton t2.HFundId = t1.HFundId")
+    z <- sql.label(sql.tbl(z, u, , "WeightDate, GeographicFocus, Advisor"), 
+        "t")
+    u <- c("WeightDate", "GeographicFocus", paste0("[", h, "] = avg([", 
+        h, "])"))
+    u <- sql.tbl(u, z, , "WeightDate, GeographicFocus")
+    if (y == "Flow%") {
+        z <- c("Flow", "AssetsStart")
+    }
+    else {
+        z <- y
+    }
+    z <- c("DayEnding", "HFundId", paste0(z, " = sum(", z, ")"))
+    z <- sql.tbl(z, "DailyData", "DayEnding >= @floDt", "DayEnding, HFundId")
+    w <- sql.label(sql.FundHistory("", c("E", "UI"), F, c("GeographicFocus", 
+        "StyleSector")), "t2")
+    z <- c(sql.label(z, "t1"), "inner join", w, "\ton t2.HFundId = t1.HFundId")
+    z <- c(z, "left join", sql.label(u, "t3"), "\ton t3.GeographicFocus = t2.GeographicFocus")
+    z <- c(z, "\t\tand datediff(month, WeightDate, DayEnding) = case when day(DayEnding) < 23 then 2 else 1 end")
+    w <- as.matrix(mat.read(parameters("classif-GSec")))[, "StyleSector"]
+    w["Fins"] <- paste(w[c("Fins", "REst")], collapse = ", ")
+    w <- map.rname(w, h)
+    if (y == "Flow%") {
+        u <- paste0("case when t2.StyleSector in (", w, ") then 100 else [", 
+            h, "] end")
+        u <- ifelse(is.na(w), paste0("[", h, "]"), u)
+        u <- sql.Mo("Flow", "AssetsStart", u, T)
+        u <- paste0("[", h, "] ", u)
+    }
+    else {
+        u <- paste0("case when t2.StyleSector in (", w, ") then 100 else [", 
+            h, "] end")
+        u <- ifelse(is.na(w), paste0("[", h, "]"), u)
+        u <- paste0("sum(0.01 * ", y, " * cast(", u, " as float))")
+        u <- paste0("[", h, "] = ", u)
+    }
+    u <- c("DayEnding = convert(char(8), DayEnding, 112)", u)
+    z <- sql.tbl(u, z, , "DayEnding")
+    z <- c(sql.declare("@floDt", "datetime", x), sql.unbracket(z))
+    z <- paste(z, collapse = "\n")
     z
 }
 

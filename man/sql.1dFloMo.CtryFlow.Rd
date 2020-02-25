@@ -16,7 +16,7 @@ sql.1dFloMo.CtryFlow(x, y, n, w)
 \item{w}{= country list (one of Ctry/LatAm)}
 }
 \description{
-SQL query for country-flow percentage for date <x>
+SQL query for country-flow percentage from date <x>
 }
 \seealso{
 Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
@@ -33,6 +33,7 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.1dFloMo.FI.underlying}},
   \code{\link{sql.1dFloMo.FI}},
   \code{\link{sql.1dFloMo.Rgn}},
+  \code{\link{sql.1dFloMo.SecFlow}},
   \code{\link{sql.1dFloMo.filter}},
   \code{\link{sql.1dFloMo.grp}},
   \code{\link{sql.1dFloMo.select.wrapper}},
