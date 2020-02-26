@@ -9613,7 +9613,7 @@ sql.1dFloMo.SecFlow <- function (x, y, n)
     h <- h[h != "REst"]
     z <- paste0("[", h, "] = avg(", names(h), ")")
     z <- c("WeightDate", "GeographicFocus", "Advisor", z)
-    u <- c("CB", "E", "UI")
+    u <- c("E", "UI")
     if (!missing(n)) 
         u <- c(u, paste0("GeographicFocus in (", paste(n, collapse = ", "), 
             ")"))
