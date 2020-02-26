@@ -9633,7 +9633,11 @@ sql.1dFloMo.SecFlow <- function (x, y, n)
     }
     z <- c("DayEnding", "HFundId", paste0(z, " = sum(", z, ")"))
     z <- sql.tbl(z, "DailyData", "DayEnding >= @floDt", "DayEnding, HFundId")
-    w <- sql.label(sql.FundHistory("", c("E", "UI"), F, c("GeographicFocus", 
+    w <- c("E", "UI")
+    if (!missing(n)) 
+        w <- c(w, paste0("GeographicFocus in (", paste(n, collapse = ", "), 
+            ")"))
+    w <- sql.label(sql.FundHistory("", w, F, c("GeographicFocus", 
         "StyleSector")), "t2")
     z <- c(sql.label(z, "t1"), "inner join", w, "\ton t2.HFundId = t1.HFundId")
     z <- c(z, "left join", sql.label(u, "t3"), "\ton t3.GeographicFocus = t2.GeographicFocus")
