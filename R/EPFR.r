@@ -9430,7 +9430,7 @@ sql.1dFloMo.Ctry.List <- function (x)
 #' SQL query for country-flow percentage from date <x>
 #' @param x = the date for which you want flows (known one day later)
 #' @param y = FundType (one of E/B)
-#' @param n = item (one of Flow/AssetsStart/AssetsEnd/Flow\%)
+#' @param n = item (one of Flow/AssetsStart/AssetsEnd/Flow\%/etc.)
 #' @param w = country list (one of Ctry/LatAm)
 #' @keywords sql.1dFloMo.CtryFlow
 #' @export
@@ -9449,8 +9449,8 @@ sql.1dFloMo.CtryFlow <- function (x, y, n, w)
     u <- c("WeightDate", "GeographicFocus", paste0("[", h, "] = avg([", 
         h, "])"))
     u <- sql.tbl(u, z, , "WeightDate, GeographicFocus")
-    if (n == "Flow%") {
-        z <- c("Flow", "AssetsStart")
+    if (txt.right(n, 1) == "%") {
+        z <- c(txt.left(n, nchar(n) - 1), "AssetsStart")
     }
     else {
         z <- n
@@ -9463,11 +9463,12 @@ sql.1dFloMo.CtryFlow <- function (x, y, n, w)
     z <- c(z, "left join", sql.label(u, "t3"), "\ton t3.GeographicFocus = t2.GeographicFocus")
     z <- c(z, "\t\tand datediff(month, WeightDate, DayEnding) = case when day(DayEnding) < 23 then 2 else 1 end")
     w <- Ctry.info(h, "GeoId")
-    if (n == "Flow%") {
+    if (txt.right(n, 1) == "%") {
         u <- paste0("case when t2.GeographicFocus = ", w, " then 100 else [", 
             h, "] end")
         u <- ifelse(is.na(w), paste0("[", h, "]"), u)
-        u <- sql.Mo("Flow", "AssetsStart", u, T)
+        u <- sql.Mo(txt.left(n, nchar(n) - 1), "AssetsStart", 
+            u, T)
         u <- paste0("[", h, "] ", u)
     }
     else {
@@ -9601,7 +9602,7 @@ sql.1dFloMo.Rgn <- function ()
 #' 
 #' SQL query for sector-flow from date <x> for GeoId <n>
 #' @param x = the date for which you want flows (known one day later)
-#' @param y = item (one of Flow/AssetsStart/AssetsEnd/Flow\%)
+#' @param y = item (one of Flow/AssetsStart/AssetsEnd/Flow\%/etc.)
 #' @param n = missing or a vector of GeoIds
 #' @keywords sql.1dFloMo.SecFlow
 #' @export
@@ -9625,8 +9626,8 @@ sql.1dFloMo.SecFlow <- function (x, y, n)
     u <- c("WeightDate", "GeographicFocus", paste0("[", h, "] = avg([", 
         h, "])"))
     u <- sql.tbl(u, z, , "WeightDate, GeographicFocus")
-    if (y == "Flow%") {
-        z <- c("Flow", "AssetsStart")
+    if (txt.right(y, 1) == "%") {
+        z <- c(txt.left(y, nchar(y) - 1), "AssetsStart")
     }
     else {
         z <- y
@@ -9650,8 +9651,9 @@ sql.1dFloMo.SecFlow <- function (x, y, n)
     w <- paste0("case when t2.StyleSector in (", paste(w[!is.na(w)], 
         collapse = ", "), ") then ")
     u <- paste0(w, u, " else [", h, "] end")
-    if (y == "Flow%") {
-        u <- sql.Mo("Flow", "AssetsStart", u, T)
+    if (txt.right(y, 1) == "%") {
+        u <- sql.Mo(txt.left(y, nchar(y) - 1), "AssetsStart", 
+            u, T)
         u <- paste0("[", h, "] ", u)
     }
     else {

@@ -9,7 +9,7 @@ sql.1dFloMo.SecFlow(x, y, n)
 \arguments{
 \item{x}{= the date for which you want flows (known one day later)}
 
-\item{y}{= item (one of Flow/AssetsStart/AssetsEnd/Flow\%)}
+\item{y}{= item (one of Flow/AssetsStart/AssetsEnd/Flow\%/etc.)}
 
 \item{n}{= missing or a vector of GeoIds}
 }

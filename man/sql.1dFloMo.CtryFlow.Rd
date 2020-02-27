@@ -11,7 +11,7 @@ sql.1dFloMo.CtryFlow(x, y, n, w)
 
 \item{y}{= FundType (one of E/B)}
 
-\item{n}{= item (one of Flow/AssetsStart/AssetsEnd/Flow\%)}
+\item{n}{= item (one of Flow/AssetsStart/AssetsEnd/Flow\%/etc.)}
 
 \item{w}{= country list (one of Ctry/LatAm)}
 }
