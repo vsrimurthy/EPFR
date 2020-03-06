@@ -6,12 +6,13 @@
 #' @param y = the separator
 #' @param n = the column containing the row names (or NULL if none)
 #' @param w = T/F variable depending on whether <x> has a header
+#' @param h = the set of quoting characters. Defaults to no quoting altogether
 #' @keywords mat.read
 #' @export
 #' @family mat
 #' @import utils
 
-mat.read <- function (x = "C:\\temp\\write.csv", y = ",", n = 1, w = T) 
+mat.read <- function (x = "C:\\temp\\write.csv", y = ",", n = 1, w = T, h = "") 
 {
     if (missing(y)) 
         y <- c("\t", ",")
@@ -20,12 +21,12 @@ mat.read <- function (x = "C:\\temp\\write.csv", y = ",", n = 1, w = T)
     else adj <- rep(0, 2)
     if (!file.exists(x)) 
         stop("File ", x, " doesn't exist!\n")
-    h <- length(y)
-    z <- read.table(x, w, y[h], row.names = n, quote = "", as.is = T, 
+    u <- length(y)
+    z <- read.table(x, w, y[u], row.names = n, quote = h, as.is = T, 
         na.strings = txt.na(), comment.char = "", check.names = F)
-    while (min(dim(z) - adj) == 0 & h > 1) {
-        h <- h - 1
-        z <- read.table(x, w, y[h], row.names = n, quote = "", 
+    while (min(dim(z) - adj) == 0 & u > 1) {
+        u <- u - 1
+        z <- read.table(x, w, y[u], row.names = n, quote = h, 
             as.is = T, na.strings = txt.na(), comment.char = "", 
             check.names = F)
     }
@@ -10745,7 +10746,7 @@ sql.and <- function (x, y = "", n = "and")
 sql.arguments <- function (x) 
 {
     filters <- c("All", "Act", "Pas", "Etf", "Mutual", "Num", 
-        "Pseudo", "Up", "xJP", "JP", "CBE")
+        "Pseudo", "Up", "xJP", "JP", "CBE", "SRI")
     m <- length(x)
     while (any(x[m] == filters)) m <- m - 1
     if (m == length(x)) 
@@ -11094,6 +11095,9 @@ sql.FundHistory.macro <- function (x)
         else if (y == "Act") {
             z[[char.ex.int(length(z) + 65)]] <- "isnull(Idx, 'N') = 'N'"
         }
+        else if (y == "SRI") {
+            z[[char.ex.int(length(z) + 65)]] <- "SRI_yn = 'Y'"
+        }
         else if (y == "Mutual") {
             z[[char.ex.int(length(z) + 65)]] <- "not ETF = 'Y'"
         }
@@ -11131,6 +11135,9 @@ sql.FundHistory.sf <- function (x)
         }
         else if (h == "Pas") {
             z[[char.ex.int(length(z) + 65)]] <- "[Index] = 1"
+        }
+        else if (h == "SRI") {
+            z[[char.ex.int(length(z) + 65)]] <- "SRI = 1"
         }
         else if (h == "Etf") {
             z[[char.ex.int(length(z) + 65)]] <- "ETFTypeId is not null"

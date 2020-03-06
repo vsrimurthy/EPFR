@@ -1,6 +1,6 @@
 Package: EPFR
 Title: EPFR Quantitative Research
-Version: 1.5.8
+Version: 1.5.9
 Authors@R: person("Vikram", "Srimurthy", "K.", "Vikram.C.Srimurthy@epfrglobal.com", role = c("aut", "cre"))
 Description: R code used by EPFR Quant Research.
 Depends: R (>= 3.4.1),RODBC,RDCOMClient

@@ -4,7 +4,7 @@
 \alias{mat.read}
 \title{mat.read}
 \usage{
-mat.read(x = "C:\\\\temp\\\\write.csv", y = ",", n = 1, w = T)
+mat.read(x = "C:\\\\temp\\\\write.csv", y = ",", n = 1, w = T, h = "")
 }
 \arguments{
 \item{x}{= a path to a text file}
@@ -14,6 +14,8 @@ mat.read(x = "C:\\\\temp\\\\write.csv", y = ",", n = 1, w = T)
 \item{n}{= the column containing the row names (or NULL if none)}
 
 \item{w}{= T/F variable depending on whether <x> has a header}
+
+\item{h}{= the set of quoting characters. Defaults to no quoting altogether}
 }
 \description{
 reads the file into data frame
