@@ -8549,7 +8549,7 @@ rrw.factors <- function (x)
     dimnames(x)[[2]] <- names(y)
     z <- summary(lm(txt.regr(dimnames(x)[[2]]), x))$coeff[-1, 
         "t value"]
-    while (any(z < 0)) {
+    while (any(z < 0) & any(z > 0)) {
         x <- x[, !is.element(dimnames(x)[[2]], names(z)[order(z)][1])]
         z <- summary(lm(txt.regr(dimnames(x)[[2]]), x))$coeff[, 
             "t value"][-1]
