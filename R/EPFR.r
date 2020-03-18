@@ -698,6 +698,52 @@ binomial.trial <- function (x, y, n, w)
     else pbinom(n, y, x)
 }
 
+#' bond.curve.expand
+#' 
+#' full yield curve
+#' @param x = named vector of interest rates
+#' @keywords bond.curve.expand
+#' @export
+#' @family bond
+
+bond.curve.expand <- function (x) 
+{
+    approx(as.numeric(names(x)), as.numeric(x), 1:as.numeric(names(x)[length(x)]), 
+        method = "constant", f = 1, rule = 2)$y
+}
+
+#' bond.price
+#' 
+#' bond prices
+#' @param x = numeric vector representing annual coupon rates
+#' @param y = integer vector representing years to maturity
+#' @param n = named vector of interest rates
+#' @keywords bond.price
+#' @export
+#' @family bond
+
+bond.price <- function (x, y, n) 
+{
+    w <- length(x) == length(n)
+    if (!w) 
+        n <- bond.curve.expand(n)
+    z <- rep(0, length(x))
+    if (w) 
+        discount <- rep(1, length(x))
+    else discount <- 1
+    for (j in 1:length(n)) {
+        if (w) {
+            discount <- discount/(1 + n/100)
+        }
+        else {
+            discount <- discount/(1 + n[j]/100)
+        }
+        z <- z + ifelse(y >= j, x * discount, 0)
+        z <- z + ifelse(y == j, 100 * discount, 0)
+    }
+    z
+}
+
 #' britten.jones
 #' 
 #' transforms the design matrix as set out in Britten-Jones, M., Neuberger  , A., & Nolte, I. (2011). Improved inference in regression with overlapping  observations. Journal of Business Finance & Accounting, 38(5-6), 657-683.
@@ -9007,6 +9053,219 @@ sf.underlying.summ <- function (x, y, n, w, h)
     }
     if (h) 
         z["uRet"] <- univ.eq.wt.ret
+    z
+}
+
+#' sim.direction
+#' 
+#' percentage needed to get worst group under control
+#' @param x = a data frame, the output of <sim.fetch>
+#' @param y = vector of group limits (names correspond to columns in <x>)
+#' @keywords sim.direction
+#' @export
+#' @family sim
+
+sim.direction <- function (x, y) 
+{
+    z <- round(max(vec.max(-apply(x[, paste0(names(y), "Wt")], 
+        2, min) - y, 0)), 4)
+    y <- round(max(vec.max(apply(x[, paste0(names(y), "Wt")], 
+        2, max) - y, 0)), 4)
+    z <- ifelse(z > y, z, -y)
+    z
+}
+
+#' sim.fetch
+#' 
+#' data needed to run simulation
+#' @param x = YYYYMM representing period of interest
+#' @param y = string representing variable name
+#' @param n = string representing universe name
+#' @param w = stock-flow environment
+#' @keywords sim.fetch
+#' @export
+#' @family sim
+
+sim.fetch <- function (x, y, n, w) 
+{
+    z <- w$classif[, c("GSec", "CountryCode")]
+    dimnames(z)[[2]] <- c("Sec", "Ctry")
+    z$Alp <- fetch(y, yyyymm.lag(x), 1, paste(w$fldr, "derived", 
+        sep = "\\"), w$classif)
+    z$Bmk <- fetch(paste0(n, "Wt"), yyyymm.lag(x), 1, paste(w$fldr, 
+        "data", sep = "\\"), w$classif)
+    h <- fetch(paste0(n, "Mem"), yyyymm.lag(x), 1, paste(w$fldr, 
+        "data", sep = "\\"), w$classif)
+    z$Ret <- zav(fetch("Ret", x, 1, paste(w$fldr, "data", sep = "\\"), 
+        w$classif))
+    z$Alp <- qtl(z$Alp, 5, h, w$classif$RgnSec)
+    z$Alp <- ifelse(is.na(z$Alp), 3, z$Alp)
+    z <- z[is.element(h, 1), ]
+    z$Bmk <- renorm(z$Bmk)
+    z
+}
+
+#' sim.limits
+#' 
+#' returns group active-weight limits applying to each stock
+#' @param x = a data frame, the output of <sim.fetch>
+#' @param y = vector of group limits (names correspond to columns in <x>)
+#' @keywords sim.limits
+#' @export
+#' @family sim
+
+sim.limits <- function (x, y) 
+{
+    for (j in names(y)) x[, paste0(j, "Wt")] <- zav(map.rname(pivot.1d(sum, 
+        x[, j], x$Act), x[, j]))
+    z <- x
+    z
+}
+
+#' sim.optimal
+#' 
+#' returns named vector of optimal portfolio weights
+#' @param x = a data frame with columns Alp/Bmk/Sec/Ctry
+#' @param y = initial portfolio weight
+#' @param n = percentage single-stock active-weight name limit
+#' @param w = vector of group limits (names correspond to columns in <x>)
+#' @keywords sim.optimal
+#' @export
+#' @family sim
+
+sim.optimal <- function (x, y, n, w) 
+{
+    x$Act <- y - x$Bmk
+    x$Act <- vec.max(vec.min(x$Act, n), -n)
+    x$Act <- ifelse(is.element(x$Alp, 5), -vec.min(x$Bmk, n), 
+        x$Act)
+    x <- sim.limits(x, w)
+    h <- sim.direction(x, w)
+    while (h != 0) {
+        x$Stk <- sim.trade.stk(x, h > 0, n, F)
+        x$Grp <- sim.trade.grp(x, h > 0, w)
+        x <- x[order(x$Stk, decreasing = T), ]
+        x <- x[order(x$Alp, decreasing = h < 0), ]
+        x <- x[order(x$Grp, decreasing = T), ]
+        x <- x[order(vec.min(x$Stk, x$Grp) > 0, decreasing = T), 
+            ]
+        if (h > 0) {
+            x$Act[1] <- x$Act[1] + min(x$Stk[1], x$Grp[1])
+        }
+        else {
+            x$Act[1] <- x$Act[1] - min(x$Stk[1], x$Grp[1])
+        }
+        x <- sim.limits(x, w)
+        h <- sim.direction(x, w)
+    }
+    x <- sim.limits(x, w)
+    h <- -round(sum(x$Act), 4)
+    while (h != 0) {
+        x$Stk <- sim.trade.stk(x, h > 0, n, T)
+        x$Grp <- sim.trade.grp(x, h > 0, w)
+        x <- x[order(x$Stk, decreasing = T), ]
+        x <- x[order(x$Grp, decreasing = T), ]
+        x <- x[order(x$Alp, decreasing = h < 0), ]
+        x <- x[order(vec.min(x$Stk, x$Grp) > 0, decreasing = T), 
+            ]
+        if (h > 0) {
+            x$Act[1] <- x$Act[1] + min(x$Stk[1], x$Grp[1])
+        }
+        else {
+            x$Act[1] <- x$Act[1] - min(x$Stk[1], x$Grp[1])
+        }
+        x <- sim.limits(x, w)
+        h <- -round(sum(x$Act), 4)
+    }
+    z <- x[, c("Bmk", "Act", "Ret", "Sec", "Ctry")]
+    z
+}
+
+#' sim.overall
+#' 
+#' summarizes simulation
+#' @param x = list object, elements are the output of <sim.optimal>
+#' @param y = named vector of turnover
+#' @keywords sim.overall
+#' @export
+#' @family sim
+
+sim.overall <- function (x, y) 
+{
+    x <- mat.ex.matrix(t(sapply(x, sim.summ)))
+    x$to <- y
+    z <- colMeans(x[, c("to", "Names", "Act")])
+    z[c("to", "Act")] <- z[c("to", "Act")] * 12
+    z["Sharpe"] <- z["Act"]/nonneg(sd(x$Act) * sqrt(12))
+    z <- c(z, apply(x[, c("NameLt", "CtryLt", "SecLt")], 2, max))
+    z
+}
+
+#' sim.summ
+#' 
+#' summarizes simulation
+#' @param x = data frame, the output of <sim.optimal>
+#' @keywords sim.summ
+#' @export
+#' @family sim
+
+sim.summ <- function (x) 
+{
+    z <- colSums(x[, c("Bmk", "Act")] * x$Ret)/100
+    z["Names"] <- sum(rowSums(x[, c("Bmk", "Act")]) > 0)
+    z["NameLt"] <- max(abs(x[, "Act"]))
+    z["CtryLt"] <- max(abs(pivot.1d(sum, x$Ctry, x$Act)))
+    z["SecLt"] <- max(abs(pivot.1d(sum, x$Sec, x$Act)))
+    z
+}
+
+#' sim.trade.grp
+#' 
+#' max you can trade without breaching group limits
+#' @param x = a data frame, the output of <sim.fetch>
+#' @param y = T/F depending on whether you buy/sell
+#' @param n = vector of group limits (names correspond to columns in <x>)
+#' @keywords sim.trade.grp
+#' @export
+#' @family sim
+
+sim.trade.grp <- function (x, y, n) 
+{
+    z <- matrix(n, dim(x)[1], length(n), T, list(dimnames(x)[[1]], 
+        paste0(names(n), "Wt")))
+    if (y) {
+        z <- z - x[, dimnames(z)[[2]]]
+    }
+    else {
+        z <- z + x[, dimnames(z)[[2]]]
+    }
+    z <- vec.max(apply(z, 1, min), 0)
+    z
+}
+
+#' sim.trade.stk
+#' 
+#' max you can trade without breaching name limits
+#' @param x = a data frame, the output of <sim.fetch>
+#' @param y = T/F depending on whether you buy/sell
+#' @param n = percentage single-stock active-weight name limit
+#' @param w = T/F depending on whether you're fully investing the portfolio
+#' @keywords sim.trade.stk
+#' @export
+#' @family sim
+
+sim.trade.stk <- function (x, y, n, w) 
+{
+    if (y) {
+        z <- n - x$Act
+    }
+    else {
+        z <- x$Act + x$Bmk
+        z <- vec.min(z, n + x$Act)
+    }
+    z <- vec.max(z, 0)
+    if (w) 
+        z <- vec.min(z, max(ifelse(y, -1, 1) * sum(x$Act), 0))
     z
 }
 
