@@ -19,9 +19,11 @@ sim.trade.stk(x, y, n, w)
 max you can trade without breaching name limits
 }
 \seealso{
-Other sim: \code{\link{sim.direction}},
-  \code{\link{sim.fetch}}, \code{\link{sim.limits}},
-  \code{\link{sim.optimal}}, \code{\link{sim.overall}},
-  \code{\link{sim.summ}}, \code{\link{sim.trade.grp}}
+Other sim: \code{\link{sim.direction.buy}},
+  \code{\link{sim.direction.sell}},
+  \code{\link{sim.direction}}, \code{\link{sim.fetch}},
+  \code{\link{sim.limits}}, \code{\link{sim.optimal}},
+  \code{\link{sim.overall}}, \code{\link{sim.summ}},
+  \code{\link{sim.trade.grp}}
 }
 \keyword{sim.trade.stk}

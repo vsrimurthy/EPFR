@@ -4,7 +4,7 @@
 \alias{sim.fetch}
 \title{sim.fetch}
 \usage{
-sim.fetch(x, y, n, w)
+sim.fetch(x, y, n, w, h = NULL)
 }
 \arguments{
 \item{x}{= YYYYMM representing period of interest}
@@ -14,14 +14,18 @@ sim.fetch(x, y, n, w)
 \item{n}{= string representing universe name}
 
 \item{w}{= stock-flow environment}
+
+\item{h}{= risk factors}
 }
 \description{
 data needed to run simulation
 }
 \seealso{
-Other sim: \code{\link{sim.direction}},
-  \code{\link{sim.limits}}, \code{\link{sim.optimal}},
-  \code{\link{sim.overall}}, \code{\link{sim.summ}},
-  \code{\link{sim.trade.grp}}, \code{\link{sim.trade.stk}}
+Other sim: \code{\link{sim.direction.buy}},
+  \code{\link{sim.direction.sell}},
+  \code{\link{sim.direction}}, \code{\link{sim.limits}},
+  \code{\link{sim.optimal}}, \code{\link{sim.overall}},
+  \code{\link{sim.summ}}, \code{\link{sim.trade.grp}},
+  \code{\link{sim.trade.stk}}
 }
 \keyword{sim.fetch}

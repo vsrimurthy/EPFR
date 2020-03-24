@@ -4,18 +4,22 @@
 \alias{sim.summ}
 \title{sim.summ}
 \usage{
-sim.summ(x)
+sim.summ(x, y)
 }
 \arguments{
 \item{x}{= data frame, the output of <sim.optimal>}
+
+\item{y}{= vector of group limits (names correspond to columns of <x>)}
 }
 \description{
 summarizes simulation
 }
 \seealso{
-Other sim: \code{\link{sim.direction}},
-  \code{\link{sim.fetch}}, \code{\link{sim.limits}},
-  \code{\link{sim.optimal}}, \code{\link{sim.overall}},
-  \code{\link{sim.trade.grp}}, \code{\link{sim.trade.stk}}
+Other sim: \code{\link{sim.direction.buy}},
+  \code{\link{sim.direction.sell}},
+  \code{\link{sim.direction}}, \code{\link{sim.fetch}},
+  \code{\link{sim.limits}}, \code{\link{sim.optimal}},
+  \code{\link{sim.overall}}, \code{\link{sim.trade.grp}},
+  \code{\link{sim.trade.stk}}
 }
 \keyword{sim.summ}
