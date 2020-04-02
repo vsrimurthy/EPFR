@@ -9264,20 +9264,16 @@ sim.optimal <- function (x, y, n, w, h, u)
     x <- sim.limits(x, w)
     h <- sim.direction(x, w)
     while (h != 0) {
-        x$Stk <- sim.trade.stk(x, h > 0, n, F)
-        x$Grp <- sim.trade.grp(x, h > 0, w)
-        x <- mat.sort(x, c("Alp", "Stk"), c(h < 0, T))
-        if (h > 0) {
+        if (h > 0) 
             y <- sim.direction.buy(x, w)
-        }
-        else {
-            y <- sim.direction.sell(x, w)
-        }
+        else y <- sim.direction.sell(x, w)
         y <- y[y > 0]
         y <- names(y)[order(y, decreasing = T)]
-        x <- mat.sort(x, y, rep(h < 0, length(y)))
-        x <- x[order(vec.min(x$Stk, x$Grp) > 0, decreasing = T), 
-            ]
+        x$Stk <- sim.trade.stk(x, h > 0, n, F)
+        x$Grp <- sim.trade.grp(x, h > 0, w)
+        x$Trd <- vec.min(x$Stk, x$Grp) > 0
+        x <- mat.sort(x, c("Trd", y, "Alp", "Stk"), c(T, rep(h < 
+            0, length(y) + 1), T))
         x$Act[1] <- x$Act[1] + sign(h) * min(x$Stk[1], x$Grp[1])
         x <- sim.limits(x, w)
         h <- sim.direction(x, w)
@@ -9287,12 +9283,15 @@ sim.optimal <- function (x, y, n, w, h, u)
     while (h != 0) {
         x$Stk <- sim.trade.stk(x, h > 0, n, T)
         x$Grp <- sim.trade.grp(x, h > 0, w)
-        if (!u) 
-            x <- mat.sort(x, c("Grp", "Stk"), c(T, T))
-        else x <- x[order(x$Ret, decreasing = T), ]
-        x <- x[order(x$Alp, decreasing = h < 0), ]
-        x <- x[order(vec.min(x$Stk, x$Grp) > 0, decreasing = T), 
-            ]
+        x$Trd <- vec.min(x$Stk, x$Grp) > 0
+        if (!u) {
+            x <- mat.sort(x, c("Trd", "Alp", "Grp", "Stk"), c(T, 
+                h < 0, T, T))
+        }
+        else {
+            x <- mat.sort(x, c("Trd", "Alp", "Ret"), c(T, h < 
+                0, h > 0))
+        }
         x$Act[1] <- x$Act[1] + sign(h) * min(x$Stk[1], x$Grp[1])
         x <- sim.limits(x, w)
         h <- -round(sum(x$Act), 4)
