@@ -4,7 +4,7 @@
 \alias{sim.optimal}
 \title{sim.optimal}
 \usage{
-sim.optimal(x, y, n, w, h)
+sim.optimal(x, y, n, w, h, u)
 }
 \arguments{
 \item{x}{= a data frame with columns Alp/Bmk/Sec/Ctry}
@@ -16,6 +16,8 @@ sim.optimal(x, y, n, w, h)
 \item{w}{= vector of group limits (names correspond to columns in <x>)}
 
 \item{h}{= quintile to sell (stocks in bin <h> and higher are flushed)}
+
+\item{u}{= T/F logical flag}
 }
 \description{
 returns named vector of optimal portfolio weights
@@ -25,7 +27,7 @@ Other sim: \code{\link{sim.direction.buy}},
   \code{\link{sim.direction.sell}},
   \code{\link{sim.direction}}, \code{\link{sim.fetch}},
   \code{\link{sim.limits}}, \code{\link{sim.overall}},
-  \code{\link{sim.summ}}, \code{\link{sim.trade.grp}},
-  \code{\link{sim.trade.stk}}
+  \code{\link{sim.seed}}, \code{\link{sim.summ}},
+  \code{\link{sim.trade.grp}}, \code{\link{sim.trade.stk}}
 }
 \keyword{sim.optimal}

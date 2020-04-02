@@ -5110,6 +5110,38 @@ int.to.prime <- function (x)
     z
 }
 
+#' isin.exists
+#' 
+#' T/F depending on whether each element is an isin
+#' @param x = string vector
+#' @keywords isin.exists
+#' @export
+
+isin.exists <- function (x) 
+{
+    charset <- vec.named(0:35, c(0:9, char.seq("A", "Z")))
+    x <- toupper(txt.trim(x))
+    z <- !is.na(x) & nchar(x) == 12
+    for (j in 1:11) z <- z & is.element(substring(x, j, j), names(charset))
+    z <- z & is.element(substring(x, 12, 12), 0:9)
+    y <- x[z]
+    y <- y[!duplicated(y)]
+    y <- matrix(NA, length(y), 11, F, list(y, char.seq("A", "K")))
+    for (j in 1:dim(y)[2]) y[, j] <- as.numeric(map.rname(charset, 
+        substring(dimnames(y)[[1]], j, j)))
+    y <- mat.ex.matrix(y)
+    y <- vec.named(do.call(paste0, y), dimnames(y)[[1]])
+    y <- split(y, names(y))
+    y <- lapply(y, function(x) as.numeric(txt.to.char(x)))
+    y <- lapply(y, function(x) x * rep(2:1, ceiling(length(x)/2))[1:length(x)])
+    y <- sapply(y, function(x) sum(as.numeric(txt.to.char(paste(x, 
+        collapse = "")))))
+    y <- 10 * ceiling(y/10) - y
+    y <- txt.right(names(y), 1) == y
+    z[z] <- as.logical(y[x[z]])
+    z
+}
+
 #' knapsack.count
 #' 
 #' number of ways to subdivide <x> things amongst <y> people
@@ -5849,6 +5881,27 @@ mat.reverse <- function (x)
 mat.same <- function (x, y) 
 {
     all(fcn.mat.num(vec.same, x, y, T))
+}
+
+#' mat.sort
+#' 
+#' sorts <x> by <y> in decreasing order if <n> is T
+#' @param x = a matrix/df
+#' @param y = string vector of column names of <x>
+#' @param n = logical vector of the same length as <y>
+#' @keywords mat.sort
+#' @export
+#' @family mat
+
+mat.sort <- function (x, y, n) 
+{
+    w <- length(y)
+    while (w > 0) {
+        x <- x[order(x[, y[w]], decreasing = n[w]), ]
+        w <- w - 1
+    }
+    z <- x
+    z
 }
 
 #' mat.subset
@@ -9197,11 +9250,12 @@ sim.limits <- function (x, y)
 #' @param n = percentage single-stock active-weight name limit
 #' @param w = vector of group limits (names correspond to columns in <x>)
 #' @param h = quintile to sell (stocks in bin <h> and higher are flushed)
+#' @param u = T/F logical flag
 #' @keywords sim.optimal
 #' @export
 #' @family sim
 
-sim.optimal <- function (x, y, n, w, h) 
+sim.optimal <- function (x, y, n, w, h, u) 
 {
     x$Act <- y - x$Bmk
     x$Act <- vec.max(vec.min(x$Act, n), -n)
@@ -9212,26 +9266,19 @@ sim.optimal <- function (x, y, n, w, h)
     while (h != 0) {
         x$Stk <- sim.trade.stk(x, h > 0, n, F)
         x$Grp <- sim.trade.grp(x, h > 0, w)
-        x <- x[order(x$Stk, decreasing = T), ]
-        x <- x[order(x$Alp, decreasing = h < 0), ]
+        x <- mat.sort(x, c("Alp", "Stk"), c(h < 0, T))
         if (h > 0) {
-            u <- sim.direction.buy(x, w)
+            y <- sim.direction.buy(x, w)
         }
         else {
-            u <- sim.direction.sell(x, w)
+            y <- sim.direction.sell(x, w)
         }
-        u <- u[u > 0]
-        u <- names(u)[order(u)]
-        for (j in u) x <- x[order(x[, j], decreasing = h < 0), 
-            ]
+        y <- y[y > 0]
+        y <- names(y)[order(y, decreasing = T)]
+        x <- mat.sort(x, y, rep(h < 0, length(y)))
         x <- x[order(vec.min(x$Stk, x$Grp) > 0, decreasing = T), 
             ]
-        if (h > 0) {
-            x$Act[1] <- x$Act[1] + min(x$Stk[1], x$Grp[1])
-        }
-        else {
-            x$Act[1] <- x$Act[1] - min(x$Stk[1], x$Grp[1])
-        }
+        x$Act[1] <- x$Act[1] + sign(h) * min(x$Stk[1], x$Grp[1])
         x <- sim.limits(x, w)
         h <- sim.direction(x, w)
     }
@@ -9240,17 +9287,13 @@ sim.optimal <- function (x, y, n, w, h)
     while (h != 0) {
         x$Stk <- sim.trade.stk(x, h > 0, n, T)
         x$Grp <- sim.trade.grp(x, h > 0, w)
-        x <- x[order(x$Stk, decreasing = T), ]
-        x <- x[order(x$Grp, decreasing = T), ]
+        if (!u) 
+            x <- mat.sort(x, c("Grp", "Stk"), c(T, T))
+        else x <- x[order(x$Ret, decreasing = T), ]
         x <- x[order(x$Alp, decreasing = h < 0), ]
         x <- x[order(vec.min(x$Stk, x$Grp) > 0, decreasing = T), 
             ]
-        if (h > 0) {
-            x$Act[1] <- x$Act[1] + min(x$Stk[1], x$Grp[1])
-        }
-        else {
-            x$Act[1] <- x$Act[1] - min(x$Stk[1], x$Grp[1])
-        }
+        x$Act[1] <- x$Act[1] + sign(h) * min(x$Stk[1], x$Grp[1])
         x <- sim.limits(x, w)
         h <- -round(sum(x$Act), 4)
     }
@@ -9282,6 +9325,37 @@ sim.overall <- function (x, y, n)
     n <- vec.named(1:length(z), names(z))
     n["Sharpe"] <- n["Act"] + 0.5
     z <- z[order(n)]
+    z
+}
+
+#' sim.seed
+#' 
+#' initial portfolio satisfying limits prioritizing earlier records of <x>
+#' @param x = a data frame, the output of <sim.fetch>
+#' @param y = percentage single-stock active-weight name limit
+#' @param n = vector of group limits (names correspond to columns in <x>)
+#' @keywords sim.seed
+#' @export
+#' @family sim
+
+sim.seed <- function (x, y, n) 
+{
+    x <- x[order(x$Alp), ]
+    x$Act <- -x$Bmk
+    x$Act <- vec.max(vec.min(x$Act, y), -y)
+    x <- sim.limits(x, n)
+    x$Stk <- sim.trade.stk(x, T, y, T)
+    x$Grp <- sim.trade.grp(x, T, n)
+    x <- x[order(vec.min(x$Stk, x$Grp) > 0, decreasing = T), 
+        ]
+    while (sum(x$Act) < 1e-04 & min(x$Stk[1], x$Grp[1]) > 1e-04) {
+        x$Act[1] <- x$Act[1] + min(x$Stk[1], x$Grp[1])
+        x$Stk <- sim.trade.stk(x, T, y, T)
+        x$Grp <- sim.trade.grp(x, T, n)
+        x <- x[order(vec.min(x$Stk, x$Grp) > 0, decreasing = T), 
+            ]
+    }
+    z <- rowSums(x[, c("Bmk", "Act")])
     z
 }
 
