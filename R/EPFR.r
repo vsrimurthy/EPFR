@@ -4964,10 +4964,8 @@ html.flow.english <- function (x, y, n, w)
     z <- c(z, u)
     if (!missing(n) & !missing(w)) 
         z <- c(z[1:n], w, z[seq(n + 1, length(z))])
-    z[1] <- paste0("<br>", z[1], "<ul>")
-    z[-1] <- paste0("<li>", z[-1], "</li>")
-    z <- c(z, "</ul></p>")
-    z <- paste(z, collapse = "\n")
+    z <- paste(c(paste0("<br>", z[1]), html.list(z[-1]), "</p>"), 
+        collapse = "\n")
     z
 }
 
@@ -5022,6 +5020,19 @@ html.flow.underlying <- function (x)
     z["PriorYrCumSum"] <- sum(y)
     z <- list(numbers = z, text = n)
     z
+}
+
+#' html.list
+#' 
+#' <x> expressed as an html list
+#' @param x = a string vector
+#' @keywords html.list
+#' @export
+#' @family html
+
+html.list <- function (x) 
+{
+    c("<ul>", paste0("<li>", x, "</li>"), "</ul>")
 }
 
 #' html.signature
@@ -8933,18 +8944,19 @@ sf.daily <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trail,
 #' @param nBins = number of bins
 #' @param reverse.vbl = T/F depending on whether you want the variable reversed
 #' @param classif = classif file
+#' @param weighting.factor = factor you want to use for Cap-weighted back-tests (defaults to NULL)
 #' @keywords sf.detail
 #' @export
 #' @family sf
 
 sf.detail <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trail, 
     sum.flows, fldr, dly.vbl = T, vbl.lag = 0, nBins = 5, reverse.vbl = F, 
-    classif) 
+    classif, weighting.factor = NULL) 
 {
     cat(vbl.nm, univ[1], "...\n")
     x <- sf.single.bsim(prdBeg, prdEnd, vbl.nm, univ, grp.nm, 
         ret.nm, fldr, dly.vbl, trail, sum.flows, vbl.lag, T, 
-        nBins, reverse.vbl, 1, classif)
+        nBins, reverse.vbl, 1, classif, weighting.factor)
     x <- t(map.rname(t(x), c(dimnames(x)[[2]], "TxB")))
     x[, "TxB"] <- x[, "Q1"] - x[, paste0("Q", nBins)]
     x <- mat.ex.matrix(x)
@@ -8974,13 +8986,14 @@ sf.detail <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trail,
 #' @param reverse.vbl = T/F depending on whether you want the variable reversed
 #' @param retHz = forward return horizon in months
 #' @param classif = classif file
+#' @param weighting.factor = factor you want to use for Cap-weighted back-tests (defaults to NULL)
 #' @keywords sf.single.bsim
 #' @export
 #' @family sf
 
 sf.single.bsim <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, fldr, 
     dly.vbl = F, trail = 1, sum.flows = T, vbl.lag = 0, uRet = F, 
-    nBins = 5, reverse.vbl = F, retHz = 1, classif) 
+    nBins = 5, reverse.vbl = F, retHz = 1, classif, weighting.factor = NULL) 
 {
     grp <- classif[, grp.nm]
     z <- sf.bin.nms(nBins, uRet)
@@ -8989,7 +9002,7 @@ sf.single.bsim <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, fldr,
     for (i in dimnames(z)[[1]]) {
         vec <- sf.underlying(vbl.nm, univ, ret.nm, i, trail, 
             sum.flows, grp, dly.vbl, nBins, fldr, vbl.lag, uRet, 
-            reverse.vbl, retHz, classif)
+            reverse.vbl, retHz, classif, weighting.factor)
         z[i, ] <- map.rname(vec, dimnames(z)[[2]])
     }
     z
@@ -9041,18 +9054,19 @@ sf.subset <- function (x, y, n, w)
 #' @param reverse.vbl = T/F depending on whether you want the variable reversed
 #' @param retHz = forward return horizon in months
 #' @param classif = classif file
+#' @param weighting.factor = factor you want to use for Cap-weighted back-tests (defaults to NULL)
 #' @keywords sf.underlying
 #' @export
 #' @family sf
 
 sf.underlying <- function (vbl.nm, univ, ret.nm, ret.prd, trail, sum.flows, grp, 
     dly.vbl, nBins, fldr, vbl.lag, uRet = F, reverse.vbl = F, 
-    retHz = 1, classif) 
+    retHz = 1, classif, weighting.factor = NULL) 
 {
     x <- sf.underlying.data(vbl.nm, univ, ret.nm, ret.prd, trail, 
         sum.flows, grp, dly.vbl, nBins, fldr, vbl.lag, reverse.vbl, 
-        retHz, classif)
-    z <- sf.underlying.summ(x$bin, x$ret, x$mem, nBins, uRet)
+        retHz, classif, weighting.factor)
+    z <- sf.underlying.summ(x, nBins, uRet)
     z
 }
 
@@ -9073,12 +9087,14 @@ sf.underlying <- function (vbl.nm, univ, ret.nm, ret.prd, trail, sum.flows, grp,
 #' @param reverse.vbl = T/F depending on whether you want the variable reversed
 #' @param retHz = forward return horizon in months
 #' @param classif = classif file
+#' @param weighting.factor = factor you want to use for Cap-weighted back-tests
 #' @keywords sf.underlying.data
 #' @export
 #' @family sf
 
 sf.underlying.data <- function (vbl.nm, univ, ret.nm, ret.prd, trail, sum.flows, grp, 
-    dly.vbl, nBins, fldr, vbl.lag, reverse.vbl, retHz, classif) 
+    dly.vbl, nBins, fldr, vbl.lag, reverse.vbl, retHz, classif, 
+    weighting.factor) 
 {
     mem <- sf.subset(univ, ret.prd, fldr, classif)
     vbl <- yyyymm.lag(ret.prd, 1)
@@ -9104,41 +9120,51 @@ sf.underlying.data <- function (vbl.nm, univ, ret.nm, ret.prd, trail, sum.flows,
         ret <- mat.compound(ret)
     }
     bin <- ifelse(is.na(ret), 0, mem)
+    if (!is.null(weighting.factor)) {
+        weighting.factor <- fetch(weighting.factor, yyyymm.lag(ret.prd, 
+            1), 1, paste(fldr, "derived", sep = "\\"), classif)
+        bin <- weighting.factor <- vec.max(zav(weighting.factor) * 
+            bin, bin)
+    }
     bin <- qtl(vbl, nBins, bin, grp)
     bin <- ifelse(is.na(bin), "Qna", paste0("Q", bin))
     z <- data.frame(vbl, bin, ret, mem, grp, row.names = dimnames(classif)[[1]], 
         stringsAsFactors = F)
+    if (!is.null(weighting.factor)) 
+        z$wgt <- weighting.factor
     z
 }
 
 #' sf.underlying.summ
 #' 
 #' Returns a named vector of bin returns
-#' @param x = vector of bins
-#' @param y = corresponding numeric vector of forward returns
-#' @param n = corresponding 1/0 universe membership vector
-#' @param w = number of bins
-#' @param h = T/F variable controlling whether universe return is returned
+#' @param x = a matrix/df with the following columns: a) bin - bin memberships b) ret - forward returns c) mem - 1/0 universe memberships d) wgt - universe weights (optional)
+#' @param y = number of bins
+#' @param n = T/F variable controlling whether universe return is returned
 #' @keywords sf.underlying.summ
 #' @export
 #' @family sf
 
-sf.underlying.summ <- function (x, y, n, w, h) 
+sf.underlying.summ <- function (x, y, n) 
 {
-    n <- is.element(n, 1) & !is.na(y)
-    if (any(n)) {
-        univ.eq.wt.ret <- mean(y[n])
-        y <- y - univ.eq.wt.ret
-        z <- pivot.1d(mean, x[n], y[n])
+    if (all(dimnames(x)[[2]] != "wgt")) 
+        x$wgt <- x$mem
+    u <- is.element(x$mem, 1) & !is.na(x$ret) & !is.na(x$wgt) & 
+        x$wgt > 0
+    if (any(u)) {
+        univ.ret <- sum(x$ret[u] * x$wgt[u])/sum(x$wgt[u])
+        x$ret <- x$ret - univ.ret
+        z <- pivot.1d(sum, x$bin[u], x$ret[u] * x$wgt[u])
+        z <- z/map.rname(pivot.1d(sum, x$bin[u], x$wgt[u]), names(z))
     }
     else {
-        univ.eq.wt.ret <- NA
-        z <- c(1:w, "na")
+        univ.ret <- NA
+        z <- c(1:y, "na")
         z <- paste0("Q", z)
         z <- vec.named(rep(NA, length(z)), z)
     }
-    if (h) 
-        z["uRet"] <- univ.eq.wt.ret
+    if (n) 
+        z["uRet"] <- univ.ret
     z
 }
 

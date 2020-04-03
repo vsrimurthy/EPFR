@@ -6,7 +6,8 @@
 \usage{
 sf.single.bsim(prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, fldr,
   dly.vbl = F, trail = 1, sum.flows = T, vbl.lag = 0, uRet = F,
-  nBins = 5, reverse.vbl = F, retHz = 1, classif)
+  nBins = 5, reverse.vbl = F, retHz = 1, classif,
+  weighting.factor = NULL)
 }
 \arguments{
 \item{prdBeg}{= first-return date in YYYYMM}
@@ -40,6 +41,8 @@ sf.single.bsim(prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, fldr,
 \item{retHz}{= forward return horizon in months}
 
 \item{classif}{= classif file}
+
+\item{weighting.factor}{= factor you want to use for Cap-weighted back-tests (defaults to NULL)}
 }
 \description{
 runs a single quintile simulation

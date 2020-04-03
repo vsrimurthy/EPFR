@@ -5,7 +5,8 @@
 \title{sf.detail}
 \usage{
 sf.detail(prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trail, sum.flows, fldr,
-  dly.vbl = T, vbl.lag = 0, nBins = 5, reverse.vbl = F, classif)
+  dly.vbl = T, vbl.lag = 0, nBins = 5, reverse.vbl = F, classif,
+  weighting.factor = NULL)
 }
 \arguments{
 \item{prdBeg}{= first-return date in YYYYMM}
@@ -35,6 +36,8 @@ sf.detail(prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trail, sum.flows, fldr,
 \item{reverse.vbl}{= T/F depending on whether you want the variable reversed}
 
 \item{classif}{= classif file}
+
+\item{weighting.factor}{= factor you want to use for Cap-weighted back-tests (defaults to NULL)}
 }
 \description{
 runs a stock-flows simulation

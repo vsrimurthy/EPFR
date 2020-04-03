@@ -5,7 +5,7 @@
 \title{sf.underlying.data}
 \usage{
 sf.underlying.data(vbl.nm, univ, ret.nm, ret.prd, trail, sum.flows, grp,
-  dly.vbl, nBins, fldr, vbl.lag, reverse.vbl, retHz, classif)
+  dly.vbl, nBins, fldr, vbl.lag, reverse.vbl, retHz, classif, weighting.factor)
 }
 \arguments{
 \item{vbl.nm}{= variable}
@@ -35,6 +35,8 @@ sf.underlying.data(vbl.nm, univ, ret.nm, ret.prd, trail, sum.flows, grp,
 \item{retHz}{= forward return horizon in months}
 
 \item{classif}{= classif file}
+
+\item{weighting.factor}{= factor you want to use for Cap-weighted back-tests}
 }
 \description{
 Gets data needed to back-test a single period

@@ -4,18 +4,14 @@
 \alias{sf.underlying.summ}
 \title{sf.underlying.summ}
 \usage{
-sf.underlying.summ(x, y, n, w, h)
+sf.underlying.summ(x, y, n)
 }
 \arguments{
-\item{x}{= vector of bins}
+\item{x}{= a matrix/df with the following columns: a) bin - bin memberships b) ret - forward returns c) mem - 1/0 universe memberships d) wgt - universe weights (optional)}
 
-\item{y}{= corresponding numeric vector of forward returns}
+\item{y}{= number of bins}
 
-\item{n}{= corresponding 1/0 universe membership vector}
-
-\item{w}{= number of bins}
-
-\item{h}{= T/F variable controlling whether universe return is returned}
+\item{n}{= T/F variable controlling whether universe return is returned}
 }
 \description{
 Returns a named vector of bin returns

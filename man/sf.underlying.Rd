@@ -5,7 +5,8 @@
 \title{sf.underlying}
 \usage{
 sf.underlying(vbl.nm, univ, ret.nm, ret.prd, trail, sum.flows, grp, dly.vbl,
-  nBins, fldr, vbl.lag, uRet = F, reverse.vbl = F, retHz = 1, classif)
+  nBins, fldr, vbl.lag, uRet = F, reverse.vbl = F, retHz = 1, classif,
+  weighting.factor = NULL)
 }
 \arguments{
 \item{vbl.nm}{= variable}
@@ -37,6 +38,8 @@ sf.underlying(vbl.nm, univ, ret.nm, ret.prd, trail, sum.flows, grp, dly.vbl,
 \item{retHz}{= forward return horizon in months}
 
 \item{classif}{= classif file}
+
+\item{weighting.factor}{= factor you want to use for Cap-weighted back-tests (defaults to NULL)}
 }
 \description{
 Creates bin excess returns for a single period
