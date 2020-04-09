@@ -1347,6 +1347,7 @@ covar <- function (x)
 #' @param y = a vector of country codes
 #' @keywords cpt.RgnSec
 #' @export
+#' @family cpt
 
 cpt.RgnSec <- function (x, y) 
 {
@@ -1357,6 +1358,33 @@ cpt.RgnSec <- function (x, y)
     vec <- txt.expand(vec, c("Pac", "Oth"), , T)
     vec <- vec.named(c(seq(1, 9, 2), 1 + seq(1, 9, 2)), vec)
     vec["45-Pac"] <- vec["45-Oth"] <- 11
+    z <- paste(z, y, sep = "-")
+    z <- map.rname(vec, z)
+    z <- as.numeric(z)
+    z
+}
+
+#' cpt.RgnSecJP
+#' 
+#' makes Region-Sector groupings
+#' @param x = a vector of Sectors
+#' @param y = a vector of country codes
+#' @keywords cpt.RgnSecJP
+#' @export
+#' @family cpt
+
+cpt.RgnSecJP <- function (x, y) 
+{
+    y <- ifelse(is.element(y, c("US", "CA")), "NoAm", Ctry.to.CtryGrp(y))
+    z <- GSec.to.GSgrp(x)
+    z <- ifelse(is.element(z, "Cyc"), x, z)
+    vec <- c(seq(15, 25, 5), "Def", "Fin")
+    vec <- txt.expand(vec, c("Pac", "NoAm", "Oth"), , T)
+    x <- NULL
+    for (j in 1:3) x <- c(x, seq(j, by = 3, length.out = 5))
+    vec <- vec.named(x, vec)
+    vec[paste("45", c("Pac", "NoAm", "Oth"), sep = "-")] <- length(vec) + 
+        1
     z <- paste(z, y, sep = "-")
     z <- map.rname(vec, z)
     z <- as.numeric(z)
@@ -4844,8 +4872,8 @@ html.flow.english <- function (x, y, n, w)
     if (x["straight"] > 0) {
         u <- paste("These", ifelse(x["last"] > 0, "inflows", 
             "outflows"), "have been taking place for")
-        u <- paste(u, x["straight"], ifelse(x["straight"] > 4, 
-            "straight", "consecutive"), "weeks")
+        u <- paste(u, txt.ex.int(x["straight"]), ifelse(x["straight"] > 
+            4, "straight", "consecutive"), "weeks")
     }
     else if (x["straight"] == -1) {
         u <- paste("This is the first week of", ifelse(x["last"] > 
@@ -4856,8 +4884,9 @@ html.flow.english <- function (x, y, n, w)
     else {
         u <- paste("This is the first week of", ifelse(x["last"] > 
             0, "inflows,", "outflows,"))
-        u <- paste(u, "the prior", -x["straight"], "weeks seeing", 
-            ifelse(x["last"] > 0, "outflows", "inflows"))
+        u <- paste(u, "the prior", txt.ex.int(-x["straight"]), 
+            "weeks seeing", ifelse(x["last"] > 0, "outflows", 
+                "inflows"))
     }
     z <- c(z, u)
     u <- paste(txt.left(y["date"], 4), "YTD has seen")
@@ -4868,7 +4897,7 @@ html.flow.english <- function (x, y, n, w)
         u <- paste(u, "one week of inflows and")
     }
     else {
-        u <- paste(u, x["YtdCountInWks"], "weeks of inflows and")
+        u <- paste(u, txt.ex.int(x["YtdCountInWks"]), "weeks of inflows and")
     }
     if (x["YtdCountOutWks"] == 0) {
         u <- paste(u, "no weeks of outflows")
@@ -4877,7 +4906,7 @@ html.flow.english <- function (x, y, n, w)
         u <- paste(u, "one week of outflows")
     }
     else {
-        u <- paste(u, x["YtdCountOutWks"], "weeks of outflows")
+        u <- paste(u, txt.ex.int(x["YtdCountOutWks"]), "weeks of outflows")
     }
     if (x["YtdCountInWks"] > 0 & x["YtdCountOutWks"] > 0) {
         u <- paste0(u, " (largest inflow $", int.format(x["YtdBigIn"]), 
@@ -4901,7 +4930,7 @@ html.flow.english <- function (x, y, n, w)
         u <- paste(u, "one week of inflows and")
     }
     else {
-        u <- paste(u, x["PriorYrCountInWks"], "weeks of inflows and")
+        u <- paste(u, txt.ex.int(x["PriorYrCountInWks"]), "weeks of inflows and")
     }
     if (x["PriorYrCountOutWks"] == 0) {
         u <- paste(u, "no weeks of outflows")
@@ -4910,7 +4939,7 @@ html.flow.english <- function (x, y, n, w)
         u <- paste(u, "one week of outflows")
     }
     else {
-        u <- paste(u, x["PriorYrCountOutWks"], "weeks of outflows")
+        u <- paste(u, txt.ex.int(x["PriorYrCountOutWks"]), "weeks of outflows")
     }
     if (x["PriorYrCountInWks"] > 0 & x["PriorYrCountOutWks"] > 
         0) {
@@ -4928,13 +4957,13 @@ html.flow.english <- function (x, y, n, w)
     }
     z <- c(z, u)
     if (x["FourWeekAvg"] > 0) {
-        u <- paste0("4-week moving average: $", int.format(x["FourWeekAvg"]), 
-            " million inflow (4-week cumulative: $", int.format(x["FourWeekSum"]), 
+        u <- paste0("four-week moving average: $", int.format(x["FourWeekAvg"]), 
+            " million inflow (four-week cumulative: $", int.format(x["FourWeekSum"]), 
             " million inflow)")
     }
     else {
-        u <- paste0("4-week moving average: $", int.format(-x["FourWeekAvg"]), 
-            " million outflow (4-week cumulative: $", int.format(-x["FourWeekSum"]), 
+        u <- paste0("four-week moving average: $", int.format(-x["FourWeekAvg"]), 
+            " million outflow (four-week cumulative: $", int.format(-x["FourWeekSum"]), 
             " million outflow)")
     }
     z <- c(z, u)
@@ -5019,6 +5048,23 @@ html.flow.underlying <- function (x)
     z["PriorYrCumAvg"] <- mean(y)
     z["PriorYrCumSum"] <- sum(y)
     z <- list(numbers = z, text = n)
+    z
+}
+
+#' html.image
+#' 
+#' html to attach an image
+#' @param x = path to the image
+#' @param y = percentage magnification
+#' @keywords html.image
+#' @export
+#' @family html
+
+html.image <- function (x, y) 
+{
+    z <- txt.right(x, nchar(x) - nchar(dir.parent(x)) - 1)
+    z <- paste0("<br><img src='cid:", z, "' width= ", y, "% height= ", 
+        y, "%>")
     z
 }
 
@@ -12991,6 +13037,36 @@ txt.count <- function (x, y)
 txt.ex.file <- function (x) 
 {
     paste(vec.read(x, F), collapse = "\n")
+}
+
+#' txt.ex.int
+#' 
+#' a string vector describing <x> in words
+#' @param x = a vector of integers
+#' @keywords txt.ex.int
+#' @export
+#' @family txt
+
+txt.ex.int <- function (x) 
+{
+    z <- ifelse(x%/%100 > 0, x, NA)
+    map <- vec.named(c("zero", "ten", "eleven", "twelve", "thirteen", 
+        "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", 
+        "nineteen"), c(0, 10:19))
+    z <- ifelse(is.element(x, names(map)), map[as.character(x)], 
+        z)
+    w <- is.na(z)
+    map <- vec.named(c("one", "two", "three", "four", "five", 
+        "six", "seven", "eight", "nine"), 1:9)
+    z <- ifelse(is.element(x%%10, names(map)) & w, map.rname(map, 
+        x%%10), z)
+    w <- w & !is.element(x, 1:9)
+    map <- vec.named(c("twenty", "thirty", "forty", "fifty", 
+        "sixty", "seventy", "eighty", "ninety"), 2:9)
+    z <- ifelse(w & !is.na(z), paste(map.rname(map, (x%/%10)%%10), 
+        z, sep = "-"), z)
+    z <- ifelse(w & is.na(z), map.rname(map, (x%/%10)%%10), z)
+    z
 }
 
 #' txt.excise

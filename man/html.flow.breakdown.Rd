@@ -20,7 +20,7 @@ html breaking down flows into constituents
 Other html: \code{\link{html.and}},
   \code{\link{html.flow.english}},
   \code{\link{html.flow.underlying}},
-  \code{\link{html.list}}, \code{\link{html.signature}},
-  \code{\link{html.tbl}}
+  \code{\link{html.image}}, \code{\link{html.list}},
+  \code{\link{html.signature}}, \code{\link{html.tbl}}
 }
 \keyword{html.flow.breakdown}

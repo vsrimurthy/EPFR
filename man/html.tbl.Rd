@@ -19,6 +19,7 @@ Other html: \code{\link{html.and}},
   \code{\link{html.flow.breakdown}},
   \code{\link{html.flow.english}},
   \code{\link{html.flow.underlying}},
-  \code{\link{html.list}}, \code{\link{html.signature}}
+  \code{\link{html.image}}, \code{\link{html.list}},
+  \code{\link{html.signature}}
 }
 \keyword{html.tbl}
