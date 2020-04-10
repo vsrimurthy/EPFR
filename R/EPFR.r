@@ -5013,16 +5013,13 @@ html.flow.underlying <- function (x)
     n <- vec.named(names(x)[1], "date")
     z["FourWeekAvg"] <- mean(x[1:4])
     z["FourWeekSum"] <- sum(x[1:4])
-    y <- x > 0
-    y <- seq(1, length(y))[!duplicated(y)][2] - 1
+    y <- straight(x > 0)
     if (y > 1) {
         z["straight"] <- y
     }
     else {
         y <- x > 0
-        y <- y[-1]
-        y <- seq(1, length(y))[!duplicated(y)][2] - 1
-        z["straight"] <- -y
+        z["straight"] <- -straight(y[-1])
     }
     y <- x[txt.left(names(x), 4) == txt.left(names(x)[1], 4)]
     z["YtdCountInWks"] <- sum(y > 0)
@@ -12762,6 +12759,18 @@ sqlts.wrapper <- function (x, y)
     z <- list.common.row.space(union, z, 1)
     z <- sapply(z, as.matrix, simplify = "array")[, -1, ]
     z
+}
+
+#' straight
+#' 
+#' the number of elements equalling the first
+#' @param x = a logical vector
+#' @keywords straight
+#' @export
+
+straight <- function (x) 
+{
+    seq(1, length(x))[!duplicated(x)][2] - 1
 }
 
 #' strat.dir
