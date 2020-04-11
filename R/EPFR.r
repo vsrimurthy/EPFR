@@ -5013,14 +5013,10 @@ html.flow.underlying <- function (x)
     n <- vec.named(names(x)[1], "date")
     z["FourWeekAvg"] <- mean(x[1:4])
     z["FourWeekSum"] <- sum(x[1:4])
-    y <- straight(x > 0)
-    if (y > 1) {
-        z["straight"] <- y
-    }
-    else {
-        y <- x > 0
+    y <- x > 0
+    z["straight"] <- straight(y)
+    if (z["straight"] == 1) 
         z["straight"] <- -straight(y[-1])
-    }
     y <- x[txt.left(names(x), 4) == txt.left(names(x)[1], 4)]
     z["YtdCountInWks"] <- sum(y > 0)
     z["YtdCountOutWks"] <- sum(y < 0)
@@ -12770,7 +12766,7 @@ sqlts.wrapper <- function (x, y)
 
 straight <- function (x) 
 {
-    seq(1, length(x))[!duplicated(x)][2] - 1
+    seq(1, 1 + length(x))[!duplicated(c(x, !x[1]))][2] - 1
 }
 
 #' strat.dir
