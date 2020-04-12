@@ -16,6 +16,8 @@ capitalizes first letter of each word, rendering remaining letters in lower case
 Other txt: \code{\link{txt.anagram.underlying}},
   \code{\link{txt.anagram}}, \code{\link{txt.core}},
   \code{\link{txt.count}}, \code{\link{txt.ex.file}},
+  \code{\link{txt.ex.int.cardinal}},
+  \code{\link{txt.ex.int.ordinal}},
   \code{\link{txt.ex.int}}, \code{\link{txt.excise}},
   \code{\link{txt.expand}}, \code{\link{txt.gunning}},
   \code{\link{txt.has}}, \code{\link{txt.hdr}},

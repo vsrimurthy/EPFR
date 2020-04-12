@@ -4,10 +4,12 @@
 \alias{txt.ex.int}
 \title{txt.ex.int}
 \usage{
-txt.ex.int(x)
+txt.ex.int(x, y = F)
 }
 \arguments{
 \item{x}{= a vector of integers}
+
+\item{y}{= T/F depending on whether ordinal numbers are wanted}
 }
 \description{
 a string vector describing <x> in words
@@ -16,6 +18,8 @@ a string vector describing <x> in words
 Other txt: \code{\link{txt.anagram.underlying}},
   \code{\link{txt.anagram}}, \code{\link{txt.core}},
   \code{\link{txt.count}}, \code{\link{txt.ex.file}},
+  \code{\link{txt.ex.int.cardinal}},
+  \code{\link{txt.ex.int.ordinal}},
   \code{\link{txt.excise}}, \code{\link{txt.expand}},
   \code{\link{txt.gunning}}, \code{\link{txt.has}},
   \code{\link{txt.hdr}}, \code{\link{txt.itrim}},

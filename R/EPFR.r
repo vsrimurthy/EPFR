@@ -4870,43 +4870,38 @@ html.flow.english <- function (x, y, n, w)
         "of $")
     z <- paste0(z, int.format(abs(x["prior"])), " million the prior week.")
     if (x["straight"] > 0) {
-        u <- paste("These", ifelse(x["last"] > 0, "inflows", 
-            "outflows"), "have been taking place for")
-        u <- paste(u, txt.ex.int(x["straight"]), ifelse(x["straight"] > 
-            4, "straight", "consecutive"), "weeks")
+        u <- paste("This is the", txt.ex.int(x["straight"], T), 
+            ifelse(x["straight"] > 4, "straight", "consecutive"))
+        u <- paste(u, "week of", ifelse(x["last"] > 0, "inflows,", 
+            "outflows,"))
     }
     else if (x["straight"] == -1) {
         u <- paste("This is the first week of", ifelse(x["last"] > 
             0, "inflows,", "outflows,"))
-        u <- paste(u, "the prior week seeing", ifelse(x["last"] > 
+        u <- paste(u, "the prior one seeing", ifelse(x["last"] > 
             0, "outflows", "inflows"))
     }
     else {
         u <- paste("This is the first week of", ifelse(x["last"] > 
             0, "inflows,", "outflows,"))
         u <- paste(u, "the prior", txt.ex.int(-x["straight"]), 
-            "weeks seeing", ifelse(x["last"] > 0, "outflows", 
-                "inflows"))
+            "seeing", ifelse(x["last"] > 0, "outflows", "inflows"))
     }
     z <- c(z, u)
     u <- paste(txt.left(y["date"], 4), "YTD has seen")
-    if (x["YtdCountInWks"] == 0) {
-        u <- paste(u, "no weeks of inflows and")
-    }
-    else if (x["YtdCountInWks"] == 1) {
-        u <- paste(u, "one week of inflows and")
+    if (x["YtdCountOutWks"] > x["YtdCountInWks"]) {
+        u <- paste(u, txt.ex.int(x["YtdCountOutWks"]), "weeks of outflows and")
+        if (x["YtdCountInWks"] > 0) {
+            u <- paste(u, txt.ex.int(x["YtdCountInWks"]), "of inflows")
+        }
+        else u <- paste(u, "none of inflows")
     }
     else {
         u <- paste(u, txt.ex.int(x["YtdCountInWks"]), "weeks of inflows and")
-    }
-    if (x["YtdCountOutWks"] == 0) {
-        u <- paste(u, "no weeks of outflows")
-    }
-    else if (x["YtdCountOutWks"] == 1) {
-        u <- paste(u, "one week of outflows")
-    }
-    else {
-        u <- paste(u, txt.ex.int(x["YtdCountOutWks"]), "weeks of outflows")
+        if (x["YtdCountOutWks"] > 0) {
+            u <- paste(u, txt.ex.int(x["YtdCountOutWks"]), "of outflows")
+        }
+        else u <- paste(u, "none of outflows")
     }
     if (x["YtdCountInWks"] > 0 & x["YtdCountOutWks"] > 0) {
         u <- paste0(u, " (largest inflow $", int.format(x["YtdBigIn"]), 
@@ -4923,23 +4918,21 @@ html.flow.english <- function (x, y, n, w)
     }
     z <- c(z, u)
     u <- paste("For", txt.left(y["PriorYrWeek"], 4), "there were")
-    if (x["PriorYrCountInWks"] == 0) {
-        u <- paste(u, "no weeks of inflows and")
-    }
-    else if (x["PriorYrCountInWks"] == 1) {
-        u <- paste(u, "one week of inflows and")
+    if (x["PriorYrCountOutWks"] > x["PriorYrCountInWks"]) {
+        u <- paste(u, txt.ex.int(x["PriorYrCountOutWks"]), "weeks of outflows and")
+        if (x["PriorYrCountInWks"] > 0) {
+            u <- paste(u, txt.ex.int(x["PriorYrCountInWks"]), 
+                "of inflows")
+        }
+        else u <- paste(u, "none of inflows")
     }
     else {
         u <- paste(u, txt.ex.int(x["PriorYrCountInWks"]), "weeks of inflows and")
-    }
-    if (x["PriorYrCountOutWks"] == 0) {
-        u <- paste(u, "no weeks of outflows")
-    }
-    else if (x["PriorYrCountOutWks"] == 1) {
-        u <- paste(u, "one week of outflows")
-    }
-    else {
-        u <- paste(u, txt.ex.int(x["PriorYrCountOutWks"]), "weeks of outflows")
+        if (x["PriorYrCountOutWks"] > 0) {
+            u <- paste(u, txt.ex.int(x["PriorYrCountOutWks"]), 
+                "of outflows")
+        }
+        else u <- paste(u, "none of outflows")
     }
     if (x["PriorYrCountInWks"] > 0 & x["PriorYrCountOutWks"] > 
         0) {
@@ -13048,11 +13041,27 @@ txt.ex.file <- function (x)
 #' 
 #' a string vector describing <x> in words
 #' @param x = a vector of integers
+#' @param y = T/F depending on whether ordinal numbers are wanted
 #' @keywords txt.ex.int
 #' @export
 #' @family txt
 
-txt.ex.int <- function (x) 
+txt.ex.int <- function (x, y = F) 
+{
+    if (y) 
+        txt.ex.int.ordinal(x)
+    else txt.ex.int.cardinal(x)
+}
+
+#' txt.ex.int.cardinal
+#' 
+#' a string vector describing <x> in words (cardinal numbers)
+#' @param x = a vector of integers
+#' @keywords txt.ex.int.cardinal
+#' @export
+#' @family txt
+
+txt.ex.int.cardinal <- function (x) 
 {
     z <- ifelse(x%/%100 > 0, x, NA)
     map <- vec.named(c("zero", "ten", "eleven", "twelve", "thirteen", 
@@ -13070,6 +13079,39 @@ txt.ex.int <- function (x)
         "sixty", "seventy", "eighty", "ninety"), 2:9)
     z <- ifelse(w & !is.na(z), paste(map.rname(map, (x%/%10)%%10), 
         z, sep = "-"), z)
+    z <- ifelse(w & is.na(z), map.rname(map, (x%/%10)%%10), z)
+    z
+}
+
+#' txt.ex.int.ordinal
+#' 
+#' a string vector describing <x> in words (cardinal numbers)
+#' @param x = a vector of integers
+#' @keywords txt.ex.int.ordinal
+#' @export
+#' @family txt
+
+txt.ex.int.ordinal <- function (x) 
+{
+    z <- ifelse(x%/%100 > 0, x, NA)
+    map <- vec.named(c("tenth", "eleventh", "twelfth", "thirteenth", 
+        "fourteenth", "fifteenth", "sixteenth", "seventeenth", 
+        "eighteenth", "nineteenth"), 10:19)
+    z <- ifelse(is.element(x, names(map)), map[as.character(x)], 
+        z)
+    w <- is.na(z)
+    map <- vec.named(c("first", "second", "third", "fourth", 
+        "fifth", "sixth", "seventh", "eighth", "ninth"), 1:9)
+    z <- ifelse(is.element(x%%10, names(map)) & w, map.rname(map, 
+        x%%10), z)
+    w <- w & !is.element(x, 1:9)
+    map <- vec.named(c("twenty", "thirty", "forty", "fifty", 
+        "sixty", "seventy", "eighty", "ninety"), 2:9)
+    z <- ifelse(w & !is.na(z), paste(map.rname(map, (x%/%10)%%10), 
+        z, sep = "-"), z)
+    map <- vec.named(c("twentieth", "thirtieth", "fortieth", 
+        "fiftieth", "sixtieth", "seventieth", "eightieth", "ninetieth"), 
+        2:9)
     z <- ifelse(w & is.na(z), map.rname(map, (x%/%10)%%10), z)
     z
 }
