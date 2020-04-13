@@ -5067,6 +5067,88 @@ html.list <- function (x)
     c("<ul>", paste0("<li>", x, "</li>"), "</ul>")
 }
 
+#' html.positioning
+#' 
+#' writes a positioning report
+#' @param x = matrix of indicator values
+#' @param y = security names (corresponding to columns of <x>)
+#' @keywords html.positioning
+#' @export
+#' @family html
+
+html.positioning <- function (x, y) 
+{
+    if (missing(y)) {
+        y <- dimnames(x)[[2]]
+    }
+    else {
+        y <- paste0(y, " (", dimnames(x)[[2]], ")")
+    }
+    x <- x[order(dimnames(x)[[1]], decreasing = T), ]
+    y <- y[order(x[1, ], decreasing = T)]
+    x <- x[, order(x[1, ], decreasing = T)]
+    n <- qtl.eq(x)
+    w1.new <- is.element(n[1, ], 1) & !is.na(n[2, ]) & n[2, ] > 
+        1
+    w5.new <- is.element(n[1, ], 5) & !is.na(n[2, ]) & n[2, ] < 
+        5
+    w1.old <- is.element(n[2, ], 1) & !is.element(n[1, ], 1)
+    w5.old <- is.element(n[2, ], 5) & !is.element(n[1, ], 5)
+    z <- paste("<p>The week ended", format(day.to.date(dimnames(n)[[1]][1]), 
+        "%B %d %Y"), "saw")
+    if (sum(w1.new) == 0 & sum(w5.new) == 0) {
+        z <- c(z, "no new entrants into either the top or bottom quintile.")
+    }
+    else if (sum(w1.new) > 0) {
+        z <- c(z, html.and(y[w1.new]))
+        if (sum(w1.old) == 0) {
+            z <- c(z, "rise to the top quintile.")
+        }
+        else {
+            z <- c(z, "rise to the top quintile, displacing")
+            z <- c(z, paste0(html.and(y[w1.old]), "."))
+        }
+        if (sum(w5.new) == 0) {
+            z <- c(z, "There were no new entrants into the bottom quintile.")
+        }
+        else {
+            z <- c(z, "Over the same week,")
+            z <- c(z, html.and(y[w5.new]))
+            if (sum(w5.old) == 0) {
+                z <- c(z, "fell to the bottom quintile.")
+            }
+            else {
+                z <- c(z, "fell to the bottom quintile, displacing")
+                z <- c(z, paste0(html.and(y[w5.old]), "."))
+            }
+        }
+    }
+    else {
+        z <- c(z, html.and(y[w5.new]))
+        if (sum(w5.old) == 0) {
+            z <- c(z, "fall to the bottom quintile.")
+        }
+        else {
+            z <- c(z, "fall to the bottom quintile, displacing")
+            z <- c(z, paste0(html.and(y[w5.old]), "."))
+        }
+        z <- c(z, "There were no new entrants into the top quintile.")
+    }
+    z <- c(z, "</p>")
+    h <- sapply(mat.ex.matrix(n == matrix(n[1, ], dim(n)[1], 
+        dim(n)[2], T)), straight)
+    w <- is.element(n[1, ], c(1, 5)) & h > 1
+    if (any(w)) {
+        h <- (ifelse(is.element(n[1, ], 5), -1, 1) * h)[w]
+        names(h) <- y[w]
+        z <- c(z, html.tenure(h, c("week of top-quintile membership for", 
+            "for"), c("week of bottom-bucket status for", "for")))
+    }
+    z <- list(html = z, indicator = x[1, ], quintiles = n[1, 
+        ])
+    z
+}
+
 #' html.signature
 #' 
 #' signature at the end of an email
@@ -5105,6 +5187,48 @@ html.tbl <- function (x, y)
     z <- c(z, paste0("<TR><TH>", y, "<TD align=\"right\">", do.call(paste, 
         x)))
     z <- paste(c(z, "</TABLE>"), collapse = "\n")
+    z
+}
+
+#' html.tenure
+#' 
+#' describes how long securities/factors have belonged to a group
+#' @param x = a named vector of integers
+#' @param y = vector of length two for positive descriptions
+#' @param n = vector of length two for negative descriptions
+#' @keywords html.tenure
+#' @export
+#' @family html
+
+html.tenure <- function (x, y, n) 
+{
+    x <- x[order(abs(x), decreasing = T)]
+    x <- x[order(sign(x), decreasing = T)]
+    z <- NULL
+    pos <- neg <- T
+    for (j in unique(x)) {
+        if (j > 0) {
+            phrase <- ifelse(pos, y[1], y[2])
+            pos <- F
+        }
+        else {
+            phrase <- ifelse(neg, n[1], n[2])
+            neg <- F
+        }
+        z <- c(z, paste("the", txt.ex.int(abs(j), T), phrase, 
+            html.and(names(x)[x == j])))
+    }
+    x <- unique(x)
+    if (all(x > 0)) {
+        z <- paste0("This is ", html.and(z[x > 0]), ".")
+    }
+    else if (all(x < 0)) {
+        z <- paste0("This is ", html.and(z[x < 0]), ".")
+    }
+    else {
+        z <- paste0("This is ", html.and(z[x > 0]), " and ", 
+            html.and(z[x < 0]), ".")
+    }
     z
 }
 
