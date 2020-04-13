@@ -5141,7 +5141,7 @@ html.positioning <- function (x, y)
     if (any(w)) {
         h <- (ifelse(is.element(n[1, ], 5), -1, 1) * h)[w]
         names(h) <- y[w]
-        z <- c(z, html.tenure(h, c("week of top-quintile membership for", 
+        z <- c(z, html.tenure(h, c("week of top-quintile rating for", 
             "for"), c("week of bottom-bucket status for", "for")))
     }
     z <- list(html = z, indicator = x[1, ], quintiles = n[1, 
