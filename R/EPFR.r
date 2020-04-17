@@ -5226,8 +5226,8 @@ html.tenure <- function (x, y, n)
         z <- paste0("This is ", html.and(z[x < 0]), ".")
     }
     else {
-        z <- paste0("This is ", html.and(z[x > 0]), " and ", 
-            html.and(z[x < 0]), ".")
+        z <- paste0("This is not only ", html.and(z[x > 0]), 
+            " but also ", html.and(z[x < 0]), ".")
     }
     z
 }
