@@ -9432,7 +9432,7 @@ sim.limits <- function (x, y)
 #' @param n = percentage single-stock active-weight name limit
 #' @param w = vector of group limits (names correspond to columns in <x>)
 #' @param h = quintile to sell (stocks in bin <h> and higher are flushed)
-#' @param u = T/F logical flag
+#' @param u = integer between 0 and 100
 #' @keywords sim.optimal
 #' @export
 #' @family sim
@@ -9466,13 +9466,14 @@ sim.optimal <- function (x, y, n, w, h, u)
         x$Stk <- sim.trade.stk(x, h > 0, n, T)
         x$Grp <- sim.trade.grp(x, h > 0, w)
         x$Trd <- vec.min(x$Stk, x$Grp) > 0
-        if (!u) {
-            x <- mat.sort(x, c("Trd", "Alp", "Grp", "Stk"), c(T, 
-                h < 0, T, T))
+        if (u > 0) {
+            x <- x[order(u * x[, "Ret"] + (100 - u) * x[, "Bmk"], 
+                decreasing = h > 0), ]
+            x <- mat.sort(x, c("Trd", "Alp"), c(T, h < 0))
         }
         else {
-            x <- mat.sort(x, c("Trd", "Alp", "Ret"), c(T, h < 
-                0, h > 0))
+            x <- mat.sort(x, c("Trd", "Alp", "Grp", "Stk"), c(T, 
+                h < 0, T, T))
         }
         x$Act[1] <- x$Act[1] + sign(h) * min(x$Stk[1], x$Grp[1])
         x <- sim.limits(x, w)

@@ -17,7 +17,7 @@ sim.optimal(x, y, n, w, h, u)
 
 \item{h}{= quintile to sell (stocks in bin <h> and higher are flushed)}
 
-\item{u}{= T/F logical flag}
+\item{u}{= integer between 0 and 100}
 }
 \description{
 returns named vector of optimal portfolio weights
