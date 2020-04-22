@@ -9467,8 +9467,11 @@ sim.optimal <- function (x, y, n, w, h, u)
         x$Grp <- sim.trade.grp(x, h > 0, w)
         x$Trd <- vec.min(x$Stk, x$Grp) > 0
         if (u > 0) {
-            x <- x[order(u * x[, "Ret"] + (100 - u) * x[, "Bmk"], 
-                decreasing = h > 0), ]
+            vec <- list(A = apply(x[, c("Grp", "Stk")], 1, min), 
+                B = sign(h) * x[, "Ret"])
+            vec <- lapply(vec, function(x) x/sqrt(sum(x^2)))
+            x <- x[order((simplify2array(vec) %*% c(100 - u, 
+                u))[, 1], decreasing = T), ]
             x <- mat.sort(x, c("Trd", "Alp"), c(T, h < 0))
         }
         else {
