@@ -22,7 +22,6 @@ Returns a 1/0 mem vector
 Other sf: \code{\link{sf.bin.nms}}, \code{\link{sf.daily}},
   \code{\link{sf.detail}}, \code{\link{sf.single.bsim}},
   \code{\link{sf.underlying.data}},
-  \code{\link{sf.underlying.summ}},
-  \code{\link{sf.underlying}}, \code{\link{sf}}
+  \code{\link{sf.underlying.summ}}, \code{\link{sf}}
 }
 \keyword{sf.subset}

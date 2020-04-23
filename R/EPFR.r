@@ -9068,9 +9068,10 @@ sf.daily <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trail,
         if (i%%100 == 0) 
             cat("\n")
         i.dt <- dimnames(x)[[1]][i]
-        vec <- sf.underlying(vbl.nm, univ, ret.nm, i.dt, trail, 
-            sum.flows, grp, dly.vbl, 5, fldr, vbl.lag, F, F, 
-            dts[i.dt], classif)
+        vec <- sf.underlying.data(vbl.nm, univ, ret.nm, i.dt, 
+            trail, sum.flows, grp, dly.vbl, 5, fldr, vbl.lag, 
+            F, dts[i.dt], classif, NULL)
+        vec <- sf.underlying.summ(vec, 5, F)
         vec <- map.rname(vec, dimnames(x)[[2]])
         x[i.dt, ] <- as.numeric(vec)
     }
@@ -9152,15 +9153,12 @@ sf.single.bsim <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, fldr,
     nBins = 5, reverse.vbl = F, retHz = 1, classif, weighting.factor = NULL) 
 {
     grp <- classif[, grp.nm]
-    z <- sf.bin.nms(nBins, uRet)
-    dts <- yyyymm.seq(prdBeg, prdEnd)
-    z <- matrix(NA, length(dts), length(z), F, list(dts, z))
-    for (i in dimnames(z)[[1]]) {
-        vec <- sf.underlying(vbl.nm, univ, ret.nm, i, trail, 
-            sum.flows, grp, dly.vbl, nBins, fldr, vbl.lag, uRet, 
-            reverse.vbl, retHz, classif, weighting.factor)
-        z[i, ] <- map.rname(vec, dimnames(z)[[2]])
-    }
+    z <- list()
+    for (i in yyyymm.seq(prdBeg, prdEnd)) z[[i]] <- sf.underlying.data(vbl.nm, 
+        univ, ret.nm, i, trail, sum.flows, grp, dly.vbl, nBins, 
+        fldr, vbl.lag, reverse.vbl, retHz, classif, weighting.factor)
+    z <- t(sapply(z, function(x) map.rname(sf.underlying.summ(x, 
+        nBins, uRet), sf.bin.nms(nBins, uRet))))
     z
 }
 
@@ -9189,40 +9187,6 @@ sf.subset <- function (x, y, n, w)
     if (m > 2) 
         z <- z & is.element(w[, x[3]], x[4])
     z <- as.numeric(z)
-    z
-}
-
-#' sf.underlying
-#' 
-#' Creates bin excess returns for a single period
-#' @param vbl.nm = variable
-#' @param univ = membership (e.g. "EafeMem" or c("GemMem", 1))
-#' @param ret.nm = return variable
-#' @param ret.prd = the period for which you want returns
-#' @param trail = number of trailing periods to compound/sum over
-#' @param sum.flows = if T, flows get summed. Otherwise they get compounded.
-#' @param grp = group within which binning is to be performed
-#' @param dly.vbl = if T then a daily predictor is assumed else a monthly one
-#' @param nBins = number of bins
-#' @param fldr = data folder
-#' @param vbl.lag = lags by <vbl.lag> weekdays or months depending on whether <dly.vbl> is true.
-#' @param uRet = T/F depending on whether the equal-weight universe return is desired
-#' @param reverse.vbl = T/F depending on whether you want the variable reversed
-#' @param retHz = forward return horizon in months
-#' @param classif = classif file
-#' @param weighting.factor = factor you want to use for Cap-weighted back-tests (defaults to NULL)
-#' @keywords sf.underlying
-#' @export
-#' @family sf
-
-sf.underlying <- function (vbl.nm, univ, ret.nm, ret.prd, trail, sum.flows, grp, 
-    dly.vbl, nBins, fldr, vbl.lag, uRet = F, reverse.vbl = F, 
-    retHz = 1, classif, weighting.factor = NULL) 
-{
-    x <- sf.underlying.data(vbl.nm, univ, ret.nm, ret.prd, trail, 
-        sum.flows, grp, dly.vbl, nBins, fldr, vbl.lag, reverse.vbl, 
-        retHz, classif, weighting.factor)
-    z <- sf.underlying.summ(x, nBins, uRet)
     z
 }
 
@@ -14089,16 +14053,37 @@ yyyymm.ex.int <- function (x)
 
 #' yyyymm.ex.qtr
 #' 
-#' returns quarter end in yyyymm
+#' returns a specific yyyymm within the quarter
 #' @param x = a vector of quarters
+#' @param y = month, in the quarter, to return (defaults to the third)
 #' @keywords yyyymm.ex.qtr
 #' @export
 #' @family yyyymm
 
-yyyymm.ex.qtr <- function (x) 
+yyyymm.ex.qtr <- function (x, y = 3) 
 {
     z <- qtr.to.int(x)
     z <- yyyymm.ex.int(z * 3)
+    z <- yyyymm.lag(z, 3 - y)
+    z
+}
+
+#' yyyymm.exists
+#' 
+#' returns T if <x> is a month expressed in YYYYMM format
+#' @param x = a vector of strings
+#' @keywords yyyymm.exists
+#' @export
+#' @family yyyymm
+
+yyyymm.exists <- function (x) 
+{
+    z <- is.element(nchar(x), 6)
+    j <- 1
+    while (j < 7 & any(z)) {
+        z[z] <- is.element(substring(x[z], j, j), 0:9)
+        j <- j + 1
+    }
     z
 }
 
