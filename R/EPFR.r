@@ -5158,8 +5158,10 @@ html.positioning <- function (x, y)
 
 html.signature <- function () 
 {
-    z <- quant.info(machine.info("Quant"), "Name")
-    z <- paste0("<p>Sincerely,</p><p>", z, "<br>Quantitative Team, EPFR</p>")
+    z <- vec.read(parameters("letterClosings"), F)
+    z <- paste0("<p>", z[order(rnorm(length(z)))][1], "</p><p>")
+    z <- paste0(z, quant.info(machine.info("Quant"), "Name"), 
+        "<br>Quantitative Team, EPFR</p>")
     z
 }
 
