@@ -13143,8 +13143,8 @@ txt.ex.file <- function (x)
 txt.ex.int <- function (x, y = F) 
 {
     if (y) 
-        txt.ex.int.ordinal(x)
-    else txt.ex.int.cardinal(x)
+        txt.ex.int.ordinal.wrapper(x)
+    else txt.ex.int.cardinal.wrapper(x)
 }
 
 #' txt.ex.int.cardinal
@@ -13174,6 +13174,26 @@ txt.ex.int.cardinal <- function (x)
     z <- ifelse(w & !is.na(z), paste(map.rname(map, (x%/%10)%%10), 
         z, sep = "-"), z)
     z <- ifelse(w & is.na(z), map.rname(map, (x%/%10)%%10), z)
+    z
+}
+
+#' txt.ex.int.cardinal.wrapper
+#' 
+#' a string vector describing <x> in words (cardinal numbers)
+#' @param x = a vector of integers
+#' @keywords txt.ex.int.cardinal.wrapper
+#' @export
+#' @family txt
+
+txt.ex.int.cardinal.wrapper <- function (x) 
+{
+    z <- ifelse(x%/%10000 > 0, x, NA)
+    z <- ifelse(is.na(z) & x%/%100 == 0, txt.ex.int.cardinal(x), 
+        z)
+    z <- ifelse(is.na(z) & x%%100 == 0, paste(txt.ex.int.cardinal(x%/%100), 
+        "hundred"), z)
+    z <- ifelse(is.na(z), paste(txt.ex.int.cardinal(x%/%100), 
+        "hundred and", txt.ex.int.cardinal(x%%100)), z)
     z
 }
 
@@ -13207,6 +13227,26 @@ txt.ex.int.ordinal <- function (x)
         "fiftieth", "sixtieth", "seventieth", "eightieth", "ninetieth"), 
         2:9)
     z <- ifelse(w & is.na(z), map.rname(map, (x%/%10)%%10), z)
+    z
+}
+
+#' txt.ex.int.ordinal.wrapper
+#' 
+#' a string vector describing <x> in words (cardinal numbers)
+#' @param x = a vector of integers
+#' @keywords txt.ex.int.ordinal.wrapper
+#' @export
+#' @family txt
+
+txt.ex.int.ordinal.wrapper <- function (x) 
+{
+    z <- ifelse(x%/%10000 > 0, x, NA)
+    z <- ifelse(is.na(z) & x%/%100 == 0, txt.ex.int.ordinal(x), 
+        z)
+    z <- ifelse(is.na(z) & x%%100 == 0, paste(txt.ex.int.cardinal(x%/%100), 
+        "hundredth"), z)
+    z <- ifelse(is.na(z), paste(txt.ex.int.cardinal(x%/%100), 
+        "hundred and", txt.ex.int.ordinal(x%%100)), z)
     z
 }
 
