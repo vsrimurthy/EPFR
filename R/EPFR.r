@@ -13190,8 +13190,12 @@ txt.ex.int.cardinal.wrapper <- function (x)
     z <- ifelse(x%/%10000 > 0, x, NA)
     z <- ifelse(is.na(z) & x%/%100 == 0, txt.ex.int.cardinal(x), 
         z)
+    z <- ifelse(is.na(z) & x%%1000 == 0, paste(txt.ex.int.cardinal(x%/%1000), 
+        "thousand"), z)
     z <- ifelse(is.na(z) & x%%100 == 0, paste(txt.ex.int.cardinal(x%/%100), 
         "hundred"), z)
+    z <- ifelse(is.na(z) & (x%/%100)%%10 == 0, paste(txt.ex.int.cardinal(x%/%1000), 
+        "thousand and", txt.ex.int.cardinal(x%%100)), z)
     z <- ifelse(is.na(z), paste(txt.ex.int.cardinal(x%/%100), 
         "hundred and", txt.ex.int.cardinal(x%%100)), z)
     z
@@ -13243,8 +13247,12 @@ txt.ex.int.ordinal.wrapper <- function (x)
     z <- ifelse(x%/%10000 > 0, x, NA)
     z <- ifelse(is.na(z) & x%/%100 == 0, txt.ex.int.ordinal(x), 
         z)
+    z <- ifelse(is.na(z) & x%%1000 == 0, paste(txt.ex.int.cardinal(x%/%1000), 
+        "thousandth"), z)
     z <- ifelse(is.na(z) & x%%100 == 0, paste(txt.ex.int.cardinal(x%/%100), 
         "hundredth"), z)
+    z <- ifelse(is.na(z) & (x%/%100)%%10 == 0, paste(txt.ex.int.cardinal(x%/%1000), 
+        "thousand and", txt.ex.int.ordinal(x%%100)), z)
     z <- ifelse(is.na(z), paste(txt.ex.int.cardinal(x%/%100), 
         "hundred and", txt.ex.int.ordinal(x%%100)), z)
     z
