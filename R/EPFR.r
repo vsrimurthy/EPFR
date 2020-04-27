@@ -5158,8 +5158,8 @@ html.positioning <- function (x, y)
 
 html.signature <- function () 
 {
-    z <- vec.read(parameters("letterClosings"), F)
-    z <- paste0("<p>", z[order(rnorm(length(z)))][1], "</p><p>")
+    z <- paste0("<p>", sample(vec.read(parameters("letterClosings"), 
+        F), 1), "</p><p>")
     z <- paste0(z, quant.info(machine.info("Quant"), "Name"), 
         "<br>Quantitative Team, EPFR</p>")
     z
@@ -5912,13 +5912,8 @@ mat.ex.vec <- function (x, y, n = T)
 
 mat.fake <- function () 
 {
-    n <- 7
-    m <- 5
-    z <- seq(1, n * m)
-    z <- z[order(rnorm(n * m))]
-    z <- matrix(z, n, m, F, list(1:n, char.ex.int(64 + 1:m)))
-    z <- mat.ex.matrix(z)
-    z
+    mat.ex.matrix(matrix(sample(35), 7, 5, F, list(1:7, char.ex.int(64 + 
+        1:5))))
 }
 
 #' mat.index
@@ -12958,15 +12953,13 @@ strat.path <- function (x, y)
 #' @keywords stunden
 #' @export
 
-stunden <- function (x = 5, y = 8) 
+stunden <- function (x = 4, y = 8) 
 {
     z <- y - 1
     while (mean(z) != y) {
         z <- NULL
-        while (length(z) < x) {
-            n <- seq(-1, 1) + y
-            z <- c(z, n[order(rnorm(length(n)))][1])
-        }
+        while (length(z) < x) z <- c(z, sample(seq(-1, 1) + y, 
+            1))
     }
     z
 }
