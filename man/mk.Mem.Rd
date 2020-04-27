@@ -9,7 +9,7 @@ mk.Mem(x, y, n)
 \arguments{
 \item{x}{= a single YYYYMM}
 
-\item{y}{= a single FundId}
+\item{y}{= a vector of FundId}
 
 \item{n}{= list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect}
 }

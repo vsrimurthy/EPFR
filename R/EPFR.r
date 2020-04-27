@@ -6736,7 +6736,7 @@ mk.JensensAlpha.fund <- function (x, y, n)
 #' 
 #' Returns a 1/0 membership vector
 #' @param x = a single YYYYMM
-#' @param y = a single FundId
+#' @param y = a vector of FundId
 #' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect
 #' @keywords mk.Mem
 #' @export
@@ -6744,8 +6744,10 @@ mk.JensensAlpha.fund <- function (x, y, n)
 
 mk.Mem <- function (x, y, n) 
 {
+    y <- sql.in("FundId", paste0("(", paste(y, collapse = ", "), 
+        ")"))
     y <- sql.and(list(A = sql.in("HFundId", sql.tbl("HFundId", 
-        "FundHistory", paste("FundId =", y))), B = "ReportDate = @mo"))
+        "FundHistory", y)), B = "ReportDate = @mo"))
     z <- c("Holdings t1", "inner join", "SecurityHistory t2 on t1.HSecurityId = t2.HSecurityId")
     z <- sql.unbracket(sql.tbl("SecurityId, Mem = sign(HoldingValue)", 
         z, y))
