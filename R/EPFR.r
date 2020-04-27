@@ -9313,8 +9313,14 @@ sim.direction <- function (x, y)
 
 sim.direction.buy <- function (x, y) 
 {
-    vec.max(-apply(x[, paste0(names(y), "Wt")], 2, min) - y, 
-        0)
+    if (length(y) > 1) {
+        z <- -apply(x[, paste0(names(y), "Wt")], 2, min)
+    }
+    else {
+        z <- -min(x[, paste0(names(y), "Wt")])
+    }
+    z <- vec.max(z - y, 0)
+    z
 }
 
 #' sim.direction.sell
@@ -9328,7 +9334,14 @@ sim.direction.buy <- function (x, y)
 
 sim.direction.sell <- function (x, y) 
 {
-    vec.max(apply(x[, paste0(names(y), "Wt")], 2, max) - y, 0)
+    if (length(y) > 1) {
+        z <- apply(x[, paste0(names(y), "Wt")], 2, max)
+    }
+    else {
+        z <- min(x[, paste0(names(y), "Wt")])
+    }
+    z <- vec.max(z - y, 0)
+    z
 }
 
 #' sim.fetch
