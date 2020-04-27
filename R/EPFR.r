@@ -6746,11 +6746,10 @@ mk.Mem <- function (x, y, n)
 {
     y <- sql.in("FundId", paste0("(", paste(y, collapse = ", "), 
         ")"))
-    y <- sql.and(list(A = sql.in("HFundId", sql.tbl("HFundId", 
-        "FundHistory", y)), B = "ReportDate = @mo"))
+    y <- sql.and(list(A = y, B = "ReportDate = @mo"))
     z <- c("Holdings t1", "inner join", "SecurityHistory t2 on t1.HSecurityId = t2.HSecurityId")
-    z <- sql.unbracket(sql.tbl("SecurityId, Mem = sign(HoldingValue)", 
-        z, y))
+    z <- sql.unbracket(sql.tbl("SecurityId, Mem = sign(max(HoldingValue))", 
+        z, y, "SecurityId"))
     z <- paste(c(sql.declare("@mo", "datetime", yyyymm.to.day(x)), 
         z), collapse = "\n")
     z <- sql.map.classif(z, "Mem", n$conn, n$classif)
