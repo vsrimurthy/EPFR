@@ -4,14 +4,16 @@
 \alias{sql.1dFloMo.Ctry.Allocations}
 \title{sql.1dFloMo.Ctry.Allocations}
 \usage{
-sql.1dFloMo.Ctry.Allocations(x, y, n)
+sql.1dFloMo.Ctry.Allocations(x, y, n, w)
 }
 \arguments{
 \item{x}{= a string vector indexed by allocation-table names}
 
-\item{y}{= one of Ctry/FX/Sector}
+\item{y}{= one of Ctry/FX/Sector/EMDM}
 
 \item{n}{= missing or a named vector of EAFE/EM/ACWI indexed by the elements of <x>}
+
+\item{w}{= one of HFundId/FundId}
 }
 \description{
 Generates the SQL query to get daily 1dFloMo for countries
@@ -61,7 +63,9 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.1wFlow.Corp}},
   \code{\link{sql.ActWtDiff2}},
   \code{\link{sql.AggrAllocations}},
-  \code{\link{sql.AllocTbl}}, \code{\link{sql.DailyFlo}},
+  \code{\link{sql.AllocTbl}},
+  \code{\link{sql.Bullish.Ctry}},
+  \code{\link{sql.Bullish}}, \code{\link{sql.DailyFlo}},
   \code{\link{sql.Diff}}, \code{\link{sql.Dispersion}},
   \code{\link{sql.FloMo.Funds}},
   \code{\link{sql.FundHistory.macro}},

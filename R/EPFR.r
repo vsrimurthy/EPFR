@@ -6328,6 +6328,9 @@ mk.1mAllocMo <- function (x, y, n)
     if (y[1] == "AllocSkew") {
         z <- sql.1mAllocSkew(x, y, n$DB, F)
     }
+    else if (y[1] == "Bullish") {
+        z <- sql.Bullish(x, y, n$DB, F)
+    }
     else if (y[1] == "Dispersion") {
         z <- sql.Dispersion(x, y, n$DB, F)
     }
@@ -9874,23 +9877,24 @@ sql.1dFloMo.Ctry <- function (x, y = "Flow%")
 #' 
 #' Generates the SQL query to get daily 1dFloMo for countries
 #' @param x = a string vector indexed by allocation-table names
-#' @param y = one of Ctry/FX/Sector
+#' @param y = one of Ctry/FX/Sector/EMDM
 #' @param n = missing or a named vector of EAFE/EM/ACWI indexed by the elements of <x>
+#' @param w = one of HFundId/FundId
 #' @keywords sql.1dFloMo.Ctry.Allocations
 #' @export
 #' @family sql
 
-sql.1dFloMo.Ctry.Allocations <- function (x, y, n) 
+sql.1dFloMo.Ctry.Allocations <- function (x, y, n, w) 
 {
-    w <- !duplicated(x)
-    x <- c(vec.named(x[w], x[w]), x)
+    h <- !duplicated(x)
+    x <- c(vec.named(x[h], x[h]), x)
     x <- split(names(x), x)
     if (missing(n)) 
         n <- vec.named(, names(x))
     else n <- map.rname(n, names(x))
     fcn <- function(x) paste0("[", x[1], "] = ", sql.1dFloMo.Ctry.Allocations.term(x[-1], 
         n[x[1]]))
-    z <- c("FundId", "WeightDate", sapply(x, fcn))
+    z <- c(w, "WeightDate", sapply(x, fcn))
     z <- sql.tbl(z, sql.AllocTbl(y))
     z
 }
@@ -11366,6 +11370,133 @@ sql.bcp <- function (x, y, n = "Quant", w = "EPFRUI", h = "dbo")
     z
 }
 
+#' sql.Bullish
+#' 
+#' SQL query for Bullish-sentiment factor
+#' @param x = the YYYYMM for which you want data (known 26 days later)
+#' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
+#' @param n = any of StockFlows/China/Japan/CSI300/Energy
+#' @param w = T/F depending on whether you are checking ftp
+#' @keywords sql.Bullish
+#' @export
+#' @family sql
+
+sql.Bullish <- function (x, y, n, w) 
+{
+    y <- sql.arguments(y)
+    x <- yyyymm.to.day(x)
+    cols <- c("HFundId", "HSecurityId", "HoldingValue")
+    z <- c(sql.drop(c("#HLD", "#BMK")), "")
+    z <- c(z, "create table #HLD (HFundId int not null, HSecurityId int not null, HoldingValue float)")
+    z <- c(z, "create clustered index TempRandomHoldIndex ON #HLD(HFundId, HSecurityId)")
+    z <- c(z, "insert into", paste0("\t#HLD (", paste(cols, collapse = ", "), 
+        ")"))
+    h <- paste0("ReportDate = '", x, "'")
+    if (n != "All") 
+        h <- sql.and(list(A = h, B = sql.in("HSecurityId", sql.RDSuniv(n))))
+    z <- c(z, sql.unbracket(sql.tbl(cols, "Holdings", h)), "")
+    h <- sql.tbl("HFundId, PortVal = sum(AssetsEnd)", "MonthlyData", 
+        paste0("ReportDate = '", x, "'"), "HFundId", "sum(AssetsEnd) > 0")
+    z <- c(z, "update #HLD", "\tset HoldingValue = 100 * HoldingValue/PortVal")
+    z <- c(z, "from", sql.label(paste0("\t", h), "t"), "where", 
+        "\t#HLD.HFundId = t.HFundId", "")
+    u <- sql.and(list(A = "[Index] = 1", B = "HFundId in (select HFundId from #HLD)"))
+    h <- c(sql.label(sql.tbl("HFundId, BenchIndexId", "FundHistory", 
+        u), "t1"), "inner join")
+    h <- c(h, sql.label(sql.tbl("BenchIndexId, nFunds = count(HFundId)", 
+        "FundHistory", u, "BenchIndexId"), "t2"))
+    h <- c(h, "\ton t2.BenchIndexId = t1.BenchIndexId", "inner join", 
+        "#HLD t3 on t3.HFundId = t1.HFundId")
+    u <- "t1.BenchIndexId, t3.HSecurityId, BmkWt = sum(HoldingValue)/nFunds"
+    h <- sql.tbl(u, h, , "t1.BenchIndexId, t3.HSecurityId, nFunds")
+    z <- c(z, sql.into(h, "#BMK"), "")
+    z <- c(z, "delete from #HLD where HFundId in (select HFundId from FundHistory where [Index] = 1)")
+    if (w) {
+        x <- c(paste("ReportDate = '", x, "'", sep = ""), "t1.HSecurityId")
+    }
+    else {
+        x <- "SecurityId"
+    }
+    if (length(y$factor) != 1 | y$factor[1] != "Bullish") 
+        stop("Bad Argument")
+    x <- c(x, "Bullish = 100 * sum(case when HoldingValue > isnull(BmkWt, 0) then 1.0 else 0.0 end)/FundCt")
+    h <- c("#HLD t1", "inner join", "FundHistory t2 on t2.HFundId = t1.HFundId")
+    if (!w) 
+        h <- c(h, "inner join", "SecurityHistory id on id.HSecurityId = t1.HSecurityId")
+    h <- c(h, "cross join", "(select FundCt = count(distinct HFundId) from #HLD) t4", 
+        "left join")
+    h <- c(h, "#BMK t3 on t3.BenchIndexId = t2.BenchIndexId and t3.HSecurityId = t1.HSecurityId")
+    w <- paste0(ifelse(w, "t1.HSecurityId", "SecurityId"), ", FundCt")
+    z <- c(paste(z, collapse = "\n"), paste(sql.unbracket(sql.tbl(x, 
+        h, , w)), collapse = "\n"))
+    z
+}
+
+#' sql.Bullish.Ctry
+#' 
+#' SQL query for monthly Bullish country sentiment
+#' @param x = Ctry/EMDM
+#' @keywords sql.Bullish.Ctry
+#' @export
+#' @family sql
+
+sql.Bullish.Ctry <- function (x) 
+{
+    if (x == "EMDM") {
+        rgn <- sql.1dFloMo.Ctry.List(x)
+    }
+    else {
+        rgn <- c("LK", "VE")
+        names(rgn) <- Ctry.info(rgn, "AllocTable")
+        rgn <- c(sql.1dFloMo.Ctry.List(x), rgn)
+    }
+    if (x == "EMDM") {
+        z <- sql.1dFloMo.Ctry.Allocations(rgn, x, vec.named(c("EAFE", 
+            "EM"), c("DM", "EM")), "HFundId")
+    }
+    else {
+        z <- "CountryAllocations"
+    }
+    z <- c(sql.label(z, "t2"), "\ton t2.HFundId = t1.HFundId")
+    z <- c(sql.label(sql.FundHistory("", "Pas", F, "BenchIndex"), 
+        "t1"), "inner join", z)
+    if (x == "EMDM") {
+        w <- unique(rgn)
+        w <- vec.named(w, w)
+    }
+    else {
+        w <- rgn
+    }
+    w <- c("WeightDate", "BenchIndex", paste0("[", w, "] = avg(", 
+        names(w), ")"))
+    w <- sql.tbl(w, z, , c("WeightDate, BenchIndex"))
+    if (x == "EMDM") {
+        z <- sql.1dFloMo.Ctry.Allocations(rgn, x, vec.named(c("EAFE", 
+            "EM"), c("DM", "EM")), "HFundId")
+    }
+    else {
+        z <- "CountryAllocations"
+    }
+    z <- c(sql.label(z, "t2"), "\ton t2.HFundId = t1.HFundId")
+    z <- c(sql.label(sql.FundHistory("", c("CB", "Act"), F, "BenchIndex"), 
+        "t1"), "inner join", z)
+    z <- c(z, "inner join", sql.label(w, "t3"), "\ton t3.WeightDate = t2.WeightDate and t3.BenchIndex = t1.BenchIndex")
+    if (x == "EMDM") {
+        w <- unique(rgn)
+        w <- paste0("[", w, "] = 100 * sum(case when t2.", w, 
+            " > t3.", w, " then 1.0 else 0.0 end)/count(t2.WeightDate)")
+    }
+    else {
+        w <- paste0("[", rgn, "] = 100 * sum(case when ", names(rgn), 
+            " > [", rgn, "] then 1.0 else 0.0 end)/count(t2.WeightDate)")
+    }
+    w <- c("WeightDate = convert(char(6), t2.WeightDate, 112)", 
+        w)
+    z <- sql.tbl(w, z, , "t2.WeightDate")
+    z <- paste(sql.unbracket(z), collapse = "\n")
+    z
+}
+
 #' sql.connect
 #' 
 #' Opens an SQL connection
@@ -11677,6 +11808,9 @@ sql.FundHistory.macro <- function (x)
         else if (y == "Act") {
             z[[char.ex.int(length(z) + 65)]] <- "isnull(Idx, 'N') = 'N'"
         }
+        else if (y == "Pas") {
+            z[[char.ex.int(length(z) + 65)]] <- "not isnull(Idx, 'N') = 'N'"
+        }
         else if (y == "SRI") {
             z[[char.ex.int(length(z) + 65)]] <- "SRI_yn = 'Y'"
         }
@@ -11741,7 +11875,7 @@ sql.FundHistory.sf <- function (x)
                 "", "or"), ")")
         }
         else {
-            stop("Bad Argument x =", h)
+            z[[char.ex.int(length(z) + 65)]] <- h
         }
     }
     z
