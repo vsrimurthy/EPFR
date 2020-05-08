@@ -4,7 +4,7 @@
 \alias{sql.1dFloMo.Ctry.Allocations}
 \title{sql.1dFloMo.Ctry.Allocations}
 \usage{
-sql.1dFloMo.Ctry.Allocations(x, y, n, w)
+sql.1dFloMo.Ctry.Allocations(x, y, n, w = "FundId")
 }
 \arguments{
 \item{x}{= a string vector indexed by allocation-table names}
@@ -13,7 +13,7 @@ sql.1dFloMo.Ctry.Allocations(x, y, n, w)
 
 \item{n}{= missing or a named vector of EAFE/EM/ACWI indexed by the elements of <x>}
 
-\item{w}{= one of HFundId/FundId}
+\item{w}{= one of HFundId/FundId (defaults to "FundId")}
 }
 \description{
 Generates the SQL query to get daily 1dFloMo for countries

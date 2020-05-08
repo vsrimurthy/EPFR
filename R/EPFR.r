@@ -9879,12 +9879,12 @@ sql.1dFloMo.Ctry <- function (x, y = "Flow%")
 #' @param x = a string vector indexed by allocation-table names
 #' @param y = one of Ctry/FX/Sector/EMDM
 #' @param n = missing or a named vector of EAFE/EM/ACWI indexed by the elements of <x>
-#' @param w = one of HFundId/FundId
+#' @param w = one of HFundId/FundId (defaults to "FundId")
 #' @keywords sql.1dFloMo.Ctry.Allocations
 #' @export
 #' @family sql
 
-sql.1dFloMo.Ctry.Allocations <- function (x, y, n, w) 
+sql.1dFloMo.Ctry.Allocations <- function (x, y, n, w = "FundId") 
 {
     h <- !duplicated(x)
     x <- c(vec.named(x[h], x[h]), x)
@@ -12513,7 +12513,8 @@ sql.query.underlying <- function (x, y, n = T)
 {
     for (i in x) z <- sqlQuery(y, i, stringsAsFactors = F)
     if (n) 
-        cat("Getting ", dim(z)[1], " new rows of data ...\n")
+        cat("Getting", txt.ex.int(dim(z)[1]), "new", ifelse(dim(z)[1] != 
+            1, "rows", "row"), "of data ...\n")
     z
 }
 
