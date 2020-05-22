@@ -4811,19 +4811,19 @@ html.flow.breakdown <- function (x, y, n = 0)
         y <- paste0(" ", y)
     x <- x[order(abs(x), decreasing = T)]
     x <- x[order(x > 0, decreasing = sum(x) + n > 0)]
-    z <- as.numeric(sign(sum(x) + n))
-    x <- x * z
+    u <- as.numeric(sign(sum(x) + n))
+    x <- x * u
     h <- sum(x > 0)
     m <- length(x) - h
     x <- paste(names(x), "($", int.format(round(abs(x))), " million)")
     if (h == 0) {
-        z <- paste("This week's", ifelse(z > 0, "inflows", "outflows"), 
+        z <- paste("This week's", ifelse(u > 0, "inflows", "outflows"), 
             "were driven by sundry small contributions which overwhelmed", 
-            ifelse(z > 0, "outflows from", "inflows into"), html.and(x))
+            ifelse(u > 0, "outflows from", "inflows into"), html.and(x))
         z <- paste0(z, y, ".")
     }
     else if (m == 0) {
-        if (z > 0) {
+        if (u > 0) {
             z <- paste0("inflows ", ifelse(abs(n) > 0, "primarily ", 
                 ""), "went into")
         }
@@ -4835,11 +4835,11 @@ html.flow.breakdown <- function (x, y, n = 0)
         z <- paste0(z, y, ".")
     }
     else {
-        z <- paste("This week's", ifelse(z > 0, "inflows", "outflows"), 
+        z <- paste("This week's", ifelse(u > 0, "inflows", "outflows"), 
             ifelse(abs(n) > 0, "were primarily", "were"), "driven by", 
             html.and(x[1:h]))
         z <- paste0(z, y, ", but offset by")
-        z <- paste(z, ifelse(z > 0, "outflows from", "inflows into"), 
+        z <- paste(z, ifelse(u > 0, "outflows from", "inflows into"), 
             html.and(x[h + 1:m]))
         z <- paste0(z, y, ".")
     }
