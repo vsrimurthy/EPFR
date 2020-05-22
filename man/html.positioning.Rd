@@ -16,11 +16,12 @@ writes a positioning report
 }
 \seealso{
 Other html: \code{\link{html.and}},
+  \code{\link{html.email}},
   \code{\link{html.flow.breakdown}},
   \code{\link{html.flow.english}},
   \code{\link{html.flow.underlying}},
   \code{\link{html.image}}, \code{\link{html.list}},
-  \code{\link{html.signature}}, \code{\link{html.tbl}},
-  \code{\link{html.tenure}}
+  \code{\link{html.problem}}, \code{\link{html.signature}},
+  \code{\link{html.tbl}}, \code{\link{html.tenure}}
 }
 \keyword{html.positioning}

@@ -4795,6 +4795,46 @@ html.and <- function (x)
     z
 }
 
+#' html.email
+#' 
+#' writes outgoing email report for <x>
+#' @param x = a SINGLE flow date in YYYYMMDD format
+#' @keywords html.email
+#' @export
+#' @family html
+
+html.email <- function (x) 
+{
+    if (missing(x)) 
+        x <- today()
+    z <- mat.read(parameters("classif-email"), "\t")
+    w <- "D"
+    if (publish.weekly.last(x) > publish.weekly.last(flowdate.lag(x, 
+        1))) 
+        w <- c(w, "W")
+    if (publish.monthly.last(x, 16) > publish.monthly.last(flowdate.lag(x, 
+        1), 16)) 
+        w <- c(w, "M")
+    w <- is.element(z[, "freq"], w) & is.element(z[, "day"], 
+        c(weekday.to.name(day.to.weekday(x)), "All"))
+    z <- z[w, ]
+    z$yyyymmdd <- map.rname(email.list(), dimnames(z)[[1]])
+    z$target <- rep(NA, dim(z)[1])
+    z[z[, "entry"] == "flow" & z[, "freq"] == "D", "target"] <- publish.daily.last(x)
+    z[z[, "entry"] == "flow" & z[, "freq"] == "W", "target"] <- publish.weekly.last(x)
+    z[z[, "entry"] == "flow" & z[, "freq"] == "M", "target"] <- publish.monthly.last(x, 
+        16)
+    z[z[, "entry"] == "date" & z[, "freq"] == "D", "target"] <- x
+    x <- z
+    y <- c("The QC process certified", "reports were successfully emailed.")
+    y <- c(y, "This morning the following emails did not go out:")
+    y <- c(y, "The QC process was unable to check delivery of the following:")
+    z <- html.problem(dimnames(x)[[1]], y, x$yyyymmdd != x$target)
+    email("Vikram.C.Srimurthy@epfrglobal.com", "Report Delivery", 
+        z, , T)
+    invisible()
+}
+
 #' html.flow.breakdown
 #' 
 #' html breaking down flows into constituents
@@ -5146,6 +5186,37 @@ html.positioning <- function (x, y)
     }
     z <- list(html = z, indicator = x[1, ], quintiles = n[1, 
         ])
+    z
+}
+
+#' html.problem
+#' 
+#' problem report
+#' @param x = report names
+#' @param y = string vector
+#' @param n =logical vector (T = error, F = not, NA = no check)
+#' @keywords html.problem
+#' @export
+#' @family html
+
+html.problem <- function (x, y, n) 
+{
+    w <- !is.na(n) & n
+    z <- c("Dear All,")
+    if (sum(w) == 0) {
+        z <- c(z, "<p>", paste(y[1], txt.ex.int(sum(!is.na(n))), 
+            y[2], "</p>"))
+    }
+    else {
+        z <- c(z, "<p>", y[3], html.list(x[w]), "</p>")
+    }
+    w <- is.na(n)
+    if (any(w)) {
+        z <- c(z, "<p>", y[4])
+        z <- c(z, html.list(x[w]), "</p>")
+    }
+    z <- c(z, html.signature())
+    z <- paste(z, collapse = "\n")
     z
 }
 
