@@ -4815,7 +4815,7 @@ html.flow.breakdown <- function (x, y, n = 0)
     x <- x * u
     h <- sum(x > 0)
     m <- length(x) - h
-    x <- paste(names(x), "($", int.format(round(abs(x))), " million)")
+    x <- paste0(names(x), " ($", int.format(round(abs(x))), " million)")
     if (h == 0) {
         z <- paste("This week's", ifelse(u > 0, "inflows", "outflows"), 
             "were driven by sundry small contributions which overwhelmed", 
