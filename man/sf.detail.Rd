@@ -4,16 +4,15 @@
 \alias{sf.detail}
 \title{sf.detail}
 \usage{
-sf.detail(prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trail, sum.flows, fldr,
-  dly.vbl = T, vbl.lag = 0, nBins = 5, reverse.vbl = F, classif,
-  weighting.factor = NULL)
+sf.detail(fcn, prdBeg, prdEnd, univ, grp.nm, ret.nm, trail, fldr, nBins = 5,
+  classif, weighting.factor = NULL)
 }
 \arguments{
+\item{fcn}{= function that fetches data for the appropriate period and parameter}
+
 \item{prdBeg}{= first-return date in YYYYMM}
 
 \item{prdEnd}{= first-return date in YYYYMM after <prdBeg>}
-
-\item{vbl.nm}{= variable}
 
 \item{univ}{= membership (e.g. "EafeMem" or c("GemMem", 1))}
 
@@ -21,19 +20,11 @@ sf.detail(prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trail, sum.flows, fldr,
 
 \item{ret.nm}{= return variable}
 
-\item{trail}{= number of trailing periods to compound/sum over}
-
-\item{sum.flows}{= T/F depending on whether you want flows summed or compounded.}
+\item{trail}{= variable parameter}
 
 \item{fldr}{= data folder}
 
-\item{dly.vbl}{= if T then a daily predictor is assumed else a monthly one}
-
-\item{vbl.lag}{= lags by <vbl.lag> weekdays or months depending on whether <dly.vbl> is true.}
-
 \item{nBins}{= number of bins}
-
-\item{reverse.vbl}{= T/F depending on whether you want the variable reversed}
 
 \item{classif}{= classif file}
 

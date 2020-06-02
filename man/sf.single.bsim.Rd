@@ -4,17 +4,15 @@
 \alias{sf.single.bsim}
 \title{sf.single.bsim}
 \usage{
-sf.single.bsim(prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, fldr,
-  dly.vbl = F, trail = 1, sum.flows = T, vbl.lag = 0, uRet = F,
-  nBins = 5, reverse.vbl = F, retHz = 1, classif,
-  weighting.factor = NULL)
+sf.single.bsim(fcn, prdBeg, prdEnd, univ, grp.nm, ret.nm, fldr, trail,
+  uRet = F, nBins = 5, retHz = 1, classif, weighting.factor = NULL)
 }
 \arguments{
+\item{fcn}{= function that fetches data for the appropriate period and parameter}
+
 \item{prdBeg}{= first-return date in YYYYMM}
 
 \item{prdEnd}{= first-return date in YYYYMM after <prdBeg>}
-
-\item{vbl.nm}{= variable}
 
 \item{univ}{= membership (e.g. "EafeMem" or c("GemMem", 1))}
 
@@ -24,19 +22,11 @@ sf.single.bsim(prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, fldr,
 
 \item{fldr}{= data folder}
 
-\item{dly.vbl}{= T/F depending on whether the variable used is daily or monthly}
-
-\item{trail}{= number of trailing periods to compound/sum over}
-
-\item{sum.flows}{= if T, flows get summed. Otherwise they get compounded.}
-
-\item{vbl.lag}{= lags by <vbl.lag> weekdays or months depending on whether <dly.vbl> is true.}
+\item{trail}{= variable parameter}
 
 \item{uRet}{= T/F depending on whether the equal-weight universe return is desired}
 
 \item{nBins}{= number of bins}
-
-\item{reverse.vbl}{= T/F depending on whether you want the variable reversed}
 
 \item{retHz}{= forward return horizon in months}
 

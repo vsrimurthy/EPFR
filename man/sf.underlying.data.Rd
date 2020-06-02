@@ -4,11 +4,11 @@
 \alias{sf.underlying.data}
 \title{sf.underlying.data}
 \usage{
-sf.underlying.data(vbl.nm, univ, ret.nm, ret.prd, trail, sum.flows, grp,
-  dly.vbl, nBins, fldr, vbl.lag, reverse.vbl, retHz, classif, weighting.factor)
+sf.underlying.data(fcn, univ, ret.nm, ret.prd, trail, grp, nBins, fldr, retHz,
+  classif, weighting.factor)
 }
 \arguments{
-\item{vbl.nm}{= variable}
+\item{fcn}{= function that fetches data for the appropriate period and parameter}
 
 \item{univ}{= membership (e.g. "EafeMem" or c("GemMem", 1))}
 
@@ -16,21 +16,13 @@ sf.underlying.data(vbl.nm, univ, ret.nm, ret.prd, trail, sum.flows, grp,
 
 \item{ret.prd}{= the period for which you want returns}
 
-\item{trail}{= number of trailing periods to compound/sum over}
-
-\item{sum.flows}{= if T, flows get summed. Otherwise they get compounded.}
+\item{trail}{= variable parameter}
 
 \item{grp}{= group within which binning is to be performed}
-
-\item{dly.vbl}{= if T then a daily predictor is assumed else a monthly one}
 
 \item{nBins}{= number of bins}
 
 \item{fldr}{= data folder}
-
-\item{vbl.lag}{= lags by <vbl.lag> weekdays or months depending on whether <dly.vbl> is true.}
-
-\item{reverse.vbl}{= T/F depending on whether you want the variable reversed}
 
 \item{retHz}{= forward return horizon in months}
 

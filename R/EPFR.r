@@ -1282,7 +1282,7 @@ compound.sf <- function (x, y)
     x <- zav(x)
     z <- rep(NA, dim(x)[1])
     if (any(w)) 
-        z[w] <- mat.compound(x[w, ])
+        z[w] <- fcn.mat.num(fcn, x[w, ], , F)
     z
 }
 
@@ -9035,19 +9035,15 @@ seconds.sho <- function (x)
 #' sf
 #' 
 #' runs a stock-flows simulation
+#' @param fcn = function that fetches data for the appropriate period and parameter
 #' @param prdBeg = first-return date in YYYYMM
 #' @param prdEnd = first-return date in YYYYMM after <prdBeg>
-#' @param vbl.nm = variable
 #' @param univ = membership (e.g. "EafeMem" or c("GemMem", 1))
 #' @param grp.nm = group within which binning is to be performed
 #' @param ret.nm = return variable
-#' @param trails = number of trailing periods to compound/sum over
-#' @param sum.flows = T/F depending on whether you want flows summed or compounded.
+#' @param trails = variable parameter
 #' @param fldr = data folder
-#' @param dly.vbl = if T then a daily predictor is assumed else a monthly one
-#' @param vbl.lag = lags by <vbl.lag> weekdays or months depending on whether <dly.vbl> is true.
 #' @param nBins = number of bins
-#' @param reverse.vbl = T/F depending on whether you want the variable reversed
 #' @param geom.comp = T/F depending on whether you want bin excess returns summarized geometrically or arithmetically
 #' @param retHz = forward return horizon in months
 #' @param classif = classif file
@@ -9055,24 +9051,22 @@ seconds.sho <- function (x)
 #' @export
 #' @family sf
 
-sf <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trails, 
-    sum.flows, fldr, dly.vbl = T, vbl.lag = 0, nBins = 5, reverse.vbl = F, 
-    geom.comp = F, retHz = 1, classif) 
+sf <- function (fcn, prdBeg, prdEnd, univ, grp.nm, ret.nm, trails, 
+    fldr, nBins = 5, geom.comp = F, retHz = 1, classif) 
 {
     n.trail <- length(trails)
-    fcn <- ifelse(geom.comp, "bbk.bin.rets.geom.summ", "bbk.bin.rets.summ")
-    fcn <- get(fcn)
+    summ.fcn <- ifelse(geom.comp, "bbk.bin.rets.geom.summ", "bbk.bin.rets.summ")
+    summ.fcn <- get(summ.fcn)
     fcn.loc <- function(x) {
-        fcn(x, 12/retHz)
+        summ.fcn(x, 12/retHz)
     }
     z <- list()
     for (j in 1:n.trail) {
         cat(trails[j], "")
         if (j%%10 == 0) 
             cat("\n")
-        x <- sf.single.bsim(prdBeg, prdEnd, vbl.nm, univ, grp.nm, 
-            ret.nm, fldr, dly.vbl, trails[j], sum.flows, vbl.lag, 
-            T, nBins, reverse.vbl, retHz, classif)
+        x <- sf.single.bsim(fcn, prdBeg, prdEnd, univ, grp.nm, 
+            ret.nm, fldr, trails[j], T, nBins, retHz, classif)
         x <- t(map.rname(t(x), c(dimnames(x)[[2]], "TxB")))
         x[, "TxB"] <- x[, "Q1"] - x[, paste0("Q", nBins)]
         x <- mat.ex.matrix(x)
@@ -9159,33 +9153,26 @@ sf.daily <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trail,
 #' sf.detail
 #' 
 #' runs a stock-flows simulation
+#' @param fcn = function that fetches data for the appropriate period and parameter
 #' @param prdBeg = first-return date in YYYYMM
 #' @param prdEnd = first-return date in YYYYMM after <prdBeg>
-#' @param vbl.nm = variable
 #' @param univ = membership (e.g. "EafeMem" or c("GemMem", 1))
 #' @param grp.nm = group within which binning is to be performed
 #' @param ret.nm = return variable
-#' @param trail = number of trailing periods to compound/sum over
-#' @param sum.flows = T/F depending on whether you want flows summed or compounded.
+#' @param trail = variable parameter
 #' @param fldr = data folder
-#' @param dly.vbl = if T then a daily predictor is assumed else a monthly one
-#' @param vbl.lag = lags by <vbl.lag> weekdays or months depending on whether <dly.vbl> is true.
 #' @param nBins = number of bins
-#' @param reverse.vbl = T/F depending on whether you want the variable reversed
 #' @param classif = classif file
 #' @param weighting.factor = factor you want to use for Cap-weighted back-tests (defaults to NULL)
 #' @keywords sf.detail
 #' @export
 #' @family sf
 
-sf.detail <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trail, 
-    sum.flows, fldr, dly.vbl = T, vbl.lag = 0, nBins = 5, reverse.vbl = F, 
-    classif, weighting.factor = NULL) 
+sf.detail <- function (fcn, prdBeg, prdEnd, univ, grp.nm, ret.nm, trail, fldr, 
+    nBins = 5, classif, weighting.factor = NULL) 
 {
-    cat(vbl.nm, univ[1], "...\n")
-    x <- sf.single.bsim(prdBeg, prdEnd, vbl.nm, univ, grp.nm, 
-        ret.nm, fldr, dly.vbl, trail, sum.flows, vbl.lag, T, 
-        nBins, reverse.vbl, 1, classif, weighting.factor)
+    x <- sf.single.bsim(fcn, prdBeg, prdEnd, univ, grp.nm, ret.nm, 
+        fldr, trail, T, nBins, 1, classif, weighting.factor)
     x <- t(map.rname(t(x), c(dimnames(x)[[2]], "TxB")))
     x[, "TxB"] <- x[, "Q1"] - x[, paste0("Q", nBins)]
     x <- mat.ex.matrix(x)
@@ -9199,20 +9186,16 @@ sf.detail <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trail,
 #' sf.single.bsim
 #' 
 #' runs a single quintile simulation
+#' @param fcn = function that fetches data for the appropriate period and parameter
 #' @param prdBeg = first-return date in YYYYMM
 #' @param prdEnd = first-return date in YYYYMM after <prdBeg>
-#' @param vbl.nm = variable
 #' @param univ = membership (e.g. "EafeMem" or c("GemMem", 1))
 #' @param grp.nm = group within which binning is to be performed
 #' @param ret.nm = return variable
 #' @param fldr = data folder
-#' @param dly.vbl = T/F depending on whether the variable used is daily or monthly
-#' @param trail = number of trailing periods to compound/sum over
-#' @param sum.flows = if T, flows get summed. Otherwise they get compounded.
-#' @param vbl.lag = lags by <vbl.lag> weekdays or months depending on whether <dly.vbl> is true.
+#' @param trail = variable parameter
 #' @param uRet = T/F depending on whether the equal-weight universe return is desired
 #' @param nBins = number of bins
-#' @param reverse.vbl = T/F depending on whether you want the variable reversed
 #' @param retHz = forward return horizon in months
 #' @param classif = classif file
 #' @param weighting.factor = factor you want to use for Cap-weighted back-tests (defaults to NULL)
@@ -9220,15 +9203,15 @@ sf.detail <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trail,
 #' @export
 #' @family sf
 
-sf.single.bsim <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, fldr, 
-    dly.vbl = F, trail = 1, sum.flows = T, vbl.lag = 0, uRet = F, 
-    nBins = 5, reverse.vbl = F, retHz = 1, classif, weighting.factor = NULL) 
+sf.single.bsim <- function (fcn, prdBeg, prdEnd, univ, grp.nm, ret.nm, fldr, trail, 
+    uRet = F, nBins = 5, retHz = 1, classif, weighting.factor = NULL) 
 {
     grp <- classif[, grp.nm]
     z <- list()
-    for (i in yyyymm.seq(prdBeg, prdEnd)) z[[i]] <- sf.underlying.data(vbl.nm, 
-        univ, ret.nm, i, trail, sum.flows, grp, dly.vbl, nBins, 
-        fldr, vbl.lag, reverse.vbl, retHz, classif, weighting.factor)
+    for (i in yyyymm.seq(prdBeg, prdEnd)) {
+        z[[i]] <- sf.underlying.data(fcn, univ, ret.nm, i, trail, 
+            grp, nBins, fldr, retHz, classif, weighting.factor)
+    }
     z <- t(sapply(z, function(x) map.rname(sf.underlying.summ(x, 
         nBins, uRet), sf.bin.nms(nBins, uRet))))
     z
@@ -9265,18 +9248,14 @@ sf.subset <- function (x, y, n, w)
 #' sf.underlying.data
 #' 
 #' Gets data needed to back-test a single period
-#' @param vbl.nm = variable
+#' @param fcn = function that fetches data for the appropriate period and parameter
 #' @param univ = membership (e.g. "EafeMem" or c("GemMem", 1))
 #' @param ret.nm = return variable
 #' @param ret.prd = the period for which you want returns
-#' @param trail = number of trailing periods to compound/sum over
-#' @param sum.flows = if T, flows get summed. Otherwise they get compounded.
+#' @param trail = variable parameter
 #' @param grp = group within which binning is to be performed
-#' @param dly.vbl = if T then a daily predictor is assumed else a monthly one
 #' @param nBins = number of bins
 #' @param fldr = data folder
-#' @param vbl.lag = lags by <vbl.lag> weekdays or months depending on whether <dly.vbl> is true.
-#' @param reverse.vbl = T/F depending on whether you want the variable reversed
 #' @param retHz = forward return horizon in months
 #' @param classif = classif file
 #' @param weighting.factor = factor you want to use for Cap-weighted back-tests
@@ -9284,24 +9263,11 @@ sf.subset <- function (x, y, n, w)
 #' @export
 #' @family sf
 
-sf.underlying.data <- function (vbl.nm, univ, ret.nm, ret.prd, trail, sum.flows, grp, 
-    dly.vbl, nBins, fldr, vbl.lag, reverse.vbl, retHz, classif, 
-    weighting.factor) 
+sf.underlying.data <- function (fcn, univ, ret.nm, ret.prd, trail, grp, nBins, fldr, 
+    retHz, classif, weighting.factor) 
 {
     mem <- sf.subset(univ, ret.prd, fldr, classif)
-    vbl <- yyyymm.lag(ret.prd, 1)
-    if (dly.vbl & nchar(ret.prd) == 6) 
-        vbl <- yyyymmdd.ex.yyyymm(vbl)
-    if (!dly.vbl & nchar(ret.prd) == 8) 
-        vbl <- yyyymm.lag(yyyymmdd.to.yyyymm(vbl))
-    if (vbl.lag > 0) 
-        vbl <- yyyymm.lag(vbl, vbl.lag)
-    vbl <- fetch(vbl.nm, vbl, trail, paste(fldr, "derived", sep = "\\"), 
-        classif)
-    if (reverse.vbl) 
-        vbl <- -vbl
-    if (trail > 1) 
-        vbl <- compound.sf(vbl, sum.flows)
+    vbl <- fcn(ret.prd, trail, fldr)
     if (retHz == 1) {
         ret <- fetch(ret.nm, ret.prd, 1, paste(fldr, "data", 
             sep = "\\"), classif)

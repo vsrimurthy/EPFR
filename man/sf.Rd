@@ -4,16 +4,15 @@
 \alias{sf}
 \title{sf}
 \usage{
-sf(prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trails, sum.flows, fldr,
-  dly.vbl = T, vbl.lag = 0, nBins = 5, reverse.vbl = F, geom.comp = F,
-  retHz = 1, classif)
+sf(fcn, prdBeg, prdEnd, univ, grp.nm, ret.nm, trails, fldr, nBins = 5,
+  geom.comp = F, retHz = 1, classif)
 }
 \arguments{
+\item{fcn}{= function that fetches data for the appropriate period and parameter}
+
 \item{prdBeg}{= first-return date in YYYYMM}
 
 \item{prdEnd}{= first-return date in YYYYMM after <prdBeg>}
-
-\item{vbl.nm}{= variable}
 
 \item{univ}{= membership (e.g. "EafeMem" or c("GemMem", 1))}
 
@@ -21,19 +20,11 @@ sf(prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trails, sum.flows, fldr,
 
 \item{ret.nm}{= return variable}
 
-\item{trails}{= number of trailing periods to compound/sum over}
-
-\item{sum.flows}{= T/F depending on whether you want flows summed or compounded.}
+\item{trails}{= variable parameter}
 
 \item{fldr}{= data folder}
 
-\item{dly.vbl}{= if T then a daily predictor is assumed else a monthly one}
-
-\item{vbl.lag}{= lags by <vbl.lag> weekdays or months depending on whether <dly.vbl> is true.}
-
 \item{nBins}{= number of bins}
-
-\item{reverse.vbl}{= T/F depending on whether you want the variable reversed}
 
 \item{geom.comp}{= T/F depending on whether you want bin excess returns summarized geometrically or arithmetically}
 
