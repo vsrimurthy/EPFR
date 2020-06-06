@@ -6408,6 +6408,9 @@ mk.1mAllocMo <- function (x, y, n)
     else if (any(y[1] == c("Herfindahl", "HerfindahlEq", "FundCt"))) {
         z <- sql.Herfindahl(x, y, n$DB, F)
     }
+    else if (any(y[1] == c("HoldSum"))) {
+        z <- sql.1mFundCt(x, y, n$DB, F)
+    }
     else if (any(y[1] == c("AllocDInc", "AllocDDec", "AllocDAdd", 
         "AllocDRem"))) {
         z <- sql.1mAllocD(x, y, n$DB, F)
@@ -9267,7 +9270,7 @@ sf.underlying.data <- function (fcn, univ, ret.nm, ret.prd, trail, grp, nBins, f
     retHz, classif, weighting.factor) 
 {
     mem <- sf.subset(univ, ret.prd, fldr, classif)
-    vbl <- fcn(ret.prd, trail, fldr)
+    vbl <- fcn(ret.prd, trail, fldr, classif)
     if (retHz == 1) {
         ret <- fetch(ret.nm, ret.prd, 1, paste(fldr, "data", 
             sep = "\\"), classif)
@@ -13182,6 +13185,26 @@ today <- function ()
 {
     z <- Sys.Date()
     z <- day.ex.date(z)
+    z
+}
+
+#' tstat
+#' 
+#' t-statistic associated with the regression of each row of <x> on <y>
+#' @param x = a matrix/data-frame
+#' @param y = a vector corresponding to the columns of <x>
+#' @keywords tstat
+#' @export
+
+tstat <- function (x, y) 
+{
+    x <- x - rowMeans(x)
+    y <- as.matrix(y - mean(y))
+    z <- (x %*% y)/crossprod(y)[1, 1]
+    n <- x - tcrossprod(z, y)
+    n <- rowSums(n^2)/(dim(n)[2] - 2)
+    n <- sqrt(n/crossprod(y)[1, 1])
+    z <- z/n
     z
 }
 
