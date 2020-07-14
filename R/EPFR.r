@@ -6382,6 +6382,42 @@ mk.1dFloMo <- function (x, y, n)
     z
 }
 
+#' mk.1mActPas.Ctry
+#' 
+#' Generates the SQL query to get monthly AIS for countries
+#' @param x = YYYYMM month
+#' @param y = connection type (StockFlows/Regular/Quant)
+#' @keywords mk.1mActPas.Ctry
+#' @export
+#' @family mk
+
+mk.1mActPas.Ctry <- function (x, y) 
+{
+    x <- yyyymm.to.day(x)
+    w <- c(as.character(sql.1dFloMo.Ctry.List("Ctry")), "LK", 
+        "VE")
+    w <- vec.named(Ctry.info(w, "CountryId"), w)
+    u <- c("Idx", "CountryId", "Allocation = avg(Allocation)")
+    v <- list(A = paste0("CountryId in (", paste(w, collapse = ", "), 
+        ")"))
+    v[["B"]] <- paste0("ReportDate = @floDt")
+    v <- sql.and(v)
+    z <- sql.FundHistory("", c("CB", "E", "UI"), F, "Idx = isnull(Idx, 'N')")
+    z <- sql.label(z, "t3 on t3.HFundId = t2.HFundId")
+    z <- c("CountryAllocationsHistory t2 on CountryAllocationsHistoryId = [Id]", 
+        "inner join", z)
+    z <- c("CountryAllocations t1", "inner join", z)
+    z <- sql.tbl(u, z, v, paste(u[-length(u)], collapse = ", "))
+    z <- c(sql.declare("@floDt", "datetime", x), sql.unbracket(z))
+    z <- sql.query(paste(z, collapse = "\n"), y, F)
+    z <- pivot(sum, z[, "Allocation"], z[, "CountryId"], z[, 
+        "Idx"])
+    z <- map.rname(z, w)
+    dimnames(z)[[1]] <- names(w)
+    z <- z[, "N"]/nonneg(z[, "Y"]) - 1
+    z
+}
+
 #' mk.1mAllocMo
 #' 
 #' Returns a flow variable with the same row space as <n>
