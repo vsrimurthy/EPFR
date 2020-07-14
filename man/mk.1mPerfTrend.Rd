@@ -18,9 +18,10 @@ Returns a variable with the same row space as <n>
 }
 \seealso{
 Other mk: \code{\link{mk.1dFloMo}},
-  \code{\link{mk.1mAllocMo}}, \code{\link{mk.ActWt}},
-  \code{\link{mk.Alpha.daily}}, \code{\link{mk.Alpha}},
-  \code{\link{mk.EigenCentrality}},
+  \code{\link{mk.1mAllocMo}},
+  \code{\link{mk.1wFloMo.CtryFlow}},
+  \code{\link{mk.ActWt}}, \code{\link{mk.Alpha.daily}},
+  \code{\link{mk.Alpha}}, \code{\link{mk.EigenCentrality}},
   \code{\link{mk.FloAlphaLt.Ctry}},
   \code{\link{mk.Fragility}}, \code{\link{mk.FundsMem}},
   \code{\link{mk.HerdingLSV}}, \code{\link{mk.HoldValTot}},

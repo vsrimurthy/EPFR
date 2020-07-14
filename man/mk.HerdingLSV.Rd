@@ -19,6 +19,7 @@ Generates the herding measure set forth in LSV's 1991 paper "Do institutional in
 \seealso{
 Other mk: \code{\link{mk.1dFloMo}},
   \code{\link{mk.1mAllocMo}}, \code{\link{mk.1mPerfTrend}},
+  \code{\link{mk.1wFloMo.CtryFlow}},
   \code{\link{mk.ActWt}}, \code{\link{mk.Alpha.daily}},
   \code{\link{mk.Alpha}}, \code{\link{mk.EigenCentrality}},
   \code{\link{mk.FloAlphaLt.Ctry}},

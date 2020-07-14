@@ -6425,6 +6425,72 @@ mk.1mAllocMo <- function (x, y, n)
     z
 }
 
+#' mk.1wFloMo.CtryFlow
+#' 
+#' SQL query for country-flow percentage for date <x>
+#' @param x = YYYYMMDD
+#' @param y = FundType (one of E/B)
+#' @param n = item (one of Flow/AssetsStart/AssetsEnd)
+#' @param w = country list (one of Ctry/LatAm)
+#' @param h = connection type (StockFlows/Regular/Quant)
+#' @keywords mk.1wFloMo.CtryFlow
+#' @export
+#' @family mk
+
+mk.1wFloMo.CtryFlow <- function (x, y, n, w, h) 
+{
+    h <- sql.connect(h)
+    w <- sql.1dFloMo.Ctry.List(w)
+    w <- Ctry.info(w, c("GeoId", "CountryId"))
+    rslt <- list(MAP = w)
+    u <- c("GeographicFocus", paste0(n, " = sum(", n, ")"))
+    v <- paste0("GeographicFocus in (", paste(w$GeoId[!is.na(w$GeoId)], 
+        collapse = ", "), ")")
+    z <- sql.FundHistory("", c(y, v, "UI"), F, "GeographicFocus")
+    z <- sql.label(z, "t2 on t2.HFundId = t1.HFundId")
+    z <- c("WeeklyData t1", "inner join", z)
+    z <- sql.tbl(u, z, "WeekEnding = @floDt", "GeographicFocus")
+    z <- c(sql.declare("@floDt", "datetime", x), sql.unbracket(z))
+    rslt[["SCF"]] <- sql.query.underlying(paste(z, collapse = "\n"), 
+        h, F)
+    u <- c("GeographicFocus", paste0(n, " = sum(", n, ")"))
+    z <- sql.FundHistory("", c(y, "CB", "UI"), F, "GeographicFocus")
+    z <- sql.label(z, "t2 on t2.HFundId = t1.HFundId")
+    z <- c("WeeklyData t1", "inner join", z)
+    z <- sql.tbl(u, z, "WeekEnding = @floDt", "GeographicFocus")
+    z <- c(sql.declare("@floDt", "datetime", x), sql.unbracket(z))
+    rslt[["CBF"]] <- sql.query.underlying(paste(z, collapse = "\n"), 
+        h, F)
+    u <- c("Advisor", "GeographicFocus", "CountryId", "Allocation = avg(Allocation)")
+    v <- list(A = paste0("CountryId in (", paste(w$CountryId[!is.na(w$CountryId)], 
+        collapse = ", "), ")"))
+    v[["B"]] <- "datediff(month, ReportDate, @floDt) = case when day(@floDt) < 23 then 2 else 1 end"
+    v <- sql.and(v)
+    z <- sql.FundHistory("", c("CB", y, "UI"), F, c("GeographicFocus", 
+        "Advisor"))
+    z <- sql.label(z, "t3 on t3.HFundId = t2.HFundId")
+    z <- c("CountryAllocationsHistory t2 on CountryAllocationsHistoryId = [Id]", 
+        "inner join", z)
+    z <- c("CountryAllocations t1", "inner join", z)
+    z <- sql.tbl(u, z, v, paste(u[-length(u)], collapse = ", "))
+    z <- sql.tbl(u[-1], sql.label(z, "t"), , paste(u[-length(u)][-1], 
+        collapse = ", "))
+    z <- c(sql.declare("@floDt", "datetime", x), sql.unbracket(z))
+    z <- sql.query.underlying(paste(z, collapse = "\n"), h, F)
+    rslt[["CBA"]] <- pivot(sum, z[, "Allocation"], z[, "CountryId"], 
+        z[, "GeographicFocus"])
+    close(h)
+    rslt[["CBF"]] <- map.rname(mat.index(rslt[["CBF"]]), dimnames(rslt[["CBA"]])[[2]])
+    rslt[["CBF"]] <- 0.01 * rslt[["CBA"]] %*% rslt[["CBF"]]
+    rslt[["CBF"]] <- map.rname(rslt[["CBF"]], rslt[["MAP"]][, 
+        "CountryId"])[, 1]
+    rslt[["SCF"]] <- map.rname(mat.index(rslt[["SCF"]]), rslt[["MAP"]][, 
+        "GeoId"])
+    z <- zav(rslt[["SCF"]]) + zav(rslt[["CBF"]])
+    names(z) <- dimnames(rslt[["MAP"]])[[1]]
+    z
+}
+
 #' mk.ActWt
 #' 
 #' Active weight
