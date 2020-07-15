@@ -17,8 +17,8 @@ mk.FundsMem(x, y, n)
 Returns a 1/0 vector with the same row space as <n> that is 1 whenever it has the right fund type as well as one-month forward return.
 }
 \seealso{
-Other mk: \code{\link{mk.1dFloMo}},
-  \code{\link{mk.1mActPas.Ctry}},
+Other mk: \code{\link{mk.1dFloMo.Ctry}},
+  \code{\link{mk.1dFloMo}}, \code{\link{mk.1mActPas.Ctry}},
   \code{\link{mk.1mAllocMo}}, \code{\link{mk.1mPerfTrend}},
   \code{\link{mk.1wFloMo.CtryFlow}},
   \code{\link{mk.ActWt}}, \code{\link{mk.Alpha.daily}},

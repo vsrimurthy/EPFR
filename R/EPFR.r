@@ -6382,6 +6382,42 @@ mk.1dFloMo <- function (x, y, n)
     z
 }
 
+#' mk.1dFloMo.Ctry
+#' 
+#' SQL query for daily/weekly CBE flow momentum
+#' @param x = flowdate/YYYYMMDD depending on whether daily/weekly
+#' @param y = item (one of Flow/AssetsStart/AssetsEnd)
+#' @param n = country list (one of Ctry/FX/Sector)
+#' @param w = connection type (StockFlows/Regular/Quant)
+#' @param h = T/F depending on whether daily/weekly
+#' @keywords mk.1dFloMo.Ctry
+#' @export
+#' @family mk
+
+mk.1dFloMo.Ctry <- function (x, y, n, w, h) 
+{
+    n <- sql.1dFloMo.CountryId.List(n)
+    u <- c("CountryId", paste0(y, " = 0.01 * sum(Allocation * ", 
+        y, ")"))
+    v <- list(A = paste0("CountryId in (", paste(names(n), collapse = ", "), 
+        ")"))
+    v[["B"]] <- "datediff(month, ReportDate, @floDt) = case when day(@floDt) < 23 then 2 else 1 end"
+    v[["C"]] <- ifelse(h, "DayEnding = @floDt", "WeekEnding = @floDt")
+    v <- sql.and(v)
+    z <- sql.FundHistory("", c("CB", "E", "UI"), F, "FundId")
+    z <- sql.label(z, "t2 on t2.HFundId = t1.HFundId")
+    z <- c(paste(ifelse(h, "DailyData", "WeeklyData"), "t1"), 
+        "inner join", z)
+    z <- c(z, "inner join", "FundHistory t3 on t3.FundId = t2.FundId")
+    z <- c(z, "inner join", "CountryAllocationsHistory t4 on t4.HFundId = t3.HFundId")
+    z <- c(z, "inner join", "CountryAllocations t5 on CountryAllocationsHistoryId = [Id]")
+    z <- sql.tbl(u, z, v, paste(u[-length(u)], collapse = ", "))
+    z <- c(sql.declare("@floDt", "datetime", x), sql.unbracket(z))
+    z <- sql.query(paste(z, collapse = "\n"), w, F)
+    z <- pivot.1d(sum, map.rname(n, z[, 1]), z[, -1])
+    z
+}
+
 #' mk.1mActPas.Ctry
 #' 
 #' Generates the SQL query to get monthly AIS for countries
@@ -9202,59 +9238,6 @@ sf.bin.nms <- function (x, y)
     z
 }
 
-#' sf.daily
-#' 
-#' runs stock-flows simulation
-#' @param prdBeg = first-return date in YYYYMMDD
-#' @param prdEnd = first-return date in YYYYMMDD (must postdate <prdBeg>)
-#' @param vbl.nm = variable
-#' @param univ = membership (e.g. "EafeMem" or c("GemMem", 1))
-#' @param grp.nm = group within which binning is to be performed
-#' @param ret.nm = return variable
-#' @param trail = number of trailing periods to compound/sum over
-#' @param sum.flows = T/F depending on whether you want flows summed or compounded.
-#' @param fldr = data folder
-#' @param vbl.lag = lags by <vbl.lag> weekdays or months depending on whether <dly.vbl> is true.
-#' @param dly.vbl = whether the predictor is daily or monthly
-#' @param retHz = forward return horizon in days
-#' @param classif = classif file
-#' @keywords sf.daily
-#' @export
-#' @family sf
-
-sf.daily <- function (prdBeg, prdEnd, vbl.nm, univ, grp.nm, ret.nm, trail, 
-    sum.flows, fldr, vbl.lag, dly.vbl, retHz, classif) 
-{
-    grp <- classif[, grp.nm]
-    dts <- yyyymm.seq(prdBeg, prdEnd)
-    dts <- dts[!is.element(dts, nyse.holidays())]
-    m <- length(dts)
-    dts <- vec.named(c(yyyymmdd.diff(dts[seq(retHz + 1, m)], 
-        dts[seq(1, m - retHz)]), rep(retHz, retHz)), dts)
-    x <- sf.bin.nms(5, F)
-    x <- matrix(NA, m, length(x), F, list(names(dts), x))
-    for (i in 1:dim(x)[1]) {
-        if (i%%10 == 0) 
-            cat(dimnames(x)[[1]][i], "")
-        if (i%%100 == 0) 
-            cat("\n")
-        i.dt <- dimnames(x)[[1]][i]
-        vec <- sf.underlying.data(vbl.nm, univ, ret.nm, i.dt, 
-            trail, sum.flows, grp, dly.vbl, 5, fldr, vbl.lag, 
-            F, dts[i.dt], classif, NULL)
-        vec <- sf.underlying.summ(vec, 5, F)
-        vec <- map.rname(vec, dimnames(x)[[2]])
-        x[i.dt, ] <- as.numeric(vec)
-    }
-    cat("\n")
-    x <- mat.ex.matrix(x)
-    x$TxB <- x[, 1] - x[, dim(x)[2]]
-    x <- mat.last.to.first(x)
-    fcn <- function(x) bbk.bin.rets.summ(x, 250/retHz)
-    z <- summ.multi(fcn, x, retHz)
-    z
-}
-
 #' sf.detail
 #' 
 #' runs a stock-flows simulation
@@ -9974,6 +9957,64 @@ sql.1dFloMo <- function (x, y, n, w)
     }
     z <- c(paste(h, collapse = "\n"), paste(sql.unbracket(z), 
         collapse = "\n"))
+    z
+}
+
+#' sql.1dFloMo.CountryId.List
+#' 
+#' map of security to CountryId
+#' @param x = one of Ctry/FX/Sector/EMDM
+#' @keywords sql.1dFloMo.CountryId.List
+#' @export
+#' @family sql
+
+sql.1dFloMo.CountryId.List <- function (x) 
+{
+    classif.type <- x
+    sep <- ","
+    if (x == "Ctry") {
+        z <- Ctry.msci.members.rng("ACWI", "200704", "300012")
+        classif.type <- "Ctry"
+    }
+    else if (x == "LatAm") {
+        z <- mat.read(parameters("classif-Ctry"))
+        z <- dimnames(z)[[1]][is.element(z$EpfrRgn, x)]
+        classif.type <- "Ctry"
+    }
+    else if (x == "EMDM") {
+        z <- Ctry.msci.members.rng("ACWI", "199710", "300012")
+        classif.type <- "Ctry"
+    }
+    else if (x == "FX") {
+        z <- Ctry.msci.members.rng("ACWI", "200704", "300012")
+        z <- c(z, "CY", "EE", "LV", "LT", "SK", "SI")
+        classif.type <- "Ctry"
+    }
+    else if (x == "Sector") {
+        z <- dimnames(mat.read(parameters("classif-GSec"), "\t"))[[1]]
+        classif.type <- "GSec"
+        sep <- "\t"
+    }
+    y <- parameters(paste("classif", classif.type, sep = "-"))
+    y <- mat.read(y, sep)
+    y <- map.rname(y, z)
+    if (any(x == c("Ctry", "LatAm"))) {
+        z <- vec.named(z, y$CountryId)
+    }
+    else if (x == "EMDM") {
+        w.dm <- is.element(z, c("US", "CA", Ctry.msci.members.rng("EAFE", 
+            "199710", "300012")))
+        w.em <- is.element(z, Ctry.msci.members.rng("EM", "199710", 
+            "300012"))
+        z <- c(vec.named(rep("DM", sum(w.dm)), y$CountryId[w.dm]), 
+            vec.named(rep("EM", sum(w.em)), y$CountryId[w.em]))
+    }
+    else if (x == "FX") {
+        z <- vec.named(y$Curr, y$CountryId)
+    }
+    else if (x == "Sector") {
+        z <- vec.named(z, y$AllocTable)
+    }
     z
 }
 

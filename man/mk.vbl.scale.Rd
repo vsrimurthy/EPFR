@@ -17,8 +17,8 @@ mk.vbl.scale(x, y, n)
 Linearly scales the first variable based on percentiles of the second. Top decile goes to scaling factor. Bot decile is fixed.
 }
 \seealso{
-Other mk: \code{\link{mk.1dFloMo}},
-  \code{\link{mk.1mActPas.Ctry}},
+Other mk: \code{\link{mk.1dFloMo.Ctry}},
+  \code{\link{mk.1dFloMo}}, \code{\link{mk.1mActPas.Ctry}},
   \code{\link{mk.1mAllocMo}}, \code{\link{mk.1mPerfTrend}},
   \code{\link{mk.1wFloMo.CtryFlow}},
   \code{\link{mk.ActWt}}, \code{\link{mk.Alpha.daily}},

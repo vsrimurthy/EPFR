@@ -15,8 +15,9 @@ mk.1mActPas.Ctry(x, y)
 Generates the SQL query to get monthly AIS for countries
 }
 \seealso{
-Other mk: \code{\link{mk.1dFloMo}},
-  \code{\link{mk.1mAllocMo}}, \code{\link{mk.1mPerfTrend}},
+Other mk: \code{\link{mk.1dFloMo.Ctry}},
+  \code{\link{mk.1dFloMo}}, \code{\link{mk.1mAllocMo}},
+  \code{\link{mk.1mPerfTrend}},
   \code{\link{mk.1wFloMo.CtryFlow}},
   \code{\link{mk.ActWt}}, \code{\link{mk.Alpha.daily}},
   \code{\link{mk.Alpha}}, \code{\link{mk.EigenCentrality}},

@@ -17,8 +17,8 @@ mk.SRIMem(x, y, n)
 1/0 depending on whether <y> or more SRI funds own the stock
 }
 \seealso{
-Other mk: \code{\link{mk.1dFloMo}},
-  \code{\link{mk.1mActPas.Ctry}},
+Other mk: \code{\link{mk.1dFloMo.Ctry}},
+  \code{\link{mk.1dFloMo}}, \code{\link{mk.1mActPas.Ctry}},
   \code{\link{mk.1mAllocMo}}, \code{\link{mk.1mPerfTrend}},
   \code{\link{mk.1wFloMo.CtryFlow}},
   \code{\link{mk.ActWt}}, \code{\link{mk.Alpha.daily}},

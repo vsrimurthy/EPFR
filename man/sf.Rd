@@ -36,7 +36,7 @@ sf(fcn, prdBeg, prdEnd, univ, grp.nm, ret.nm, trails, fldr, nBins = 5,
 runs a stock-flows simulation
 }
 \seealso{
-Other sf: \code{\link{sf.bin.nms}}, \code{\link{sf.daily}},
+Other sf: \code{\link{sf.bin.nms}},
   \code{\link{sf.detail}}, \code{\link{sf.single.bsim}},
   \code{\link{sf.subset}},
   \code{\link{sf.underlying.data}},
