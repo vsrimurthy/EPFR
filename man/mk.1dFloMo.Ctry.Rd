@@ -4,7 +4,7 @@
 \alias{mk.1dFloMo.Ctry}
 \title{mk.1dFloMo.Ctry}
 \usage{
-mk.1dFloMo.Ctry(x, y, n, w, h)
+mk.1dFloMo.Ctry(x, y, n, w, h, u = "E")
 }
 \arguments{
 \item{x}{= flowdate/YYYYMMDD depending on whether daily/weekly}
@@ -16,6 +16,8 @@ mk.1dFloMo.Ctry(x, y, n, w, h)
 \item{w}{= connection type (StockFlows/Regular/Quant)}
 
 \item{h}{= T/F depending on whether daily/weekly}
+
+\item{u}{= Fund Type (one of E/B)}
 }
 \description{
 SQL query for daily/weekly CBE flow momentum

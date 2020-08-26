@@ -1941,6 +1941,48 @@ dir.size <- function (x)
     z
 }
 
+#' dtw
+#' 
+#' Dynamic time-warped distance between <x> and <y>
+#' @param x = a numeric vector
+#' @param y = a numeric vector
+#' @keywords dtw
+#' @export
+
+dtw <- function (x, y) 
+{
+    n <- length(x)
+    m <- length(y)
+    z <- matrix(NA, n + 1, m + 1, F, list(c(0, x), c(0, y)))
+    z[1, ] <- z[, 1] <- Inf
+    z[1, 1] <- 0
+    for (i in 1:m + 1) {
+        for (j in 1:n + 1) {
+            z[j, i] <- min(z[j - 1, i], min(z[j, i - 1], z[j - 
+                1, i - 1])) + abs(x[j - 1] - y[i - 1])
+        }
+    }
+    w <- list(x = n, y = m)
+    i <- m + 1
+    j <- n + 1
+    while (max(i, j) > 2) {
+        if (z[j - 1, i - 1] < min(z[j - 1, i], z[j, i - 1])) {
+            i <- i - 1
+            j <- j - 1
+        }
+        else if (z[j - 1, i] < z[j, i - 1]) {
+            j <- j - 1
+        }
+        else {
+            i <- i - 1
+        }
+        w[["x"]] <- c(j - 1, w[["x"]])
+        w[["y"]] <- c(i - 1, w[["y"]])
+    }
+    z <- mat.ex.matrix(w)
+    z
+}
+
 #' EHD
 #' 
 #' named vector of item between <w> and <h> sorted ascending
@@ -6390,28 +6432,29 @@ mk.1dFloMo <- function (x, y, n)
 #' @param n = country list (one of Ctry/FX/Sector)
 #' @param w = connection type (StockFlows/Regular/Quant)
 #' @param h = T/F depending on whether daily/weekly
+#' @param u = Fund Type (one of E/B)
 #' @keywords mk.1dFloMo.Ctry
 #' @export
 #' @family mk
 
-mk.1dFloMo.Ctry <- function (x, y, n, w, h) 
+mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E") 
 {
     n <- sql.1dFloMo.CountryId.List(n)
-    u <- c("CountryId", paste0(y, " = 0.01 * sum(Allocation * ", 
+    r <- c("CountryId", paste0(y, " = 0.01 * sum(Allocation * ", 
         y, ")"))
     v <- list(A = paste0("CountryId in (", paste(names(n), collapse = ", "), 
         ")"))
     v[["B"]] <- "datediff(month, ReportDate, @floDt) = case when day(@floDt) < 23 then 2 else 1 end"
     v[["C"]] <- ifelse(h, "DayEnding = @floDt", "WeekEnding = @floDt")
     v <- sql.and(v)
-    z <- sql.FundHistory("", c("CB", "E", "UI"), F, "FundId")
+    z <- sql.FundHistory("", c("CB", u, "UI"), F, "FundId")
     z <- sql.label(z, "t2 on t2.HFundId = t1.HFundId")
     z <- c(paste(ifelse(h, "DailyData", "WeeklyData"), "t1"), 
         "inner join", z)
     z <- c(z, "inner join", "FundHistory t3 on t3.FundId = t2.FundId")
     z <- c(z, "inner join", "CountryAllocationsHistory t4 on t4.HFundId = t3.HFundId")
     z <- c(z, "inner join", "CountryAllocations t5 on CountryAllocationsHistoryId = [Id]")
-    z <- sql.tbl(u, z, v, u[1])
+    z <- sql.tbl(r, z, v, r[1])
     z <- c(sql.declare("@floDt", "datetime", x), sql.unbracket(z))
     z <- sql.query(paste(z, collapse = "\n"), w, F)
     z <- pivot.1d(sum, map.rname(n, z[, 1]), z[, -1])
@@ -8679,7 +8722,7 @@ refresh.predictors <- function (path, sql.query, sql.end.stub, connection.type, 
 #' 
 #' Appends new to old data after performing checks
 #' @param x = old data
-#' @param y = new data
+#' @param y = new data (must be a data-frame, cannot be a matrix)
 #' @param n = T/F depending on whether you want changes in data to be ignored
 #' @param w = T/F depending on whether the data already have row names
 #' @keywords refresh.predictors.append
@@ -13782,7 +13825,7 @@ txt.left <- function (x, y)
 
 #' txt.levenshtein
 #' 
-#' Levenshtein distance between <x> and <y>
+#' Levenshtein distance between <x> and <y>. Similar to dtw
 #' @param x = a string
 #' @param y = a string
 #' @keywords txt.levenshtein

@@ -12,7 +12,7 @@ txt.levenshtein(x, y)
 \item{y}{= a string}
 }
 \description{
-Levenshtein distance between <x> and <y>
+Levenshtein distance between <x> and <y>. Similar to dtw
 }
 \seealso{
 Other txt: \code{\link{txt.anagram.underlying}},

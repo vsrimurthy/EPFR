@@ -9,7 +9,7 @@ refresh.predictors.append(x, y, n = F, w = F)
 \arguments{
 \item{x}{= old data}
 
-\item{y}{= new data}
+\item{y}{= new data (must be a data-frame, cannot be a matrix)}
 
 \item{n}{= T/F depending on whether you want changes in data to be ignored}
 
