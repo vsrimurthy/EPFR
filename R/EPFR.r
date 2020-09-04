@@ -6514,6 +6514,9 @@ mk.1mAllocMo <- function (x, y, n)
     if (y[1] == "AllocSkew") {
         z <- sql.1mAllocSkew(x, y, n$DB, F)
     }
+    else if (y[1] == "FloDollar") {
+        z <- sql.1mFloMo(x, y, n$DB, F)
+    }
     else if (y[1] == "Bullish") {
         z <- sql.Bullish(x, y, n$DB, F)
     }
