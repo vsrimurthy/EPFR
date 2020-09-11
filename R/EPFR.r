@@ -4234,11 +4234,12 @@ ftp.delete.script.underlying <- function (x, y, n, w)
 #' @param n = user id (defaults to standard)
 #' @param w = password (defaults to standard)
 #' @param h = T/F depending on whether you want time stamps
+#' @param u = timeout in seconds
 #' @keywords ftp.dir
 #' @export
 #' @family ftp
 
-ftp.dir <- function (x, y, n, w, h = F) 
+ftp.dir <- function (x, y, n, w, h = F, u = 60) 
 {
     if (missing(y)) 
         y <- ftp.credential("ftp")
@@ -4249,7 +4250,7 @@ ftp.dir <- function (x, y, n, w, h = F)
     ftp.file <- "C:\\temp\\foo.ftp"
     month.abbrv <- vec.named(1:12, month.abb)
     cat(ftp.dir.ftp.code(x, y, n, w, "dir"), file = ftp.file)
-    y <- shell(paste0("ftp -i -s:", ftp.file), intern = T)
+    y <- shell.wrapper(paste0("ftp -i -s:", ftp.file), u)
     y <- ftp.dir.excise.crap(y, "150 Opening data channel for directory listing", 
         "226 Successfully transferred")
     if (!is.null(y)) {
@@ -9457,6 +9458,29 @@ sf.underlying.summ <- function (x, y, n)
     }
     if (n) 
         z["uRet"] <- univ.ret
+    z
+}
+
+#' shell.wrapper
+#' 
+#' result of command <x>
+#' @param x = string to issue as command
+#' @param y = timeout in seconds
+#' @keywords shell.wrapper
+#' @export
+
+shell.wrapper <- function (x, y) 
+{
+    z <- NULL
+    while (is.null(z)) {
+        setTimeLimit(elapsed = y, transient = T)
+        z <- tryCatch(shell(x, intern = T), error = function(e) {
+            NULL
+        })
+        if (is.null(z)) 
+            cat(txt.hdr(paste("Process timeout of", y, "seconds triggered. Trying again.")), 
+                "\n")
+    }
     z
 }
 

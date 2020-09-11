@@ -4,7 +4,7 @@
 \alias{ftp.dir}
 \title{ftp.dir}
 \usage{
-ftp.dir(x, y, n, w, h = F)
+ftp.dir(x, y, n, w, h = F, u = 60)
 }
 \arguments{
 \item{x}{= remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
@@ -16,6 +16,8 @@ ftp.dir(x, y, n, w, h = F)
 \item{w}{= password (defaults to standard)}
 
 \item{h}{= T/F depending on whether you want time stamps}
+
+\item{u}{= timeout in seconds}
 }
 \description{
 string vector of, or YYYYMMDD vector indexed by, remote file names
