@@ -4,7 +4,7 @@
 \alias{ftp.get}
 \title{ftp.get}
 \usage{
-ftp.get(x, y, n, w, h)
+ftp.get(x, y, n, w, h, u = 600)
 }
 \arguments{
 \item{x}{= remote file on an ftp site (e.g. "/ftpdata/mystuff/foo.txt")}
@@ -16,6 +16,8 @@ ftp.get(x, y, n, w, h)
 \item{w}{= user id (defaults to standard)}
 
 \item{h}{= password (defaults to standard)}
+
+\item{u}{= timeout in seconds}
 }
 \description{
 file <x> from remote site

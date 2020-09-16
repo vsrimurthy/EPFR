@@ -4452,11 +4452,12 @@ ftp.file.size <- function (x, y, n, w)
 #' @param n = ftp site (defaults to standard)
 #' @param w = user id (defaults to standard)
 #' @param h = password (defaults to standard)
+#' @param u = timeout in seconds
 #' @keywords ftp.get
 #' @export
 #' @family ftp
 
-ftp.get <- function (x, y, n, w, h) 
+ftp.get <- function (x, y, n, w, h, u = 600) 
 {
     if (missing(n)) 
         n <- ftp.credential("ftp")
@@ -4468,7 +4469,7 @@ ftp.get <- function (x, y, n, w, h)
     cat(ftp.dir.ftp.code(x, n, w, h, "get"), file = ftp.file)
     bat.file <- "C:\\temp\\foo.bat"
     cat(paste0("C:\ncd \"", y, "\"\nftp -i -s:", ftp.file), file = bat.file)
-    z <- shell(bat.file, intern = T)
+    z <- shell.wrapper(bat.file, u)
     invisible()
 }
 
