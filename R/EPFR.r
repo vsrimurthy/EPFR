@@ -4494,20 +4494,32 @@ ftp.info <- function (x, y, n, w)
 
 #' ftp.put
 #' 
-#' Writes ftp script to put the relevant file to the right folder
-#' @param x = name of the strategy
-#' @param y = "daily" or "weekly"
-#' @param n = location of the folder on the ftp server
+#' puts file <y> to remote site <x>
+#' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
+#' @param y = local file (e.g. "C:\\\\temp\\\\foo.txt")
+#' @param n = ftp site (defaults to standard)
+#' @param w = user id (defaults to standard)
+#' @param h = password (defaults to standard)
+#' @param u = timeout in seconds
 #' @keywords ftp.put
 #' @export
 #' @family ftp
 
-ftp.put <- function (x, y, n) 
+ftp.put <- function (x, y, n, w, h, u = 600) 
 {
-    z <- paste0("cd /\ncd \"", n, "\"")
-    z <- paste0(z, "\ndel ", strat.file(x, y))
-    z <- paste0(z, "\nput \"", strat.path(x, y), "\"")
-    z
+    if (missing(n)) 
+        n <- ftp.credential("ftp")
+    if (missing(w)) 
+        w <- ftp.credential("user")
+    if (missing(h)) 
+        h <- ftp.credential("pwd")
+    ftp.file <- "C:\\temp\\foo.ftp"
+    cat(ftp.dir.ftp.code(x, n, w, h, paste0("put \"", y, "\"")), 
+        file = ftp.file)
+    bat.file <- "C:\\temp\\foo.bat"
+    cat(paste0("C:\ncd \"", y, "\"\nftp -i -s:", ftp.file), file = bat.file)
+    z <- shell.wrapper(bat.file, u)
+    invisible()
 }
 
 #' ftp.sql.factor

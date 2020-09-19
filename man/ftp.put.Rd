@@ -4,17 +4,23 @@
 \alias{ftp.put}
 \title{ftp.put}
 \usage{
-ftp.put(x, y, n)
+ftp.put(x, y, n, w, h, u = 600)
 }
 \arguments{
-\item{x}{= name of the strategy}
+\item{x}{= remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
 
-\item{y}{= "daily" or "weekly"}
+\item{y}{= local file (e.g. "C:\\\\temp\\\\foo.txt")}
 
-\item{n}{= location of the folder on the ftp server}
+\item{n}{= ftp site (defaults to standard)}
+
+\item{w}{= user id (defaults to standard)}
+
+\item{h}{= password (defaults to standard)}
+
+\item{u}{= timeout in seconds}
 }
 \description{
-Writes ftp script to put the relevant file to the right folder
+puts file <y> to remote site <x>
 }
 \seealso{
 Other ftp: \code{\link{ftp.all.dir}},
