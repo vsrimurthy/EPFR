@@ -17,19 +17,20 @@ ftp.sql.other(x, y, n)
 SQL code to validate <x> flows at the <y> level
 }
 \seealso{
-Other ftp: \code{\link{ftp.all.dir}},
+Other ftp: \code{\link{ftp.action}},
+  \code{\link{ftp.all.dir}},
   \code{\link{ftp.all.files.underlying}},
   \code{\link{ftp.all.files}},
   \code{\link{ftp.credential}},
   \code{\link{ftp.delete.script.underlying}},
-  \code{\link{ftp.delete.script}},
+  \code{\link{ftp.delete.script}}, \code{\link{ftp.del}},
   \code{\link{ftp.dir.excise.crap}},
   \code{\link{ftp.dir.ftp.code}}, \code{\link{ftp.dir}},
-  \code{\link{ftp.download.script}},
-  \code{\link{ftp.file.size}}, \code{\link{ftp.get}},
-  \code{\link{ftp.info}}, \code{\link{ftp.put}},
-  \code{\link{ftp.sql.factor}}, \code{\link{ftp.txt}},
-  \code{\link{ftp.upload.script.underlying}},
-  \code{\link{ftp.upload.script}}
+  \code{\link{ftp.download}}, \code{\link{ftp.file.size}},
+  \code{\link{ftp.get}}, \code{\link{ftp.info}},
+  \code{\link{ftp.mkdir}}, \code{\link{ftp.parent}},
+  \code{\link{ftp.put}}, \code{\link{ftp.remove}},
+  \code{\link{ftp.rmdir}}, \code{\link{ftp.sql.factor}},
+  \code{\link{ftp.txt}}, \code{\link{ftp.upload}}
 }
 \keyword{ftp.sql.other}

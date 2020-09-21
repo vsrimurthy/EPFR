@@ -4077,6 +4077,29 @@ fop.wrapper <- function (x, y, retW, prd.size = 5, sum.flows = F, lag = 0, delay
     z
 }
 
+#' ftp.action
+#' 
+#' executes command <y> within remote folder <x>
+#' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
+#' @param y = command to issue when in remote folder
+#' @param n = ftp site (defaults to standard)
+#' @param w = user id (defaults to standard)
+#' @param h = password (defaults to standard)
+#' @param u = timeout in seconds
+#' @keywords ftp.action
+#' @export
+#' @family ftp
+
+ftp.action <- function (x, y, n, w, h, u) 
+{
+    ftp.file <- "C:\\temp\\foo.ftp"
+    cat(ftp.dir.ftp.code(x, n, w, h, y), file = ftp.file)
+    bat.file <- "C:\\temp\\foo.bat"
+    cat(paste0("C:\nftp -i -s:", ftp.file), file = bat.file)
+    z <- shell.wrapper(bat.file, u)
+    invisible()
+}
+
 #' ftp.all.dir
 #' 
 #' remote-site directory listing of all sub-folders
@@ -4172,6 +4195,31 @@ ftp.credential <- function (x)
 {
     as.character(map.rname(vec.read(parameters("ftp-credential"), 
         T), x))
+}
+
+#' ftp.del
+#' 
+#' deletes file <y> on remote site <x>
+#' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
+#' @param y = remote file (e.g. "foo.txt")
+#' @param n = ftp site (defaults to standard)
+#' @param w = user id (defaults to standard)
+#' @param h = password (defaults to standard)
+#' @param u = timeout in seconds
+#' @keywords ftp.del
+#' @export
+#' @family ftp
+
+ftp.del <- function (x, y, n, w, h, u = 600) 
+{
+    if (missing(n)) 
+        n <- ftp.credential("ftp")
+    if (missing(w)) 
+        w <- ftp.credential("user")
+    if (missing(h)) 
+        h <- ftp.credential("pwd")
+    ftp.action(x, paste0("del \"", y, "\""), n, w, h, u)
+    invisible()
 }
 
 #' ftp.delete.script
@@ -4341,19 +4389,20 @@ ftp.dir.ftp.code <- function (x, y, n, w, h)
     z
 }
 
-#' ftp.download.script
+#' ftp.download
 #' 
-#' creates bat/ftp files to get all files from an ftp folder
+#' replicates <x> in folder <y>
 #' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
 #' @param y = local folder (e.g. "C:\\\\temp\\\\mystuff")
 #' @param n = ftp site
 #' @param w = user id
 #' @param h = password
-#' @keywords ftp.download.script
+#' @param u = timeout in seconds
+#' @keywords ftp.download
 #' @export
 #' @family ftp
 
-ftp.download.script <- function (x, y, n, w, h) 
+ftp.download <- function (x, y, n, w, h, u = 600) 
 {
     if (missing(n)) 
         n <- ftp.credential("ftp")
@@ -4362,47 +4411,14 @@ ftp.download.script <- function (x, y, n, w, h)
     if (missing(h)) 
         h <- ftp.credential("pwd")
     z <- ftp.all.files(x, n, w, h)
-    h <- c(paste("open", n), w, h)
-    w <- z
-    w.par <- dir.parent(w)
-    u.par <- w.par[!duplicated(w.par)]
-    u.par <- u.par[order(nchar(u.par))]
-    w2.par <- u.par != ""
-    z <- txt.left(y, 2)
-    if (any(w2.par)) 
-        z <- c(z, paste0("mkdir \"", y, "\\", u.par[w2.par], 
-            "\""))
-    vec <- ifelse(u.par == "", "", "\\")
-    vec <- paste0(y, vec, u.par)
-    vec <- paste0("cd \"", vec, "\"")
-    vec <- c(vec, paste0("ftp -i -s:", y, "\\script\\ftp", 1:length(u.par), 
-        ".ftp"))
-    vec <- vec[order(rep(seq(1, length(vec)/2), 2))]
-    z <- c(z, vec)
-    dir.ensure(paste(y, "script", "bat.bat", sep = "\\"))
-    cat(z, file = paste(y, "script", "bat.bat", sep = "\\"), 
-        sep = "\n")
-    for (i.n in 1:length(u.par)) {
-        i <- u.par[i.n]
-        w2.par <- is.element(w.par, i)
-        z <- txt.replace(i, "\\", "/")
-        if (x != "" & x != "/") 
-            z <- paste(x, z, sep = "/")
-        if (txt.right(z, 1) == "/") 
-            z <- txt.left(z, nchar(z) - 1)
-        z <- paste0("cd \"", z, "\"")
-        z <- c(h, z)
-        if (i == "") {
-            i <- w[w2.par]
-        }
-        else {
-            i <- txt.right(w[w2.par], nchar(w[w2.par]) - nchar(i) - 
-                1)
-        }
-        z <- c(z, paste0("get \"", i, "\""))
-        z <- c(z, "disconnect", "quit")
-        cat(z, file = paste0(y, "\\script\\", "ftp", i.n, ".ftp"), 
-            sep = "\n")
+    y <- paste(y, dir.parent(z), sep = "\\")
+    y <- ifelse(txt.right(y, 1) == "\\", txt.left(y, nchar(y) - 
+        1), y)
+    dir.ensure(paste(unique(y), "foo.txt", sep = "\\"))
+    z <- paste(x, z, sep = "/")
+    for (j in 1:length(z)) {
+        cat(txt.right(z[j], nchar(z[j]) - nchar(x)), "...\n")
+        ftp.get(z[j], y[j], n, w, h, u)
     }
     invisible()
 }
@@ -4492,6 +4508,46 @@ ftp.info <- function (x, y, n, w)
     z
 }
 
+#' ftp.mkdir
+#' 
+#' makes directory <y> under <x>
+#' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
+#' @param y = folder to be created (e.g. "goo/hoo")
+#' @param n = ftp site (defaults to standard)
+#' @param w = user id (defaults to standard)
+#' @param h = password (defaults to standard)
+#' @param u = timeout in seconds
+#' @keywords ftp.mkdir
+#' @export
+#' @family ftp
+
+ftp.mkdir <- function (x, y, n, w, h, u = 60) 
+{
+    if (missing(n)) 
+        n <- ftp.credential("ftp")
+    if (missing(w)) 
+        w <- ftp.credential("user")
+    if (missing(h)) 
+        h <- ftp.credential("pwd")
+    ftp.action(x, paste0("mkdir \"", y, "\""), n, w, h, u)
+    invisible()
+}
+
+#' ftp.parent
+#' 
+#' returns paths to the parent directory
+#' @param x = a string of full paths
+#' @keywords ftp.parent
+#' @export
+#' @family ftp
+
+ftp.parent <- function (x) 
+{
+    z <- dirname(x)
+    z <- ifelse(z == ".", "", z)
+    z
+}
+
 #' ftp.put
 #' 
 #' puts file <y> to remote site <x>
@@ -4513,12 +4569,73 @@ ftp.put <- function (x, y, n, w, h, u = 600)
         w <- ftp.credential("user")
     if (missing(h)) 
         h <- ftp.credential("pwd")
-    ftp.file <- "C:\\temp\\foo.ftp"
-    cat(ftp.dir.ftp.code(x, n, w, h, paste0("put \"", y, "\"")), 
-        file = ftp.file)
-    bat.file <- "C:\\temp\\foo.bat"
-    cat(paste0("C:\ncd \"", y, "\"\nftp -i -s:", ftp.file), file = bat.file)
-    z <- shell.wrapper(bat.file, u)
+    ftp.action(x, paste0("put \"", y, "\""), n, w, h, u)
+    invisible()
+}
+
+#' ftp.remove
+#' 
+#' removes <x> on remote site
+#' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
+#' @param y = ftp site
+#' @param n = user id
+#' @param w = password
+#' @param h = timeout in seconds
+#' @keywords ftp.remove
+#' @export
+#' @family ftp
+
+ftp.remove <- function (x, y, n, w, h = 60) 
+{
+    if (missing(y)) 
+        y <- ftp.credential("ftp")
+    if (missing(n)) 
+        n <- ftp.credential("user")
+    if (missing(w)) 
+        w <- ftp.credential("pwd")
+    z <- ftp.all.files(x, y, n, w)
+    if (length(z) > 0) {
+        z <- paste(x, z, sep = "/")
+        v <- ftp.parent(z)
+        z <- txt.right(z, nchar(z) - nchar(v) - 1)
+        for (j in 1:length(z)) {
+            cat(z[j], "...\n")
+            ftp.del(v[j], z[j], y, n, w, h)
+        }
+    }
+    z <- ftp.all.dir(x, y, n, w)
+    z <- c(x, paste(x, z, sep = "/"))
+    z <- z[order(nchar(z), decreasing = T)]
+    v <- ftp.parent(z)
+    for (j in 1:length(z)) {
+        cat("Removing", z[j], "...\n")
+        ftp.rmdir(v[j], z[j], y, n, w, h)
+    }
+    invisible()
+}
+
+#' ftp.rmdir
+#' 
+#' removes directory <y> under <x>
+#' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
+#' @param y = folder to be deleted (e.g. "hoo")
+#' @param n = ftp site (defaults to standard)
+#' @param w = user id (defaults to standard)
+#' @param h = password (defaults to standard)
+#' @param u = timeout in seconds
+#' @keywords ftp.rmdir
+#' @export
+#' @family ftp
+
+ftp.rmdir <- function (x, y, n, w, h, u = 60) 
+{
+    if (missing(n)) 
+        n <- ftp.credential("ftp")
+    if (missing(w)) 
+        w <- ftp.credential("user")
+    if (missing(h)) 
+        h <- ftp.credential("pwd")
+    ftp.action(x, paste0("rmdir \"", y, "\""), n, w, h, u)
     invisible()
 }
 
@@ -4666,7 +4783,7 @@ ftp.txt <- function (x, y, n)
     paste(c(paste("open", x), y, n), collapse = "\n")
 }
 
-#' ftp.upload.script
+#' ftp.upload
 #' 
 #' returns ftp script to copy up files from the local machine
 #' @param x = empty remote folder on an ftp site (e.g. "/ftpdata/mystuff")
@@ -4674,11 +4791,12 @@ ftp.txt <- function (x, y, n)
 #' @param n = ftp site (defaults to standard)
 #' @param w = user id (defaults to standard)
 #' @param h = password (defaults to standard)
-#' @keywords ftp.upload.script
+#' @param u = timeout in seconds
+#' @keywords ftp.upload
 #' @export
 #' @family ftp
 
-ftp.upload.script <- function (x, y, n, w, h) 
+ftp.upload <- function (x, y, n, w, h, u = 600) 
 {
     if (missing(n)) 
         n <- ftp.credential("ftp")
@@ -4686,38 +4804,30 @@ ftp.upload.script <- function (x, y, n, w, h)
         w <- ftp.credential("user")
     if (missing(h)) 
         h <- ftp.credential("pwd")
-    z <- c(paste("open", n), w, h, paste0("cd \"", x, "\""), 
-        ftp.upload.script.underlying(y), "disconnect", "quit")
-    z
-}
-
-#' ftp.upload.script.underlying
-#' 
-#' returns ftp script to copy up files from the local machine
-#' @param x = local folder containing the data (e.g. "C:\\\\temp\\\\mystuff")
-#' @keywords ftp.upload.script.underlying
-#' @export
-#' @family ftp
-
-ftp.upload.script.underlying <- function (x) 
-{
-    y <- dir(x)
-    z <- NULL
-    if (length(y) > 0) {
-        w <- !file.info(paste(x, y, sep = "\\"))$isdir
-        if (any(w)) 
-            z <- c(z, paste0("put \"", x, "\\", y[w], "\""))
-        if (any(!w)) {
-            for (n in y[!w]) {
-                z <- c(z, paste0(c("mkdir", "cd"), " \"", n, 
-                  "\""))
-                z <- c(z, ftp.upload.script.underlying(paste(x, 
-                  n, sep = "\\")))
-                z <- c(z, "cd ..")
-            }
-        }
+    z <- dir.all.files(y, "*.*")
+    v <- ftp.parent(z)
+    v <- txt.right(v, nchar(v) - nchar(y))
+    v <- paste0(x, v)
+    foo <- v[!duplicated(v)]
+    foo <- foo[nchar(foo) > nchar(x)]
+    j <- foo
+    j <- ftp.parent(j)
+    j <- j[!duplicated(j)]
+    j <- j[nchar(j) > nchar(x)]
+    while (length(j) > 0) {
+        foo <- setdiff(foo, j)
+        j <- ftp.parent(j)
+        j <- j[!duplicated(j)]
+        j <- j[nchar(j) > nchar(x)]
     }
-    z
+    foo <- txt.right(foo, nchar(foo) - nchar(x) - 1)
+    for (j in foo) ftp.mkdir(x, j, n, w, h)
+    x <- v
+    for (j in 1:length(z)) {
+        cat(txt.right(z[j], nchar(z[j]) - nchar(y) - 1), "...\n")
+        ftp.put(x[j], z[j], n, w, h, u)
+    }
+    invisible()
 }
 
 #' fwd.probs
