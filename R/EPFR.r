@@ -11708,7 +11708,7 @@ sql.and <- function (x, y = "", n = "and")
 sql.arguments <- function (x) 
 {
     filters <- c("All", "Act", "Pas", "Etf", "Mutual", "Num", 
-        "Pseudo", "Up", "xJP", "JP", "CBE", "SRI")
+        "Pseudo", "Up", "xJP", "JP", "CBE", "SRI", "USEUJPDom")
     m <- length(x)
     while (any(x[m] == filters)) m <- m - 1
     if (m == length(x)) 
@@ -12230,6 +12230,9 @@ sql.FundHistory.sf <- function (x)
         }
         else if (h == "SRI") {
             z[[char.ex.int(length(z) + 65)]] <- "SRI = 1"
+        }
+        else if (h == "USEUJPDom") {
+            z[[char.ex.int(length(z) + 65)]] <- "DomicileId in ('JP', 'NO', 'SE', 'CH', 'GB', 'AT', 'BE', 'DK', 'FI', 'FR', 'DE', 'IE', 'IT', 'NL', 'PT', 'ES', 'US', 'CY', 'LU', 'MT', 'IS', 'GU', 'IM', 'JY', 'LI')"
         }
         else if (h == "Etf") {
             z[[char.ex.int(length(z) + 65)]] <- "ETFTypeId is not null"
