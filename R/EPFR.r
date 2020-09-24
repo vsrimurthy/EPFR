@@ -11708,7 +11708,7 @@ sql.and <- function (x, y = "", n = "and")
 sql.arguments <- function (x) 
 {
     filters <- c("All", "Act", "Pas", "Etf", "Mutual", "Num", 
-        "Pseudo", "Up", "xJP", "JP", "CBE", "SRI", "USEUJPDom")
+        "Pseudo", "Up", "xJP", "US", "EU", "JP", "CBE", "SRI")
     m <- length(x)
     while (any(x[m] == filters)) m <- m - 1
     if (m == length(x)) 
@@ -12231,20 +12231,20 @@ sql.FundHistory.sf <- function (x)
         else if (h == "SRI") {
             z[[char.ex.int(length(z) + 65)]] <- "SRI = 1"
         }
-        else if (h == "USEUJPDom") {
-            z[[char.ex.int(length(z) + 65)]] <- "DomicileId in ('JP', 'NO', 'SE', 'CH', 'GB', 'AT', 'BE', 'DK', 'FI', 'FR', 'DE', 'IE', 'IT', 'NL', 'PT', 'ES', 'US', 'CY', 'LU', 'MT', 'IS', 'GU', 'IM', 'JY', 'LI')"
-        }
         else if (h == "Etf") {
             z[[char.ex.int(length(z) + 65)]] <- "ETFTypeId is not null"
         }
         else if (h == "Mutual") {
             z[[char.ex.int(length(z) + 65)]] <- "ETFTypeId is null"
         }
+        else if (h == "US") {
+            z[[char.ex.int(length(z) + 65)]] <- "DomicileId = 'US'"
+        }
+        else if (h == "EU") {
+            z[[char.ex.int(length(z) + 65)]] <- "DomicileId in ('NO', 'SE', 'CH', 'GB', 'AT', 'BE', 'DK', 'FI', 'FR', 'DE', 'IE', 'IT', 'NL', 'PT', 'ES', 'CY', 'LU', 'MT', 'IS', 'GU', 'IM', 'JY', 'LI')"
+        }
         else if (h == "JP") {
             z[[char.ex.int(length(z) + 65)]] <- "DomicileId = 'JP'"
-        }
-        else if (h == "Europe") {
-            z[[char.ex.int(length(z) + 65)]] <- "DomicileId in ('BE', 'BG', 'DK', 'DE', 'IE', 'GR', 'ES', 'FR', 'IT', 'LU', 'HU', 'NL', 'AT', 'PL', 'PT', 'RO', 'FI', 'SE', 'GB', 'SI', 'EE')"
         }
         else if (h == "xJP") {
             z[[char.ex.int(length(z) + 65)]] <- "not DomicileId = 'JP'"
