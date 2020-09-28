@@ -6563,7 +6563,7 @@ mk.1dFloMo <- function (x, y, n)
 
 mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E") 
 {
-    n <- sql.1dFloMo.CountryId.List(n)
+    n <- sql.1dFloMo.CountryId.List(n, x)
     r <- c("CountryId", paste0(y, " = 0.01 * sum(Allocation * ", 
         y, ")"))
     v <- list(A = paste0("CountryId in (", paste(names(n), collapse = ", "), 
@@ -10157,11 +10157,12 @@ sql.1dFloMo <- function (x, y, n, w)
 #' 
 #' map of security to CountryId
 #' @param x = one of Ctry/FX/Sector/EMDM
+#' @param y = one of the following: (a) a YYYYMM date (b) a YYYYMMDD date
 #' @keywords sql.1dFloMo.CountryId.List
 #' @export
 #' @family sql
 
-sql.1dFloMo.CountryId.List <- function (x) 
+sql.1dFloMo.CountryId.List <- function (x, y = "") 
 {
     classif.type <- x
     sep <- ","
@@ -10175,7 +10176,7 @@ sql.1dFloMo.CountryId.List <- function (x)
         classif.type <- "Ctry"
     }
     else if (x == "EMDM") {
-        z <- Ctry.msci.members.rng("ACWI", "199710", "300012")
+        z <- Ctry.msci.members("ACWI", y)
         classif.type <- "Ctry"
     }
     else if (x == "FX") {
@@ -10188,25 +10189,24 @@ sql.1dFloMo.CountryId.List <- function (x)
         classif.type <- "GSec"
         sep <- "\t"
     }
-    y <- parameters(paste("classif", classif.type, sep = "-"))
-    y <- mat.read(y, sep)
-    y <- map.rname(y, z)
+    h <- parameters(paste("classif", classif.type, sep = "-"))
+    h <- mat.read(h, sep)
+    h <- map.rname(h, z)
     if (any(x == c("Ctry", "LatAm"))) {
-        z <- vec.named(z, y$CountryId)
+        z <- vec.named(z, h$CountryId)
     }
     else if (x == "EMDM") {
-        w.dm <- is.element(z, c("US", "CA", Ctry.msci.members.rng("EAFE", 
-            "199710", "300012")))
-        w.em <- is.element(z, Ctry.msci.members.rng("EM", "199710", 
-            "300012"))
-        z <- c(vec.named(rep("DM", sum(w.dm)), y$CountryId[w.dm]), 
-            vec.named(rep("EM", sum(w.em)), y$CountryId[w.em]))
+        w.dm <- is.element(z, c("US", "CA", Ctry.msci.members("EAFE", 
+            y)))
+        w.em <- is.element(z, Ctry.msci.members("EM", y))
+        z <- c(vec.named(rep("DM", sum(w.dm)), h$CountryId[w.dm]), 
+            vec.named(rep("EM", sum(w.em)), h$CountryId[w.em]))
     }
     else if (x == "FX") {
-        z <- vec.named(y$Curr, y$CountryId)
+        z <- vec.named(h$Curr, h$CountryId)
     }
     else if (x == "Sector") {
-        z <- vec.named(z, y$AllocTable)
+        z <- vec.named(z, h$AllocTable)
     }
     z
 }
