@@ -5057,8 +5057,8 @@ html.flow.breakdown <- function (x, y, n = 0)
 #' writes a flow report in English
 #' @param x = a named vector of integers (numbers need to be rounded)
 #' @param y = a named text vector
-#' @param n = line number at which to insert a statement
-#' @param w = statement to be inserted
+#' @param n = line number(s) at which to insert a statement
+#' @param w = statement(s) to be inserted
 #' @keywords html.flow.english
 #' @export
 #' @family html
@@ -5190,8 +5190,13 @@ html.flow.english <- function (x, y, n, w)
             int.format(-x["PriorYrCumAvg"]), " million")
     }
     z <- c(z, u)
-    if (!missing(n) & !missing(w)) 
-        z <- c(z[1:n], w, z[seq(n + 1, length(z))])
+    if (!missing(n) & !missing(w)) {
+        while (length(n) > 0) {
+            z <- c(z[1:n[1]], w[1], z[seq(n[1] + 1, length(z))])
+            n <- n[-1]
+            w <- w[-1]
+        }
+    }
     z <- paste(c(paste0("<br>", z[1]), html.list(z[-1]), "</p>"), 
         collapse = "\n")
     z

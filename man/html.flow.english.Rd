@@ -11,9 +11,9 @@ html.flow.english(x, y, n, w)
 
 \item{y}{= a named text vector}
 
-\item{n}{= line number at which to insert a statement}
+\item{n}{= line number(s) at which to insert a statement}
 
-\item{w}{= statement to be inserted}
+\item{w}{= statement(s) to be inserted}
 }
 \description{
 writes a flow report in English
