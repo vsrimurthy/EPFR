@@ -12203,6 +12203,12 @@ sql.FundHistory.macro <- function (x)
         else if (y == "UI") {
             z[[char.ex.int(length(z) + 65)]] <- sql.ui()
         }
+        else if (y == "LocalCurr") {
+            z[[char.ex.int(length(z) + 65)]] <- "StyleSector = 190"
+        }
+        else if (y == "HardCurr") {
+            z[[char.ex.int(length(z) + 65)]] <- "StyleSector = 191"
+        }
         else {
             z[[char.ex.int(length(z) + 65)]] <- y
         }
