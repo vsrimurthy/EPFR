@@ -13,7 +13,8 @@ vec.cat(x)
 displays on screen
 }
 \seealso{
-Other vec: \code{\link{vec.count}}, \code{\link{vec.max}},
+Other vec: \code{\link{vec.count}},
+  \code{\link{vec.ex.filters}}, \code{\link{vec.max}},
   \code{\link{vec.min}}, \code{\link{vec.named}},
   \code{\link{vec.read}}, \code{\link{vec.same}},
   \code{\link{vec.swap}}, \code{\link{vec.to.lags}},

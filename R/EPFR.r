@@ -11712,8 +11712,7 @@ sql.and <- function (x, y = "", n = "and")
 
 sql.arguments <- function (x) 
 {
-    filters <- c("All", "Act", "Pas", "Etf", "Mutual", "Num", 
-        "Pseudo", "Up", "xJP", "US", "EU", "JP", "CBE", "SRI")
+    filters <- c("All", "Num", "Pseudo", "Up", "CBE", names(vec.ex.filters("sf")))
     m <- length(x)
     while (any(x[m] == filters)) m <- m - 1
     if (m == length(x)) 
@@ -12180,26 +12179,11 @@ sql.FundHistory <- function (x, y, n, w)
 
 sql.FundHistory.macro <- function (x) 
 {
+    n <- vec.ex.filters("macro")
     z <- list()
     for (y in x) {
-        if (any(y == dimnames(mat.read(parameters("classif-FundType")))[[1]])) {
-            z[[char.ex.int(length(z) + 65)]] <- paste0("FundType = '", 
-                y, "'")
-        }
-        else if (y == "Act") {
-            z[[char.ex.int(length(z) + 65)]] <- "isnull(Idx, 'N') = 'N'"
-        }
-        else if (y == "Pas") {
-            z[[char.ex.int(length(z) + 65)]] <- "not isnull(Idx, 'N') = 'N'"
-        }
-        else if (y == "SRI") {
-            z[[char.ex.int(length(z) + 65)]] <- "SRI_yn = 'Y'"
-        }
-        else if (y == "Mutual") {
-            z[[char.ex.int(length(z) + 65)]] <- "not ETF = 'Y'"
-        }
-        else if (y == "Etf") {
-            z[[char.ex.int(length(z) + 65)]] <- "ETF = 'Y'"
+        if (any(y == names(n))) {
+            z[[char.ex.int(length(z) + 65)]] <- n[y]
         }
         else if (y == "CB") {
             z[[char.ex.int(length(z) + 65)]] <- c("(", sql.and(sql.cross.border(F), 
@@ -12207,12 +12191,6 @@ sql.FundHistory.macro <- function (x)
         }
         else if (y == "UI") {
             z[[char.ex.int(length(z) + 65)]] <- sql.ui()
-        }
-        else if (y == "LocalCurr") {
-            z[[char.ex.int(length(z) + 65)]] <- "StyleSector = 190"
-        }
-        else if (y == "HardCurr") {
-            z[[char.ex.int(length(z) + 65)]] <- "StyleSector = 191"
         }
         else {
             z[[char.ex.int(length(z) + 65)]] <- y
@@ -12231,34 +12209,11 @@ sql.FundHistory.macro <- function (x)
 
 sql.FundHistory.sf <- function (x) 
 {
+    n <- vec.ex.filters("sf")
     z <- list()
     for (h in x) {
-        if (h == "Act") {
-            z[[char.ex.int(length(z) + 65)]] <- "[Index] = 0"
-        }
-        else if (h == "Pas") {
-            z[[char.ex.int(length(z) + 65)]] <- "[Index] = 1"
-        }
-        else if (h == "SRI") {
-            z[[char.ex.int(length(z) + 65)]] <- "SRI = 1"
-        }
-        else if (h == "Etf") {
-            z[[char.ex.int(length(z) + 65)]] <- "ETFTypeId is not null"
-        }
-        else if (h == "Mutual") {
-            z[[char.ex.int(length(z) + 65)]] <- "ETFTypeId is null"
-        }
-        else if (h == "US") {
-            z[[char.ex.int(length(z) + 65)]] <- "DomicileId = 'US'"
-        }
-        else if (h == "EU") {
-            z[[char.ex.int(length(z) + 65)]] <- "DomicileId in ('NO', 'SE', 'CH', 'GB', 'AT', 'BE', 'DK', 'FI', 'FR', 'DE', 'IE', 'IT', 'NL', 'PT', 'ES', 'CY', 'LU', 'MT', 'IS', 'GU', 'IM', 'JY', 'LI')"
-        }
-        else if (h == "JP") {
-            z[[char.ex.int(length(z) + 65)]] <- "DomicileId = 'JP'"
-        }
-        else if (h == "xJP") {
-            z[[char.ex.int(length(z) + 65)]] <- "not DomicileId = 'JP'"
+        if (any(h == names(n))) {
+            z[[char.ex.int(length(z) + 65)]] <- n[h]
         }
         else if (h == "CBE") {
             z[[char.ex.int(length(z) + 65)]] <- c("(", sql.and(sql.cross.border(T), 
@@ -14369,6 +14324,22 @@ vec.cat <- function (x)
 vec.count <- function (x) 
 {
     pivot.1d(sum, x, rep(1, length(x)))
+}
+
+#' vec.ex.filters
+#' 
+#' SQL query where clauses associated with filters
+#' @param x = either "sf" or "macro"
+#' @keywords vec.ex.filters
+#' @export
+#' @family vec
+
+vec.ex.filters <- function (x) 
+{
+    z <- mat.read(parameters("classif-filters"), "\t", NULL)
+    z <- z[is.element(z$type, x), ]
+    z <- as.matrix(mat.index(z, "filter"))[, "SQL"]
+    z
 }
 
 #' vec.max
