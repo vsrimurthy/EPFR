@@ -9166,17 +9166,23 @@ rpt.email <- function (x, y, n, w, h, u, v)
 rpt.email.send <- function (x, y, n, w, h) 
 {
     err.raise(h, T, paste("Emailing the following to", y))
-    z <- paste0("reflecting flows to ", format(day.to.date(n), 
-        "%A, %B %d, %Y"), ".")
-    if (length(h) == 1) {
-        z <- paste0("Please find below the latest copy of the ", 
-            x, " report, ", z)
+    if (txt.right(h, 5) == ".html") {
+        z <- paste(vec.read(h, F), collapse = "\n")
+        h <- ""
     }
     else {
-        z <- paste0("Please find below the latest copies of the ", 
-            x, " reports, ", z)
+        z <- paste0("reflecting flows to ", format(day.to.date(n), 
+            "%A, %B %d, %Y"), ".")
+        if (length(h) == 1) {
+            z <- paste0("Please find below the latest copy of the ", 
+                x, " report, ", z)
+        }
+        else {
+            z <- paste0("Please find below the latest copies of the ", 
+                x, " reports, ", z)
+        }
+        z <- paste0("Dear All,<p>", z, "</p>", html.signature())
     }
-    z <- paste0("Dear All,<p>", z, "</p>", html.signature())
     y <- ifelse(w, y, quant.info(machine.info("Quant"), "email"))
     email(y, paste0("EPFR ", x, ": ", n), z, h, T)
     invisible()
