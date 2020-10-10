@@ -4485,7 +4485,9 @@ ftp.get <- function (x, y, n, w, h, u = 600)
     cat(ftp.dir.ftp.code(x, n, w, h, "get"), file = ftp.file)
     bat.file <- "C:\\temp\\foo.bat"
     cat(paste0("C:\ncd \"", y, "\"\nftp -i -s:", ftp.file), file = bat.file)
-    z <- shell.wrapper(bat.file, u)
+    v <- paste(y, txt.right(x, nchar(x) - nchar(ftp.parent(x)) - 
+        1), sep = "\\")
+    while (!file.exists(v)) z <- shell.wrapper(bat.file, u)
     invisible()
 }
 
