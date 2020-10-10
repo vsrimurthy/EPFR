@@ -4824,8 +4824,8 @@ ftp.upload <- function (x, y, n, w, h, u = 600)
     for (j in foo) ftp.mkdir(x, j, n, w, h)
     foo <- ftp.all.files(x, n, w, h)
     moo <- txt.right(z, nchar(z) - nchar(ftp.parent(z)) - 1)
-    moo <- paste(txt.right(v, nchar(v) - nchar(x) - 1), moo, 
-        sep = "/")
+    moo <- paste(v, moo, sep = "/")
+    moo <- txt.right(moo, nchar(moo) - nchar(x) - 1)
     moo <- !is.element(moo, foo)
     while (any(moo)) {
         cat(sum(moo), "files still need to be uploaded to", x, 
