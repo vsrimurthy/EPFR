@@ -4822,10 +4822,27 @@ ftp.upload <- function (x, y, n, w, h, u = 600)
     }
     foo <- txt.right(foo, nchar(foo) - nchar(x) - 1)
     for (j in foo) ftp.mkdir(x, j, n, w, h)
-    x <- v
-    for (j in 1:length(z)) {
-        cat(txt.right(z[j], nchar(z[j]) - nchar(y) - 1), "...\n")
-        ftp.put(x[j], z[j], n, w, h, u)
+    foo <- ftp.all.files(x, n, w, h)
+    moo <- txt.right(z, nchar(z) - nchar(ftp.parent(z)) - 1)
+    moo <- paste(txt.right(v, nchar(v) - nchar(x) - 1), moo, 
+        sep = "/")
+    moo <- !is.element(moo, foo)
+    while (any(moo)) {
+        cat(sum(moo), "files still need to be uploaded to", x, 
+            "...\n")
+        z <- z[moo]
+        v <- v[moo]
+        for (j in 1:length(z)) {
+            cat(txt.right(z[j], nchar(z[j]) - nchar(y) - 1), 
+                "...\n")
+            ftp.put(v[j], z[j], n, w, h, u)
+        }
+        foo <- ftp.all.files(x, n, w, h)
+        moo <- txt.right(z, nchar(z) - nchar(ftp.parent(z)) - 
+            1)
+        moo <- paste(txt.right(v, nchar(v) - nchar(x) - 1), moo, 
+            sep = "/")
+        moo <- !is.element(moo, foo)
     }
     invisible()
 }
