@@ -4298,7 +4298,15 @@ ftp.dir <- function (x, y, n, w, h = F, u = 60)
     ftp.file <- "C:\\temp\\foo.ftp"
     month.abbrv <- vec.named(1:12, month.abb)
     cat(ftp.dir.ftp.code(x, y, n, w, "dir"), file = ftp.file)
-    y <- shell.wrapper(paste0("ftp -i -s:", ftp.file), u)
+    y <- NULL
+    j <- 10
+    while (is.null(y) & j > 0) {
+        y <- shell.wrapper(paste0("ftp -i -s:", ftp.file), u)
+        y <- ftp.dir.excise.crap(y, "250 CWD successful.")
+        j <- j - 1
+    }
+    if (is.null(y)) 
+        stop("Error in ftp.dir. Remote folder ", x, " does not exist ...")
     y <- ftp.dir.excise.crap(y, "150 Opening data channel for directory listing", 
         "226 Successfully transferred")
     if (!is.null(y)) {
@@ -4341,26 +4349,36 @@ ftp.dir <- function (x, y, n, w, h = F, u = 60)
 
 ftp.dir.excise.crap <- function (x, y, n) 
 {
-    w <- y
-    w <- txt.left(x, nchar(w)) == w
-    proceed <- sum(w) == 1
-    if (proceed) {
-        m <- length(x)
-        x <- x[seq((1:m)[w] + 1, m)]
+    if (missing(y)) {
+        proceed <- T
     }
-    if (proceed) {
-        w <- n
-        w <- txt.left(x, nchar(w)) == w
-        proceed <- sum(w) == 1
+    else {
+        y <- txt.left(x, nchar(y)) == y
+        proceed <- sum(y) == 1
+        if (proceed) {
+            m <- length(x)
+            x <- x[seq((1:m)[y] + 1, m)]
+        }
     }
-    if (proceed) {
-        m <- length(x)
-        if (!w[1]) 
-            z <- x[seq(1, (1:m)[w] - 1)]
-        else z <- NULL
-    }
-    if (!proceed) 
+    if (!proceed) {
         z <- NULL
+    }
+    else if (missing(n)) {
+        z <- x
+    }
+    else {
+        n <- txt.left(x, nchar(n)) == n
+        proceed <- sum(n) == 1
+        if (proceed) {
+            m <- length(x)
+            if (!n[1]) 
+                z <- x[seq(1, (1:m)[n] - 1)]
+            else z <- NULL
+        }
+        else {
+            z <- NULL
+        }
+    }
     z
 }
 
