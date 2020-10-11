@@ -4302,13 +4302,12 @@ ftp.dir <- function (x, y, n, w, h = F, u = 60)
     j <- 10
     while (is.null(y) & j > 0) {
         y <- shell.wrapper(paste0("ftp -i -s:", ftp.file), u)
-        y <- ftp.dir.excise.crap(y, "250 CWD successful.")
+        y <- ftp.dir.excise.crap(y, "250 CWD successful.", "226 Successfully transferred")
         j <- j - 1
     }
     if (is.null(y)) 
         stop("Error in ftp.dir. Remote folder ", x, " does not exist ...")
-    y <- ftp.dir.excise.crap(y, "150 Opening data channel for directory listing", 
-        "226 Successfully transferred")
+    y <- ftp.dir.excise.crap(y, "150 Opening data channel for directory listing")
     if (!is.null(y)) {
         n <- min(nchar(y)) - 4
         while (any(!is.element(substring(y, n, n + 4), paste0(" ", 
@@ -4357,7 +4356,10 @@ ftp.dir.excise.crap <- function (x, y, n)
         proceed <- sum(y) == 1
         if (proceed) {
             m <- length(x)
-            x <- x[seq((1:m)[y] + 1, m)]
+            y <- (1:m)[y]
+            if (y < m) 
+                x <- x[seq(y + 1, m)]
+            else x <- NULL
         }
     }
     if (!proceed) {
