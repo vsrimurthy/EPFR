@@ -4657,7 +4657,13 @@ ftp.rmdir <- function (x, y, n, w, h, u = 60)
         w <- ftp.credential("user")
     if (missing(h)) 
         h <- ftp.credential("pwd")
-    ftp.action(x, paste0("rmdir \"", y, "\""), n, w, h, u)
+    v <- ftp.dir(x, n, w, h, F, u)
+    v <- names(v)[!v]
+    while (any(v == y)) {
+        ftp.action(x, paste0("rmdir \"", y, "\""), n, w, h, u)
+        v <- ftp.dir(x, n, w, h, F, u)
+        v <- names(v)[!v]
+    }
     invisible()
 }
 
