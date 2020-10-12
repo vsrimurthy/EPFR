@@ -9,7 +9,7 @@ ftp.put(x, y, n, w, h, u = 600)
 \arguments{
 \item{x}{= remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
 
-\item{y}{= local file (e.g. "C:\\\\temp\\\\foo.txt")}
+\item{y}{= a vector of local file path(s) (e.g. "C:\\\\temp\\\\foo.txt")}
 
 \item{n}{= ftp site (defaults to standard)}
 
@@ -33,10 +33,10 @@ Other ftp: \code{\link{ftp.action}},
   \code{\link{ftp.dir.excise.crap}},
   \code{\link{ftp.dir.ftp.code}}, \code{\link{ftp.dir}},
   \code{\link{ftp.download}}, \code{\link{ftp.file.size}},
-  \code{\link{ftp.get}}, \code{\link{ftp.info}},
-  \code{\link{ftp.mkdir}}, \code{\link{ftp.parent}},
-  \code{\link{ftp.remove}}, \code{\link{ftp.rmdir}},
-  \code{\link{ftp.sql.factor}},
+  \code{\link{ftp.file}}, \code{\link{ftp.get}},
+  \code{\link{ftp.info}}, \code{\link{ftp.mkdir}},
+  \code{\link{ftp.parent}}, \code{\link{ftp.remove}},
+  \code{\link{ftp.rmdir}}, \code{\link{ftp.sql.factor}},
   \code{\link{ftp.sql.other}}, \code{\link{ftp.txt}},
   \code{\link{ftp.upload}}
 }
