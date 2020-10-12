@@ -4551,7 +4551,35 @@ ftp.mkdir <- function (x, y, n, w, h, u = 60)
         w <- ftp.credential("user")
     if (missing(h)) 
         h <- ftp.credential("pwd")
-    ftp.action(x, paste0("mkdir \"", y, "\""), n, w, h, u)
+    y <- as.character(txt.parse(y, "/"))
+    halt <- F
+    while (!halt) {
+        v <- ftp.dir(x, n, w, h, F, u)
+        if (any(names(v) == y[1])) {
+            x <- paste(x, y[1], sep = "/")
+            y <- y[-1]
+            halt <- length(y) == 0
+        }
+        else {
+            halt <- T
+        }
+    }
+    while (length(y) > 0) {
+        ftp.action(x, paste0("mkdir \"", paste(y, collapse = "/"), 
+            "\""), n, w, h, u)
+        halt <- F
+        while (!halt) {
+            v <- ftp.dir(x, n, w, h, F, u)
+            if (any(names(v) == y[1])) {
+                x <- paste(x, y[1], sep = "/")
+                y <- y[-1]
+                halt <- length(y) == 0
+            }
+            else {
+                halt <- T
+            }
+        }
+    }
     invisible()
 }
 
@@ -4658,11 +4686,9 @@ ftp.rmdir <- function (x, y, n, w, h, u = 60)
     if (missing(h)) 
         h <- ftp.credential("pwd")
     v <- ftp.dir(x, n, w, h, F, u)
-    v <- names(v)[!v]
-    while (any(v == y)) {
+    while (any(names(v) == y)) {
         ftp.action(x, paste0("rmdir \"", y, "\""), n, w, h, u)
         v <- ftp.dir(x, n, w, h, F, u)
-        v <- names(v)[!v]
     }
     invisible()
 }
