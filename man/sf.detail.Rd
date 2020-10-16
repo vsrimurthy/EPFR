@@ -36,7 +36,9 @@ runs a stock-flows simulation
 \seealso{
 Other sf: \code{\link{sf.bin.nms}},
   \code{\link{sf.single.bsim}}, \code{\link{sf.subset}},
+  \code{\link{sf.underlying.data.bin}},
   \code{\link{sf.underlying.data}},
-  \code{\link{sf.underlying.summ}}, \code{\link{sf}}
+  \code{\link{sf.underlying.summ}},
+  \code{\link{sf.vec.to.array}}, \code{\link{sf}}
 }
 \keyword{sf.detail}

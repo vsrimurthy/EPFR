@@ -37,6 +37,8 @@ Gets data needed to back-test a single period
 Other sf: \code{\link{sf.bin.nms}},
   \code{\link{sf.detail}}, \code{\link{sf.single.bsim}},
   \code{\link{sf.subset}},
-  \code{\link{sf.underlying.summ}}, \code{\link{sf}}
+  \code{\link{sf.underlying.data.bin}},
+  \code{\link{sf.underlying.summ}},
+  \code{\link{sf.vec.to.array}}, \code{\link{sf}}
 }
 \keyword{sf.underlying.data}

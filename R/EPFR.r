@@ -4221,6 +4221,7 @@ ftp.del <- function (x, y, n, w, h, u = 60)
     v <- is.element(y, names(ftp.dir(x)))
     while (any(v)) {
         y <- y[v]
+        cat("Deleting", length(y), "files from", x, "...\n")
         ftp.action(x, paste(paste0("del \"", y, "\""), collapse = "\n"), 
             n, w, h, u)
         v <- is.element(y, names(ftp.dir(x)))
@@ -4583,6 +4584,7 @@ ftp.mkdir <- function (x, y, n, w, h, u = 60)
         }
     }
     while (length(y) > 0) {
+        cat("Creating subfolder", y, "under", x, "...\n")
         ftp.action(x, paste0("mkdir \"", paste(y, collapse = "/"), 
             "\""), n, w, h, u)
         halt <- F
@@ -4640,6 +4642,7 @@ ftp.put <- function (x, y, n, w, h, u = 600)
     v <- is.element(ftp.file(y), names(ftp.dir(x)))
     while (!all(v)) {
         y <- y[!v]
+        cat("Uploading", length(y), "files to", x, "...\n")
         ftp.action(x, paste(paste0("put \"", y, "\""), collapse = "\n"), 
             n, w, h, u)
         v <- is.element(ftp.file(y), names(ftp.dir(x)))
@@ -4673,20 +4676,13 @@ ftp.remove <- function (x, y, n, w, h = 60)
         v <- ftp.parent(z)
         z <- txt.right(z, nchar(z) - nchar(v) - 1)
         z <- split(z, v)
-        for (j in names(z)) {
-            cat("Deleting", length(z[[j]]), "files from", j, 
-                "...\n")
-            ftp.del(j, z[[j]], y, n, w, h)
-        }
+        for (j in names(z)) ftp.del(j, z[[j]], y, n, w, h)
     }
     z <- ftp.all.dir(x, y, n, w)
     z <- c(x, paste(x, z, sep = "/"))
     z <- z[order(nchar(z), decreasing = T)]
     v <- ftp.parent(z)
-    for (j in 1:length(z)) {
-        cat("Removing remote folder", z[j], "...\n")
-        ftp.rmdir(v[j], z[j], y, n, w, h)
-    }
+    for (j in 1:length(z)) ftp.rmdir(v[j], z[j], y, n, w, h)
     invisible()
 }
 
@@ -4713,6 +4709,7 @@ ftp.rmdir <- function (x, y, n, w, h, u = 60)
         h <- ftp.credential("pwd")
     v <- ftp.dir(x, n, w, h, F, u)
     while (any(names(v) == y)) {
+        cat("Removing subfolder", y, "from", x, "...\n")
         ftp.action(x, paste0("rmdir \"", y, "\""), n, w, h, u)
         v <- ftp.dir(x, n, w, h, F, u)
     }
@@ -4901,15 +4898,9 @@ ftp.upload <- function (x, y, n, w, h, u = 600)
         j <- j[nchar(j) > nchar(x)]
     }
     foo <- txt.right(foo, nchar(foo) - nchar(x) - 1)
-    for (j in foo) {
-        cat("Creating folder", j, "...\n")
-        ftp.mkdir(x, j, n, w, h)
-    }
+    for (j in foo) ftp.mkdir(x, j, n, w, h)
     z <- split(z, v)
-    for (j in names(z)) {
-        cat("Uploading", length(z[[j]]), "files to", j, "...\n")
-        ftp.put(j, z[[j]], n, w, h, u)
-    }
+    for (j in names(z)) ftp.put(j, z[[j]], n, w, h, u)
     invisible()
 }
 
@@ -5845,15 +5836,18 @@ latin.to.arabic.underlying <- function ()
 #' list object with the elements mapped to the common row space
 #' @param fcn = function used to combine row spaces
 #' @param x = a list of mat objects
-#' @param y = column containing row names
+#' @param y = column containing row names (optional)
+#' @param n = function to extract row identifiers (optional)
 #' @keywords list.common.row.space
 #' @export
 
-list.common.row.space <- function (fcn, x, y) 
+list.common.row.space <- function (fcn, x, y, n) 
 {
-    x <- lapply(x, mat.index, y, F)
-    fcn.loc <- function(x) dimnames(x)[[1]]
-    z <- lapply(x, fcn.loc)
+    if (missing(n)) 
+        n <- function(x) dimnames(x)[[1]]
+    if (!missing(y)) 
+        x <- lapply(x, mat.index, y, F)
+    z <- lapply(x, n)
     z <- Reduce(fcn, z)
     z <- z[order(z)]
     z <- lapply(x, map.rname, z)
@@ -9469,7 +9463,7 @@ sf <- function (fcn, prdBeg, prdEnd, univ, grp.nm, ret.nm, trails,
         if (j%%10 == 0) 
             cat("\n")
         x <- sf.single.bsim(fcn, prdBeg, prdEnd, univ, grp.nm, 
-            ret.nm, fldr, trails[j], T, nBins, retHz, classif)
+            ret.nm, fldr, trails[j], T, nBins, retHz, classif)$returns
         x <- t(map.rname(t(x), c(dimnames(x)[[2]], "TxB")))
         x[, "TxB"] <- x[, "Q1"] - x[, paste0("Q", nBins)]
         x <- mat.ex.matrix(x)
@@ -9523,13 +9517,15 @@ sf.detail <- function (fcn, prdBeg, prdEnd, univ, grp.nm, ret.nm, trail, fldr,
 {
     x <- sf.single.bsim(fcn, prdBeg, prdEnd, univ, grp.nm, ret.nm, 
         fldr, trail, T, nBins, 1, classif, weighting.factor)
-    x <- t(map.rname(t(x), c(dimnames(x)[[2]], "TxB")))
-    x[, "TxB"] <- x[, "Q1"] - x[, paste0("Q", nBins)]
-    x <- mat.ex.matrix(x)
-    z <- bbk.bin.rets.summ(x, 12)
-    z.ann <- t(bbk.bin.rets.prd.summ(bbk.bin.rets.summ, x, txt.left(dimnames(x)[[1]], 
-        4), 12)["AnnMn", , ])
-    z <- list(summ = z, annSumm = z.ann)
+    x <- lapply(x, mat.ex.matrix)
+    if (length(nBins) == 1) 
+        x$returns$TxB <- x$returns$Q1 - x$returns[, paste0("Q", 
+            nBins)]
+    z <- bbk.bin.rets.summ(x$returns, 12)
+    z.ann <- t(bbk.bin.rets.prd.summ(bbk.bin.rets.summ, x$returns, 
+        txt.left(dimnames(x$returns)[[1]], 4), 12)["AnnMn", , 
+        ])
+    z <- list(summ = z, annSumm = z.ann, counts = x$counts)
     z
 }
 
@@ -9562,8 +9558,22 @@ sf.single.bsim <- function (fcn, prdBeg, prdEnd, univ, grp.nm, ret.nm, fldr, tra
         z[[i]] <- sf.underlying.data(fcn, univ, ret.nm, i, trail, 
             grp, nBins, fldr, retHz, classif, weighting.factor)
     }
-    z <- t(sapply(z, function(x) map.rname(sf.underlying.summ(x, 
-        nBins, uRet), sf.bin.nms(nBins, uRet))))
+    fcn <- function(x) {
+        z <- ifelse(is.na(x[, "ret"]), 0, x[, "mem"])
+        x <- x[, "bin"]
+        pivot.1d(sum, x[z > 0], z[z > 0])
+    }
+    h <- lapply(z, fcn)
+    h <- simplify2array(list.common.row.space(union, h, , names))
+    if (length(nBins) == 1) 
+        h <- map.rname(h, sf.bin.nms(nBins, uRet))
+    h <- t(h)
+    z <- lapply(z, function(x) sf.underlying.summ(x, uRet))
+    z <- simplify2array(list.common.row.space(union, z, , names))
+    if (length(nBins) == 1) 
+        z <- map.rname(z, sf.bin.nms(nBins, uRet))
+    z <- t(z)
+    z <- list(returns = z, counts = h)
     z
 }
 
@@ -9634,12 +9644,58 @@ sf.underlying.data <- function (fcn, univ, ret.nm, ret.prd, trail, grp, nBins, f
         bin <- weighting.factor <- vec.max(zav(weighting.factor) * 
             bin, bin)
     }
-    bin <- qtl(vbl, nBins, bin, grp)
-    bin <- ifelse(is.na(bin), "Qna", paste0("Q", bin))
-    z <- data.frame(vbl, bin, ret, mem, grp, row.names = dimnames(classif)[[1]], 
+    bin <- sf.underlying.data.bin(vbl, nBins, bin, grp)
+    z <- data.frame(bin, ret, mem, grp, row.names = dimnames(classif)[[1]], 
         stringsAsFactors = F)
     if (!is.null(weighting.factor)) 
         z$wgt <- weighting.factor
+    z
+}
+
+#' sf.underlying.data.bin
+#' 
+#' character vector of bin memberships
+#' @param x = either vector or list of vectors
+#' @param y = integer vector of number of bins
+#' @param n = numeric vector of weighting factors
+#' @param w = vector of binning groups
+#' @keywords sf.underlying.data.bin
+#' @export
+#' @family sf
+
+sf.underlying.data.bin <- function (x, y, n, w) 
+{
+    if (!is.list(x)) {
+        z <- qtl(x, y, n, w)
+        z <- ifelse(is.na(z), "Qna", paste0("Q", z))
+    }
+    else {
+        h <- length(names(x))
+        if (length(y) == h) 
+            u <- T
+        else u <- is.element(y[h + 1], 1)
+        if (!u) {
+            for (j in 1:h) {
+                x[[j]] <- qtl(x[[j]], y[j], n, w)
+                x[[j]] <- ifelse(is.na(x[[j]]), "na", x[[j]])
+                x[[j]] <- paste0(names(x)[j], x[[j]])
+            }
+            z <- Reduce(paste, x)
+        }
+        else {
+            j <- 1
+            x[[j]] <- qtl(x[[j]], y[j], n, w)
+            x[[j]] <- ifelse(is.na(x[[j]]), "na", x[[j]])
+            x[[j]] <- paste0(names(x)[j], x[[j]])
+            z <- x[[j]]
+            for (j in 2:h) {
+                x[[j]] <- qtl(x[[j]], y[j], n, paste(z, w))
+                x[[j]] <- ifelse(is.na(x[[j]]), "na", x[[j]])
+                x[[j]] <- paste0(names(x)[j], x[[j]])
+                z <- paste(z, x[[j]])
+            }
+        }
+    }
     z
 }
 
@@ -9647,13 +9703,12 @@ sf.underlying.data <- function (fcn, univ, ret.nm, ret.prd, trail, grp, nBins, f
 #' 
 #' Returns a named vector of bin returns
 #' @param x = a matrix/df with the following columns: a) bin - bin memberships b) ret - forward returns c) mem - 1/0 universe memberships d) wgt - universe weights (optional)
-#' @param y = number of bins
-#' @param n = T/F variable controlling whether universe return is returned
+#' @param y = T/F variable controlling whether universe return is returned
 #' @keywords sf.underlying.summ
 #' @export
 #' @family sf
 
-sf.underlying.summ <- function (x, y, n) 
+sf.underlying.summ <- function (x, y) 
 {
     if (all(dimnames(x)[[2]] != "wgt")) 
         x$wgt <- x$mem
@@ -9664,15 +9719,34 @@ sf.underlying.summ <- function (x, y, n)
         x$ret <- x$ret - univ.ret
         z <- pivot.1d(sum, x$bin[u], x$ret[u] * x$wgt[u])
         z <- z/map.rname(pivot.1d(sum, x$bin[u], x$wgt[u]), names(z))
+        if (y) 
+            z["uRet"] <- univ.ret
     }
     else {
-        univ.ret <- NA
-        z <- c(1:y, "na")
-        z <- paste0("Q", z)
-        z <- vec.named(rep(NA, length(z)), z)
+        z <- NULL
     }
-    if (n) 
-        z["uRet"] <- univ.ret
+    z
+}
+
+#' sf.vec.to.array
+#' 
+#' expresses <x> as an array
+#' @param x = named vector of characteristics
+#' @param y = variable names
+#' @param n = number of bins
+#' @keywords sf.vec.to.array
+#' @export
+#' @family sf
+
+sf.vec.to.array <- function (x, y, n) 
+{
+    z <- split(n, y)
+    for (j in names(z)) {
+        z[[j]] <- sf.bin.nms(z[[j]], F)
+        z[[j]] <- paste0(j, substring(z[[j]], 2, nchar(z[[j]])))
+    }
+    x <- map.rname(x, do.call(paste, expand.grid(z)))
+    z <- array(x, lapply(z, length), z)
     z
 }
 

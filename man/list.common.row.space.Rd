@@ -4,14 +4,16 @@
 \alias{list.common.row.space}
 \title{list.common.row.space}
 \usage{
-list.common.row.space(fcn, x, y)
+list.common.row.space(fcn, x, y, n)
 }
 \arguments{
 \item{fcn}{= function used to combine row spaces}
 
 \item{x}{= a list of mat objects}
 
-\item{y}{= column containing row names}
+\item{y}{= column containing row names (optional)}
+
+\item{n}{= function to extract row identifiers (optional)}
 }
 \description{
 list object with the elements mapped to the common row space
