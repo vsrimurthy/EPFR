@@ -7,6 +7,6 @@
 today()
 }
 \description{
-returns system date as a yyyymmdd
+returns current flow date
 }
 \keyword{today}

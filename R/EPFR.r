@@ -13645,14 +13645,14 @@ summ.multi <- function (fcn, x, y)
 
 #' today
 #' 
-#' returns system date as a yyyymmdd
+#' returns current flow date
 #' @keywords today
 #' @export
 
 today <- function () 
 {
-    z <- Sys.Date()
-    z <- day.ex.date(z)
+    z <- day.ex.date(Sys.Date())
+    while (!flowdate.exists(z)) z <- day.lag(z, 1)
     z
 }
 
