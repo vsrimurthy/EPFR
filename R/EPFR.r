@@ -6656,8 +6656,8 @@ mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E")
     z <- c(paste(ifelse(h, "DailyData", "WeeklyData"), "t1"), 
         "inner join", z)
     z <- c(z, "inner join", "FundHistory t3 on t3.FundId = t2.FundId")
-    z <- c(z, "inner join", "CountryAllocationsHistory t4 on t4.HFundId = t3.HFundId")
-    z <- c(z, "inner join", "CountryAllocations t5 on CountryAllocationsHistoryId = [Id]")
+    z <- c(z, "inner join", "CountryAllocationsHistory_FromAllocationFlows t4 on t4.HFundId = t3.HFundId")
+    z <- c(z, "inner join", "CountryAllocations_FromAllocationFlows t5 on CountryAllocationsHistoryId = [Id]")
     z <- sql.tbl(r, z, v, r[1])
     z <- c(sql.declare("@floDt", "datetime", x), sql.unbracket(z))
     z <- sql.query(paste(z, collapse = "\n"), w, F)
@@ -6687,9 +6687,10 @@ mk.1mActPas.Ctry <- function (x, y)
     v <- sql.and(v)
     z <- sql.FundHistory("", c("CB", "E", "UI"), F, "Idx = isnull(Idx, 'N')")
     z <- sql.label(z, "t3 on t3.HFundId = t2.HFundId")
-    z <- c("CountryAllocationsHistory t2 on CountryAllocationsHistoryId = [Id]", 
+    z <- c("CountryAllocationsHistory_FromAllocationFlows t2 on CountryAllocationsHistoryId = [Id]", 
         "inner join", z)
-    z <- c("CountryAllocations t1", "inner join", z)
+    z <- c("CountryAllocations_FromAllocationFlows t1", "inner join", 
+        z)
     z <- sql.tbl(u, z, v, paste(u[-length(u)], collapse = ", "))
     z <- c(sql.declare("@floDt", "datetime", x), sql.unbracket(z))
     z <- sql.query(paste(z, collapse = "\n"), y, F)
@@ -6791,9 +6792,10 @@ mk.1wFloMo.CtryFlow <- function (x, y, n, w, h)
     z <- sql.FundHistory("", c("CB", y, "UI"), F, c("GeographicFocus", 
         "Advisor"))
     z <- sql.label(z, "t3 on t3.HFundId = t2.HFundId")
-    z <- c("CountryAllocationsHistory t2 on CountryAllocationsHistoryId = [Id]", 
+    z <- c("CountryAllocationsHistory_FromAllocationFlows t2 on CountryAllocationsHistoryId = [Id]", 
         "inner join", z)
-    z <- c("CountryAllocations t1", "inner join", z)
+    z <- c("CountryAllocations_FromAllocationFlows t1", "inner join", 
+        z)
     z <- sql.tbl(u, z, v, paste(u[-length(u)], collapse = ", "))
     z <- sql.tbl(u[-1], sql.label(z, "t"), , paste(u[-length(u)][-1], 
         collapse = ", "))
