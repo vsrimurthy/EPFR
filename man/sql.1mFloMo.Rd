@@ -7,7 +7,7 @@
 sql.1mFloMo(x, y, n, w)
 }
 \arguments{
-\item{x}{= the YYYYMM for which you want data (known 16 days later)}
+\item{x}{= the YYYYMM for which you want data}
 
 \item{y}{= a string vector of factors to be computed, the last element of which is the type of fund used}
 
@@ -51,6 +51,8 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.1dFundRet}}, \code{\link{sql.1dION}},
   \code{\link{sql.1mActPas.Ctry}},
   \code{\link{sql.1mActWt.underlying}},
+  \code{\link{sql.1mActWtTrend.underlying}},
+  \code{\link{sql.1mActWtTrend}},
   \code{\link{sql.1mActWt}},
   \code{\link{sql.1mAllocD.select}},
   \code{\link{sql.1mAllocD}},
@@ -60,7 +62,9 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.1mAllocMo}},
   \code{\link{sql.1mAllocSkew.topline.from}},
   \code{\link{sql.1mAllocSkew}},
-  \code{\link{sql.1mChActWt}}, \code{\link{sql.1mFundCt}},
+  \code{\link{sql.1mChActWt}},
+  \code{\link{sql.1mFloTrend.underlying}},
+  \code{\link{sql.1mFloTrend}}, \code{\link{sql.1mFundCt}},
   \code{\link{sql.1wFlow.Corp}},
   \code{\link{sql.ActWtDiff2}},
   \code{\link{sql.AggrAllocations}},

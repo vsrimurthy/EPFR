@@ -11323,6 +11323,74 @@ sql.1mActWt.underlying <- function (x, y)
     z
 }
 
+#' sql.1mActWtTrend
+#' 
+#' the SQL query to get 1dActWtTrend
+#' @param x = the YYYYMM for which you want data
+#' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
+#' @param n = any of StockFlows/China/Japan/CSI300/Energy
+#' @param w = T/F depending on whether you are checking ftp
+#' @keywords sql.1mActWtTrend
+#' @export
+#' @family sql
+
+sql.1mActWtTrend <- function (x, y, n, w) 
+{
+    y <- sql.arguments(y)
+    z <- sql.1mActWtTrend.underlying(x, y$filter, sql.RDSuniv(n))
+    z <- c(z, sql.1dActWtTrend.topline(y$factor, yyyymm.to.day(x), 
+        w))
+    z
+}
+
+#' sql.1mActWtTrend.underlying
+#' 
+#' the SQL query to get the data for 1dActWtTrend
+#' @param x = the YYYYMM for which you want data
+#' @param y = the type of fund used in the computation
+#' @param n = "" or the SQL query to subset to securities desired
+#' @keywords sql.1mActWtTrend.underlying
+#' @export
+#' @family sql
+
+sql.1mActWtTrend.underlying <- function (x, y, n) 
+{
+    x <- yyyymm.to.day(x)
+    z <- c("MonthlyData t1", "inner join", sql.label(sql.FundHistory("", 
+        y, T, c("FundId", "GeographicFocusId")), "t2"), "on t2.HFundId = t1.HFundId")
+    z <- sql.tbl("FundId, GeographicFocusId, Flow = sum(Flow), AssetsStart = sum(AssetsStart)", 
+        z, paste0("ReportDate = '", x, "'"), "FundId, GeographicFocusId")
+    z <- c("insert into", "\t#FLO (FundId, GeographicFocusId, Flow, AssetsStart)", 
+        sql.unbracket(z))
+    z <- c("create clustered index TempRandomFloIndex ON #FLO(FundId)", 
+        z)
+    z <- c("create table #FLO (FundId int not null, GeographicFocusId int, Flow float, AssetsStart float)", 
+        z)
+    z <- c(sql.drop(c("#AUM", "#HLD", "#FLO")), "", z)
+    z <- c(z, "", "create table #AUM (FundId int not null, PortVal float not null)", 
+        "create clustered index TempRandomAumIndex ON #AUM(FundId)")
+    w <- c("MonthlyData t1", "inner join", "FundHistory t2 on t2.HFundId = t1.HFundId")
+    w <- sql.unbracket(sql.tbl("FundId, PortVal = sum(AssetsEnd)", 
+        w, paste0("ReportDate = '", x, "'"), "FundId", "sum(AssetsEnd) > 0"))
+    z <- c(z, "insert into", "\t#AUM (FundId, PortVal)", w)
+    z <- c(z, "", "create table #HLD (FundId int not null, HFundId int not null, HSecurityId int not null, HoldingValue float)")
+    z <- c(z, "create clustered index TempRandomHoldIndex ON #HLD(FundId, HSecurityId)")
+    z <- c(z, "insert into", "\t#HLD (FundId, HFundId, HSecurityId, HoldingValue)", 
+        sql.unbracket(sql.MonthlyAlloc(paste0("'", x, "'"))))
+    if (any(y == "Pseudo")) {
+        cols <- c("FundId", "HFundId", "HSecurityId", "HoldingValue")
+        z <- c(z, "", sql.Holdings.bulk("#HLD", cols, x, "#BMKHLD", 
+            "#BMKAUM"), "")
+    }
+    if (n[1] != "") 
+        z <- c(z, "", "delete from #HLD where", paste0("\t", 
+            sql.in("HSecurityId", n, F)))
+    z <- c(z, "", "delete from #HLD where", paste0("\t", sql.in("FundId", 
+        sql.tbl("FundId", "#FLO"), F)), "")
+    z <- paste(z, collapse = "\n")
+    z
+}
+
 #' sql.1mAllocD
 #' 
 #' Generates the SQL query to get the data for 1mAllocMo
@@ -11647,7 +11715,7 @@ sql.1mChActWt <- function (x, y)
 #' sql.1mFloMo
 #' 
 #' Generates the SQL query to get the data for 1mFloMo for individual stocks
-#' @param x = the YYYYMM for which you want data (known 16 days later)
+#' @param x = the YYYYMM for which you want data
 #' @param y = a string vector of factors to be computed, the last element of which is the type of fund used
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
@@ -11678,6 +11746,88 @@ sql.1mFloMo <- function (x, y, n, w)
     }
     z <- paste(c(sql.declare("@dy", "datetime", yyyymm.to.day(x)), 
         sql.unbracket(z)), collapse = "\n")
+    z
+}
+
+#' sql.1mFloTrend
+#' 
+#' Generates the SQL query to get the data for 1mFloTrend
+#' @param x = the YYYYMM for which you want data
+#' @param y = a string vector of factors to be computed,       the last element of which is the type of fund used.
+#' @param n = any of StockFlows/China/Japan/CSI300/Energy
+#' @param w = T/F depending on whether you are checking ftp
+#' @keywords sql.1mFloTrend
+#' @export
+#' @family sql
+
+sql.1mFloTrend <- function (x, y, n, w) 
+{
+    y <- sql.arguments(y)
+    if (w) {
+        z <- c(paste0("ReportDate = '", yyyymm.to.day(x), "'"), 
+            "n1.HSecurityId")
+    }
+    else {
+        z <- "n1.SecurityId"
+    }
+    z <- c(z, sapply(vec.to.list(y$factor), sql.1dFloTrend.select))
+    x <- sql.1mFloTrend.underlying(y$filter, n, x)
+    w <- ifelse(w, "n1.HSecurityId", "n1.SecurityId")
+    z <- c(paste(x$PRE, collapse = "\n"), paste(sql.unbracket(sql.tbl(z, 
+        x$FINAL, , w)), collapse = "\n"))
+    z
+}
+
+#' sql.1mFloTrend.underlying
+#' 
+#' Generates the SQL query to get the data for 1mFloTrend
+#' @param x = a vector of filters
+#' @param y = any of All/StockFlows/China/Japan/CSI300/Energy
+#' @param n = the YYYYMM for which you want data
+#' @keywords sql.1mFloTrend.underlying
+#' @export
+#' @family sql
+
+sql.1mFloTrend.underlying <- function (x, y, n) 
+{
+    vec <- vec.named(c("#NEW", "#OLD"), c("n", "o"))
+    z <- c("HFundId, Flow = sum(Flow), AssetsStart = sum(AssetsStart)")
+    z <- sql.tbl(z, "MonthlyData", paste0("ReportDate ='", yyyymm.to.day(n), 
+        "'"), "HFundId")
+    z <- sql.into(z, "#FLO")
+    n <- yyyymm.lag(n, 0:1)
+    z <- c(z, "", sql.into(sql.MonthlyAlloc(paste0("'", yyyymm.to.day(n[1]), 
+        "'")), "#NEWHLD"))
+    z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(paste0("'", yyyymm.to.day(n[1]), 
+        "'"), "", F, T), "#NEWAUM"))
+    z <- c(z, "", sql.into(sql.MonthlyAlloc(paste0("'", yyyymm.to.day(n[2]), 
+        "'")), "#OLDHLD"))
+    z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(paste0("'", yyyymm.to.day(n[2]), 
+        "'"), "", F, T), "#OLDAUM"))
+    if (any(x == "Pseudo")) {
+        cols <- c("FundId", "HFundId", "HSecurityId", "HoldingValue")
+        z <- c(z, "", sql.Holdings.bulk("#NEWHLD", cols, yyyymm.to.day(n[1]), 
+            "#NEWBMKHLD", "#NEWBMKAUM"), "")
+        z <- c(z, "", sql.Holdings.bulk("#OLDHLD", cols, yyyymm.to.day(n[2]), 
+            "#OLDBMKHLD", "#OLDBMKAUM"), "")
+    }
+    if (y != "All") 
+        z <- c(z, "", "delete from #NEWHLD where", paste0("\t", 
+            sql.in("HSecurityId", sql.RDSuniv(y), F)), "")
+    h <- c(sql.drop(c("#FLO", txt.expand(vec, c("HLD", "AUM"), 
+        ""))), "", z, "")
+    z <- c(sql.label(sql.FundHistory("", x, T, "FundId"), "his"), 
+        "inner join", "#FLO flo on flo.HFundId = his.HFundId")
+    for (i in names(vec)) {
+        y <- c(paste0(vec[i], "HLD t"), "inner join", "SecurityHistory id on id.HSecurityId = t.HSecurityId")
+        y <- sql.label(sql.tbl("FundId, HFundId, t.HSecurityId, SecurityId, HoldingValue", 
+            y), paste0(i, "1"))
+        z <- c(z, "inner join", y, paste0("\ton ", i, "1.FundId = his.FundId"))
+    }
+    z <- c(z, "\tand o1.SecurityId = n1.SecurityId")
+    for (i in names(vec)) z <- c(z, "inner join", paste0(vec[i], 
+        "AUM ", i, "2 on ", i, "2.FundId = ", i, "1.FundId"))
+    z <- list(PRE = h, FINAL = z)
     z
 }
 
