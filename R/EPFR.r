@@ -8250,8 +8250,7 @@ qa.columns <- function (x)
 
 qa.filter.map <- function (x) 
 {
-    z <- c("All", "Act", "Pas", "Etf", "Mutual")
-    names(z) <- c("Aggregate", "Active", "Passive", "ETF", "Mutual")
+    z <- vec.read(parameters("classif-filterNames"), T)
     x <- as.character(txt.parse(x, ","))
     z <- as.character(map.rname(z, x))
     z <- ifelse(is.na(z), x, z)
