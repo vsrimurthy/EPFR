@@ -8108,7 +8108,13 @@ publications.data <- function (x, y, n, w)
                   i, "'"))
             }
             h <- sql.query.underlying(h, conn, F)
-            mat.write(h, paste0(n, "\\", i, ".csv"), ",")
+            if (is.null(dim(h)[1])) {
+                cat("SQL error: Could not write", paste0(n, "\\", 
+                  i, ".csv"), "...\n")
+            }
+            else {
+                mat.write(h, paste0(n, "\\", i, ".csv"), ",")
+            }
         }
         close(conn)
     }
