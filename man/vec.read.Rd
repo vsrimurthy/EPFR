@@ -4,12 +4,14 @@
 \alias{vec.read}
 \title{vec.read}
 \usage{
-vec.read(x, y)
+vec.read(x, y, n = ",")
 }
 \arguments{
 \item{x}{= path to a vector}
 
 \item{y}{= T/F depending on whether the elements are named}
+
+\item{n}{= separator}
 }
 \description{
 reads into a vector

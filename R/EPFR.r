@@ -11418,7 +11418,8 @@ sql.1mAllocD <- function (x, y, n, w)
     h <- c(h, "inner join", "SecurityHistory t3 on t3.HSecurityId = t2.HSecurityId")
     u <- sql.and(list(A = paste0("ReportDate = '", yyyymm.to.day(x), 
         "'"), B = "HoldingValue > 0"))
-    z <- sql.into(sql.tbl(c("his.FundId", "SecurityId", "Allocation = HoldingValue/AssetsEnd"), 
+    z <- sql.into(sql.tbl(c("his.FundId", "SecurityId", "HoldingValue", 
+        "SharesHeld", "Allocation = HoldingValue/AssetsEnd"), 
         h, u), "#NEW")
     h <- paste0("'", yyyymm.to.day(yyyymm.lag(x)), "'")
     h <- sql.label(sql.MonthlyAssetsEnd(h, "", F, F), "t1")
@@ -11428,7 +11429,8 @@ sql.1mAllocD <- function (x, y, n, w)
         "'"), B = "HoldingValue > 0")
     u[["C"]] <- sql.in("FundId", sql.tbl("FundId", "#NEW"))
     u <- sql.and(u)
-    u <- sql.into(sql.tbl(c("FundId", "SecurityId", "Allocation = HoldingValue/AssetsEnd"), 
+    u <- sql.into(sql.tbl(c("FundId", "SecurityId", "HoldingValue", 
+        "SharesHeld", "Allocation = HoldingValue/AssetsEnd"), 
         h, u), "#OLD")
     z <- c(sql.drop(c("#NEW", "#OLD")), "", z, "", u)
     h <- paste(c(z, "", "delete from #NEW where FundId not in (select FundId from #OLD)"), 
@@ -11455,21 +11457,9 @@ sql.1mAllocD <- function (x, y, n, w)
 
 sql.1mAllocD.select <- function (x) 
 {
-    if (x == "AllocDA") {
-        z <- "count(isnull(t1.SecurityId, t2.SecurityId))"
-    }
-    else if (x == "AllocDInc") {
-        z <- "sum(case when t1.Allocation > t2.Allocation then 1 else 0 end)"
-    }
-    else if (x == "AllocDDec") {
-        z <- "sum(case when t2.Allocation > t1.Allocation then 1 else 0 end)"
-    }
-    else if (x == "AllocDAdd") {
-        z <- "sum(case when t2.Allocation is null then 1 else 0 end)"
-    }
-    else if (x == "AllocDRem") {
-        z <- "sum(case when t1.Allocation is null then 1 else 0 end)"
-    }
+    z <- vec.read(parameters("classif-AllocD"), T, "\t")
+    if (any(x == names(z))) 
+        z <- as.character(z[x])
     else stop("Bad Argument")
     z <- paste(x, z, sep = " = ")
     z
@@ -12609,7 +12599,7 @@ sql.Herfindahl <- function (x, y, n, w)
         n <- list(A = sql.in("h.HSecurityId", sql.RDSuniv(n)))
     else n <- list()
     n[["B"]] <- "ReportDate = @mo"
-    if (y$filter != "All") 
+    if (any(y$filter != "All")) 
         n[["C"]] <- sql.in("h.HFundId", sql.FundHistory("", y$filter, 
             T))
     if (length(n) == 1) 
@@ -14717,11 +14707,12 @@ vec.named <- function (x, y)
 #' reads into a vector
 #' @param x = path to a vector
 #' @param y = T/F depending on whether the elements are named
+#' @param n = separator
 #' @keywords vec.read
 #' @export
 #' @family vec
 
-vec.read <- function (x, y) 
+vec.read <- function (x, y, n = ",") 
 {
     if (!y & !file.exists(x)) {
         stop("File ", x, " doesn't exist!\n")
@@ -14729,7 +14720,7 @@ vec.read <- function (x, y)
     else if (!y) {
         z <- scan(x, what = "", sep = "\n", quiet = T)
     }
-    else z <- as.matrix(mat.read(x, ",", , F))[, 1]
+    else z <- as.matrix(mat.read(x, n, , F))[, 1]
     z
 }
 
