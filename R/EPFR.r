@@ -1753,6 +1753,20 @@ day.to.int <- function (x)
     as.numeric(day.to.date(x) - as.Date("2018-01-01"))
 }
 
+#' day.to.ui
+#' 
+#' <x> rendered in Engineering team's format
+#' @param x = a YYYYMMDD date
+#' @keywords day.to.ui
+#' @export
+#' @family day
+
+day.to.ui <- function (x) 
+{
+    paste0(substring(x, 5, 6), "/", txt.right(x, 2), "/", txt.left(x, 
+        4), " 12:00:00 AM")
+}
+
 #' day.to.week
 #' 
 #' maps days to weeks
@@ -9276,7 +9290,7 @@ rpt.email.send <- function (x, y, n, w, h)
 #' @param prdBeg = a first-return date in yyyymm format representing the first month of the backtest
 #' @param prdEnd = a first-return date in yyyymm format representing the last month of the backtest
 #' @param vbls = vector of variables against which return is to be regressed
-#' @param univ = universe (e.g. "R1Mem")
+#' @param univ = universe (e.g. "R1Mem", or c("EafeMem", 1, "CountryCode", "JP"))
 #' @param grp.nm = neutrality group (e.g. "GSec")
 #' @param ret.nm = return variable (e.g. "Ret")
 #' @param fldr = stock-flows folder
@@ -9338,7 +9352,7 @@ rrw.factors <- function (x)
 #' Runs regressions
 #' @param prd = a first-return date in yyyymm format representing the return period of interest
 #' @param vbls = vector of variables against which return is to be regressed
-#' @param univ = universe (e.g. "R1Mem")
+#' @param univ = universe (e.g. "R1Mem", or c("EafeMem", 1, "CountryCode", "JP"))
 #' @param grp.nm = neutrality group (e.g. "GSec")
 #' @param ret.nm = return variable (e.g. "Ret")
 #' @param fldr = parent directory containing derived/data
@@ -9354,8 +9368,7 @@ rrw.underlying <- function (prd, vbls, univ, grp.nm, ret.nm, fldr, orth.factor,
     z <- fetch(c(vbls, orth.factor), yyyymm.lag(prd, 1), 1, paste0(fldr, 
         "\\derived"), classif)
     grp <- classif[, grp.nm]
-    mem <- fetch(univ, yyyymm.lag(prd, 1), 1, paste0(fldr, "\\data"), 
-        classif)
+    mem <- sf.subset(univ, prd, fldr, classif)
     z <- mat.ex.matrix(mat.zScore(z, mem, grp))
     z$grp <- grp
     z$mem <- mem
@@ -10203,7 +10216,7 @@ sql.1dActWtTrend.select <- function (x)
 sql.1dActWtTrend.topline <- function (x, y, n) 
 {
     if (n) {
-        z <- c(paste0("ReportDate = '", y, "'"), "hld.HSecurityId")
+        z <- c(sql.ReportDate(y), "hld.HSecurityId")
     }
     else {
         z <- "SecurityId"
@@ -10847,11 +10860,11 @@ sql.1dFloMo.select.wrapper <- function (x, y, n)
 {
     y <- sql.arguments(y)$factor
     if (n & y[1] == "FloDollar") {
-        z <- c(paste0("ReportDate = '", x, "'"), "GeoId = GeographicFocusId", 
+        z <- c(sql.ReportDate(x), "GeoId = GeographicFocusId", 
             "HSecurityId")
     }
     else if (n) {
-        z <- c(paste0("ReportDate = '", x, "'"), "HSecurityId")
+        z <- c(sql.ReportDate(x), "HSecurityId")
     }
     else {
         z <- c("SecurityId")
@@ -10939,7 +10952,7 @@ sql.1dFloTrend <- function (x, y, n, w, h)
 {
     y <- sql.arguments(y)
     if (h) {
-        z <- c(paste0("ReportDate = '", x, "'"), "n1.HSecurityId")
+        z <- c(sql.ReportDate(x), "n1.HSecurityId")
     }
     else {
         z <- "n1.SecurityId"
@@ -11156,7 +11169,7 @@ sql.1dFundCt <- function (x, y, n, w)
         n <- n[[1]]
     else n <- sql.and(n)
     if (w) {
-        z <- c(paste0("ReportDate = '", z, "'"), "GeoId = GeographicFocusId", 
+        z <- c(sql.ReportDate(z), "GeoId = GeographicFocusId", 
             "HSecurityId")
     }
     else {
@@ -11435,14 +11448,30 @@ sql.1mAllocD <- function (x, y, n, w)
     z <- c(sql.drop(c("#NEW", "#OLD")), "", z, "", u)
     h <- paste(c(z, "", "delete from #NEW where FundId not in (select FundId from #OLD)"), 
         collapse = "\n")
-    z <- "SecurityId = isnull(t1.SecurityId, t2.SecurityId)"
-    if (w) 
-        z <- c(paste("ReportDate = '", yyyymm.to.day(x), "'", 
-            sep = ""), z)
+    if (!w) {
+        z <- "SecurityId = isnull(t1.SecurityId, t2.SecurityId)"
+    }
+    else {
+        z <- c(sql.ReportDate(yyyymm.to.day(x)), "HSecurityId")
+    }
     for (i in y$factor) z <- c(z, sql.1mAllocD.select(i))
-    u <- c("#NEW t1", "full outer join", "#OLD t2 on t2.FundId = t1.FundId and t2.SecurityId = t1.SecurityId")
-    z <- paste(sql.unbracket(sql.tbl(z, u, , "isnull(t1.SecurityId, t2.SecurityId)")), 
-        collapse = "\n")
+    if (w) {
+        u <- sql.Holdings(paste0("ReportDate = '", yyyymm.to.day(x), 
+            "'"), "HSecurityId")
+        u <- sql.in("HSecurityId", u)
+        u <- sql.label(sql.tbl(c("SecurityId", "HSecurityId"), 
+            "SecurityHistory", u), "t3")
+        u <- c("inner join", u, "\ton t3.SecurityId = isnull(t1.SecurityId, t2.SecurityId)")
+        u <- c("#OLD t2 on t2.FundId = t1.FundId and t2.SecurityId = t1.SecurityId", 
+            u)
+        u <- c("#NEW t1", "full outer join", u)
+    }
+    else {
+        u <- c("#NEW t1", "full outer join")
+        u <- c(u, "#OLD t2 on t2.FundId = t1.FundId and t2.SecurityId = t1.SecurityId")
+    }
+    w <- ifelse(w, "HSecurityId", "isnull(t1.SecurityId, t2.SecurityId)")
+    z <- paste(sql.unbracket(sql.tbl(z, u, , w)), collapse = "\n")
     z <- c(h, z)
     z
 }
@@ -11461,7 +11490,7 @@ sql.1mAllocD.select <- function (x)
     if (any(x == names(z))) 
         z <- as.character(z[x])
     else stop("Bad Argument")
-    z <- paste(x, z, sep = " = ")
+    z <- paste0("[", x, "] = ", z)
     z
 }
 
@@ -11480,8 +11509,7 @@ sql.1mAllocMo <- function (x, y, n, w)
 {
     y <- sql.arguments(y)
     if (w) {
-        z <- c(paste("ReportDate = '", yyyymm.to.day(x), "'", 
-            sep = ""), "n1.HSecurityId")
+        z <- c(sql.ReportDate(yyyymm.to.day(x)), "n1.HSecurityId")
     }
     else {
         z <- "n1.SecurityId"
@@ -11631,12 +11659,9 @@ sql.1mAllocSkew <- function (x, y, n, w)
         z <- c(z, c("delete from #HLD where", sql.in("HFundId", 
             h)), "")
     }
-    if (w) {
-        x <- c(paste("ReportDate = '", x, "'", sep = ""), "n1.HSecurityId")
-    }
-    else {
-        x <- "SecurityId"
-    }
+    if (w) 
+        x <- c(sql.ReportDate(x), "n1.HSecurityId")
+    else x <- "SecurityId"
     if (length(y$factor) != 1 | y$factor[1] != "AllocSkew") 
         stop("Bad Argument")
     h <- "AllocSkew = sum(PortVal * sign(FundWtdExcl0 - n1.HoldingValue/PortVal))"
@@ -11759,8 +11784,7 @@ sql.1mFloTrend <- function (x, y, n, w)
 {
     y <- sql.arguments(y)
     if (w) {
-        z <- c(paste0("ReportDate = '", yyyymm.to.day(x), "'"), 
-            "n1.HSecurityId")
+        z <- c(sql.ReportDate(yyyymm.to.day(x)), "n1.HSecurityId")
     }
     else {
         z <- "n1.SecurityId"
@@ -11852,7 +11876,7 @@ sql.1mFundCt <- function (x, y, n, w)
         sql.tbl("HFundId", "MonthlyData", "ReportDate = @dy"))
     n <- sql.and(n)
     if (w) {
-        z <- c(paste0("ReportDate = '", z, "'"), "GeoId = GeographicFocusId", 
+        z <- c(sql.ReportDate(z), "GeoId = GeographicFocusId", 
             "HSecurityId")
     }
     else {
@@ -12099,12 +12123,9 @@ sql.Bullish <- function (x, y, n, w)
     h <- sql.tbl(u, h, , "t1.BenchIndexId, t3.HSecurityId, nFunds")
     z <- c(z, sql.into(h, "#BMK"), "")
     z <- c(z, "delete from #HLD where HFundId in (select HFundId from FundHistory where [Index] = 1)")
-    if (w) {
-        x <- c(paste("ReportDate = '", x, "'", sep = ""), "t1.HSecurityId")
-    }
-    else {
-        x <- "SecurityId"
-    }
+    if (w) 
+        x <- c(sql.ReportDate(x), "t1.HSecurityId")
+    else x <- "SecurityId"
     if (length(y$factor) != 1 | y$factor[1] != "Bullish") 
         stop("Bad Argument")
     x <- c(x, "Bullish = 100 * sum(case when HoldingValue > isnull(BmkWt, 0) then 1.0 else 0.0 end)/FundCt")
@@ -12306,11 +12327,11 @@ sql.Diff <- function (x, y)
 
 sql.Dispersion <- function (x, y, n, w) 
 {
-    x <- paste0("ReportDate = '", yyyymm.to.day(x), "'")
+    x <- yyyymm.to.day(x)
     z <- sql.drop(c("#HLD", "#BMK"))
     z <- c(z, "", "create table #BMK (BenchIndexId int not null, HSecurityId int not null, HoldingValue float not null)")
     z <- c(z, "create clustered index TempRandomBmkIndex ON #BMK(BenchIndexId, HSecurityId)")
-    u <- sql.and(list(A = x, B = "[Index] = 1"))
+    u <- sql.and(list(A = paste0("ReportDate = '", x, "'"), B = "[Index] = 1"))
     h <- "Holdings t1 inner join FundHistory t2 on t2.HFundId = t1.HFundId"
     h <- sql.tbl("BenchIndexId, HSecurityId, HoldingValue = sum(HoldingValue)", 
         h, u, "BenchIndexId, HSecurityId", "sum(HoldingValue) > 0")
@@ -12323,7 +12344,8 @@ sql.Dispersion <- function (x, y, n, w)
     z <- c(z, "", "create table #HLD (HFundId int not null, HSecurityId int not null, HoldingValue float not null)")
     z <- c(z, "create clustered index TempRandomHldIndex ON #HLD(HFundId, HSecurityId)")
     u <- "BenchIndexId in (select BenchIndexId from #BMK)"
-    u <- sql.and(list(A = x, B = "[Index] = 0", C = u, D = "HoldingValue > 0"))
+    u <- sql.and(list(A = paste0("ReportDate = '", x, "'"), B = "[Index] = 0", 
+        C = u, D = "HoldingValue > 0"))
     h <- "Holdings t1 inner join FundHistory t2 on t2.HFundId = t1.HFundId"
     h <- sql.tbl("t1.HFundId, HSecurityId, HoldingValue", h, 
         u)
@@ -12349,7 +12371,7 @@ sql.Dispersion <- function (x, y, n, w)
     z <- paste(z, collapse = "\n")
     h <- "#HLD hld"
     if (w) {
-        u <- c(x, "HSecurityId")
+        u <- c(sql.ReportDate(x), "HSecurityId")
     }
     else {
         h <- c(h, "inner join", "SecurityHistory id on id.HSecurityId = hld.HSecurityId")
@@ -12606,11 +12628,11 @@ sql.Herfindahl <- function (x, y, n, w)
         n <- n[[1]]
     else n <- sql.and(n)
     if (w & any(y$factor == "FundCt")) {
-        z <- c(paste0("ReportDate = '", z, "'"), "GeoId = GeographicFocusId", 
+        z <- c(sql.ReportDate(z), "GeoId = GeographicFocusId", 
             "HSecurityId")
     }
     else if (w & all(y$factor != "FundCt")) {
-        z <- c(paste("ReportDate = '", z, "'", sep = ""), "HSecurityId")
+        z <- c(sql.ReportDate(z), "HSecurityId")
     }
     else {
         z <- "SecurityId"
@@ -13251,6 +13273,19 @@ sql.regr <- function (x, y, n)
         z <- c(z, paste(names(y)[j], w, sep = " = "))
     }
     z
+}
+
+#' sql.ReportDate
+#' 
+#' SQL select statement for constant date <x>
+#' @param x = a YYYYMMDD date
+#' @keywords sql.ReportDate
+#' @export
+#' @family sql
+
+sql.ReportDate <- function (x) 
+{
+    paste0("ReportDate = '", day.to.ui(x), "'")
 }
 
 #' sql.sf.wtd.avg

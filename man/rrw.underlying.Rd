@@ -11,7 +11,7 @@ rrw.underlying(prd, vbls, univ, grp.nm, ret.nm, fldr, orth.factor, classif)
 
 \item{vbls}{= vector of variables against which return is to be regressed}
 
-\item{univ}{= universe (e.g. "R1Mem")}
+\item{univ}{= universe (e.g. "R1Mem", or c("EafeMem", 1, "CountryCode", "JP"))}
 
 \item{grp.nm}{= neutrality group (e.g. "GSec")}
 
