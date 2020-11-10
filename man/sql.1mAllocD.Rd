@@ -4,7 +4,7 @@
 \alias{sql.1mAllocD}
 \title{sql.1mAllocD}
 \usage{
-sql.1mAllocD(x, y, n, w)
+sql.1mAllocD(x, y, n, w, h)
 }
 \arguments{
 \item{x}{= the YYYYMM for which you want data (known 26 days later)}
@@ -14,6 +14,8 @@ sql.1mAllocD(x, y, n, w)
 \item{n}{= any of StockFlows/China/Japan/CSI300/Energy}
 
 \item{w}{= T/F depending on whether you are checking ftp}
+
+\item{h}{= T/F depending on whether latest prices are being used}
 }
 \description{
 Generates the SQL query to get the data for 1mAllocMo
