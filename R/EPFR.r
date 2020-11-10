@@ -11508,7 +11508,8 @@ sql.1mAllocD <- function (x, y, n, w, h)
         u <- c(u, "#OLD t2 on t2.FundId = t1.FundId and t2.SecurityId = t1.SecurityId")
     }
     w <- ifelse(w, "HSecurityId", "isnull(t1.SecurityId, t2.SecurityId)")
-    z <- paste(sql.unbracket(sql.tbl(z, u, , w)), collapse = "\n")
+    z <- sql.tbl(z, u, , w, "count(isnull(t1.SecurityId, t2.SecurityId)) > 1")
+    z <- paste(sql.unbracket(z), collapse = "\n")
     z <- c(v, z)
     z
 }
