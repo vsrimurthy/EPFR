@@ -6552,15 +6552,22 @@ mat.to.xlModel <- function (x, y = 2, n = 5, w = F)
 #' @param x = any matrix/df
 #' @param y = file intended to receive the output
 #' @param n = the separator
+#' @param w = T/F depending on whether to write row names
 #' @keywords mat.write
 #' @export
 #' @family mat
 
-mat.write <- function (x, y, n = ",") 
+mat.write <- function (x, y, n = ",", w = T) 
 {
     if (missing(y)) 
         y <- paste(machine.info("temp"), "write.csv", sep = "\\")
-    write.table(x, y, sep = n, col.names = NA, quote = F)
+    if (w) {
+        write.table(x, y, sep = n, quote = F, col.names = NA)
+    }
+    else {
+        write.table(x, y, sep = n, quote = F, col.names = T, 
+            row.names = F)
+    }
     invisible()
 }
 

@@ -4,7 +4,7 @@
 \alias{mat.write}
 \title{mat.write}
 \usage{
-mat.write(x, y, n = ",")
+mat.write(x, y, n = ",", w = T)
 }
 \arguments{
 \item{x}{= any matrix/df}
@@ -12,6 +12,8 @@ mat.write(x, y, n = ",")
 \item{y}{= file intended to receive the output}
 
 \item{n}{= the separator}
+
+\item{w}{= T/F depending on whether to write row names}
 }
 \description{
 Writes <x> as a <n>-separated file to <y>
