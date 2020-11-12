@@ -9787,16 +9787,10 @@ sf.vec.to.array <- function (x, y, n)
 
 shell.wrapper <- function (x, y) 
 {
-    z <- NULL
-    while (is.null(z)) {
-        setTimeLimit(elapsed = y, transient = T)
-        z <- tryCatch(shell(x, intern = T), error = function(e) {
-            NULL
-        })
-        if (is.null(z)) 
-            cat(txt.hdr(paste("Process timeout of", y, "seconds triggered. Trying again.")), 
-                "\n")
-    }
+    setTimeLimit(elapsed = y, transient = T)
+    z <- tryCatch(shell(x, intern = T), error = function(e) {
+        NULL
+    })
     z
 }
 
