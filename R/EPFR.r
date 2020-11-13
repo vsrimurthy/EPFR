@@ -12515,7 +12515,7 @@ sql.FundHistory <- function (x, y, n, w)
 {
     if (length(y) == 1) 
         y <- as.character(txt.parse(y, ","))
-    if (y[1] == "All" & n & length(y) > 1) 
+    if (y[1] == "All" & length(y) > 1) 
         y <- y[-1]
     if (any(y[1] == c("Pseudo", "Up"))) 
         y <- ifelse(n, "All", "E")
@@ -13098,6 +13098,29 @@ sql.mat.multiply <- function (x, y)
     z
 }
 
+#' sql.median
+#' 
+#' median (or alternate ptile point) of <x> within <y>
+#' @param x = column on which computation is run
+#' @param y = column on which partitioning is performed
+#' @param n = SQL statement
+#' @param w = desired ptile break point
+#' @keywords sql.median
+#' @export
+#' @family sql
+
+sql.median <- function (x, y, n, w = 0.5) 
+{
+    z <- paste0("Ptile = PERCENT_RANK() over (partition by ", 
+        y, " order by ", x, ")")
+    z <- sql.label(sql.tbl(c(x, y, z), sql.label(n, "t")), "t")
+    h <- paste0(c("Mx", "Mn"), " = ", c("max", "min"), "(case when Ptile ", 
+        c("<= ", ">= "), w, " then ", x, " else NULL end)")
+    z <- sql.label(sql.tbl(c(y, h), z, , y), "t")
+    z <- sql.tbl(c(y, "Stat = (Mx + isnull(Mn, Mx))/2"), z)
+    z
+}
+
 #' sql.Mo
 #' 
 #' SQL statement for momentum
@@ -13191,6 +13214,32 @@ sql.MonthlyAssetsEnd <- function (x, y = "", n = F, w = F)
 sql.nonneg <- function (x) 
 {
     paste("case when", x, "> 0 then", x, "else NULL end")
+}
+
+#' sql.Overweight
+#' 
+#' weight/shares normalized across stocks, then funds
+#' @param x = a YYYYMMDD date
+#' @keywords sql.Overweight
+#' @export
+#' @family sql
+
+sql.Overweight <- function (x) 
+{
+    z <- c("HSecurityId", "HFundId", "SharesHeld")
+    z <- sql.Holdings(paste0("ReportDate = '", x, "'"), z)
+    h <- c("HSecurityId", "TotShs = sum(SharesHeld)")
+    h <- sql.tbl(h, "Holdings", paste0("ReportDate = '", x, "'"), 
+        "HSecurityId", "sum(SharesHeld) > 0")
+    h <- c(sql.label(z, "t1"), "inner join", sql.label(h, "t2 on t2.HSecurityId = t1.HSecurityId"))
+    z <- sql.tbl(c("t1.HSecurityId", "HFundId", "NormShs = SharesHeld/TotShs"), 
+        h)
+    h <- sql.tbl(c("HFundId", "TotNormShs = sum(SharesHeld/TotShs)"), 
+        h, , "HFundId", "sum(SharesHeld/TotShs) > 0")
+    z <- c(sql.label(z, "t1"), "inner join", sql.label(h, "t2 on t2.HFundId = t1.HFundId"))
+    z <- sql.tbl(c("t1.HSecurityId", "t1.HFundId", "Overweight = NormShs/TotNormShs"), 
+        z)
+    z
 }
 
 #' sql.query
