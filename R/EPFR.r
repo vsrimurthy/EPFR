@@ -11429,7 +11429,7 @@ sql.1mAllocD <- function (x, y, n, w, h)
     v <- sql.label(sql.MonthlyAssetsEnd(v, "", F, F), "t1")
     v <- c(v, "inner join", sql.label(sql.FundHistory("", y$filter, 
         T, "FundId"), "his on his.HFundId = t1.HFundId"))
-    v <- c(v, "inner join", "Holdings t2 on t2.HFundId = t1.HFundId")
+    v <- c(v, "inner join", "Holdings t2 on t2.FundId = his.FundId")
     v <- c(v, "inner join", "SecurityHistory t3 on t3.HSecurityId = t2.HSecurityId")
     u <- sql.and(list(A = paste0("ReportDate = '", yyyymm.to.day(x), 
         "'"), B = "HoldingValue > 0"))
@@ -11438,13 +11438,14 @@ sql.1mAllocD <- function (x, y, n, w, h)
         v, u), "#NEW")
     v <- paste0("'", yyyymm.to.day(yyyymm.lag(x)), "'")
     v <- sql.label(sql.MonthlyAssetsEnd(v, "", F, F), "t1")
-    v <- c(v, "inner join", "Holdings t2 on t2.HFundId = t1.HFundId")
+    v <- c(v, "inner join", "FundHistory his on his.HFundId = t1.HFundId")
+    v <- c(v, "inner join", "Holdings t2 on t2.FundId = his.FundId")
     v <- c(v, "inner join", "SecurityHistory t3 on t3.HSecurityId = t2.HSecurityId")
     u <- list(A = paste0("ReportDate = '", yyyymm.to.day(yyyymm.lag(x)), 
         "'"), B = "HoldingValue > 0")
-    u[["C"]] <- sql.in("FundId", sql.tbl("FundId", "#NEW"))
+    u[["C"]] <- sql.in("t2.FundId", sql.tbl("FundId", "#NEW"))
     u <- sql.and(u)
-    u <- sql.into(sql.tbl(c("FundId", "SecurityId", "HoldingValue", 
+    u <- sql.into(sql.tbl(c("t2.FundId", "SecurityId", "HoldingValue", 
         "SharesHeld", "Allocation = HoldingValue/AssetsEnd"), 
         v, u), "#OLD")
     z <- c(sql.drop(c("#NEW", "#OLD")), "", z, "", u)
