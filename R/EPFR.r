@@ -98,8 +98,8 @@ mk.1mPerfTrend <- function (x, y, n)
     else {
         sf <- c(sql.label(sql.MonthlyAssetsEnd("@newDt", ""), 
             "t"), "inner join", "FundHistory his", "\ton his.HFundId = t.HFundId")
-        sf <- c(sf, "inner join", sql.label(sql.MonthlyAlloc("@newDt", 
-            ""), "n1"), "\ton n1.HFundId = t.HFundId", "inner join")
+        sf <- c(sf, "inner join", sql.label(sql.MonthlyAlloc("@newDt"), 
+            "n1"), "\ton n1.HFundId = t.HFundId", "inner join")
         sf <- c(sf, "SecurityHistory id", "\ton id.HSecurityId = n1.HSecurityId")
         sf <- sql.tbl("SecurityId, t.HFundId, GeographicFocusId, WtCol = HoldingValue/AssetsEnd", 
             sf, sql.in("n1.HSecurityId", sql.RDSuniv(n$DB)))
@@ -10912,19 +10912,16 @@ sql.1dFloMo.underlying <- function (x)
 
 sql.1dFloMoAggr <- function (x, y, n) 
 {
-    mo.end <- yyyymmdd.to.AllocMo(x, 26)
-    mo.end <- yyyymm.to.day(mo.end)
-    z <- list(A = paste0("ReportDate = '", mo.end, "'"), B = sql.in("HSecurityId", 
-        sql.RDSuniv(n)))
-    z <- sql.Holdings(sql.and(z), c("ReportDate", "HFundId", 
-        "HSecurityId", "HoldingValue"), "#HLDGS")
+    mo.end <- paste0("'", yyyymm.to.day(yyyymmdd.to.AllocMo(x, 
+        26)), "'")
+    z <- sql.into(sql.MonthlyAlloc(mo.end, n), "#HLDGS")
     h <- "GeographicFocusId, Flow = sum(Flow), AssetsStart = sum(AssetsStart)"
     w <- c("FundHistory t1", "inner join", "DailyData t2 on t2.HFundId = t1.HFundId")
     z <- c(z, "", sql.into(sql.tbl(h, w, paste0("ReportDate = '", 
         x, "'"), "GeographicFocusId", "sum(AssetsStart) > 0"), 
         "#FLOWS"))
-    z <- c(z, "", sql.AggrAllocations(y, "#HLDGS", paste0("'", 
-        mo.end, "'"), "GeographicFocusId", "#ALLOC"))
+    z <- c(z, "", sql.AggrAllocations(y, "#HLDGS", mo.end, "GeographicFocusId", 
+        "#ALLOC"))
     y <- c("SecurityId", paste0(y, " = 100 * sum(Flow * ", y, 
         ")/", sql.nonneg(paste0("sum(AssetsStart * ", y, ")"))))
     w <- c("#ALLOC t1", "inner join", "#FLOWS t2 on t1.GeographicFocusId = t2.GeographicFocusId")
@@ -12017,21 +12014,16 @@ sql.ActWtDiff2 <- function (x)
 
 sql.AggrAllocations <- function (x, y, n, w, h) 
 {
-    z <- sql.tbl("ReportDate, HSecurityId", y, paste("ReportDate =", 
-        n), "ReportDate, HSecurityId")
-    z <- sql.label(z, "t0 -- Securities Held At Month End")
-    tmp <- sql.and(list(A = "h.ReportDate = MonthlyData.ReportDate", 
-        B = "h.HFundId = MonthlyData.HFundId"))
-    tmp <- sql.exists(sql.tbl("ReportDate, HFundId", paste(y, 
-        "h"), tmp))
-    n <- sql.and(list(A = paste("ReportDate =", n), B = tmp))
+    z <- sql.tbl("HSecurityId", y, , "HSecurityId")
+    z <- sql.label(z, "t0 -- Securities Held at Month End")
+    n <- list(A = paste("ReportDate =", n), B = sql.in("HFundId", 
+        sql.tbl("HFundId", "#HLDGS")))
     n <- sql.tbl("HFundId, AssetsEnd = sum(AssetsEnd)", "MonthlyData", 
-        n, "HFundId", "sum(AssetsEnd) > 0")
-    z <- c(z, "cross join", sql.label(n, "t1 -- Funds Reporting Both Monthly Flows and Allocations"), 
-        "inner join")
-    z <- c(z, "FundHistory t2 on t1.HFundId = t2.HFundId", "left join", 
-        paste(y, "t3"))
-    n <- c(z, "\ton t3.HFundId = t1.HFundId and t3.HSecurityId = t0.HSecurityId and t3.ReportDate = t0.ReportDate")
+        sql.and(n), "HFundId", "sum(AssetsEnd) > 0")
+    n <- sql.label(n, "t1 -- Funds reporting Both Monthly Flows and Allocations")
+    z <- c(z, "cross join", n, "inner join", "FundHistory t2 on t1.HFundId = t2.HFundId")
+    z <- c(z, "left join", paste(y, "t3"))
+    n <- c(z, "\ton t3.HFundId = t1.HFundId and t3.HSecurityId = t0.HSecurityId")
     z <- c("t0.HSecurityId", w, sql.TopDownAllocs.items(x))
     z <- sql.into(sql.tbl(z, n, , paste("t0.HSecurityId", w, 
         sep = ", "), "sum(HoldingValue) > 0"), h)
@@ -13160,16 +13152,20 @@ sql.Mo <- function (x, y, n, w)
 #' sql.MonthlyAlloc
 #' 
 #' Generates the SQL query to get the data for monthly allocations for StockFlows
-#' @param x = YYYYMM for which you want allocations (known 26 days after month end)
-#' @param y = characters that get pasted in front of every line (usually tabs for indentation)
+#' @param x = YYYYMMDD for which you want allocations
+#' @param y = any of StockFlows/China/Japan/CSI300/Energy
 #' @keywords sql.MonthlyAlloc
 #' @export
 #' @family sql
 
-sql.MonthlyAlloc <- function (x, y = "") 
+sql.MonthlyAlloc <- function (x, y = "All") 
 {
-    paste0(y, sql.Holdings(paste0("ReportDate = ", x), c("FundId", 
-        "HFundId", "HSecurityId", "HoldingValue")))
+    z <- paste("ReportDate =", x)
+    if (y != "All") 
+        z <- sql.and(list(A = z, B = sql.in("HSecurityId", sql.RDSuniv(y))))
+    z <- sql.Holdings(z, c("FundId", "HFundId", "HSecurityId", 
+        "HoldingValue"))
+    z
 }
 
 #' sql.MonthlyAssetsEnd
@@ -13497,8 +13493,8 @@ sql.tbl <- function (x, y, n, w, h)
 
 sql.TopDownAllocs <- function (x, y, n, w) 
 {
-    m <- length(y)
-    x <- sql.declare("@allocDt", "datetime", yyyymm.to.day(x))
+    y <- sql.arguments(y)
+    x <- yyyymm.to.day(x)
     if (n == "All") {
         n <- "ReportDate = @allocDt"
     }
@@ -13509,37 +13505,49 @@ sql.TopDownAllocs <- function (x, y, n, w)
     h <- sql.label(sql.tbl("HFundId, AssetsEnd = sum(AssetsEnd)", 
         "MonthlyData", "ReportDate = @allocDt", "HFundId", "sum(AssetsEnd) > 0"), 
         "t1")
-    h <- c(h, "inner join", sql.label(sql.FundHistory("", y[m], 
+    h <- c(h, "inner join", sql.label(sql.FundHistory("", y$filter, 
         T, c("FundId", "GeographicFocusId")), "t2"), "\ton t2.HFundId = t1.HFundId")
     h <- sql.tbl(c("FundId", "GeographicFocusId", "AssetsEnd"), 
         h, sql.in("FundId", sql.tbl("FundId", "Holdings h", "ReportDate = @allocDt")))
-    h <- c(sql.label(h, "t2"), "cross join", sql.label(sql.tbl("ReportDate, HSecurityId", 
-        "Holdings", n, "ReportDate, HSecurityId"), "t1"))
+    h <- sql.label(h, "t2")
+    if (w) {
+        v <- c("HSecurityId", "GeographicFocusId")
+        u <- c("Holdings t1", "inner join", "FundHistory t2 on t2.HFundId = t1.HFundId")
+        u <- sql.tbl(v, u, n, paste(v, collapse = ", "))
+        h <- c(h, "inner join", sql.label(u, "t1"))
+        h <- c(h, "\ton t1.GeographicFocusId = t2.GeographicFocusId")
+    }
+    else {
+        h <- c(h, "cross join", sql.label(sql.tbl("HSecurityId", 
+            "Holdings", n, "HSecurityId"), "t1"))
+    }
     h <- c(h, "left join", sql.label(sql.Holdings("ReportDate = @allocDt", 
         c("FundId", "HSId = HSecurityId", "HoldingValue")), "t3"))
     h <- c(h, "\ton t3.FundId = t2.FundId and HSId = HSecurityId")
     if (!w) 
         h <- c(h, "inner join", "SecurityHistory id on id.HSecurityId = t1.HSecurityId")
-    if (w & m == 2) {
+    m <- length(y$factor)
+    if (w & m == 1) {
         cols <- c("GeoId", "AverageAllocation")
-        n <- sql.TopDownAllocs.items(y[1])
-        n <- txt.right(n, nchar(n) - nchar(y[1]) - 1)
+        n <- sql.TopDownAllocs.items(y$factor)
+        n <- txt.right(n, nchar(n) - nchar(y$factor) - 1)
         n <- paste(cols[2], n)
-        z <- sql.tbl(c("ReportDate = convert(char(8), t1.ReportDate, 112)", 
-            "GeoId = GeographicFocusId", "HSecurityId", n), h, 
-            , "t1.ReportDate, GeographicFocusId, HSecurityId", 
-            sql.TopDownAllocs.items(y[1], F))
+        n <- c(sql.ReportDate(x), "GeoId = t2.GeographicFocusId", 
+            "HSecurityId", n)
+        z <- sql.tbl(n, h, , "t2.GeographicFocusId, HSecurityId", 
+            sql.TopDownAllocs.items(y$factor, F))
     }
-    else if (w & m > 2) {
-        z <- c("ReportDate = convert(char(8), t1.ReportDate, 112)", 
-            "GeoId = GeographicFocusId", "HSecurityId", sql.TopDownAllocs.items(y[-m]))
-        z <- sql.tbl(z, h, , "t1.ReportDate, GeographicFocusId, HSecurityId")
+    else if (w & m > 1) {
+        z <- c(sql.ReportDate(x), "GeoId = t2.GeographicFocusId", 
+            "HSecurityId", sql.TopDownAllocs.items(y$factor))
+        z <- sql.tbl(z, h, , "t2.GeographicFocusId, HSecurityId")
     }
     else {
-        z <- c("SecurityId", sql.TopDownAllocs.items(y[-m]))
+        z <- c("SecurityId", sql.TopDownAllocs.items(y$factor))
         z <- sql.tbl(z, h, , "SecurityId")
     }
-    z <- paste(c(x, "", sql.unbracket(z)), collapse = "\n")
+    z <- c(sql.declare("@allocDt", "datetime", x), "", sql.unbracket(z))
+    z <- paste(z, collapse = "\n")
     z
 }
 

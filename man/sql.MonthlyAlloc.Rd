@@ -4,12 +4,12 @@
 \alias{sql.MonthlyAlloc}
 \title{sql.MonthlyAlloc}
 \usage{
-sql.MonthlyAlloc(x, y = "")
+sql.MonthlyAlloc(x, y = "All")
 }
 \arguments{
-\item{x}{= YYYYMM for which you want allocations (known 26 days after month end)}
+\item{x}{= YYYYMMDD for which you want allocations}
 
-\item{y}{= characters that get pasted in front of every line (usually tabs for indentation)}
+\item{y}{= any of StockFlows/China/Japan/CSI300/Energy}
 }
 \description{
 Generates the SQL query to get the data for monthly allocations for StockFlows
