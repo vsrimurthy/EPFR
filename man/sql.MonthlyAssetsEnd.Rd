@@ -4,16 +4,14 @@
 \alias{sql.MonthlyAssetsEnd}
 \title{sql.MonthlyAssetsEnd}
 \usage{
-sql.MonthlyAssetsEnd(x, y = "", n = F, w = F)
+sql.MonthlyAssetsEnd(x, y = F, n = F)
 }
 \arguments{
 \item{x}{= YYYYMMDD for which you want flows (known one day later)}
 
-\item{y}{= characters that get pasted in front of every line (usually tabs for indentation)}
+\item{y}{= T/F variable depending on whether you want AssetsStart/AssetsEnd or just AssetsEnd}
 
-\item{n}{= T/F variable depending on whether you want AssetsStart/AssetsEnd or just AssetsEnd}
-
-\item{w}{= T/F depending on whether data are indexed by FundId}
+\item{n}{= T/F depending on whether data are indexed by FundId}
 }
 \description{
 Generates the SQL query to get the data for monthly Assets End
@@ -101,7 +99,7 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.nonneg}},
   \code{\link{sql.query.underlying}},
   \code{\link{sql.query}}, \code{\link{sql.regr}},
-  \code{\link{sql.sf.wtd.avg}}, \code{\link{sql.tbl}},
-  \code{\link{sql.ui}}, \code{\link{sql.unbracket}}
+  \code{\link{sql.tbl}}, \code{\link{sql.ui}},
+  \code{\link{sql.unbracket}}
 }
 \keyword{sql.MonthlyAssetsEnd}

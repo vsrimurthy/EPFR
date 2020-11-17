@@ -4,14 +4,12 @@
 \alias{sql.and}
 \title{sql.and}
 \usage{
-sql.and(x, y = "", n = "and")
+sql.and(x, y = "and")
 }
 \arguments{
 \item{x}{= list object of string vectors}
 
-\item{y}{= prependix}
-
-\item{n}{= logical operator to use}
+\item{y}{= logical operator to use}
 }
 \description{
 and segment of an SQL statement
@@ -100,7 +98,7 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.nonneg}},
   \code{\link{sql.query.underlying}},
   \code{\link{sql.query}}, \code{\link{sql.regr}},
-  \code{\link{sql.sf.wtd.avg}}, \code{\link{sql.tbl}},
-  \code{\link{sql.ui}}, \code{\link{sql.unbracket}}
+  \code{\link{sql.tbl}}, \code{\link{sql.ui}},
+  \code{\link{sql.unbracket}}
 }
 \keyword{sql.and}

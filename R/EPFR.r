@@ -96,8 +96,8 @@ mk.1mPerfTrend <- function (x, y, n)
             collapse = "\n"))
     }
     else {
-        sf <- c(sql.label(sql.MonthlyAssetsEnd("@newDt", ""), 
-            "t"), "inner join", "FundHistory his", "\ton his.HFundId = t.HFundId")
+        sf <- c(sql.label(sql.MonthlyAssetsEnd("@newDt"), "t"), 
+            "inner join", "FundHistory his", "\ton his.HFundId = t.HFundId")
         sf <- c(sf, "inner join", sql.label(sql.MonthlyAlloc("@newDt"), 
             "n1"), "\ton n1.HFundId = t.HFundId", "inner join")
         sf <- c(sf, "SecurityHistory id", "\ton id.HSecurityId = n1.HSecurityId")
@@ -4842,8 +4842,8 @@ ftp.sql.other <- function (x, y, n)
     else if (any(x == c("C", "I", "S"))) {
         w <- list(A = sql.ui(), B = paste(h, "= @dy"), C = "FundType in ('B', 'E')")
         if (x == "C") 
-            w[["D"]] <- c("(", sql.and(sql.cross.border(F), "", 
-                "or"), ")")
+            w[["D"]] <- c("(", sql.and(sql.cross.border(F), "or"), 
+                ")")
         w <- sql.and(w)
         z <- c("t2.FundId", paste0("ReportDate = convert(char(8), ", 
             h, ", 112)"))
@@ -10895,7 +10895,7 @@ sql.1dFloMo.underlying <- function (x)
     x <- yyyymm.to.day(yyyymmdd.to.AllocMo(x, 26))
     z <- c(sql.into(sql.MonthlyAlloc(paste0("'", x, "'")), "#HLD"))
     z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(paste0("'", x, 
-        "'"), "", F, T), "#AUM"))
+        "'"), F, T), "#AUM"))
     z <- c(sql.drop(c("#HLD", "#AUM")), "", z, "")
     z
 }
@@ -11116,11 +11116,11 @@ sql.1dFloTrend.underlying <- function (x, y, n, w)
     z <- c(z, "", sql.into(sql.MonthlyAlloc(paste0("'", yyyymm.to.day(n[1]), 
         "'")), "#NEWHLD"))
     z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(paste0("'", yyyymm.to.day(n[1]), 
-        "'"), "", F, T), "#NEWAUM"))
+        "'"), F, T), "#NEWAUM"))
     z <- c(z, "", sql.into(sql.MonthlyAlloc(paste0("'", yyyymm.to.day(n[2]), 
         "'")), "#OLDHLD"))
     z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(paste0("'", yyyymm.to.day(n[2]), 
-        "'"), "", F, T), "#OLDAUM"))
+        "'"), F, T), "#OLDAUM"))
     if (any(x == "Pseudo")) {
         cols <- c("FundId", "HFundId", "HSecurityId", "HoldingValue")
         z <- c(z, "", sql.Holdings.bulk("#NEWHLD", cols, yyyymm.to.day(n[1]), 
@@ -11430,7 +11430,7 @@ sql.1mAllocD <- function (x, y, n, w, h)
 {
     y <- sql.arguments(y)
     v <- paste0("'", yyyymm.to.day(x), "'")
-    v <- sql.label(sql.MonthlyAssetsEnd(v, "", F, F), "t1")
+    v <- sql.label(sql.MonthlyAssetsEnd(v), "t1")
     v <- c(v, "inner join", sql.label(sql.FundHistory("", y$filter, 
         T, "FundId"), "his on his.HFundId = t1.HFundId"))
     v <- c(v, "inner join", "Holdings t2 on t2.FundId = his.FundId")
@@ -11441,7 +11441,7 @@ sql.1mAllocD <- function (x, y, n, w, h)
         "SharesHeld", "Allocation = HoldingValue/AssetsEnd"), 
         v, u), "#NEW")
     v <- paste0("'", yyyymm.to.day(yyyymm.lag(x)), "'")
-    v <- sql.label(sql.MonthlyAssetsEnd(v, "", F, F), "t1")
+    v <- sql.label(sql.MonthlyAssetsEnd(v), "t1")
     v <- c(v, "inner join", "FundHistory his on his.HFundId = t1.HFundId")
     v <- c(v, "inner join", "Holdings t2 on t2.FundId = his.FundId")
     v <- c(v, "inner join", "SecurityHistory t3 on t3.HSecurityId = t2.HSecurityId")
@@ -11650,8 +11650,8 @@ sql.1mAllocMo.underlying.from <- function (x)
 
 sql.1mAllocMo.underlying.pre <- function (x, y, n) 
 {
-    z <- sql.into(sql.MonthlyAssetsEnd(paste0("'", y, "'"), "", 
-        T), "#MOFLOW")
+    z <- sql.into(sql.MonthlyAssetsEnd(paste0("'", y, "'"), T), 
+        "#MOFLOW")
     if (any(x == "Up")) 
         z <- c(z, "\tand", "\t\tsum(AssetsEnd - AssetsStart - Flow) > 0")
     z <- c(z, "", sql.into(sql.MonthlyAlloc(paste0("'", y, "'")), 
@@ -11862,11 +11862,11 @@ sql.1mFloTrend.underlying <- function (x, y, n)
     z <- c(z, "", sql.into(sql.MonthlyAlloc(paste0("'", yyyymm.to.day(n[1]), 
         "'")), "#NEWHLD"))
     z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(paste0("'", yyyymm.to.day(n[1]), 
-        "'"), "", F, T), "#NEWAUM"))
+        "'"), F, T), "#NEWAUM"))
     z <- c(z, "", sql.into(sql.MonthlyAlloc(paste0("'", yyyymm.to.day(n[2]), 
         "'")), "#OLDHLD"))
     z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(paste0("'", yyyymm.to.day(n[2]), 
-        "'"), "", F, T), "#OLDAUM"))
+        "'"), F, T), "#OLDAUM"))
     if (any(x == "Pseudo")) {
         cols <- c("FundId", "HFundId", "HSecurityId", "HoldingValue")
         z <- c(z, "", sql.Holdings.bulk("#NEWHLD", cols, yyyymm.to.day(n[1]), 
@@ -12024,17 +12024,16 @@ sql.AllocTbl <- function (x)
 #' 
 #' and segment of an SQL statement
 #' @param x = list object of string vectors
-#' @param y = prependix
-#' @param n = logical operator to use
+#' @param y = logical operator to use
 #' @keywords sql.and
 #' @export
 #' @family sql
 
-sql.and <- function (x, y = "", n = "and") 
+sql.and <- function (x, y = "and") 
 {
     m <- length(x)
     if (m > 1) {
-        fcn <- function(x) c(n, paste0(y, "\t", x))
+        fcn <- function(x) c(y, paste0(y, "\t", x))
         z <- unlist(lapply(x, fcn))[-1]
     }
     else {
@@ -12526,7 +12525,7 @@ sql.FundHistory.macro <- function (x)
         }
         else if (y == "CB") {
             z[[char.ex.int(length(z) + 65)]] <- c("(", sql.and(sql.cross.border(F), 
-                "", "or"), ")")
+                "or"), ")")
         }
         else if (y == "UI") {
             z[[char.ex.int(length(z) + 65)]] <- sql.ui()
@@ -12556,7 +12555,7 @@ sql.FundHistory.sf <- function (x)
         }
         else if (h == "CBE") {
             z[[char.ex.int(length(z) + 65)]] <- c("(", sql.and(sql.cross.border(T), 
-                "", "or"), ")")
+                "or"), ")")
         }
         else {
             z[[char.ex.int(length(z) + 65)]] <- h
@@ -13149,23 +13148,22 @@ sql.MonthlyAlloc <- function (x, y = "All")
 #' 
 #' Generates the SQL query to get the data for monthly Assets End
 #' @param x = YYYYMMDD for which you want flows (known one day later)
-#' @param y = characters that get pasted in front of every line (usually tabs for indentation)
-#' @param n = T/F variable depending on whether you want AssetsStart/AssetsEnd or just AssetsEnd
-#' @param w = T/F depending on whether data are indexed by FundId
+#' @param y = T/F variable depending on whether you want AssetsStart/AssetsEnd or just AssetsEnd
+#' @param n = T/F depending on whether data are indexed by FundId
 #' @keywords sql.MonthlyAssetsEnd
 #' @export
 #' @family sql
 
-sql.MonthlyAssetsEnd <- function (x, y = "", n = F, w = F) 
+sql.MonthlyAssetsEnd <- function (x, y = F, n = F) 
 {
-    z <- ifelse(w, "FundId", "HFundId")
+    z <- ifelse(n, "FundId", "HFundId")
     z <- c(z, "AssetsEnd = sum(AssetsEnd)")
     h <- "sum(AssetsEnd) > 0"
-    if (n) {
+    if (y) {
         z <- c(z, "AssetsStart = sum(AssetsStart)")
         h <- sql.and(list(A = h, B = "sum(AssetsStart) > 0"))
     }
-    if (w) {
+    if (n) {
         z <- sql.tbl(z, "MonthlyData t1 inner join FundHistory t2 on t2.HFundId = t1.HFundId", 
             paste("ReportDate =", x), "FundId", h)
     }
@@ -13173,7 +13171,6 @@ sql.MonthlyAssetsEnd <- function (x, y = "", n = F, w = F)
         z <- sql.tbl(z, "MonthlyData", paste("ReportDate =", 
             x), "HFundId", h)
     }
-    z <- paste0(y, z)
     z
 }
 
@@ -13285,7 +13282,7 @@ sql.RDSuniv <- function (x)
                 7744, 29865, 5152, 5155, 13667, 17558, 31873)
         }
         z <- sql.and(vec.to.list(paste("FundId =", paste(names(bmks), 
-            bmks, sep = " --"))), n = "or")
+            bmks, sep = " --"))), "or")
         z <- sql.in("HFundId", sql.tbl("HFundId", "FundHistory", 
             z))
         z <- sql.tbl("HSecurityId", "Holdings", z, "HSecurityId")
@@ -13303,7 +13300,7 @@ sql.RDSuniv <- function (x)
         z <- sql.in("HSecurityId", z)
         z <- list(A = z, B = sql.in("HFundId", sql.tbl("HFundId", 
             "FundHistory", "GeographicFocusId = 16")))
-        z <- sql.and(z, n = "or")
+        z <- sql.and(z, "or")
         z <- sql.tbl("HSecurityId", "Holdings", z, "HSecurityId")
     }
     else if (x == "All") {
@@ -13348,58 +13345,6 @@ sql.regr <- function (x, y, n)
 sql.ReportDate <- function (x) 
 {
     paste0("ReportDate = '", day.to.ui(x), "'")
-}
-
-#' sql.sf.wtd.avg
-#' 
-#' Computes Fund/Smpl weighted Incl/Excl zero for all names in the S&P
-#' @param x = YYYYMM at the end of which allocations are desired
-#' @param y = a string. Must be one of All/Etf/MF.
-#' @keywords sql.sf.wtd.avg
-#' @export
-#' @family sql
-
-sql.sf.wtd.avg <- function (x, y) 
-{
-    x <- sql.declare(c("@benchId", "@hFundId", "@geoId", "@allocDt"), 
-        c("int", "int", "int", "datetime"), c(1487, 8068, 77, 
-            yyyymm.to.day(x)))
-    w <- list(A = "GeographicFocusId = @geoId", B = "BenchIndexId = @benchId", 
-        C = "StyleSectorId in (108, 109, 110)")
-    if (y == "Etf") {
-        w[["D"]] <- "ETFTypeId is not null"
-    }
-    else if (y == "MF") {
-        w[["D"]] <- "ETFTypeId is null"
-    }
-    else if (y != "All") 
-        stop("Bad type argument")
-    w <- list(A = sql.in("HFundId", sql.tbl("HFundId", "FundHistory", 
-        sql.and(w))))
-    w[["B"]] <- "ReportDate = @allocDt"
-    w[["C"]] <- sql.in("HFundId", sql.Holdings("ReportDate = @allocDt", 
-        "HFundId"))
-    z <- sql.label(sql.tbl("HFundId, PortVal = sum(AssetsEnd)", 
-        "MonthlyData", sql.and(w), "HFundId"), "t1")
-    w <- sql.tbl("HSecurityId", "Holdings", sql.and(list(A = "ReportDate = @allocDt", 
-        B = "HFundId = @hFundId")))
-    z <- sql.label(sql.tbl("HFundId, HSecurityId, PortVal", c(z, 
-        "cross join", sql.label(w, "t2"))), " t")
-    z <- c(z, "inner join", "SecurityCodeMapping map on map.HSecurityId = t.HSecurityId")
-    w <- sql.Holdings("ReportDate = @allocDt", c("HSecurityId", 
-        "HFundId", "HoldingValue"))
-    z <- c(z, "left join", sql.label(w, "t3"), "\ton t3.HFundId = t.HFundId and t3.HSecurityId = t.HSecurityId")
-    w <- sql.tbl("Id, SecurityCode", "SecurityCode", "SecurityCodeTypeId = 1")
-    w <- c(z, "left join", sql.label(w, "isin"), "\ton isin.Id = map.SecurityCodeId")
-    z <- c("t.HSecurityId", "isin = isnull(isin.SecurityCode, '')", 
-        "SmplWtdExcl0 = avg(HoldingValue/PortVal)")
-    z <- c(z, "SmplWtdIncl0 = sum(HoldingValue/PortVal)/count(PortVal)")
-    z <- c(z, "FundWtdExcl0 = sum(HoldingValue)/sum(case when HoldingValue is not null then PortVal else NULL end)")
-    z <- c(z, "FundWtdIncl0 = sum(HoldingValue)/sum(PortVal)")
-    z <- sql.unbracket(sql.tbl(z, w, , "t.HSecurityId, isnull(isin.SecurityCode, '')", 
-        "sum(HoldingValue) > 0"))
-    z <- paste(c(x, z), collapse = "\n")
-    z
 }
 
 #' sql.SRI
@@ -13633,7 +13578,7 @@ sql.ui <- function ()
     x[["D"]] <- "isActive = 'Y'"
     x <- c("(", sql.and(x), ")")
     z <- list(A = z, B = x)
-    z <- c("(", sql.and(z, , "or"), ")")
+    z <- c("(", sql.and(z, "or"), ")")
     z
 }
 

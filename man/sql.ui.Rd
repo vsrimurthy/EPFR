@@ -93,7 +93,6 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.nonneg}},
   \code{\link{sql.query.underlying}},
   \code{\link{sql.query}}, \code{\link{sql.regr}},
-  \code{\link{sql.sf.wtd.avg}}, \code{\link{sql.tbl}},
-  \code{\link{sql.unbracket}}
+  \code{\link{sql.tbl}}, \code{\link{sql.unbracket}}
 }
 \keyword{sql.ui}
