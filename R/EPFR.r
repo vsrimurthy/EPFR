@@ -8277,11 +8277,9 @@ qa.columns <- function (x)
 
 qa.filter.map <- function (x) 
 {
-    z <- vec.read(parameters("classif-filterNames"), T)
-    x <- as.character(txt.parse(x, ","))
-    z <- as.character(map.rname(z, x))
+    z <- as.character(map.rname(vec.read(parameters("classif-filterNames"), 
+        T), x))
     z <- ifelse(is.na(z), x, z)
-    z <- paste(z, collapse = ",")
     z
 }
 
