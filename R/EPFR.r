@@ -12033,7 +12033,7 @@ sql.and <- function (x, y = "and")
 {
     m <- length(x)
     if (m > 1) {
-        fcn <- function(x) c(y, paste0(y, "\t", x))
+        fcn <- function(x) c(y, paste0("\t", x))
         z <- unlist(lapply(x, fcn))[-1]
     }
     else {
