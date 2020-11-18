@@ -4,16 +4,18 @@
 \alias{sql.1dION}
 \title{sql.1dION}
 \usage{
-sql.1dION(x, y, n, w)
+sql.1dION(x, y, n, w, h)
 }
 \arguments{
 \item{x}{= data date (known two days later)}
 
-\item{y}{= a vector of variables, the last element of which is ignored}
+\item{y}{= a vector of variables, the last element of which is fund type used}
 
 \item{n}{= the delay in knowing allocations}
 
 \item{w}{= any of StockFlows/China/Japan/CSI300/Energy}
+
+\item{h}{= T/F depending on whether you are checking ftp}
 }
 \description{
 Generates the SQL query to get the data for 1dION$ & 1dION\%

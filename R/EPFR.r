@@ -11224,32 +11224,38 @@ sql.1dFundRet <- function (x)
 #' 
 #' Generates the SQL query to get the data for 1dION$ & 1dION\%
 #' @param x = data date (known two days later)
-#' @param y = a vector of variables, the last element of which is ignored
+#' @param y = a vector of variables, the last element of which is fund type used
 #' @param n = the delay in knowing allocations
 #' @param w = any of StockFlows/China/Japan/CSI300/Energy
+#' @param h = T/F depending on whether you are checking ftp
 #' @keywords sql.1dION
 #' @export
 #' @family sql
 
-sql.1dION <- function (x, y, n, w) 
+sql.1dION <- function (x, y, n, w, h) 
 {
-    m <- length(y)
-    h <- vec.named(c("Flow * HoldingValue/AssetsEnd", "HoldingValue/AssetsEnd"), 
+    y <- sql.arguments(y)
+    u <- vec.named(c("Flow * HoldingValue/AssetsEnd", "HoldingValue/AssetsEnd"), 
         c("ION$", "ION%"))
-    z <- c("SecurityId", paste0("[", y[-m], "] ", sql.ION("Flow", 
-        h[y[-m]])))
-    y <- c(sql.label(sql.FundHistory("", y[m], T, "FundId"), 
+    if (h) 
+        z <- c(sql.ReportDate(x), "t1.HSecurityId")
+    else z <- "SecurityId"
+    z <- c(z, paste0("[", y$factor, "] ", sql.ION("Flow", u[y$factor])))
+    y <- c(sql.label(sql.FundHistory("", y$filter, T, "FundId"), 
         "t0"), "inner join", sql.MonthlyAlloc("@allocDt"))
     y <- c(sql.label(y, "t1"), "\ton t1.FundId = t0.FundId", 
         "inner join", sql.DailyFlo("@floDt"))
     y <- c(sql.label(y, "t2"), "\ton t2.HFundId = t0.HFundId", 
         "inner join", sql.MonthlyAssetsEnd("@allocDt"))
-    y <- c(sql.label(y, "t3"), "\ton t3.HFundId = t1.HFundId", 
-        "inner join", "SecurityHistory id", "\ton id.HSecurityId = t1.HSecurityId")
+    y <- c(sql.label(y, "t3"), "\ton t3.HFundId = t1.HFundId")
+    if (!h) 
+        y <- c(y, "inner join", "SecurityHistory id", "\ton id.HSecurityId = t1.HSecurityId")
     x <- sql.declare(c("@floDt", "@allocDt"), "datetime", c(x, 
         yyyymm.to.day(yyyymmdd.to.AllocMo(x, n))))
-    z <- paste(c(x, sql.unbracket(sql.tbl(z, y, sql.in("t1.HSecurityId", 
-        sql.RDSuniv(w)), "SecurityId"))), collapse = "\n")
+    h <- ifelse(h, "t1.HSecurityId", "SecurityId")
+    z <- sql.unbracket(sql.tbl(z, y, sql.in("t1.HSecurityId", 
+        sql.RDSuniv(w)), h))
+    z <- paste(c(x, z), collapse = "\n")
     z
 }
 
