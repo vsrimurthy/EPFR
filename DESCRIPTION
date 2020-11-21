@@ -1,6 +1,6 @@
 Package: EPFR
 Title: EPFR Quantitative Research Environment
-Version: 1.7.4
+Version: 1.7.5
 Authors@R: person("Vikram", "Srimurthy", "K.", "Vikram.C.Srimurthy@epfrglobal.com", role = c("aut", "cre"))
 Description: This is the EPFR Quant Research environment.
 Depends: R (>= 3.4.1),RODBC,RDCOMClient

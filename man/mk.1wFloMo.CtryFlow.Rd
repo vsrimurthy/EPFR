@@ -4,7 +4,7 @@
 \alias{mk.1wFloMo.CtryFlow}
 \title{mk.1wFloMo.CtryFlow}
 \usage{
-mk.1wFloMo.CtryFlow(x, y, n, w, h)
+mk.1wFloMo.CtryFlow(x, y, n, w, h, u = T)
 }
 \arguments{
 \item{x}{= YYYYMMDD}
@@ -16,13 +16,16 @@ mk.1wFloMo.CtryFlow(x, y, n, w, h)
 \item{w}{= country list (one of Ctry/LatAm)}
 
 \item{h}{= connection type (StockFlows/Regular/Quant)}
+
+\item{u}{= T/F depending on whether weekly or daily data needed}
 }
 \description{
 SQL query for country-flow percentage for date <x>
 }
 \seealso{
 Other mk: \code{\link{mk.1dFloMo.Ctry}},
-  \code{\link{mk.1dFloMo}}, \code{\link{mk.1mActPas.Ctry}},
+  \code{\link{mk.1dFloMo.Sec}}, \code{\link{mk.1dFloMo}},
+  \code{\link{mk.1mActPas.Ctry}},
   \code{\link{mk.1mAllocMo}}, \code{\link{mk.1mPerfTrend}},
   \code{\link{mk.ActWt}}, \code{\link{mk.Alpha.daily}},
   \code{\link{mk.Alpha}}, \code{\link{mk.EigenCentrality}},
