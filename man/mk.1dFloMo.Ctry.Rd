@@ -13,7 +13,7 @@ mk.1dFloMo.Ctry(x, y, n, w, h, u = "E")
 
 \item{n}{= country list (one of Ctry/FX/Sector)}
 
-\item{w}{= input to or output of sql.connect.underlying}
+\item{w}{= input to or output of sql.connect}
 
 \item{h}{= T/F depending on whether daily/weekly}
 

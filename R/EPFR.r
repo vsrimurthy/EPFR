@@ -2000,7 +2000,7 @@ dtw <- function (x, y)
 #' EHD
 #' 
 #' named vector of item between <w> and <h> sorted ascending
-#' @param x = input to or output of sql.connect.underlying
+#' @param x = input to or output of sql.connect
 #' @param y = item (Flow/AssetsStart/AssetsEnd)
 #' @param n = frequency (one of D/W/M)
 #' @param w = begin date in YYYYMMDD
@@ -2294,7 +2294,7 @@ factordump.sql <- function (x, y, n, w, h)
         "Mutual"))
     for (filter in names(filters)) {
         cat(txt.hdr(filter), "\n")
-        myconn <- sql.connect.underlying(h)
+        myconn <- sql.connect(h)
         for (j in qtr.seq(n, w)) {
             z <- list()
             for (k in yyyymm.lag(yyyymm.ex.qtr(j), 2:0)) {
@@ -6660,7 +6660,7 @@ mk.1dFloMo <- function (x, y, n)
 #' @param x = flowdate/YYYYMMDD depending on whether daily/weekly
 #' @param y = item (one of Flow/AssetsStart/AssetsEnd)
 #' @param n = country list (one of Ctry/FX/Sector)
-#' @param w = input to or output of sql.connect.underlying
+#' @param w = input to or output of sql.connect
 #' @param h = T/F depending on whether daily/weekly
 #' @param u = Fund Type (one of E/B)
 #' @keywords mk.1dFloMo.Ctry
@@ -6697,7 +6697,7 @@ mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E")
 #' @param x = flowdate/YYYYMMDD depending on whether daily/weekly
 #' @param y = item (one of Flow/AssetsStart/AssetsEnd)
 #' @param n = country list (one of Ctry/FX/Sector)
-#' @param w = input to or output of sql.connect.underlying
+#' @param w = input to or output of sql.connect
 #' @param h = T/F depending on whether daily/weekly
 #' @param u = one of US/UK/JP/EM/Eurozone
 #' @keywords mk.1dFloMo.Sec
@@ -6867,7 +6867,7 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h, u)
 #' 
 #' Generates the SQL query to get monthly AIS for countries
 #' @param x = YYYYMM month
-#' @param y = input to or output of sql.connect.underlying
+#' @param y = input to or output of sql.connect
 #' @keywords mk.1mActPas.Ctry
 #' @export
 #' @family mk
@@ -6953,7 +6953,7 @@ mk.1mAllocMo <- function (x, y, n)
 #' @param y = FundType (one of E/B)
 #' @param n = item (one of Flow/AssetsStart/AssetsEnd)
 #' @param w = country list (one of Ctry/LatAm)
-#' @param h = input to or output of sql.connect.underlying
+#' @param h = input to or output of sql.connect
 #' @param u = T/F depending on whether weekly or daily data needed
 #' @keywords mk.1wFloMo.CtryFlow
 #' @export
@@ -6961,7 +6961,7 @@ mk.1mAllocMo <- function (x, y, n)
 
 mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = T) 
 {
-    h <- sql.connect(h)
+    h <- sql.connect.wrapper(h)
     w <- sql.1dFloMo.Ctry.List(w)
     w <- Ctry.info(w, c("GeoId", "CountryId"))
     rslt <- list(MAP = w)
@@ -8304,7 +8304,7 @@ publications.data <- function (x, y, n, w)
     }
     if (length(x) > 0) {
         cat("Updating", n, "for the following periods:\n")
-        conn <- sql.connect.underlying(w)
+        conn <- sql.connect(w)
         for (i in x) {
             cat("\t", i, "...\n")
             if (is.function(y)) {
@@ -8602,8 +8602,7 @@ qa.flow <- function (x, y, n, w, h, u)
         z[j, 9:dim(z)[2]] <- 0
     }
     if (any(is.element(z[, "goodFile"], 1)) & missing(h)) {
-        h <- sql.connect.underlying(ftp.info(y, n, "connection", 
-            w))
+        h <- sql.connect(ftp.info(y, n, "connection", w))
         close.connection <- T
     }
     else {
@@ -12434,34 +12433,14 @@ sql.close <- function (x)
 
 #' sql.connect
 #' 
-#' Opens an SQL connection (if needed)
-#' @param x = input to or output of sql.connect.underlying
+#' Opens an SQL connection
+#' @param x = One of "StockFlows", "Quant" or "Regular"
 #' @keywords sql.connect
 #' @export
 #' @family sql
 #' @@importFrom RODBC odbcDriverConnect
 
 sql.connect <- function (x) 
-{
-    if (is.character(x)) {
-        z <- list(conn = sql.connect.underlying(x), close = T)
-    }
-    else {
-        z <- list(conn = x, close = F)
-    }
-    z
-}
-
-#' sql.connect.underlying
-#' 
-#' Opens an SQL connection
-#' @param x = One of "StockFlows", "Quant" or "Regular"
-#' @keywords sql.connect.underlying
-#' @export
-#' @family sql
-#' @@importFrom RODBC odbcDriverConnect
-
-sql.connect.underlying <- function (x) 
 {
     y <- mat.read(parameters("SQL"), "\t")
     if (all(dimnames(y)[[1]] != x)) 
@@ -12470,6 +12449,26 @@ sql.connect.underlying <- function (x)
     z["Connection Timeout"] <- "0"
     z <- paste(paste(names(z), z, sep = "="), collapse = ";")
     z <- odbcDriverConnect(z, readOnlyOptimize = T)
+    z
+}
+
+#' sql.connect.wrapper
+#' 
+#' Opens an SQL connection (if needed)
+#' @param x = input to or output of sql.connect
+#' @keywords sql.connect.wrapper
+#' @export
+#' @family sql
+#' @@importFrom RODBC odbcDriverConnect
+
+sql.connect.wrapper <- function (x) 
+{
+    if (is.character(x)) {
+        z <- list(conn = sql.connect(x), close = T)
+    }
+    else {
+        z <- list(conn = x, close = F)
+    }
     z
 }
 
@@ -13455,7 +13454,7 @@ sql.Overweight <- function (x)
 #' 
 #' opens a connection, executes sql query, then closes the connection
 #' @param x = query needed for the update
-#' @param y = input to or output of sql.connect.underlying
+#' @param y = input to or output of sql.connect
 #' @param n = T/F depending on whether you wish to output number of rows of data got
 #' @keywords sql.query
 #' @export
@@ -13464,7 +13463,7 @@ sql.Overweight <- function (x)
 
 sql.query <- function (x, y, n = T) 
 {
-    y <- sql.connect(y)
+    y <- sql.connect.wrapper(y)
     z <- sql.query.underlying(x, y$conn, n)
     sql.close(y)
     z
@@ -13936,7 +13935,7 @@ sqlts.wrapper <- function (x, y)
         "sqlts.TopDownAllocs"), c("Daily", "Monthly", "Allocation"))
     y <- get(w[y])
     z <- list()
-    h <- sql.connect.underlying("StockFlows")
+    h <- sql.connect("StockFlows")
     for (i in x) {
         cat(i, "...\n")
         z[[as.character(i)]] <- sqlQuery(h, y(i), stringsAsFactors = F)

@@ -7,7 +7,7 @@
 EHD(x, y, n, w, h, u = NULL)
 }
 \arguments{
-\item{x}{= input to or output of sql.connect.underlying}
+\item{x}{= input to or output of sql.connect}
 
 \item{y}{= item (Flow/AssetsStart/AssetsEnd)}
 

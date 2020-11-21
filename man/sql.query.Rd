@@ -9,7 +9,7 @@ sql.query(x, y, n = T)
 \arguments{
 \item{x}{= query needed for the update}
 
-\item{y}{= input to or output of sql.connect.underlying}
+\item{y}{= input to or output of sql.connect}
 
 \item{n}{= T/F depending on whether you wish to output number of rows of data got}
 }
@@ -85,7 +85,7 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.TopDownAllocs}}, \code{\link{sql.Trend}},
   \code{\link{sql.and}}, \code{\link{sql.arguments}},
   \code{\link{sql.bcp}}, \code{\link{sql.close}},
-  \code{\link{sql.connect.underlying}},
+  \code{\link{sql.connect.wrapper}},
   \code{\link{sql.connect}},
   \code{\link{sql.cross.border}},
   \code{\link{sql.datediff}}, \code{\link{sql.declare}},
