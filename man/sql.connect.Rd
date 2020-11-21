@@ -7,10 +7,10 @@
 sql.connect(x)
 }
 \arguments{
-\item{x}{= One of "StockFlows", "Quant" or "Regular"}
+\item{x}{= input to or output of sql.connect.underlying}
 }
 \description{
-Opens an SQL connection
+Opens an SQL connection (if needed)
 }
 \seealso{
 Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
@@ -80,7 +80,9 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.TopDownAllocs.underlying}},
   \code{\link{sql.TopDownAllocs}}, \code{\link{sql.Trend}},
   \code{\link{sql.and}}, \code{\link{sql.arguments}},
-  \code{\link{sql.bcp}}, \code{\link{sql.cross.border}},
+  \code{\link{sql.bcp}}, \code{\link{sql.close}},
+  \code{\link{sql.connect.underlying}},
+  \code{\link{sql.cross.border}},
   \code{\link{sql.datediff}}, \code{\link{sql.declare}},
   \code{\link{sql.drop}}, \code{\link{sql.exists}},
   \code{\link{sql.floTbl.to.Col}}, \code{\link{sql.into}},

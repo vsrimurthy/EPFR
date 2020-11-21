@@ -2294,7 +2294,7 @@ factordump.sql <- function (x, y, n, w, h)
         "Mutual"))
     for (filter in names(filters)) {
         cat(txt.hdr(filter), "\n")
-        myconn <- sql.connect(h)
+        myconn <- sql.connect.underlying(h)
         for (j in qtr.seq(n, w)) {
             z <- list()
             for (k in yyyymm.lag(yyyymm.ex.qtr(j), 2:0)) {
@@ -6660,7 +6660,7 @@ mk.1dFloMo <- function (x, y, n)
 #' @param x = flowdate/YYYYMMDD depending on whether daily/weekly
 #' @param y = item (one of Flow/AssetsStart/AssetsEnd)
 #' @param n = country list (one of Ctry/FX/Sector)
-#' @param w = connection type (StockFlows/Regular/Quant)
+#' @param w = input to or output of sql.connect.underlying
 #' @param h = T/F depending on whether daily/weekly
 #' @param u = Fund Type (one of E/B)
 #' @keywords mk.1dFloMo.Ctry
@@ -6697,7 +6697,7 @@ mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E")
 #' @param x = flowdate/YYYYMMDD depending on whether daily/weekly
 #' @param y = item (one of Flow/AssetsStart/AssetsEnd)
 #' @param n = country list (one of Ctry/FX/Sector)
-#' @param w = connection type (StockFlows/Regular/Quant)
+#' @param w = input to or output of sql.connect.underlying
 #' @param h = T/F depending on whether daily/weekly
 #' @param u = one of US/UK/JP/EM/Eurozone
 #' @keywords mk.1dFloMo.Sec
@@ -6953,7 +6953,7 @@ mk.1mAllocMo <- function (x, y, n)
 #' @param y = FundType (one of E/B)
 #' @param n = item (one of Flow/AssetsStart/AssetsEnd)
 #' @param w = country list (one of Ctry/LatAm)
-#' @param h = connection type (StockFlows/Regular/Quant)
+#' @param h = input to or output of sql.connect.underlying
 #' @param u = T/F depending on whether weekly or daily data needed
 #' @keywords mk.1wFloMo.CtryFlow
 #' @export
@@ -7006,7 +7006,7 @@ mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = T)
     z <- sql.query.underlying(paste(z, collapse = "\n"), h, F)
     rslt[["CBA"]] <- pivot(sum, z[, "Allocation"], z[, "CountryId"], 
         z[, "GeographicFocus"])
-    close(h)
+    sql.close(h)
     rslt[["CBF"]] <- map.rname(mat.index(rslt[["CBF"]]), dimnames(rslt[["CBA"]])[[2]])
     rslt[["CBF"]] <- 0.01 * rslt[["CBA"]] %*% as.matrix(rslt[["CBF"]])
     rslt[["CBF"]] <- map.rname(rslt[["CBF"]], rslt[["MAP"]][, 
@@ -8303,7 +8303,7 @@ publications.data <- function (x, y, n, w)
     }
     if (length(x) > 0) {
         cat("Updating", n, "for the following periods:\n")
-        conn <- sql.connect(w)
+        conn <- sql.connect.underlying(w)
         for (i in x) {
             cat("\t", i, "...\n")
             if (is.function(y)) {
@@ -8601,7 +8601,8 @@ qa.flow <- function (x, y, n, w, h, u)
         z[j, 9:dim(z)[2]] <- 0
     }
     if (any(is.element(z[, "goodFile"], 1)) & missing(h)) {
-        h <- sql.connect(ftp.info(y, n, "connection", w))
+        h <- sql.connect.underlying(ftp.info(y, n, "connection", 
+            w))
         close.connection <- T
     }
     else {
@@ -12415,16 +12416,47 @@ sql.Bullish.Ctry <- function (x)
     z
 }
 
+#' sql.close
+#' 
+#' Closes an SQL connection (if needed)
+#' @param x = input to or output of sql.connect.underlying
+#' @keywords sql.close
+#' @export
+#' @family sql
+
+sql.close <- function (x) 
+{
+    if (!is.character(x)) 
+        close(x)
+    invisible()
+}
+
 #' sql.connect
 #' 
-#' Opens an SQL connection
-#' @param x = One of "StockFlows", "Quant" or "Regular"
+#' Opens an SQL connection (if needed)
+#' @param x = input to or output of sql.connect.underlying
 #' @keywords sql.connect
 #' @export
 #' @family sql
 #' @@importFrom RODBC odbcDriverConnect
 
 sql.connect <- function (x) 
+{
+    if (is.character(x)) 
+        z <- sql.connect.underlying(x)
+    else z <- x
+}
+
+#' sql.connect.underlying
+#' 
+#' Opens an SQL connection
+#' @param x = One of "StockFlows", "Quant" or "Regular"
+#' @keywords sql.connect.underlying
+#' @export
+#' @family sql
+#' @@importFrom RODBC odbcDriverConnect
+
+sql.connect.underlying <- function (x) 
 {
     y <- mat.read(parameters("SQL"), "\t")
     if (all(dimnames(y)[[1]] != x)) 
@@ -13418,7 +13450,7 @@ sql.Overweight <- function (x)
 #' 
 #' opens a connection, executes sql query, then closes the connection
 #' @param x = query needed for the update
-#' @param y = one of StockFlows/Regular/Quant
+#' @param y = input to or output of sql.connect.underlying
 #' @param n = T/F depending on whether you wish to output number of rows of data got
 #' @keywords sql.query
 #' @export
@@ -13429,7 +13461,7 @@ sql.query <- function (x, y, n = T)
 {
     y <- sql.connect(y)
     z <- sql.query.underlying(x, y, n)
-    close(y)
+    sql.close(y)
     z
 }
 
@@ -13899,7 +13931,7 @@ sqlts.wrapper <- function (x, y)
         "sqlts.TopDownAllocs"), c("Daily", "Monthly", "Allocation"))
     y <- get(w[y])
     z <- list()
-    h <- sql.connect("StockFlows")
+    h <- sql.connect.underlying("StockFlows")
     for (i in x) {
         cat(i, "...\n")
         z[[as.character(i)]] <- sqlQuery(h, y(i), stringsAsFactors = F)

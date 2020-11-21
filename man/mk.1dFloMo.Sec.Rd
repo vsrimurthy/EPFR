@@ -13,7 +13,7 @@ mk.1dFloMo.Sec(x, y, n, w, h, u)
 
 \item{n}{= country list (one of Ctry/FX/Sector)}
 
-\item{w}{= connection type (StockFlows/Regular/Quant)}
+\item{w}{= input to or output of sql.connect.underlying}
 
 \item{h}{= T/F depending on whether daily/weekly}
 

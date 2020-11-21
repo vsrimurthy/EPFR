@@ -15,7 +15,7 @@ mk.1wFloMo.CtryFlow(x, y, n, w, h, u = T)
 
 \item{w}{= country list (one of Ctry/LatAm)}
 
-\item{h}{= connection type (StockFlows/Regular/Quant)}
+\item{h}{= input to or output of sql.connect.underlying}
 
 \item{u}{= T/F depending on whether weekly or daily data needed}
 }
