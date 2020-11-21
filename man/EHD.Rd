@@ -7,7 +7,7 @@
 EHD(x, y, n, w, h, u = NULL)
 }
 \arguments{
-\item{x}{= connection type (StockFlows/Regular/Quant)}
+\item{x}{= input to or output of sql.connect.underlying}
 
 \item{y}{= item (Flow/AssetsStart/AssetsEnd)}
 

@@ -9,7 +9,7 @@ mk.1mActPas.Ctry(x, y)
 \arguments{
 \item{x}{= YYYYMM month}
 
-\item{y}{= connection type (StockFlows/Regular/Quant)}
+\item{y}{= input to or output of sql.connect.underlying}
 }
 \description{
 Generates the SQL query to get monthly AIS for countries

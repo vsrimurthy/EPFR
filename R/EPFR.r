@@ -2000,7 +2000,7 @@ dtw <- function (x, y)
 #' EHD
 #' 
 #' named vector of item between <w> and <h> sorted ascending
-#' @param x = connection type (StockFlows/Regular/Quant)
+#' @param x = input to or output of sql.connect.underlying
 #' @param y = item (Flow/AssetsStart/AssetsEnd)
 #' @param n = frequency (one of D/W/M)
 #' @param w = begin date in YYYYMMDD
@@ -6867,7 +6867,7 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h, u)
 #' 
 #' Generates the SQL query to get monthly AIS for countries
 #' @param x = YYYYMM month
-#' @param y = connection type (StockFlows/Regular/Quant)
+#' @param y = input to or output of sql.connect.underlying
 #' @keywords mk.1mActPas.Ctry
 #' @export
 #' @family mk
@@ -6976,7 +6976,7 @@ mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = T)
         "= @floDt"), "GeographicFocus")
     z <- c(sql.declare("@floDt", "datetime", x), sql.unbracket(z))
     rslt[["SCF"]] <- sql.query.underlying(paste(z, collapse = "\n"), 
-        h, F)
+        h$conn, F)
     r <- c("GeographicFocus", paste0(n, " = sum(", n, ")"))
     z <- sql.FundHistory("", c(y, "CB", "UI"), F, "GeographicFocus")
     z <- sql.label(z, "t2 on t2.HFundId = t1.HFundId")
@@ -6986,7 +6986,7 @@ mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = T)
         "= @floDt"), "GeographicFocus")
     z <- c(sql.declare("@floDt", "datetime", x), sql.unbracket(z))
     rslt[["CBF"]] <- sql.query.underlying(paste(z, collapse = "\n"), 
-        h, F)
+        h$conn, F)
     r <- c("Advisor", "GeographicFocus", "CountryId", "Allocation = avg(Allocation)")
     v <- list(A = paste0("CountryId in (", paste(w$CountryId[!is.na(w$CountryId)], 
         collapse = ", "), ")"))
@@ -7003,7 +7003,8 @@ mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = T)
     z <- sql.tbl(r[-1], sql.label(z, "t"), , paste(r[-length(r)][-1], 
         collapse = ", "))
     z <- c(sql.declare("@floDt", "datetime", x), sql.unbracket(z))
-    z <- sql.query.underlying(paste(z, collapse = "\n"), h, F)
+    z <- sql.query.underlying(paste(z, collapse = "\n"), h$conn, 
+        F)
     rslt[["CBA"]] <- pivot(sum, z[, "Allocation"], z[, "CountryId"], 
         z[, "GeographicFocus"])
     sql.close(h)
@@ -12419,15 +12420,15 @@ sql.Bullish.Ctry <- function (x)
 #' sql.close
 #' 
 #' Closes an SQL connection (if needed)
-#' @param x = input to or output of sql.connect.underlying
+#' @param x = output of sql.connect
 #' @keywords sql.close
 #' @export
 #' @family sql
 
 sql.close <- function (x) 
 {
-    if (!is.character(x)) 
-        close(x)
+    if (x[["close"]]) 
+        close(x[["conn"]])
     invisible()
 }
 
@@ -12442,9 +12443,13 @@ sql.close <- function (x)
 
 sql.connect <- function (x) 
 {
-    if (is.character(x)) 
-        z <- sql.connect.underlying(x)
-    else z <- x
+    if (is.character(x)) {
+        z <- list(conn = sql.connect.underlying(x), close = T)
+    }
+    else {
+        z <- list(conn = x, close = F)
+    }
+    z
 }
 
 #' sql.connect.underlying
@@ -13460,7 +13465,7 @@ sql.Overweight <- function (x)
 sql.query <- function (x, y, n = T) 
 {
     y <- sql.connect(y)
-    z <- sql.query.underlying(x, y, n)
+    z <- sql.query.underlying(x, y$conn, n)
     sql.close(y)
     z
 }

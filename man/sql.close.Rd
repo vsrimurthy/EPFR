@@ -7,7 +7,7 @@
 sql.close(x)
 }
 \arguments{
-\item{x}{= input to or output of sql.connect.underlying}
+\item{x}{= output of sql.connect}
 }
 \description{
 Closes an SQL connection (if needed)
