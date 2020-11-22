@@ -165,6 +165,24 @@ email <- function (x, y, n, w = "", h = F, u, v)
     invisible()
 }
 
+#' angle
+#' 
+#' angle ABC
+#' @param x = number representing distance between points A & B
+#' @param y = number representing distance between points B & C
+#' @param n = number representing distance between points A & C
+#' @keywords angle
+#' @export
+
+angle <- function (x, y, n) 
+{
+    n <- min(n, 0.99999 * (x + y))
+    x <- min(x, 0.99999 * (n + y))
+    y <- min(y, 0.99999 * (x + n))
+    z <- 180 * (1 - acos((n^2 - x^2 - y^2)/(2 * x * y))/pi)
+    z
+}
+
 #' array.unlist
 #' 
 #' unlists the contents of an array
@@ -2340,9 +2358,9 @@ factordump.write <- function (x, y)
 farben <- function (x) 
 {
     if (x == 9) {
-        z <- c(0, 113, 60, 0, 78, 32, 0, 68, 36, 0, 47, 19, 168, 
-            170, 169, 239, 215, 231, 86, 0, 65, 102, 0, 102, 
-            178, 61, 150)
+        z <- c(90, 176, 49, 0, 113, 60, 0, 78, 32, 0, 68, 36, 
+            0, 47, 19, 38, 14, 35, 86, 0, 65, 102, 0, 102, 178, 
+            61, 150)
     }
     else if (x == 5) {
         z <- c(178, 61, 150, 0, 0, 0, 90, 176, 49, 64, 70, 80, 
