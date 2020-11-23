@@ -4,16 +4,14 @@
 \alias{sql.FundHistory}
 \title{sql.FundHistory}
 \usage{
-sql.FundHistory(x, y, n, w)
+sql.FundHistory(x, y, n)
 }
 \arguments{
-\item{x}{= characters to place before each line of the SQL query part}
+\item{x}{= a vector of filters}
 
-\item{y}{= a vector of filters}
+\item{y}{= T/F depending on whether StockFlows data are being used}
 
-\item{n}{= T/F depending on whether StockFlows data are being used}
-
-\item{w}{= columns needed in addition to HFundId}
+\item{n}{= columns needed in addition to HFundId}
 }
 \description{
 SQL query to restrict to Global and Regional equity funds
@@ -104,6 +102,7 @@ Other sql: \code{\link{sql.1dActWtTrend.Ctry.underlying}},
   \code{\link{sql.query.underlying}},
   \code{\link{sql.query}}, \code{\link{sql.regr}},
   \code{\link{sql.tbl}}, \code{\link{sql.ui}},
-  \code{\link{sql.unbracket}}
+  \code{\link{sql.unbracket}}, \code{\link{sql.yyyymmdd}},
+  \code{\link{sql.yyyymm}}
 }
 \keyword{sql.FundHistory}
