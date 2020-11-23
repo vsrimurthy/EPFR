@@ -2362,6 +2362,10 @@ farben <- function (x)
             0, 47, 19, 38, 14, 35, 86, 0, 65, 102, 0, 102, 178, 
             61, 150)
     }
+    else if (x == "V") {
+        z <- c(90, 176, 49, 0, 68, 36, 38, 14, 35, 86, 0, 65, 
+            178, 61, 150)
+    }
     else if (x == 5) {
         z <- c(178, 61, 150, 0, 0, 0, 90, 176, 49, 64, 70, 80, 
             172, 218, 160)
@@ -2381,7 +2385,7 @@ farben <- function (x)
     else {
         stop("farben: Can't handle this!")
     }
-    z <- mat.ex.matrix(matrix(z, 3, x))
+    z <- mat.ex.matrix(matrix(z, 3, length(z)/3))
     z <- lapply(z, function(x) paste(txt.right(paste0("0", as.hexmode(x)), 
         2), collapse = ""))
     z <- paste0("#", toupper(as.character(unlist(z))))
