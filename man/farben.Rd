@@ -4,10 +4,12 @@
 \alias{farben}
 \title{farben}
 \usage{
-farben(x)
+farben(x, y)
 }
 \arguments{
 \item{x}{= number of colours needed}
+
+\item{y}{= T/F depending on whether fill or border is wanted}
 }
 \description{
 vector of R colours

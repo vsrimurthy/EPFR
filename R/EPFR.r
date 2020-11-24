@@ -749,7 +749,7 @@ bond.price <- function (x, y, n)
     if (w) 
         discount <- rep(1, length(x))
     else discount <- 1
-    for (j in 1:length(n)) {
+    for (j in seq_along(n)) {
         if (w) {
             discount <- discount/(1 + n/100)
         }
@@ -918,7 +918,7 @@ britten.jones.data <- function (x, y, n, w = NULL)
                   n.beg <- c(n.beg, as.numeric(names(vec)) + 
                     as.numeric(vec))
                   n.end <- c(as.numeric(names(vec)) - 1, n.end)
-                  for (j in 1:length(n.beg)) z <- britten.jones.data.stack(df[n.beg[j]:n.end[j], 
+                  for (j in seq_along(n.beg)) z <- britten.jones.data.stack(df[n.beg[j]:n.end[j], 
                     ], n, prd.ret, n.beg[j], i)
                 }
             }
@@ -2189,7 +2189,7 @@ event.read <- function (x)
     z <- vec.read(x, F)
     z <- yyyymmdd.ex.txt(z, "/", "DMY")
     z <- z[order(z)]
-    x <- 1:length(z)
+    x <- seq_along(z)
     z <- data.frame(z, x, row.names = x, stringsAsFactors = F)
     dimnames(z)[[2]] <- c("Date", "EventNo")
     z
@@ -2352,40 +2352,47 @@ factordump.write <- function (x, y)
 #' 
 #' vector of R colours
 #' @param x = number of colours needed
+#' @param y = T/F depending on whether fill or border is wanted
 #' @keywords farben
 #' @export
 
-farben <- function (x) 
+farben <- function (x, y) 
 {
+    h <- mat.read(parameters("classif-colours"))
+    if (!y) {
+        v <- dimnames(h)[[1]]
+        h <- map.rname(h, h$border)
+        dimnames(h)[[1]] <- v
+    }
+    h <- h[, c("R", "G", "B")]
+    h <- mat.ex.matrix(t(h))
     if (x == 9) {
-        z <- c(90, 176, 49, 0, 113, 60, 0, 78, 32, 0, 68, 36, 
-            0, 47, 19, 38, 14, 35, 86, 0, 65, 102, 0, 102, 178, 
-            61, 150)
+        z <- c("H", "B", "A", "D", "C", "T", "S", "R", "Q")
     }
     else if (x == "V") {
-        z <- c(90, 176, 49, 0, 68, 36, 38, 14, 35, 86, 0, 65, 
-            178, 61, 150)
+        z <- c("H", "D", "T", "S", "Q")
     }
     else if (x == 5) {
-        z <- c(178, 61, 150, 0, 0, 0, 90, 176, 49, 64, 70, 80, 
-            172, 218, 160)
+        z <- c("Q", "N", "H", "F", "M")
     }
     else if (x == 4) {
-        z <- c(178, 61, 150, 0, 0, 0, 0, 113, 60, 165, 207, 128)
+        z <- c("Q", "N", "B", "K")
     }
     else if (x == 3) {
-        z <- c(178, 61, 150, 0, 0, 0, 90, 176, 49)
+        z <- c("Q", "N", "H")
     }
     else if (x == 2) {
-        z <- c(178, 61, 150, 90, 176, 49)
+        z <- c("Q", "H")
     }
     else if (x == 1) {
-        z <- c(178, 61, 150)
+        z <- "Q"
     }
     else {
         stop("farben: Can't handle this!")
     }
-    z <- mat.ex.matrix(matrix(z, 3, length(z)/3))
+    if (length(z) == 1) 
+        z <- list(One = h[, z])
+    else z <- h[, z]
     z <- lapply(z, function(x) paste(txt.right(paste0("0", as.hexmode(x)), 
         2), collapse = ""))
     z <- paste0("#", toupper(as.character(unlist(z))))
@@ -3642,7 +3649,7 @@ file.to.last <- function (x)
 
 find.data <- function (x, y = T) 
 {
-    z <- 1:length(x)
+    z <- seq_along(x)
     if (!y) {
         x <- rev(x)
         z <- rev(z)
@@ -3864,7 +3871,7 @@ flowdate.to.int <- function (x)
     z <- seq(z[1], z[length(z)])
     z <- txt.expand(z, c("0101", "1225"), "")
     z <- z[yyyymmdd.exists(z)]
-    z <- vec.named(1:length(z), z)
+    z <- vec.named(seq_along(z), z)
     z <- z - z["20180101"]
     x <- yyyymmdd.to.int(x)
     y <- floor(approx(yyyymmdd.to.int(names(z)), z, x, rule = 1:2)$y)
@@ -4484,7 +4491,7 @@ ftp.download <- function (x, y, n, w, h, u = 600)
         1), y)
     dir.ensure(paste(unique(y), "foo.txt", sep = "\\"))
     z <- paste(x, z, sep = "/")
-    for (j in 1:length(z)) {
+    for (j in seq_along(z)) {
         cat(txt.right(z[j], nchar(z[j]) - nchar(x)), "...\n")
         ftp.get(z[j], y[j], n, w, h, u)
     }
@@ -4723,7 +4730,7 @@ ftp.remove <- function (x, y, n, w, h = 60)
     z <- c(x, paste(x, z, sep = "/"))
     z <- z[order(nchar(z), decreasing = T)]
     v <- ftp.parent(z)
-    for (j in 1:length(z)) ftp.rmdir(v[j], z[j], y, n, w, h)
+    for (j in seq_along(z)) ftp.rmdir(v[j], z[j], y, n, w, h)
     invisible()
 }
 
@@ -5656,7 +5663,7 @@ isin.exists <- function (x)
     y <- vec.named(do.call(paste0, y), dimnames(y)[[1]])
     y <- split(y, names(y))
     y <- lapply(y, function(x) as.numeric(txt.to.char(x)))
-    y <- lapply(y, function(x) x * rep(2:1, ceiling(length(x)/2))[1:length(x)])
+    y <- lapply(y, function(x) x * rep(2:1, ceiling(length(x)/2))[seq_along(x)])
     y <- sapply(y, function(x) sum(as.numeric(txt.to.char(paste(x, 
         collapse = "")))))
     y <- 10 * ceiling(y/10) - y
@@ -6243,7 +6250,7 @@ mat.ex.vec <- function (x, y, n = T)
 {
     if (!is.null(names(x))) 
         w <- names(x)
-    else w <- 1:length(x)
+    else w <- seq_along(x)
     x <- as.vector(x)
     z <- x[!duplicated(x)]
     z <- z[!is.na(z)]
@@ -9438,14 +9445,14 @@ rpt.email <- function (x, y, n, w, h, u, v)
     }
     if (proceed) {
         if (length(h) == length(v)) {
-            for (i in 1:length(h)) rpt.email.send(v[i], h[i], 
+            for (i in seq_along(h)) rpt.email.send(v[i], h[i], 
                 flo.dt, w, out.files[i])
         }
         else if (length(h) == 1) {
             rpt.email.send(x, h, flo.dt, w, out.files)
         }
         else if (length(v) == 1) {
-            for (i in 1:length(h)) rpt.email.send(x, h[i], flo.dt, 
+            for (i in seq_along(h)) rpt.email.send(x, h[i], flo.dt, 
                 w, out.files)
         }
         else {
@@ -10194,7 +10201,7 @@ sim.overall <- function (x, y, n)
     z["Sharpe"] <- z["Act"]/nonneg(sd(x$Act) * sqrt(12))
     z <- c(z, apply(x[, paste0(c("Name", names(n)), "Max")], 
         2, max))
-    n <- vec.named(1:length(z), names(z))
+    n <- vec.named(seq_along(z), names(z))
     n["Sharpe"] <- n["Act"] + 0.5
     z <- z[order(n)]
     z
@@ -13575,7 +13582,7 @@ sql.regr <- function (x, y, n)
     h <- sql.mat.cofactor(x)
     n <- sql.mat.determinant(x)
     z <- NULL
-    for (j in 1:length(y)) {
+    for (j in seq_along(y)) {
         w <- paste(paste0(y, " * (", h[, j], ")"), collapse = " + ")
         w <- paste0("(", w, ")/(", n, ")")
         z <- c(z, paste(names(y)[j], w, sep = " = "))
@@ -14931,7 +14938,7 @@ txt.words <- function (x = "All")
 urn.exact <- function (x, y) 
 {
     z <- 1
-    for (i in 1:length(x)) z <- z * factorial(y[i])/(factorial(x[i]) * 
+    for (i in seq_along(x)) z <- z * factorial(y[i])/(factorial(x[i]) * 
         factorial(y[i] - x[i]))
     z <- (z/factorial(sum(y))) * factorial(sum(x)) * factorial(sum(y - 
         x))
@@ -15149,7 +15156,7 @@ vec.to.lags <- function (x, y, n = T)
 
 vec.to.list <- function (x) 
 {
-    split(x, 1:length(x))
+    split(x, seq_along(x))
 }
 
 #' vec.unique
