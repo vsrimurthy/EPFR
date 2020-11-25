@@ -6725,7 +6725,7 @@ mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E")
 #' SQL query for daily/weekly CBE flow momentum
 #' @param x = flowdate/YYYYMMDD depending on whether daily/weekly
 #' @param y = item (one of Flow/AssetsStart/AssetsEnd)
-#' @param n = country list (one of Ctry/FX/Sector)
+#' @param n = UNUSED ARGUMENT. REMOVE!
 #' @param w = input to or output of sql.connect
 #' @param h = T/F depending on whether daily/weekly
 #' @param u = one of US/UK/JP/EM/Eurozone
@@ -6735,7 +6735,7 @@ mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E")
 
 mk.1dFloMo.Sec <- function (x, y, n, w, h, u) 
 {
-    n <- sql.1dFloMo.CountryId.List(n, x)
+    n <- sql.1dFloMo.CountryId.List("Sector", x)
     if (u == "UK") {
         u <- "GB"
     }
@@ -6759,30 +6759,19 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h, u)
     z <- c("FundId", "GeographicFocus", "Universe = sum(Allocation)")
     z <- sql.Allocation(z, "Country", "GeographicFocus", "E", 
         sql.and(v), paste(z[-length(z)], collapse = ", "))
-    z <- c("insert into", "\t#CTRY (FundId, GeographicFocusId, Universe)", 
+    z <- c("insert into", "\t#CTRY (FundId, GeographicFocus, Universe)", 
         sql.unbracket(z))
     z <- c("create clustered index TempRandomCtryIndex ON #CTRY (FundId)", 
         z)
-    z <- c("create table #CTRY (FundId int not null, GeographicFocusId int, Universe float)", 
+    z <- c("create table #CTRY (FundId int not null, GeographicFocus int, Universe float)", 
         z)
-    r <- c("FundId", "GeographicFocus", "SectorId", "Allocation")
     v <- paste0("ReportDate = '", yyyymm.to.day(yyyymmdd.to.AllocMo(x)), 
         "'")
-    v <- sql.Allocation(r, "Sector", "GeographicFocus", , v)
-    v <- c("insert into", "\t#SEC (FundId, GeographicFocusId, SectorId, Allocation)", 
-        sql.unbracket(v))
+    v <- sql.Allocation.Sec(v, "GeographicFocus")
     v <- c("create clustered index TempRandomSecIndex ON #SEC (FundId, SectorId)", 
         v)
-    v <- c("create table #SEC (FundId int not null, GeographicFocusId int, SectorId int not null, Allocation float)", 
+    v <- c("create table #SEC (FundId int not null, SectorId int not null, GeographicFocus int, Allocation float)", 
         v)
-    z <- c(z, "", v)
-    r <- c("FundId", "GeographicFocus", "IndustryId", "Allocation")
-    v <- list(A = "IndustryId = 20")
-    v[["B"]] <- paste0("ReportDate = '", yyyymm.to.day(yyyymmdd.to.AllocMo(x)), 
-        "'")
-    v <- sql.Allocation(r, "Industry", "GeographicFocus", , sql.and(v))
-    v <- c("insert into", "\t#SEC (FundId, GeographicFocusId, SectorId, Allocation)", 
-        sql.unbracket(v))
     z <- c(z, "", v)
     r <- c("GeographicFocus", "StyleSector")
     r <- c("FundId", paste0(r, " = max(", r, ")"), paste0(y, 
@@ -6795,50 +6784,35 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h, u)
     h <- paste0(ifelse(h, "DayEnding", "WeekEnding"), " = '", 
         x, "'")
     v <- sql.unbracket(sql.tbl(r, v, h, "FundId"))
-    v <- c("insert into", paste0("\t#FLO (FundId, GeographicFocusId, StyleSector, ", 
+    v <- c("insert into", paste0("\t#FLO (FundId, GeographicFocus, StyleSector, ", 
         paste(y, collapse = ", "), ")"), v)
     v <- c("create clustered index TempRandomFloIndex ON #FLO (FundId)", 
         v)
-    v <- c(paste0("create table #FLO (FundId int not null, GeographicFocusId int, StyleSector int, ", 
+    v <- c(paste0("create table #FLO (FundId int not null, GeographicFocus int, StyleSector int, ", 
         paste(paste(y, "float"), collapse = ", "), ")"), v)
     z <- c(z, "", v)
-    r <- c("GeographicFocusId", "Universe = avg(Universe)")
-    r <- sql.label(sql.tbl(r, "#CTRY", , "GeographicFocusId"), 
+    r <- c("GeographicFocus", "Universe = avg(Universe)")
+    r <- sql.label(sql.tbl(r, "#CTRY", , "GeographicFocus"), 
         "t2")
     v <- sql.in("FundId", sql.tbl("FundId", "#CTRY"), F)
-    v <- sql.label(sql.tbl(c("FundId", "GeographicFocusId"), 
-        "#FLO", v), "t1")
-    v <- c(v, "inner join", r, "\ton t2.GeographicFocusId = t1.GeographicFocusId")
-    v <- sql.unbracket(sql.tbl(c("FundId", "t1.GeographicFocusId", 
+    v <- sql.label(sql.tbl(c("FundId", "GeographicFocus"), "#FLO", 
+        v), "t1")
+    v <- c(v, "inner join", r, "\ton t2.GeographicFocus = t1.GeographicFocus")
+    v <- sql.unbracket(sql.tbl(c("FundId", "t1.GeographicFocus", 
         "Universe"), v))
-    v <- c("insert into", "\t#CTRY (FundId, GeographicFocusId, Universe)", 
+    v <- c("insert into", "\t#CTRY (FundId, GeographicFocus, Universe)", 
         v)
     z <- c(z, "", v)
-    v <- list(A = "SectorId = 7")
-    v[["B"]] <- sql.in("FundId", sql.tbl("FundId", "#SEC", "SectorId = 20"), 
-        F)
-    v <- sql.tbl("FundId, GeographicFocusId, SectorId = 20, Allocation = 0", 
-        "#SEC", sql.and(v))
-    v <- c("\t#SEC (FundId, GeographicFocusId, SectorId, Allocation)", 
-        sql.unbracket(v))
-    z <- c(z, "", "insert into", v)
-    r <- list(A = "t.FundId = #SEC.FundId", B = "#SEC.SectorId = 7")
-    v <- sql.label(sql.tbl(c("FundId", "Allocation"), "#SEC", 
-        "SectorId = 20"), "t")
-    v <- sql.unbracket(sql.tbl("Allocation = #SEC.Allocation - t.Allocation", 
-        v, sql.and(r)))
-    v[1] <- "update #SEC set"
-    z <- c(z, "", v)
-    r <- c("GeographicFocusId", "SectorId", "Allocation = avg(Allocation)")
-    r <- sql.label(sql.tbl(r, "#SEC", , "GeographicFocusId, SectorId"), 
+    r <- c("GeographicFocus", "SectorId", "Allocation = avg(Allocation)")
+    r <- sql.label(sql.tbl(r, "#SEC", , "GeographicFocus, SectorId"), 
         "t2")
     v <- sql.in("FundId", sql.tbl("FundId", "#SEC"), F)
-    v <- sql.label(sql.tbl(c("FundId", "GeographicFocusId"), 
-        "#FLO", v), "t1")
-    v <- c(v, "inner join", r, "\ton t2.GeographicFocusId = t1.GeographicFocusId")
-    v <- sql.unbracket(sql.tbl("FundId, t1.GeographicFocusId, SectorId, Allocation", 
+    v <- sql.label(sql.tbl(c("FundId", "GeographicFocus"), "#FLO", 
+        v), "t1")
+    v <- c(v, "inner join", r, "\ton t2.GeographicFocus = t1.GeographicFocus")
+    v <- sql.unbracket(sql.tbl("FundId, t1.GeographicFocus, SectorId, Allocation", 
         v))
-    v <- c("\t#SEC (FundId, GeographicFocusId, SectorId, Allocation)", 
+    v <- c("\t#SEC (FundId, GeographicFocus, SectorId, Allocation)", 
         v)
     z <- c(z, "", "insert into", v)
     foo <- mat.read(parameters("classif-GSec"))[, c("SectorId", 
@@ -6851,12 +6825,17 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h, u)
     v[1] <- "delete from"
     v <- v[-2][-2]
     z <- c(z, "", v)
+    foo <- map.rname(foo, c(dimnames(foo)[[1]], "FinsExREst"))
+    foo["FinsExREst", "SectorId"] <- 30
+    foo["FinsExREst", "StyleSector"] <- foo["Fins", "StyleSector"]
+    foo["Fins", "StyleSector"] <- paste(foo[c("Fins", "REst"), 
+        "StyleSector"], collapse = ", ")
     for (j in dimnames(foo)[[1]]) {
-        v <- c("FundId", "GeographicFocusId", paste("SectorId =", 
+        v <- c("FundId", "GeographicFocus", paste("SectorId =", 
             foo[j, "SectorId"]), "Allocation = 100")
-        v <- sql.unbracket(sql.tbl(v, "#FLO", paste("StyleSector =", 
-            foo[j, "StyleSector"])))
-        v <- c("\t#SEC (FundId, GeographicFocusId, SectorId, Allocation)", 
+        v <- sql.unbracket(sql.tbl(v, "#FLO", paste0("StyleSector in (", 
+            foo[j, "StyleSector"], ")")))
+        v <- c("\t#SEC (FundId, GeographicFocus, SectorId, Allocation)", 
             v)
         z <- c(z, "", "insert into", v)
     }
@@ -6866,16 +6845,12 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h, u)
     v <- c("#FLO t1", "inner join", "#CTRY t2 on t2.FundId = t1.FundId")
     v <- c(v, "inner join", "#SEC t3 on t3.FundId = t1.FundId")
     v <- paste(sql.unbracket(sql.tbl(r, v, , "SectorId")), collapse = "\n")
-    z <- c(z, v)
-    z <- sql.query(z, w, F)
+    z <- sql.query(c(z, v), w, F)
     z <- mat.index(z)
     z <- map.rname(z, names(n))
-    dimnames(z)[[1]] <- n
-    dimnames(z)[[1]] <- ifelse(dimnames(z)[[1]] == "Fins", "FinsExREst", 
-        dimnames(z)[[1]])
-    z <- map.rname(z, c(dimnames(z)[[1]], "Fins"))
-    for (j in y) z["Fins", j] <- z["FinsExREst", j] + z["REst", 
-        j]
+    if (is.null(dim(z))) 
+        names(z) <- n
+    else dimnames(z)[[1]] <- n
     z
 }
 
@@ -6922,39 +6897,15 @@ mk.1mActPas.Ctry <- function (x, y)
 
 mk.1mActPas.Sec <- function (x, y, n) 
 {
-    u <- c(sql.1dFloMo.CountryId.List("Sector", x), vec.named("FinsExREst", 
-        30))
-    r <- c("FundId", "Idx = isnull(Idx, 'N')", "SectorId", "Allocation")
-    v <- paste0("ReportDate = '", yyyymm.to.day(x), "'")
-    v <- sql.unbracket(sql.Allocation(r, "Sector", "Idx", c("E", 
-        n), v))
-    v <- c("insert into", "\t#SEC (FundId, Idx, SectorId, Allocation)", 
-        v)
-    v <- c("create clustered index TempRandomSecIndex ON #SEC (FundId, SectorId)", 
-        v)
-    z <- c("create table #SEC (FundId int not null, Idx char(1) not null, SectorId int not null, Allocation float)", 
-        v)
-    r <- c("FundId", "Idx = isnull(Idx, 'N')", "IndustryId", 
-        "Allocation")
-    v <- list(A = "IndustryId = 20")
-    v[["B"]] <- paste0("ReportDate = '", yyyymm.to.day(x), "'")
-    v <- sql.unbracket(sql.Allocation(r, "Industry", "Idx", c("E", 
-        n), sql.and(v)))
-    z <- c(z, "", "insert into", "\t#SEC (FundId, Idx, SectorId, Allocation)", 
-        v)
-    v <- list(A = "SectorId = 7")
-    v[["B"]] <- sql.in("FundId", sql.tbl("FundId", "#SEC", "SectorId = 20"), 
-        F)
-    v <- sql.tbl("FundId, Idx, SectorId = 20, Allocation = 0", 
-        "#SEC", sql.and(v))
-    v <- c("\t#SEC (FundId, Idx, SectorId, Allocation)", sql.unbracket(v))
-    z <- c(z, "", "insert into", v)
-    r <- "t1.FundId, t1.Idx, SectorId = 30, Allocation = t1.Allocation - t2.Allocation"
-    v <- sql.and(list(A = "t1.SectorId = 7", B = "t2.SectorId = 20"))
-    v <- sql.tbl(r, "#SEC t1 inner join #SEC t2 on t2.FundId = t1.FundId", 
-        v)
-    v <- c("\t#SEC (FundId, Idx, SectorId, Allocation)", sql.unbracket(v))
-    z <- c(z, "", "insert into", v)
+    u <- sql.1dFloMo.CountryId.List("Sector", x)
+    z <- list(A = paste0("ReportDate = '", yyyymm.to.day(x), 
+        "'"))
+    z <- sql.Allocation.Sec(z, "Idx", c("E", n))
+    z <- c("create clustered index TempRandomSecIndex ON #SEC (FundId, SectorId)", 
+        z)
+    z <- c("create table #SEC (FundId int not null, SectorId int not null, Idx char(1), Allocation float)", 
+        z)
+    z <- c(z, "", "update #SEC set Idx = 'N' where Idx is NULL")
     z <- paste(c(sql.drop("#SEC"), "", z), collapse = "\n")
     v <- c("Idx", "SectorId", "Allocation = avg(Allocation)")
     v <- sql.tbl(v, "#SEC", , paste(v[-length(v)], collapse = ", "))
@@ -7025,42 +6976,16 @@ mk.1mAllocMo <- function (x, y, n)
 
 mk.1mBullish.Sec <- function (x, y, n) 
 {
-    u <- c(sql.1dFloMo.CountryId.List("Sector", x), vec.named("FinsExREst", 
-        30))
-    r <- c("FundId", "BenchIndex", "Idx = isnull(Idx, 'N')", 
-        "SectorId", "Allocation")
-    v <- paste0("ReportDate = '", yyyymm.to.day(x), "'")
-    v <- sql.unbracket(sql.Allocation(r, "Sector", c("Idx", "BenchIndex"), 
-        c("E", n), v))
-    v <- c("insert into", "\t#SEC (FundId, BenchIndex, Idx, SectorId, Allocation)", 
-        v)
-    v <- c("create clustered index TempRandomSecIndex ON #SEC (FundId, SectorId)", 
-        v)
-    z <- c("create table #SEC (FundId int not null, BenchIndex int, Idx char(1) not null, SectorId int not null, Allocation float)", 
-        v)
-    r <- c("FundId", "BenchIndex", "Idx = isnull(Idx, 'N')", 
-        "IndustryId", "Allocation")
-    v <- list(A = "IndustryId = 20")
-    v[["B"]] <- paste0("ReportDate = '", yyyymm.to.day(x), "'")
-    v <- sql.unbracket(sql.Allocation(r, "Industry", c("Idx", 
-        "BenchIndex"), c("E", n), sql.and(v)))
-    z <- c(z, "", "insert into", "\t#SEC (FundId, BenchIndex, Idx, SectorId, Allocation)", 
-        v)
-    v <- list(A = "SectorId = 7")
-    v[["B"]] <- sql.in("FundId", sql.tbl("FundId", "#SEC", "SectorId = 20"), 
-        F)
-    v <- sql.tbl("FundId, BenchIndex, Idx, SectorId = 20, Allocation = 0", 
-        "#SEC", sql.and(v))
-    v <- c("\t#SEC (FundId, BenchIndex, Idx, SectorId, Allocation)", 
-        sql.unbracket(v))
-    z <- c(z, "", "insert into", v)
-    r <- "t1.FundId, t1.BenchIndex, t1.Idx, SectorId = 30, Allocation = t1.Allocation - t2.Allocation"
-    v <- sql.and(list(A = "t1.SectorId = 7", B = "t2.SectorId = 20"))
-    v <- sql.tbl(r, "#SEC t1 inner join #SEC t2 on t2.FundId = t1.FundId", 
-        v)
-    v <- c("\t#SEC (FundId, BenchIndex, Idx, SectorId, Allocation)", 
-        sql.unbracket(v))
-    z <- c(z, "", "insert into", v)
+    u <- sql.1dFloMo.CountryId.List("Sector", x)
+    z <- list(A = paste0("ReportDate = '", yyyymm.to.day(x), 
+        "'"))
+    z <- sql.Allocation.Sec(z, c("BenchIndex", "Idx"), c("E", 
+        n))
+    z <- c("create clustered index TempRandomSecIndex ON #SEC (FundId, SectorId)", 
+        z)
+    z <- c("create table #SEC (FundId int not null, SectorId int not null, BenchIndex int, Idx char(1), Allocation float)", 
+        z)
+    z <- c(z, "", "update #SEC set Idx = 'N' where Idx is NULL")
     z <- paste(c(sql.drop("#SEC"), "", z), collapse = "\n")
     r <- "Bullish = 100 * sum(case when t1.Allocation > t2.Allocation then 1.0 else 0.0 end)/count(t1.FundId)"
     r <- c("t1.SectorId", r)
@@ -10708,6 +10633,7 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
     }
     else if (x == "Sector") {
         z <- vec.named(z, h$SectorId)
+        z["30"] <- "FinsExREst"
     }
     z
 }
@@ -12211,10 +12137,52 @@ sql.Allocation <- function (x, y, n = NULL, w = "All", h, u, v)
     z
 }
 
+#' sql.Allocation.Sec
+#' 
+#' SQL query for sector allocations for month ending <x>
+#' @param x = list object of individual where clauses
+#' @param y = columns needed from FundHistory besides HFundId/FundId
+#' @param n = a vector of FundHistory filters
+#' @keywords sql.Allocation.Sec
+#' @export
+#' @family sql
+
+sql.Allocation.Sec <- function (x, y = NULL, n = "All") 
+{
+    r <- c("FundId", "SectorId", y, "Allocation")
+    z <- sql.unbracket(sql.Allocation(r, "Sector", y, n, sql.and(x)))
+    z <- c("insert into", paste0("\t#SEC (", paste(r, collapse = ", "), 
+        ")"), z)
+    x[[char.ex.int(length(x) + 65)]] <- "IndustryId = 20"
+    h <- ifelse(r == "SectorId", "IndustryId", r)
+    v <- sql.unbracket(sql.Allocation(h, "Industry", y, n, sql.and(x)))
+    z <- c(z, "", "insert into", paste0("\t#SEC (", paste(r, 
+        collapse = ", "), ")"), v)
+    v <- list(A = "SectorId = 7")
+    v[["B"]] <- sql.in("FundId", sql.tbl("FundId", "#SEC", "SectorId = 20"), 
+        F)
+    h <- ifelse(r == "SectorId", "SectorId = 20", r)
+    h <- ifelse(h == "Allocation", "Allocation = 0", h)
+    v <- sql.unbracket(sql.tbl(h, "#SEC", sql.and(v)))
+    z <- c(z, "", "insert into", paste0("\t#SEC (", paste(r, 
+        collapse = ", "), ")"), v)
+    h <- ifelse(is.element(r, c("SectorId", "Allocation")), r, 
+        paste0("t1.", r))
+    h <- ifelse(h == "SectorId", "SectorId = 30", h)
+    h <- ifelse(h == "Allocation", "Allocation = t1.Allocation - t2.Allocation", 
+        h)
+    v <- sql.and(list(A = "t1.SectorId = 7", B = "t2.SectorId = 20"))
+    v <- sql.unbracket(sql.tbl(h, "#SEC t1 inner join #SEC t2 on t2.FundId = t1.FundId", 
+        v))
+    z <- c(z, "", "insert into", paste0("\t#SEC (", paste(r, 
+        collapse = ", "), ")"), v)
+    z
+}
+
 #' sql.and
 #' 
 #' and segment of an SQL statement
-#' @param x = list object of string vectors
+#' @param x = list object of individual where clauses
 #' @param y = logical operator to use
 #' @keywords sql.and
 #' @export

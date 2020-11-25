@@ -11,7 +11,7 @@ mk.1dFloMo.Sec(x, y, n, w, h, u)
 
 \item{y}{= item (one of Flow/AssetsStart/AssetsEnd)}
 
-\item{n}{= country list (one of Ctry/FX/Sector)}
+\item{n}{= UNUSED ARGUMENT. REMOVE!}
 
 \item{w}{= input to or output of sql.connect}
 
