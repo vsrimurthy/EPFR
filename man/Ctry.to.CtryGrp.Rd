@@ -16,7 +16,6 @@ makes Country groups
 Other Ctry: \code{\link{Ctry.info}},
   \code{\link{Ctry.msci.index.changes}},
   \code{\link{Ctry.msci.members.rng}},
-  \code{\link{Ctry.msci.members}},
-  \code{\link{Ctry.msci.sql}}, \code{\link{Ctry.msci}}
+  \code{\link{Ctry.msci.members}}, \code{\link{Ctry.msci}}
 }
 \keyword{Ctry.to.CtryGrp}

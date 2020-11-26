@@ -13,7 +13,6 @@ read.prcRet(x)
 returns the contents of the file
 }
 \seealso{
-Other read: \code{\link{read.EPFR}},
-  \code{\link{read.split.adj.prices}}
+Other read: \code{\link{read.EPFR}}
 }
 \keyword{read.prcRet}

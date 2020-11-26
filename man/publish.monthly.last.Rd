@@ -16,7 +16,6 @@ date of last monthly publication
 }
 \seealso{
 Other publish: \code{\link{publish.daily.last}},
-  \code{\link{publish.date}},
   \code{\link{publish.weekly.last}}
 }
 \keyword{publish.monthly.last}

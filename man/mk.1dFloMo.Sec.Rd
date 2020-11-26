@@ -4,20 +4,18 @@
 \alias{mk.1dFloMo.Sec}
 \title{mk.1dFloMo.Sec}
 \usage{
-mk.1dFloMo.Sec(x, y, n, w, h, u)
+mk.1dFloMo.Sec(x, y, n, w, h)
 }
 \arguments{
 \item{x}{= flowdate/YYYYMMDD depending on whether daily/weekly}
 
 \item{y}{= item (one of Flow/AssetsStart/AssetsEnd)}
 
-\item{n}{= UNUSED ARGUMENT. REMOVE!}
+\item{n}{= input to or output of sql.connect}
 
-\item{w}{= input to or output of sql.connect}
+\item{w}{= T/F depending on whether daily/weekly}
 
-\item{h}{= T/F depending on whether daily/weekly}
-
-\item{u}{= one of US/UK/JP/EM/Eurozone}
+\item{h}{= one of US/UK/JP/EM/Eurozone}
 }
 \description{
 SQL query for daily/weekly CBE flow momentum

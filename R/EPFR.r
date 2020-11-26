@@ -1611,38 +1611,6 @@ Ctry.msci.members.rng <- function (x, y, n)
     z
 }
 
-#' Ctry.msci.sql
-#' 
-#' SQL query to get date restriction
-#' @param fcn = function to convert from yyyymm to yyyymmdd
-#' @param x = output of Ctry.msci
-#' @param y = single two-character country code
-#' @param n = date field such as DayEnding or WeightDate
-#' @keywords Ctry.msci.sql
-#' @export
-#' @family Ctry
-
-Ctry.msci.sql <- function (fcn, x, y, n) 
-{
-    w <- x$CCODE == y
-    if (sum(w) == 1 & x[w, "ACTION"][1] == "IN") {
-        z <- paste0(n, " >= '", fcn(x[w, "YYYYMM"][1]), "'")
-    }
-    else if (sum(w) == 1 & x[w, "ACTION"][1] == "OUT") {
-        z <- paste0(n, " < '", fcn(x[w, "YYYYMM"][1]), "'")
-    }
-    else if (sum(w) == 2 & x[w, "ACTION"][1] == "IN") {
-        z <- paste0(n, " >= '", fcn(x[w, "YYYYMM"][1]), "' and ", 
-            n, " < '", fcn(x[w, "YYYYMM"][2]), "'")
-    }
-    else if (sum(w) == 2 & x[w, "ACTION"][1] == "OUT") {
-        z <- paste0(n, " < '", fcn(x[w, "YYYYMM"][1]), "' or ", 
-            n, " >= '", fcn(x[w, "YYYYMM"][2]), "'")
-    }
-    else stop("Can't handle this!")
-    z
-}
-
 #' Ctry.to.CtryGrp
 #' 
 #' makes Country groups
@@ -1657,37 +1625,6 @@ Ctry.to.CtryGrp <- function (x)
         "ID", "TH", "MY", "KY", "BM")
     z <- ifelse(is.element(x, z), "Pac", "Oth")
     z
-}
-
-#' dataset.subset
-#' 
-#' subsets all files in <x> so that column <y> is made up of elements of <n>. Original files are overwritten.
-#' @param x = a local folder (e.g. "C:\\\\temp\\\\crap")
-#' @param y = column on which to subset
-#' @param n = a vector of identifiers
-#' @keywords dataset.subset
-#' @export
-
-dataset.subset <- function (x, y, n) 
-{
-    x <- dir.all.files(x, "*.*")
-    while (length(x) > 0) {
-        z <- scan(x[1], what = "", sep = "\n", nlines = 1, quiet = T)
-        m <- as.numeric(regexpr(y, z, fixed = T))
-        if (m > 0) {
-            m <- m + nchar(y)
-            if (m <= nchar(z)) {
-                m <- substring(z, m, m)
-                z <- mat.read(x[1], m, NULL, T)
-                write.table(z[is.element(z[, y], n), ], "C:\\temp\\write.csv", 
-                  sep = m, col.names = T, quote = F, row.names = F)
-            }
-            else cat("Can't subset", x[1], "\n")
-        }
-        else cat("Can't subset", x[1], "\n")
-        x <- x[-1]
-    }
-    invisible()
 }
 
 #' day.ex.date
@@ -4277,58 +4214,6 @@ ftp.del <- function (x, y, n, w, h, u = 60)
     invisible()
 }
 
-#' ftp.delete.script
-#' 
-#' ftp script to delete contents of remote directory
-#' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
-#' @param y = ftp site
-#' @param n = user id
-#' @param w = password
-#' @keywords ftp.delete.script
-#' @export
-#' @family ftp
-
-ftp.delete.script <- function (x, y, n, w) 
-{
-    if (missing(y)) 
-        y <- ftp.credential("ftp")
-    if (missing(n)) 
-        n <- ftp.credential("user")
-    if (missing(w)) 
-        w <- ftp.credential("pwd")
-    z <- c(paste("open", y), n, w, ftp.delete.script.underlying(x, 
-        y, n, w))
-    z
-}
-
-#' ftp.delete.script.underlying
-#' 
-#' ftp script to delete contents of remote directory
-#' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
-#' @param y = ftp site
-#' @param n = user id
-#' @param w = password
-#' @keywords ftp.delete.script.underlying
-#' @export
-#' @family ftp
-
-ftp.delete.script.underlying <- function (x, y, n, w) 
-{
-    z <- paste0("cd \"", x, "\"")
-    m <- ftp.dir(x, y, n, w, F)
-    h <- names(m)
-    if (any(m)) 
-        z <- c(z, paste0("del \"", h[m], "\""))
-    if (any(!m)) {
-        for (j in h[!m]) {
-            z <- c(z, ftp.delete.script.underlying(paste(x, j, 
-                sep = "/"), y, n, w))
-            z <- c(z, paste0("rmdir \"", x, "/", j, "\""))
-        }
-    }
-    z
-}
-
 #' ftp.dir
 #' 
 #' string vector of, or YYYYMMDD vector indexed by, remote file names
@@ -6725,35 +6610,34 @@ mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E")
 #' SQL query for daily/weekly CBE flow momentum
 #' @param x = flowdate/YYYYMMDD depending on whether daily/weekly
 #' @param y = item (one of Flow/AssetsStart/AssetsEnd)
-#' @param n = UNUSED ARGUMENT. REMOVE!
-#' @param w = input to or output of sql.connect
-#' @param h = T/F depending on whether daily/weekly
-#' @param u = one of US/UK/JP/EM/Eurozone
+#' @param n = input to or output of sql.connect
+#' @param w = T/F depending on whether daily/weekly
+#' @param h = one of US/UK/JP/EM/Eurozone
 #' @keywords mk.1dFloMo.Sec
 #' @export
 #' @family mk
 
-mk.1dFloMo.Sec <- function (x, y, n, w, h, u) 
+mk.1dFloMo.Sec <- function (x, y, n, w, h) 
 {
-    n <- sql.1dFloMo.CountryId.List("Sector", x)
-    if (u == "UK") {
-        u <- "GB"
+    s <- sql.1dFloMo.CountryId.List("Sector", x)
+    if (h == "UK") {
+        h <- "GB"
     }
-    else if (u == "Eurozone") {
-        u <- c("AT", "BE", "DE", "FI", "FR", "IE", "IT", "NL", 
+    else if (h == "Eurozone") {
+        h <- c("AT", "BE", "DE", "FI", "FR", "IE", "IT", "NL", 
             "PT", "ES")
     }
-    else if (u == "EM") {
-        u <- c("AE", "BR", "CL", "CN", "CO", "CZ", "EG", "GR", 
+    else if (h == "EM") {
+        h <- c("AE", "BR", "CL", "CN", "CO", "CZ", "EG", "GR", 
             "HU", "ID", "IN", "KR", "MX", "MY", "PE", "PH", "PL", 
             "QA", "RU", "TH", "TR", "TW", "ZA")
     }
-    else if (all(u != c("US", "JP"))) {
+    else if (all(h != c("US", "JP"))) {
         stop("Can't handle yet!")
     }
-    u <- Ctry.info(u, "CountryId")
-    u <- paste(u, collapse = ", ")
-    v <- list(A = paste0("CountryId in (", u, ")"))
+    h <- Ctry.info(h, "CountryId")
+    h <- paste(h, collapse = ", ")
+    v <- list(A = paste0("CountryId in (", h, ")"))
     v[["B"]] <- paste0("ReportDate = '", yyyymm.to.day(yyyymmdd.to.AllocMo(x)), 
         "'")
     z <- c("FundId", "GeographicFocus", "Universe = sum(Allocation)")
@@ -6779,11 +6663,11 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h, u)
     v <- sql.FundHistory(c("CB", "E"), F, c("FundId", "GeographicFocus", 
         "StyleSector"))
     v <- c(sql.label(v, "t2"), "\ton t2.HFundId = t1.HFundId")
-    v <- c(paste(ifelse(h, "DailyData", "WeeklyData"), "t1"), 
+    v <- c(paste(ifelse(w, "DailyData", "WeeklyData"), "t1"), 
         "inner join", v)
-    h <- paste0(ifelse(h, "DayEnding", "WeekEnding"), " = '", 
+    w <- paste0(ifelse(w, "DayEnding", "WeekEnding"), " = '", 
         x, "'")
-    v <- sql.unbracket(sql.tbl(r, v, h, "FundId"))
+    v <- sql.unbracket(sql.tbl(r, v, w, "FundId"))
     v <- c("insert into", paste0("\t#FLO (FundId, GeographicFocus, StyleSector, ", 
         paste(y, collapse = ", "), ")"), v)
     v <- c("create clustered index TempRandomFloIndex ON #FLO (FundId)", 
@@ -6845,12 +6729,12 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h, u)
     v <- c("#FLO t1", "inner join", "#CTRY t2 on t2.FundId = t1.FundId")
     v <- c(v, "inner join", "#SEC t3 on t3.FundId = t1.FundId")
     v <- paste(sql.unbracket(sql.tbl(r, v, , "SectorId")), collapse = "\n")
-    z <- sql.query(c(z, v), w, F)
+    z <- sql.query(c(z, v), n, F)
     z <- mat.index(z)
-    z <- map.rname(z, names(n))
+    z <- map.rname(z, names(s))
     if (is.null(dim(z))) 
-        names(z) <- n
-    else dimnames(z)[[1]] <- n
+        names(z) <- s
+    else dimnames(z)[[1]] <- s
     z
 }
 
@@ -7019,7 +6903,7 @@ mk.1mBullish.Sec <- function (x, y, n)
 mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = T) 
 {
     h <- sql.connect.wrapper(h)
-    w <- sql.1dFloMo.Ctry.List(w)
+    w <- sql.1dFloMo.CountryId.List(w)
     w <- Ctry.info(w, c("GeoId", "CountryId"))
     rslt <- list(MAP = w)
     r <- c("GeographicFocus", paste0(n, " = sum(", n, ")"))
@@ -8393,24 +8277,6 @@ publish.daily.last <- function (x)
     z
 }
 
-#' publish.date
-#' 
-#' the date on which country/sector allocations are published
-#' @param x = a vector of yyyymm months
-#' @keywords publish.date
-#' @export
-#' @family publish
-
-publish.date <- function (x) 
-{
-    z <- yyyymm.lag(x, -1)
-    z <- paste0(z, "23")
-    w <- day.to.weekday(z)
-    z[w == 0] <- paste0(txt.left(z[w == 0], 6), "24")
-    z[w == 6] <- paste0(txt.left(z[w == 6], 6), "25")
-    z
-}
-
 #' publish.monthly.last
 #' 
 #' date of last monthly publication
@@ -9118,38 +8984,6 @@ read.prcRet <- function (x)
         z <- get(z)
     }
     else z <- mat.read(x, ",")
-    z
-}
-
-#' read.split.adj.prices
-#' 
-#' reads the split-adjusted prices that Matt provides
-#' @param x = full path to a file that has the following columns: a) PRC containing raw prices b) CFACPR containing split factor that you divide PRC by c) CUSIP containing eight-digit cusip d) date containing date in yyyymmdd format
-#' @param y = classif file
-#' @keywords read.split.adj.prices
-#' @export
-#' @family read
-
-read.split.adj.prices <- function (x, y) 
-{
-    z <- mat.read(x, ",", NULL)
-    z$date <- as.character(z$date)
-    z <- mat.subset(z, c("date", "CUSIP", "PRC", "CFACPR"))
-    z$PRC <- z$PRC/nonneg(z$CFACPR)
-    z <- mat.subset(z, c("CUSIP", "date", "PRC"))
-    z <- mat.to.matrix(z)
-    n <- paste0("isin", 1:3)
-    w <- rep(y$CCode, length(n))
-    n <- as.character(unlist(y[, n]))
-    w <- is.element(w, c("US", "CA")) & nchar(n) == 12 & txt.left(n, 
-        2) == w
-    n <- n[w]
-    n <- n[is.element(substring(n, 3, 10), dimnames(z)[[1]])]
-    if (any(duplicated(substring(n, 3, 10)))) 
-        stop("Haven't handled this")
-    names(n) <- substring(n, 3, 10)
-    z <- map.rname(z, names(n))
-    dimnames(z)[[1]] <- as.character(n)
     z
 }
 
@@ -10364,55 +10198,6 @@ smear.Q1 <- function (x)
     z
 }
 
-#' sql.1dActWtTrend
-#' 
-#' the SQL query to get 1dActWtTrend
-#' @param x = the YYYYMMDD for which you want flows (known one day later)
-#' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
-#' @param n = any of StockFlows/China/Japan/CSI300/Energy
-#' @param w = T/F depending on whether you are checking ftp
-#' @keywords sql.1dActWtTrend
-#' @export
-#' @family sql
-
-sql.1dActWtTrend <- function (x, y, n, w) 
-{
-    y <- sql.arguments(y)
-    z <- sql.1dActWtTrend.underlying(x, y$filter, sql.RDSuniv(n))
-    z <- c(z, sql.1dActWtTrend.topline(y$factor, x, w))
-    z
-}
-
-#' sql.1dActWtTrend.Ctry.underlying
-#' 
-#' Generates the SQL query
-#' @param x = a string vector indexed by allocation-table names
-#' @param y = the SQL table from which you get flows (DailyData/MonthlyData)
-#' @param n = one of Ctry/FX/Sector
-#' @keywords sql.1dActWtTrend.Ctry.underlying
-#' @export
-#' @family sql
-
-sql.1dActWtTrend.Ctry.underlying <- function (x, y, n) 
-{
-    z <- c(sql.label(sql.FundHistory(c("CB", "E"), F, c("FundId", 
-        "GeographicFocus")), "t0"), "inner join")
-    z <- c(z, paste0(y, " t1"), "\ton t1.HFundId = t0.HFundId", 
-        "inner join")
-    z <- c(z, sql.label(sql.1dFloMo.Ctry.Allocations(x, n), "t2"), 
-        "\ton t2.FundId = t0.FundId")
-    if (y == "MonthlyData") {
-        z <- c(z, paste("\t\tand t2.WeightDate =", sql.floTbl.to.Col(y, 
-            F)))
-    }
-    else z <- c(z, paste("\t\tand", sql.datediff("WeightDate", 
-        sql.floTbl.to.Col(y, F), 23)))
-    z <- c(z, "inner join", sql.label(sql.1dFloMo.Ctry.Allocations.GF.avg(x, 
-        n), "t3"))
-    z <- c(z, "\ton t3.GeographicFocus = t0.GeographicFocus and t3.WeightDate = t2.WeightDate")
-    z
-}
-
 #' sql.1dActWtTrend.select
 #' 
 #' select statement to compute <x>
@@ -10634,189 +10419,6 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
     else if (x == "Sector") {
         z <- vec.named(z, h$SectorId)
         z["30"] <- "FinsExREst"
-    }
-    z
-}
-
-#' sql.1dFloMo.Ctry
-#' 
-#' Generates the SQL query to get daily 1dFloMo for countries
-#' @param x = Ctry/FX/Sector
-#' @param y = item (Flow/AssetsStart/AssetsEnd)
-#' @keywords sql.1dFloMo.Ctry
-#' @export
-#' @family sql
-
-sql.1dFloMo.Ctry <- function (x, y = "Flow%") 
-{
-    w <- sql.1dFloMo.Ctry.List(x)
-    if (x == "EMDM") {
-        x <- sql.1dFloMo.Ctry.Allocations(w, x, vec.named(c("EAFE", 
-            "EM"), c("DM", "EM")))
-    }
-    else {
-        x <- sql.1dFloMo.Ctry.Allocations(w, x)
-    }
-    z <- paste0("[", unique(w), "]")
-    if (txt.right(y, 1) == "%") {
-        z <- paste(z, sql.Mo(txt.left(y, nchar(y) - 1), "AssetsStart", 
-            z, T))
-    }
-    else {
-        z <- paste0(z, " = 0.01 * sum(", y, " * ", z, ")")
-    }
-    z <- c(sql.yyyymmdd("DayEnding"), z)
-    w <- c(sql.label(sql.FundHistory(c("CB", "E"), F, "FundId"), 
-        "t0"), "inner join", "DailyData t1 on t1.HFundId = t0.HFundId", 
-        "inner join")
-    w <- c(w, sql.label(x, "t2"), "\ton t2.FundId = t0.FundId", 
-        paste0("\tand ", sql.datediff("WeightDate", "DayEnding", 
-            23)))
-    z <- paste(sql.unbracket(sql.tbl(z, w, , "DayEnding")), collapse = "\n")
-    z
-}
-
-#' sql.1dFloMo.Ctry.Allocations
-#' 
-#' Generates the SQL query to get daily 1dFloMo for countries
-#' @param x = a string vector indexed by allocation-table names
-#' @param y = one of Ctry/FX/Sector/EMDM
-#' @param n = missing or a named vector of EAFE/EM/ACWI indexed by the elements of <x>
-#' @param w = one of HFundId/FundId (defaults to "FundId")
-#' @keywords sql.1dFloMo.Ctry.Allocations
-#' @export
-#' @family sql
-
-sql.1dFloMo.Ctry.Allocations <- function (x, y, n, w = "FundId") 
-{
-    h <- !duplicated(x)
-    x <- c(vec.named(x[h], x[h]), x)
-    x <- split(names(x), x)
-    if (missing(n)) 
-        n <- vec.named(, names(x))
-    else n <- map.rname(n, names(x))
-    fcn <- function(x) paste0("[", x[1], "] = ", sql.1dFloMo.Ctry.Allocations.term(x[-1], 
-        n[x[1]]))
-    z <- c(w, "WeightDate", sapply(x, fcn))
-    z <- sql.tbl(z, sql.AllocTbl(y))
-    z
-}
-
-#' sql.1dFloMo.Ctry.Allocations.GF.avg
-#' 
-#' Generates the SQL query to get daily 1dFloMo for countries
-#' @param x = a string vector indexed by allocation-table names
-#' @param y = one of Ctry/FX/Sector
-#' @keywords sql.1dFloMo.Ctry.Allocations.GF.avg
-#' @export
-#' @family sql
-
-sql.1dFloMo.Ctry.Allocations.GF.avg <- function (x, y) 
-{
-    y <- c(paste(sql.AllocTbl(y), "x"), "inner join", "FundHistory y", 
-        "\ton x.HFundId = y.HFundId")
-    x <- split(names(x), x)
-    fcn <- function(x) {
-        z <- paste(paste0("isnull(", x, ", 0)"), collapse = " + ")
-        paste0("sum((", z, ") * FundSize)/sum(FundSize)")
-    }
-    z <- sapply(x, fcn)
-    z <- c("WeightDate", "GeographicFocus", paste0("[", names(x), 
-        "] = ", z))
-    z <- sql.tbl(z, y, "FundType = 'E'", "WeightDate, GeographicFocus")
-    z
-}
-
-#' sql.1dFloMo.Ctry.Allocations.term
-#' 
-#' total weight allocated to countries <x> in index <y>
-#' @param x = a string vector of allocation-table names
-#' @param y = NA or one of EM/EAFE/ACWI
-#' @keywords sql.1dFloMo.Ctry.Allocations.term
-#' @export
-#' @family sql
-
-sql.1dFloMo.Ctry.Allocations.term <- function (x, y) 
-{
-    if (!is.na(y)) {
-        y <- Ctry.msci(y)
-        y <- y[order(y$YYYYMM), ]
-        y[, "CCODE"] <- Ctry.info(y[, "CCODE"], "AllocTable")
-        w <- !is.element(x, y[, "CCODE"])
-    }
-    else {
-        w <- rep(T, length(x))
-    }
-    if (sum(!w) > 1) 
-        x[!w] <- y[is.element(y[, "CCODE"], x) & !duplicated(y[, 
-            "CCODE"]), "CCODE"]
-    z <- paste(paste0("isnull(", x[w], ", 0)"), collapse = " + ")
-    if (any(!w)) {
-        for (j in x[!w]) {
-            z <- paste0(z, "\n\t+ case when ", Ctry.msci.sql(yyyymm.to.day, 
-                y, j, "WeightDate"), " then isnull(", j, ", 0) else 0 end")
-        }
-    }
-    z
-}
-
-#' sql.1dFloMo.Ctry.List
-#' 
-#' Generates the SQL query to get daily 1dFloMo for countries
-#' @param x = one of Ctry/FX/Sector/EMDM
-#' @keywords sql.1dFloMo.Ctry.List
-#' @export
-#' @family sql
-
-sql.1dFloMo.Ctry.List <- function (x) 
-{
-    classif.type <- x
-    sep <- ","
-    if (x == "Ctry") {
-        z <- Ctry.msci.members.rng("ACWI", "200704", "300012")
-        classif.type <- "Ctry"
-    }
-    else if (x == "APac") {
-        z <- c("AU", "CN", "ID", "IN", "JP", "MY", "PH", "SG", 
-            "TW", "NZ", "HK", "PK", "BD", "LK", "VN", "PG", "KH", 
-            "MM", "MN")
-        classif.type <- "Ctry"
-    }
-    else if (x == "LatAm") {
-        z <- mat.read(parameters("classif-Ctry"))
-        z <- dimnames(z)[[1]][is.element(z$EpfrRgn, x)]
-        classif.type <- "Ctry"
-    }
-    else if (x == "EMDM") {
-        z <- Ctry.msci.members.rng("ACWI", "199710", "300012")
-        classif.type <- "Ctry"
-    }
-    else if (x == "FX") {
-        z <- Ctry.msci.members.rng("ACWI", "200704", "300012")
-        z <- c(z, "CY", "EE", "LV", "LT", "SK", "SI")
-        classif.type <- "Ctry"
-    }
-    else if (x == "Sector") {
-        z <- dimnames(mat.read(parameters("classif-GSec"), "\t"))[[1]]
-        classif.type <- "GSec"
-        sep <- "\t"
-    }
-    y <- parameters(paste("classif", classif.type, sep = "-"))
-    y <- mat.read(y, sep)
-    y <- map.rname(y, z)
-    if (any(x == c("Ctry", "Sector", "LatAm"))) {
-        z <- vec.named(z, y$AllocTable)
-    }
-    else if (x == "EMDM") {
-        w.dm <- is.element(z, c("US", "CA", Ctry.msci.members.rng("EAFE", 
-            "199710", "300012")))
-        w.em <- is.element(z, Ctry.msci.members.rng("EM", "199710", 
-            "300012"))
-        z <- c(vec.named(rep("DM", sum(w.dm)), y$AllocTable[w.dm]), 
-            vec.named(rep("EM", sum(w.em)), y$AllocTable[w.em]))
-    }
-    else if (x == "FX") {
-        z <- vec.named(y$Curr, y$AllocTable)
     }
     z
 }
@@ -11084,108 +10686,6 @@ sql.1dFloTrend <- function (x, y, n, w, h)
     h <- ifelse(h, "n1.HSecurityId", "n1.SecurityId")
     z <- c(paste(x$PRE, collapse = "\n"), paste(sql.unbracket(sql.tbl(z, 
         x$FINAL, , h)), collapse = "\n"))
-    z
-}
-
-#' sql.1dFloTrend.Ctry
-#' 
-#' For Ctry/FX generates the SQL query to get daily 1d a) FloDiff		= sql.1dFloTrend.Ctry("?", "Flo", "Diff") b) FloTrend		= sql.1dFloTrend.Ctry("?", "Flo", "Trend") c) ActWtDiff		= sql.1dFloTrend.Ctry("?", "ActWt", "Diff") d) ActWtTrend		= sql.1dFloTrend.Ctry("?", "ActWt", "Trend") e) FloDiff2		= sql.1dFloTrend.Ctry("?", "Flo", "Diff2") f) ActWtDiff2		= sql.1dFloTrend.Ctry("?", "ActWt", "Diff2") g) AllocMo		= sql.1dFloTrend.Ctry("?", "Flo", "AllocMo") h) AllocDiff		= sql.1dFloTrend.Ctry("?", "Flo", "AllocDiff") i) AllocTrend		= sql.1dFloTrend.Ctry("?", "Flo", "AllocTrend") j) AllocSkew		= sql.1dFloTrend.Ctry("?", "ActWt", "AllocSkew")
-#' @param x = one of Ctry/FX/Sector
-#' @param y = one of Flo/ActWt
-#' @param n = one of Diff/Diff2/Trend/AllocMo/AllocDiff/AllocTrend
-#' @keywords sql.1dFloTrend.Ctry
-#' @export
-#' @family sql
-
-sql.1dFloTrend.Ctry <- function (x, y, n) 
-{
-    if (x == "Sector") 
-        floTbl <- "WeeklyData"
-    else floTbl <- "DailyData"
-    if (is.element(n, c("AllocMo", "AllocDiff", "AllocTrend", 
-        "AllocSkew"))) 
-        floTbl <- "MonthlyData"
-    ctry <- sql.1dFloMo.Ctry.List(x)
-    z <- sql.1dFloTrend.Ctry.topline(n, ctry, floTbl)
-    fcn <- get(paste0("sql.1d", y, "Trend.Ctry.underlying"))
-    z <- paste(sql.unbracket(sql.tbl(z, fcn(ctry, floTbl, x), 
-        , sql.floTbl.to.Col(floTbl, F))), collapse = "\n")
-    z
-}
-
-#' sql.1dFloTrend.Ctry.topline
-#' 
-#' Generates the SQL query to get daily 1d Flo/ActWt Diff/Trend for Ctry/FX
-#' @param x = one of Trend/Diff/Diff2/AllocMo/AllocDiff/AllocTrend/AllocSkew
-#' @param y = country list
-#' @param n = one of DailyData/WeeklyData/MonthlyData
-#' @keywords sql.1dFloTrend.Ctry.topline
-#' @export
-#' @family sql
-
-sql.1dFloTrend.Ctry.topline <- function (x, y, n) 
-{
-    if (x == "Trend") {
-        fcn <- function(i) sql.Trend(paste0("Flow * (t2.[", i, 
-            "] - t3.[", i, "])"))
-    }
-    else if (x == "Diff") {
-        fcn <- function(i) sql.Diff("Flow", paste0("t2.[", i, 
-            "] - t3.[", i, "]"))
-    }
-    else if (x == "Diff2") {
-        fcn <- function(i) sql.Diff(paste0("(t2.[", i, "] - t3.[", 
-            i, "])"), "Flow")
-    }
-    else if (x == "AllocDiff") {
-        fcn <- function(i) sql.Diff("(AssetsStart + AssetsEnd)", 
-            paste0("t2.[", i, "] - t3.[", i, "]"))
-    }
-    else if (x == "AllocTrend") {
-        fcn <- function(i) sql.Trend(paste0("(AssetsStart + AssetsEnd) * (t2.[", 
-            i, "] - t3.[", i, "])"))
-    }
-    else if (x == "AllocSkew") {
-        fcn <- function(i) sql.Diff("AssetsEnd", paste0("t3.[", 
-            i, "] - t2.[", i, "]"))
-    }
-    else if (x == "AllocMo") {
-        fcn <- function(i) paste0("= 2 * sum((AssetsStart + AssetsEnd) * (t2.[", 
-            i, "] - t3.[", i, "]))", "/", sql.nonneg(paste0("sum((AssetsStart + AssetsEnd) * (t2.[", 
-                i, "] + t3.[", i, "]))")))
-    }
-    else stop("Unknown Computation")
-    z <- sql.floTbl.to.Col(n, T)
-    y <- y[!duplicated(y)]
-    for (i in y) z <- c(z, paste0("[", i, "] ", fcn(i)))
-    z
-}
-
-#' sql.1dFloTrend.Ctry.underlying
-#' 
-#' Generates the SQL query to get daily 1dFloMo for countries
-#' @param x = a string vector indexed by allocation-table names
-#' @param y = the SQL table from which you get flows (DailyData/MonthlyData)
-#' @param n = one of Ctry/FX/Sector
-#' @keywords sql.1dFloTrend.Ctry.underlying
-#' @export
-#' @family sql
-
-sql.1dFloTrend.Ctry.underlying <- function (x, y, n) 
-{
-    z <- c(sql.label(sql.FundHistory(c("CB", "E"), F, "FundId"), 
-        "t0"), "inner join")
-    z <- c(z, paste0(y, " t1 on t1.HFundId = t0.HFundId"), "inner join")
-    z <- c(z, paste0(sql.1dFloMo.Ctry.Allocations(x, n)))
-    z <- c(sql.label(z, "t2"), "\ton t2.FundId = t0.FundId")
-    if (y == "MonthlyData") {
-        z <- c(z, paste("\t\tand t2.WeightDate =", sql.floTbl.to.Col(y, 
-            F)))
-    }
-    else z <- c(z, paste("\t\tand", sql.datediff("WeightDate", 
-        sql.floTbl.to.Col(y, F), 23)))
-    z <- c(z, "inner join", sql.1dFloMo.Ctry.Allocations(x, n))
-    z <- c(sql.label(z, "t3"), "\ton t3.FundId = t2.FundId and datediff(month, t3.WeightDate, t2.WeightDate) = 1")
     z
 }
 
@@ -12574,29 +12074,6 @@ sql.FloMo.Funds <- function (x)
     x <- c(sql.label(sql.table, "t1"), "inner join", "FundHistory t2 on t1.HFundId = t2.HFundId")
     z <- paste(sql.unbracket(sql.tbl(z, x, paste(dt.col, "= @floDt"), 
         "FundId", "sum(AssetsStart) > 0")), collapse = "\n")
-    z
-}
-
-#' sql.floTbl.to.Col
-#' 
-#' derived the appropriate date column from the flow table name
-#' @param x = one of DailyData/WeeklyData/MonthlyData
-#' @param y = T/F depending on whether you want the date formatted.
-#' @keywords sql.floTbl.to.Col
-#' @export
-#' @family sql
-
-sql.floTbl.to.Col <- function (x, y) 
-{
-    n <- vec.named(c(8, 8, 6), c("DailyData", "WeeklyData", "MonthlyData"))
-    z <- vec.named(c("DayEnding", "WeekEnding", "MonthEnding"), 
-        names(n))
-    z <- as.character(z[x])
-    n <- as.numeric(n[x])
-    if (y) 
-        if (n == 8) 
-            z <- sql.yyyymmdd(z)
-        else z <- sql.yyyymm(z)
     z
 }
 

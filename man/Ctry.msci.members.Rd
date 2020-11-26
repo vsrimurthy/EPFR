@@ -18,7 +18,6 @@ lists countries in an index at <y>
 Other Ctry: \code{\link{Ctry.info}},
   \code{\link{Ctry.msci.index.changes}},
   \code{\link{Ctry.msci.members.rng}},
-  \code{\link{Ctry.msci.sql}}, \code{\link{Ctry.msci}},
-  \code{\link{Ctry.to.CtryGrp}}
+  \code{\link{Ctry.msci}}, \code{\link{Ctry.to.CtryGrp}}
 }
 \keyword{Ctry.msci.members}

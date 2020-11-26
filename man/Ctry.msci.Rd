@@ -17,7 +17,6 @@ Other Ctry: \code{\link{Ctry.info}},
   \code{\link{Ctry.msci.index.changes}},
   \code{\link{Ctry.msci.members.rng}},
   \code{\link{Ctry.msci.members}},
-  \code{\link{Ctry.msci.sql}},
   \code{\link{Ctry.to.CtryGrp}}
 }
 \keyword{Ctry.msci}
