@@ -4,23 +4,22 @@
 \alias{refresh.predictors}
 \title{refresh.predictors}
 \usage{
-refresh.predictors(path, sql.query, sql.end.stub, connection.type,
-  ignore.data.changes, date.field, publish.fcn)
+refresh.predictors(fcn, x, y, n, w, h, u)
 }
 \arguments{
-\item{path}{= csv file containing the predictors}
+\item{fcn}{= a function that returns the last complete publication period}
 
-\item{sql.query}{= query needed to get full history}
+\item{x}{= csv file containing the predictors}
 
-\item{sql.end.stub}{= last part of the query that goes after the date restriction}
+\item{y}{= query needed to get full history}
 
-\item{connection.type}{= one of StockFlows/Regular/Quant}
+\item{n}{= last part of the query that goes after the date restriction}
 
-\item{ignore.data.changes}{= T/F depending on whether you want changes in data to be ignored}
+\item{w}{= one of StockFlows/Regular/Quant}
 
-\item{date.field}{= column corresponding to date in relevant sql table}
+\item{h}{= T/F depending on whether you want changes in data to be ignored}
 
-\item{publish.fcn}{= a function that returns the last complete publication period}
+\item{u}{= column corresponding to date in relevant sql table}
 }
 \description{
 refreshes the text file contains flows data from SQL

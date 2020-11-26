@@ -8972,28 +8972,25 @@ read.prcRet <- function (x)
 #' refresh.predictors
 #' 
 #' refreshes the text file contains flows data from SQL
-#' @param path = csv file containing the predictors
-#' @param sql.query = query needed to get full history
-#' @param sql.end.stub = last part of the query that goes after the date restriction
-#' @param connection.type = one of StockFlows/Regular/Quant
-#' @param ignore.data.changes = T/F depending on whether you want changes in data to be ignored
-#' @param date.field = column corresponding to date in relevant sql table
-#' @param publish.fcn = a function that returns the last complete publication period
+#' @param fcn = a function that returns the last complete publication period
+#' @param x = csv file containing the predictors
+#' @param y = query needed to get full history
+#' @param n = last part of the query that goes after the date restriction
+#' @param w = one of StockFlows/Regular/Quant
+#' @param h = T/F depending on whether you want changes in data to be ignored
+#' @param u = column corresponding to date in relevant sql table
 #' @keywords refresh.predictors
 #' @export
 #' @family refresh
 
-refresh.predictors <- function (path, sql.query, sql.end.stub, connection.type, ignore.data.changes, 
-    date.field, publish.fcn) 
+refresh.predictors <- function (fcn, x, y, n, w, h, u) 
 {
-    last.date <- file.to.last(path)
-    if (last.date < publish.fcn()) {
-        z <- refresh.predictors.script(sql.query, sql.end.stub, 
-            date.field, last.date)
-        z <- sql.query(z, connection.type)
-        x <- mat.read(path, ",")
-        z <- refresh.predictors.append(x, z, ignore.data.changes, 
-            F)
+    v <- file.to.last(x)
+    if (last.date < fcn()) {
+        z <- refresh.predictors.script(y, n, u, v)
+        z <- sql.query(z, w)
+        x <- mat.read(x, ",")
+        z <- refresh.predictors.append(x, z, h, F)
     }
     else {
         cat("There is no need to update the data ...\n")
@@ -9054,7 +9051,7 @@ refresh.predictors.append <- function (x, y, n = F, w = F)
 
 refresh.predictors.daily <- function (x, y, n, w, h = F) 
 {
-    refresh.predictors(x, y, n, w, h, "DayEnding", publish.daily.last)
+    refresh.predictors(publish.daily.last, x, y, n, w, h, "DayEnding")
 }
 
 #' refresh.predictors.monthly
@@ -9071,7 +9068,7 @@ refresh.predictors.daily <- function (x, y, n, w, h = F)
 
 refresh.predictors.monthly <- function (x, y, n, w, h) 
 {
-    refresh.predictors(x, y, n, w, h, "WeightDate", publish.monthly.last)
+    refresh.predictors(publish.monthly.last, x, y, n, w, h, "WeightDate")
 }
 
 #' refresh.predictors.script
@@ -9111,7 +9108,7 @@ refresh.predictors.script <- function (x, y, n, w)
 
 refresh.predictors.weekly <- function (x, y, n, w, h = F) 
 {
-    refresh.predictors(x, y, n, w, h, "WeekEnding", publish.weekly.last)
+    refresh.predictors(publish.weekly.last, x, y, n, w, h, "WeekEnding")
 }
 
 #' renorm
@@ -10414,40 +10411,21 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
 
 sql.1dFloMo.FI <- function () 
 {
-    x <- c("GLOBEM", "WESEUR", "HYIELD", "FLOATS", "USTRIN", 
-        "USTRLT", "USTRST", "CASH", "USMUNI", "GLOFIX")
-    z <- paste0("sum(case when grp = '", x, "' then AssetsStart else NULL end)")
-    z <- sql.nonneg(z)
-    z <- paste0(x, " = 100 * sum(case when grp = '", x, "' then Flow else NULL end)/", 
-        z)
-    z <- c(sql.yyyymmdd("DayEnding"), z)
-    z <- paste(sql.unbracket(sql.tbl(z, sql.1dFloMo.FI.underlying(), 
-        , "DayEnding")), collapse = "\n")
-    z
-}
-
-#' sql.1dFloMo.FI.underlying
-#' 
-#' Generates the SQL query to get daily 1dFloMo for fixed income
-#' @keywords sql.1dFloMo.FI.underlying
-#' @export
-#' @family sql
-
-sql.1dFloMo.FI.underlying <- function () 
-{
-    z <- c("HFundId", "grp =", "\tcase", "\twhen FundType = 'M' then 'CASH'", 
-        "\twhen StyleSector = 130 then 'FLOATS'")
-    z <- c(z, "\twhen StyleSector = 134 and GeographicFocus = 77 then 'USTRIN'", 
-        "\twhen StyleSector = 137 and GeographicFocus = 77 then 'USTRLT'")
-    z <- c(z, "\twhen StyleSector = 141 and GeographicFocus = 77 then 'USTRST'", 
-        "\twhen StyleSector = 185 and GeographicFocus = 77 then 'USMUNI'")
-    z <- c(z, "\twhen StyleSector = 125 and Category = '9' then 'HYIELD'", 
-        "\twhen Category = '8' then 'WESEUR'")
-    z <- c(z, "\twhen GeographicFocus = 31 then 'GLOBEM'", "\twhen GeographicFocus = 30 then 'GLOFIX'", 
-        "\telse 'OTHER'", "\tend")
-    z <- sql.label(sql.tbl(z, "FundHistory", "FundType in ('B', 'M')"), 
-        "t2")
+    x <- c("FundType = 'M'", "StyleSector = 130", "StyleSector = 134 and GeographicFocus = 77", 
+        "StyleSector = 137 and GeographicFocus = 77", "StyleSector = 141 and GeographicFocus = 77", 
+        "StyleSector = 185 and GeographicFocus = 77", "StyleSector = 125 and Category = '9'", 
+        "Category = '8'", "GeographicFocus = 31", "GeographicFocus = 30")
+    names(x) <- c("CASH", "FLOATS", "USTRIN", "USTRLT", "USTRST", 
+        "USMUNI", "HYIELD", "WESEUR", "GLOBEM", "GLOFIX")
+    z <- sql.case("grp", x, c(names(x), "OTHER"), F)
+    z <- c(sql.label(sql.FundHistory("FundType in ('B', 'M')", 
+        F, z), "t2"))
     z <- c("DailyData t1", "inner join", z, "\ton t2.HFundId = t1.HFundId")
+    y <- paste0("case when grp = '", names(x), "' then Flow else NULL end")
+    x <- paste(names(x), sql.Mo(y, txt.replace(y, "Flow", "AssetsStart"), 
+        NULL, T))
+    z <- sql.tbl(c(sql.yyyymmdd("DayEnding"), x), z, , "DayEnding")
+    z <- paste(sql.unbracket(z), collapse = "\n")
     z
 }
 
@@ -11787,6 +11765,28 @@ sql.Bullish <- function (x, y, n, w)
     w <- paste0(ifelse(w, "t1.HSecurityId", "SecurityId"), ", FundCt")
     z <- c(paste(z, collapse = "\n"), paste(sql.unbracket(sql.tbl(x, 
         h, , w)), collapse = "\n"))
+    z
+}
+
+#' sql.case
+#' 
+#' case statement assigning labels <n> based on conditions <y>
+#' @param x = final label
+#' @param y = a string vector of conditions
+#' @param n = a string vector of length one more than <y> of labels
+#' @param w = T/F depending on whether labels are numeric
+#' @keywords sql.case
+#' @export
+#' @family sql
+
+sql.case <- function (x, y, n, w = T) 
+{
+    if (!w) 
+        n <- paste0("'", n, "'")
+    z <- n[length(y) + 1]
+    z <- c(paste("when", y, "then", n[seq_along(y)]), paste("else", 
+        z, "end"))
+    z <- c(paste(x, "= case"), paste0("\t", z))
     z
 }
 
