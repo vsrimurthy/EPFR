@@ -6583,12 +6583,8 @@ mk.1dFloMo <- function (x, y, n)
 mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E") 
 {
     n <- sql.1dFloMo.CountryId.List(n, x)
-    z <- sql.FundHistory(c("CB", u, "UI"), F, "FundId")
-    z <- sql.label(z, "t2 on t2.HFundId = t1.HFundId")
-    z <- c(paste(ifelse(h, "DailyData", "WeeklyData"), "t1"), 
-        "inner join", z)
-    z <- sql.tbl(c("FundId", y), z, ifelse(h, "DayEnding = @floDt", 
-        "WeekEnding = @floDt"))
+    z <- sql.Flow(c("FundId", y), list(A = "@floDt"), c("CB", 
+        u, "UI"), , h)
     v <- list(A = paste0("CountryId in (", paste(names(n), collapse = ", "), 
         ")"))
     v[["B"]] <- "datediff(month, ReportDate, @floDt) = case when day(@floDt) < 23 then 2 else 1 end"
@@ -6657,19 +6653,13 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h)
     v <- c("create table #SEC (FundId int not null, SectorId int not null, GeographicFocus int, Allocation float)", 
         v)
     z <- c(z, "", v)
-    r <- c("GeographicFocus", "StyleSector")
-    r <- c("FundId", paste0(r, " = max(", r, ")"), paste0(y, 
+    v <- c("GeographicFocus", "StyleSector")
+    v <- c("FundId", paste0(v, " = max(", v, ")"), paste0(y, 
         " = sum(", y, ")"))
-    v <- sql.FundHistory(c("CB", "E"), F, c("FundId", "GeographicFocus", 
-        "StyleSector"))
-    v <- c(sql.label(v, "t2"), "\ton t2.HFundId = t1.HFundId")
-    v <- c(paste(ifelse(w, "DailyData", "WeeklyData"), "t1"), 
-        "inner join", v)
-    w <- paste0(ifelse(w, "DayEnding", "WeekEnding"), " = '", 
-        x, "'")
-    v <- sql.unbracket(sql.tbl(r, v, w, "FundId"))
+    v <- sql.Flow(v, list(A = paste0("'", x, "'")), c("CB", "E"), 
+        c("GeographicFocus", "StyleSector"), w, "FundId")
     v <- c("insert into", paste0("\t#FLO (FundId, GeographicFocus, StyleSector, ", 
-        paste(y, collapse = ", "), ")"), v)
+        paste(y, collapse = ", "), ")"), sql.unbracket(v))
     v <- c("create clustered index TempRandomFloIndex ON #FLO (FundId)", 
         v)
     v <- c(paste0("create table #FLO (FundId int not null, GeographicFocus int, StyleSector int, ", 
@@ -6907,24 +6897,16 @@ mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = T)
     w <- Ctry.info(w, c("GeoId", "CountryId"))
     rslt <- list(MAP = w)
     r <- c("GeographicFocus", paste0(n, " = sum(", n, ")"))
-    v <- paste0("GeographicFocus in (", paste(w$GeoId[!is.na(w$GeoId)], 
+    z <- paste0("GeographicFocus in (", paste(w$GeoId[!is.na(w$GeoId)], 
         collapse = ", "), ")")
-    z <- sql.FundHistory(c(y, v, "UI"), F, "GeographicFocus")
-    z <- sql.label(z, "t2 on t2.HFundId = t1.HFundId")
-    z <- c(sql.label(ifelse(u, "WeeklyData", "DailyData"), "t1"), 
-        "inner join", z)
-    z <- sql.tbl(r, z, paste(ifelse(u, "WeekEnding", "DayEnding"), 
-        "= @floDt"), "GeographicFocus")
+    z <- sql.Flow(r, list(A = "@floDt"), c(y, z, "UI"), "GeographicFocus", 
+        !u, "GeographicFocus")
     z <- c(sql.declare("@floDt", "datetime", x), sql.unbracket(z))
     rslt[["SCF"]] <- sql.query.underlying(paste(z, collapse = "\n"), 
         h$conn, F)
     r <- c("GeographicFocus", paste0(n, " = sum(", n, ")"))
-    z <- sql.FundHistory(c(y, "CB", "UI"), F, "GeographicFocus")
-    z <- sql.label(z, "t2 on t2.HFundId = t1.HFundId")
-    z <- c(sql.label(ifelse(u, "WeeklyData", "DailyData"), "t1"), 
-        "inner join", z)
-    z <- sql.tbl(r, z, paste(ifelse(u, "WeekEnding", "DayEnding"), 
-        "= @floDt"), "GeographicFocus")
+    z <- sql.Flow(r, list(A = "@floDt"), c(y, "CB", "UI"), "GeographicFocus", 
+        !u, "GeographicFocus")
     z <- c(sql.declare("@floDt", "datetime", x), sql.unbracket(z))
     rslt[["CBF"]] <- sql.query.underlying(paste(z, collapse = "\n"), 
         h$conn, F)
@@ -12074,6 +12056,37 @@ sql.FloMo.Funds <- function (x)
     x <- c(sql.label(sql.table, "t1"), "inner join", "FundHistory t2 on t1.HFundId = t2.HFundId")
     z <- paste(sql.unbracket(sql.tbl(z, x, paste(dt.col, "= @floDt"), 
         "FundId", "sum(AssetsStart) > 0")), collapse = "\n")
+    z
+}
+
+#' sql.Flow
+#' 
+#' SQL query to fetch daily/weekly flows
+#' @param x = needed columns
+#' @param y = list of where clauses, first being the flow date restriction
+#' @param n = a vector of FundHistory filters
+#' @param w = columns needed from FundHistory besides HFundId/FundId
+#' @param h = T/F for daily/weekly
+#' @param u = group by clause (can be missing)
+#' @param v = having clause (can be missing)
+#' @keywords sql.Flow
+#' @export
+#' @family sql
+
+sql.Flow <- function (x, y, n = "All", w = NULL, h = T, u, v) 
+{
+    z <- sql.label(sql.FundHistory(n, F, c("FundId", w)), "t2")
+    z <- c(z, "\ton t2.HFundId = t1.HFundId")
+    z <- c(paste(ifelse(h, "DailyData", "WeeklyData"), "t1"), 
+        "inner join", z)
+    y[[1]] <- paste(ifelse(h, "DayEnding", "WeekEnding"), "=", 
+        y[[1]])
+    z <- list(x = x, y = z, n = sql.and(y))
+    if (!missing(u)) 
+        z[["w"]] <- u
+    if (!missing(v)) 
+        z[["h"]] <- v
+    z <- do.call(sql.tbl, z)
     z
 }
 
