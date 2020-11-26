@@ -8986,7 +8986,7 @@ read.prcRet <- function (x)
 refresh.predictors <- function (fcn, x, y, n, w, h, u) 
 {
     v <- file.to.last(x)
-    if (last.date < fcn()) {
+    if (v < fcn()) {
         z <- refresh.predictors.script(y, n, u, v)
         z <- sql.query(z, w)
         x <- mat.read(x, ",")
