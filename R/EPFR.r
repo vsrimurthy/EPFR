@@ -673,6 +673,35 @@ bbk.turnover <- function (x)
     z
 }
 
+#' bear
+#' 
+#' T/F depending on whether period fell in a bear market
+#' @param x = vector of returns of the form log(1 + r/100)
+#' @keywords bear
+#' @export
+
+bear <- function (x) 
+{
+    n <- length(x)
+    z <- bbk.drawdown(x)
+    if (100 * exp(sum(x[z])) < 80) {
+        v <- (1:n)[z][1]
+        if (v > 1) {
+            v <- seq(1, v - 1)
+            z[v] <- bear(x[v])
+        }
+        v <- (1:n)[z][sum(z)]
+        if (v < n) {
+            v <- seq(v + 1, n)
+            z[v] <- bear(x[v])
+        }
+    }
+    else {
+        z <- rep(F, n)
+    }
+    z
+}
+
 #' best.linear.strategy.blend
 #' 
 #' Returns optimal weights to put on <x> and <y>
