@@ -4905,6 +4905,81 @@ fwd.probs.wrapper <- function (x, y, floW, sum.flows, lags, delay, doW, hz, idx,
     z
 }
 
+#' glome.ex.R3
+#' 
+#' maps unit cube to the glome (sphere in 4D)
+#' @param x = a number or numeric vector between 0 and 1
+#' @param y = a number or numeric vector between 0 and 1
+#' @param n = a number or numeric vector between 0 and 1
+#' @keywords glome.ex.R3
+#' @export
+#' @family glome
+
+glome.ex.R3 <- function (x, y, n) 
+{
+    w <- length(x)
+    z <- sqrt(1 - x^2) * sin(2 * pi * y)
+    z <- c(z, sqrt(1 - x^2) * cos(2 * pi * y))
+    z <- c(z, x * sin(2 * pi * n))
+    z <- c(z, x * cos(2 * pi * n))
+    if (w > 1) 
+        z <- matrix(z, w, 4, F, list(1:w, char.seq("A", "D")))
+    z
+}
+
+#' glome.ex.R3.prime
+#' 
+#' derivative of glome.ex.R3, a 4 X 3 matrix
+#' @param x = a number between 0 and 1
+#' @param y = a number between 0 and 1
+#' @param n = a number between 0 and 1
+#' @keywords glome.ex.R3.prime
+#' @export
+#' @family glome
+
+glome.ex.R3.prime <- function (x, y, n) 
+{
+    z <- matrix(NA, 4, 3, F, list(char.seq("a", "d"), c("x", 
+        "y", "n")))
+    z["a", "x"] <- -x * sin(2 * pi * y)/sqrt(1 - x^2)
+    z["b", "x"] <- -x * cos(2 * pi * y)/sqrt(1 - x^2)
+    z["c", "x"] <- sin(2 * pi * n)
+    z["d", "x"] <- cos(2 * pi * n)
+    z["a", "y"] <- 2 * pi * sqrt(1 - x^2) * cos(2 * pi * y)
+    z["b", "y"] <- 2 * pi * sqrt(1 - x^2) * sin(2 * pi * y)
+    z["c", "y"] <- 0
+    z["d", "y"] <- 0
+    z["a", "n"] <- 0
+    z["b", "n"] <- 0
+    z["c", "n"] <- 2 * pi * x * cos(2 * pi * n)
+    z["d", "n"] <- 2 * pi * x * sin(2 * pi * n)
+    z
+}
+
+#' glome.near
+#' 
+#' returns six points nearest glome.ex.R3(x, y, z)
+#' @param x = a number between 0 and 1
+#' @param y = a number between 0 and 1
+#' @param n = a number between 0 and 1
+#' @param w = distance metric
+#' @keywords glome.near
+#' @export
+#' @family glome
+
+glome.near <- function (x, y, n, w) 
+{
+    z <- glome.ex.R3.prime(x, y, n)
+    z <- w/sqrt(colSums(z^2))
+    z <- c(z[1], -z[1], rep(0, 6), z[2], -z[2], rep(0, 6), z[3], 
+        -z[3])
+    z <- matrix(z, 6, 3, F, list(1:6, c("x", "y", "n")))
+    z <- mat.ex.matrix(z + matrix(c(x, y, n), 6, 3, T))
+    z <- mat.ex.matrix(vec.max(vec.min(z, 1), 0))
+    z <- list(x = z, z = do.call(glome.ex.R3, z))
+    z
+}
+
 #' gram.schmidt
 #' 
 #' Gram-Schmidt orthogonalization of <x> to <y>
@@ -9337,6 +9412,21 @@ rpt.email.send <- function (x, y, n, w, h)
     invisible()
 }
 
+#' rquaternion
+#' 
+#' n x 4 matrix of randomly generated number of unit size
+#' @param x = number of quaternions desired
+#' @keywords rquaternion
+#' @export
+
+rquaternion <- function (x) 
+{
+    z <- mat.ex.matrix(matrix(runif(3 * x), x, 3, F, list(1:x, 
+        c("x", "y", "n"))))
+    z <- do.call(glome.ex.R3, z)
+    z
+}
+
 #' rrw
 #' 
 #' regression results
@@ -9499,6 +9589,33 @@ seconds.sho <- function (x)
         n <- n + 1
     }
     z <- paste(txt.right(100 + z, 2), collapse = ":")
+    z
+}
+
+#' separating.hyperplane
+#' 
+#' number of errors and distance from origin for best separating hyperlane
+#' @param x = a matrix, the first column being a 1/0 vector
+#' @param y = a unit vector of length dim(x)[2] - 1
+#' @keywords separating.hyperplane
+#' @export
+
+separating.hyperplane <- function (x, y) 
+{
+    n <- dim(x)[1]
+    y <- as.numeric(x[, -1] %*% y)
+    x <- as.numeric(x[, 1])
+    x <- x[order(y)]
+    y <- y[order(y)]
+    z <- c(n + 1, y[1] - 1)
+    for (j in 2:n) {
+        v <- mean(y[j - 1:0])
+        w <- y > v
+        h <- min(sum(w) + sum(x[!w]) - sum(x[w]), sum(!w) + sum(x[w]) - 
+            sum(x[!w]))
+        if (h < z[1]) 
+            z <- c(h, v)
+    }
     z
 }
 
