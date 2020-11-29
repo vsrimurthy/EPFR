@@ -1785,6 +1785,23 @@ day.to.weekday <- function (x)
     z
 }
 
+#' decimal.format
+#' 
+#' rounds <x> to <y> decimals and renders as nice character vector
+#' @param x = numeric vector
+#' @param y = positive integer
+#' @keywords decimal.format
+#' @export
+
+decimal.format <- function (x, y) 
+{
+    x <- round(x, y)
+    y <- 10^(-y - 1)
+    z <- as.character(x + y * ifelse(x < 0, -1, 1))
+    z <- txt.left(z, nchar(z) - 1)
+    z
+}
+
 #' dir.all.files
 #' 
 #' Returns all files in the folder including sub-directories
@@ -4942,7 +4959,6 @@ fwd.probs.wrapper <- function (x, y, floW, sum.flows, lags, delay, doW, hz, idx,
 #' @param n = a number or numeric vector between 0 and 1
 #' @keywords glome.ex.R3
 #' @export
-#' @family glome
 
 glome.ex.R3 <- function (x, y, n) 
 {
@@ -4953,59 +4969,6 @@ glome.ex.R3 <- function (x, y, n)
     z <- c(z, x * cos(2 * pi * n))
     if (w > 1) 
         z <- matrix(z, w, 4, F, list(1:w, char.seq("A", "D")))
-    z
-}
-
-#' glome.ex.R3.prime
-#' 
-#' derivative of glome.ex.R3, a 4 X 3 matrix
-#' @param x = a number between 0 and 1
-#' @param y = a number between 0 and 1
-#' @param n = a number between 0 and 1
-#' @keywords glome.ex.R3.prime
-#' @export
-#' @family glome
-
-glome.ex.R3.prime <- function (x, y, n) 
-{
-    z <- matrix(NA, 4, 3, F, list(char.seq("a", "d"), c("x", 
-        "y", "n")))
-    z["a", "x"] <- -x * sin(2 * pi * y)/sqrt(1 - x^2)
-    z["b", "x"] <- -x * cos(2 * pi * y)/sqrt(1 - x^2)
-    z["c", "x"] <- sin(2 * pi * n)
-    z["d", "x"] <- cos(2 * pi * n)
-    z["a", "y"] <- 2 * pi * sqrt(1 - x^2) * cos(2 * pi * y)
-    z["b", "y"] <- 2 * pi * sqrt(1 - x^2) * sin(2 * pi * y)
-    z["c", "y"] <- 0
-    z["d", "y"] <- 0
-    z["a", "n"] <- 0
-    z["b", "n"] <- 0
-    z["c", "n"] <- 2 * pi * x * cos(2 * pi * n)
-    z["d", "n"] <- 2 * pi * x * sin(2 * pi * n)
-    z
-}
-
-#' glome.near
-#' 
-#' returns six points nearest glome.ex.R3(x, y, z)
-#' @param x = a number between 0 and 1
-#' @param y = a number between 0 and 1
-#' @param n = a number between 0 and 1
-#' @param w = distance metric
-#' @keywords glome.near
-#' @export
-#' @family glome
-
-glome.near <- function (x, y, n, w) 
-{
-    z <- glome.ex.R3.prime(x, y, n)
-    z <- w/sqrt(colSums(z^2))
-    z <- c(z[1], -z[1], rep(0, 6), z[2], -z[2], rep(0, 6), z[3], 
-        -z[3])
-    z <- matrix(z, 6, 3, F, list(1:6, c("x", "y", "n")))
-    z <- mat.ex.matrix(z + matrix(c(x, y, n), 6, 3, T))
-    z <- mat.ex.matrix(vec.max(vec.min(z, 1), 0))
-    z <- list(x = z, z = do.call(glome.ex.R3, z))
     z
 }
 

@@ -16,8 +16,4 @@ glome.ex.R3(x, y, n)
 \description{
 maps unit cube to the glome (sphere in 4D)
 }
-\seealso{
-Other glome: \code{\link{glome.ex.R3.prime}},
-  \code{\link{glome.near}}
-}
 \keyword{glome.ex.R3}
