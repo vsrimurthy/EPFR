@@ -14120,7 +14120,7 @@ txt.levenshtein <- function (x, y)
 
 txt.na <- function () 
 {
-    c("#N/A", "NA", "NULL", "<NA>", "--", "#N/A N/A")
+    c("#N/A", "NA", "NULL", "<NA>", "--", "#N/A N/A", "#VALUE!")
 }
 
 #' txt.name.format
