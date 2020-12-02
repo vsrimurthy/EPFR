@@ -7,9 +7,9 @@
 separating.hyperplane(x, y)
 }
 \arguments{
-\item{x}{= a matrix, the first column being a 1/0 vector}
+\item{x}{= a unit vector of length dim(x)[2] - 1}
 
-\item{y}{= a unit vector of length dim(x)[2] - 1}
+\item{y}{= a matrix, the first column being a 1/0 vector}
 }
 \description{
 number of errors and distance from origin for best separating hyperlane

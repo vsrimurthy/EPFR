@@ -1074,6 +1074,31 @@ char.to.num <- function (x)
     z
 }
 
+#' classification.threshold
+#' 
+#' threshold value that causes fewest classification errors
+#' @param x = a 1/0 vector
+#' @param y = a vector of predictors of the same length as <x>
+#' @keywords classification.threshold
+#' @export
+
+classification.threshold <- function (x, y) 
+{
+    n <- length(x)
+    x <- x[order(y)]
+    y <- y[order(y)]
+    z <- c(n + 1, y[1] - 1)
+    for (j in 2:n) {
+        v <- mean(y[j - 1:0])
+        w <- y > v
+        h <- min(sum(w) + sum(x[!w]) - sum(x[w]), sum(!w) + sum(x[w]) - 
+            sum(x[!w]))
+        if (h < z[1]) 
+            z <- c(h, v)
+    }
+    z
+}
+
 #' col.ex.int
 #' 
 #' Returns the relevant excel column (1 = "A", 2 = "B", etc.)
@@ -4735,6 +4760,10 @@ ftp.sql.factor <- function (x, y, n, w)
         z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c("HoldSum", 
             qa.filter.map(n)), w, T)
     }
+    else if (all(x == "TopV")) {
+        z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c("HoldSum", 
+            qa.filter.map(n)), w, T, T)
+    }
     else if (all(x == "Dispersion")) {
         z <- sql.Dispersion(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
             w, T)
@@ -4746,6 +4775,10 @@ ftp.sql.factor <- function (x, y, n, w)
     else if (all(x == "StockM")) {
         z <- sql.1mFloMo(yyyymmdd.to.yyyymm(y), c("FloDollar", 
             qa.filter.map(n)), w, T)
+    }
+    else if (all(x == "FloMoM")) {
+        z <- sql.1mFloMo(yyyymmdd.to.yyyymm(y), c("FloMo", qa.filter.map(n)), 
+            w, T)
     }
     else if (all(x == "IOND")) {
         z <- sql.1dFloMo(y, c("Inflow", "Outflow", qa.filter.map(n)), 
@@ -9587,28 +9620,14 @@ seconds.sho <- function (x)
 #' separating.hyperplane
 #' 
 #' number of errors and distance from origin for best separating hyperlane
-#' @param x = a matrix, the first column being a 1/0 vector
-#' @param y = a unit vector of length dim(x)[2] - 1
+#' @param x = a unit vector of length dim(x)[2] - 1
+#' @param y = a matrix, the first column being a 1/0 vector
 #' @keywords separating.hyperplane
 #' @export
 
 separating.hyperplane <- function (x, y) 
 {
-    n <- dim(x)[1]
-    y <- as.numeric(x[, -1] %*% y)
-    x <- as.numeric(x[, 1])
-    x <- x[order(y)]
-    y <- y[order(y)]
-    z <- c(n + 1, y[1] - 1)
-    for (j in 2:n) {
-        v <- mean(y[j - 1:0])
-        w <- y > v
-        h <- min(sum(w) + sum(x[!w]) - sum(x[w]), sum(!w) + sum(x[w]) - 
-            sum(x[!w]))
-        if (h < z[1]) 
-            z <- c(h, v)
-    }
-    z
+    classification.threshold(x[, 1], x[, -1] %*% y)
 }
 
 #' sf
@@ -11565,14 +11584,15 @@ sql.1mFloTrend.underlying <- function (x, y, n)
 #' 
 #' Generates FundCt, the ownership breadth measure set forth in Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
 #' @param x = the YYYYMM for which you want data (known 26 days later)
-#' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
+#' @param y = a string vector of factors to be computed, the last elements of which are the types of fund used.
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
+#' @param h = T/F depending on whether only the top 5 funds matter
 #' @keywords sql.1mFundCt
 #' @export
 #' @family sql
 
-sql.1mFundCt <- function (x, y, n, w) 
+sql.1mFundCt <- function (x, y, n, w, h = F) 
 {
     y <- sql.arguments(y)
     z <- yyyymm.to.day(x)
@@ -11581,21 +11601,24 @@ sql.1mFundCt <- function (x, y, n, w)
         n <- list(A = sql.in("h.HSecurityId", sql.RDSuniv(n)))
     else n <- list()
     n[[char.ex.int(length(n) + 65)]] <- "ReportDate = @dy"
-    if (y$filter != "All") 
-        n[[char.ex.int(length(n) + 65)]] <- sql.FundHistory.sf(y$filter)
+    for (k in setdiff(y$filter, "All")) n[[char.ex.int(length(n) + 
+        65)]] <- sql.FundHistory.sf(k)
     n[[char.ex.int(length(n) + 65)]] <- sql.in("his.HFundId", 
         sql.tbl("HFundId", "MonthlyData", "ReportDate = @dy"))
     n <- sql.and(n)
-    if (w) {
+    if (w & !h) {
         z <- c(sql.ReportDate(z), "GeoId = GeographicFocusId", 
             "HSecurityId")
+    }
+    else if (w & h) {
+        z <- c(sql.ReportDate(z), "HSecurityId")
     }
     else {
         z <- "SecurityId"
     }
     for (j in y$factor) {
         if (j == "FundCt") {
-            z <- c(z, paste(j, "count(h.HFundId)", sep = " = "))
+            z <- c(z, paste(j, "count(HoldingValue)", sep = " = "))
         }
         else if (j == "HoldSum") {
             z <- c(z, paste(j, "sum(HoldingValue)", sep = " = "))
@@ -11604,11 +11627,24 @@ sql.1mFundCt <- function (x, y, n, w)
             stop("Bad factor", j)
         }
     }
-    h <- c("Holdings h", "inner join", "FundHistory his on his.FundId = h.FundId")
+    u <- c("Holdings h", "inner join", "FundHistory his on his.FundId = h.FundId")
     if (!w) 
-        h <- c(h, "inner join", "SecurityHistory id on id.HSecurityId = h.HSecurityId")
-    w <- ifelse(w, "HSecurityId, GeographicFocusId", "SecurityId")
-    z <- sql.tbl(z, h, n, w)
+        u <- c(u, "inner join", "SecurityHistory id on id.HSecurityId = h.HSecurityId")
+    if (h) {
+        w <- ifelse(w, "HSecurityId", "SecurityId")
+    }
+    else {
+        w <- ifelse(w, "HSecurityId, GeographicFocusId", "SecurityId")
+    }
+    if (h) {
+        v <- c(w, "HoldingValue")
+        v <- c(v, "HVRnk = rank() over (partition by h.HSecurityId order by HoldingValue desc)")
+        v <- sql.label(sql.tbl(v, u, n), "t")
+        z <- sql.tbl(z, v, "HVRnk < 6", w)
+    }
+    else {
+        z <- sql.tbl(z, u, n, w)
+    }
     z <- paste(c(x, sql.unbracket(z)), collapse = "\n")
     z
 }

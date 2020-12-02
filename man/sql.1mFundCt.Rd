@@ -4,16 +4,18 @@
 \alias{sql.1mFundCt}
 \title{sql.1mFundCt}
 \usage{
-sql.1mFundCt(x, y, n, w)
+sql.1mFundCt(x, y, n, w, h = F)
 }
 \arguments{
 \item{x}{= the YYYYMM for which you want data (known 26 days later)}
 
-\item{y}{= a string vector of factors to be computed, the last element of which is the type of fund used.}
+\item{y}{= a string vector of factors to be computed, the last elements of which are the types of fund used.}
 
 \item{n}{= any of StockFlows/China/Japan/CSI300/Energy}
 
 \item{w}{= T/F depending on whether you are checking ftp}
+
+\item{h}{= T/F depending on whether only the top 5 funds matter}
 }
 \description{
 Generates FundCt, the ownership breadth measure set forth in Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
