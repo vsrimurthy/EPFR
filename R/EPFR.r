@@ -4727,12 +4727,22 @@ ftp.rmdir <- function (x, y, n, w, h, u = 60)
 #' @param y = flow date in YYYYMMDD format
 #' @param n = fund filter (e.g. Aggregate/Active/Passive/ETF/Mutual)
 #' @param w = stock filter (e.g. All/China/Japan)
+#' @param h = breakdown filter (e.g. All/GeoId/DomicileId)
 #' @keywords ftp.sql.factor
 #' @export
 #' @family ftp
 
-ftp.sql.factor <- function (x, y, n, w) 
+ftp.sql.factor <- function (x, y, n, w, h) 
 {
+    if (missing(h)) {
+        if (any(x == c("StockM", "FwtdEx0", "FwtdIn0", "SwtdEx0", 
+            "SwtdIn0", "FundCtM", "HoldSum"))) {
+            h <- "GeoId"
+        }
+        else {
+            h <- "All"
+        }
+    }
     if (all(is.element(x, paste0("Flo", c("Trend", "Diff", "Diff2"))))) {
         z <- sql.1dFloTrend(y, c(x, qa.filter.map(n)), 26, w, 
             T)
@@ -4754,15 +4764,15 @@ ftp.sql.factor <- function (x, y, n, w)
     }
     else if (all(x == "FundCtM")) {
         z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c("FundCt", 
-            qa.filter.map(n)), w, T)
+            qa.filter.map(n)), w, T, h)
     }
     else if (all(x == "HoldSum")) {
         z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c("HoldSum", 
-            qa.filter.map(n)), w, T)
+            qa.filter.map(n)), w, T, h)
     }
     else if (all(x == "TopV")) {
         z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c("HoldSum", 
-            qa.filter.map(n)), w, T, T)
+            qa.filter.map(n)), w, T, h, T)
     }
     else if (all(x == "Dispersion")) {
         z <- sql.Dispersion(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
@@ -4774,11 +4784,11 @@ ftp.sql.factor <- function (x, y, n, w)
     }
     else if (all(x == "StockM")) {
         z <- sql.1mFloMo(yyyymmdd.to.yyyymm(y), c("FloDollar", 
-            qa.filter.map(n)), w, T)
+            qa.filter.map(n)), w, T, h)
     }
     else if (all(x == "FloMoM")) {
         z <- sql.1mFloMo(yyyymmdd.to.yyyymm(y), c("FloMo", qa.filter.map(n)), 
-            w, T)
+            w, T, h)
     }
     else if (all(x == "IOND")) {
         z <- sql.1dFloMo(y, c("Inflow", "Outflow", qa.filter.map(n)), 
@@ -4805,7 +4815,7 @@ ftp.sql.factor <- function (x, y, n, w)
     else if (all(is.element(x, c("FwtdEx0", "FwtdIn0", "SwtdEx0", 
         "SwtdIn0")))) {
         z <- sql.TopDownAllocs(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
-            w, T)
+            w, T, h)
     }
     else {
         stop("Bad factor")
@@ -6910,7 +6920,7 @@ mk.1mAllocMo <- function (x, y, n)
         z <- sql.1mAllocSkew(x, y, n$DB, F)
     }
     else if (y[1] == "FloDollar") {
-        z <- sql.1mFloMo(x, y, n$DB, F)
+        z <- sql.1mFloMo(x, y, n$DB, F, "All")
     }
     else if (y[1] == "Bullish") {
         z <- sql.Bullish(x, y, n$DB, F)
@@ -6921,8 +6931,8 @@ mk.1mAllocMo <- function (x, y, n)
     else if (any(y[1] == c("Herfindahl", "HerfindahlEq", "FundCt"))) {
         z <- sql.Herfindahl(x, y, n$DB, F)
     }
-    else if (any(y[1] == c("HoldSum"))) {
-        z <- sql.1mFundCt(x, y, n$DB, F)
+    else if (y[1] == "HoldSum") {
+        z <- sql.1mFundCt(x, y, n$DB, F, "All")
     }
     else if (any(y[1] == c("AllocDInc", "AllocDDec", "AllocDAdd", 
         "AllocDRem"))) {
@@ -10429,7 +10439,7 @@ sql.1dActWtTrend.underlying <- function (x, y, n)
 #' 
 #' Generates the SQL query to get the data for 1dFloMo for individual stocks
 #' @param x = the date for which you want flows (known one day later)
-#' @param y = a string vector of factors to be computed, the last element of which is the type of fund used
+#' @param y = a string vector of factors to be computed, the last elements of which are the type of fund used
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
 #' @keywords sql.1dFloMo
@@ -10438,15 +10448,18 @@ sql.1dActWtTrend.underlying <- function (x, y, n)
 
 sql.1dFloMo <- function (x, y, n, w) 
 {
-    h <- sql.1dFloMo.underlying(x)
+    if (any(y == "FloDollar") & w) 
+        h <- "GeoId"
+    else h <- "All"
+    u <- sql.1dFloMo.underlying(x)
     if (any(y == "Pseudo")) {
         cols <- c("FundId", "HFundId", "HSecurityId", "HoldingValue")
-        h <- c(h, "", sql.Holdings.bulk("#HLD", cols, yyyymm.to.day(yyyymmdd.to.AllocMo(x, 
+        u <- c(u, "", sql.Holdings.bulk("#HLD", cols, yyyymm.to.day(yyyymmdd.to.AllocMo(x, 
             26)), "#BMKHLD", "#BMKAUM"), "")
     }
-    z <- sql.1dFloMo.select.wrapper(x, y, w)
-    grp <- sql.1dFloMo.grp(y, w)
-    y <- c(sql.label(sql.1dFloMo.filter(y, w), "t0"), "inner join", 
+    z <- sql.1dFloMo.select.wrapper(x, y, w, h)
+    grp <- sql.1dFloMo.grp(w, h)
+    y <- c(sql.label(sql.1dFloMo.filter(y, h), "t0"), "inner join", 
         "#HLD t1 on t1.FundId = t0.FundId")
     y <- c(y, "inner join", sql.label(sql.tbl("HFundId, Flow, AssetsStart", 
         "DailyData", paste0("ReportDate = '", x, "'")), "t2 on t2.HFundId = t0.HFundId"))
@@ -10460,7 +10473,7 @@ sql.1dFloMo <- function (x, y, n, w)
         z <- sql.tbl(z, y, sql.in("t1.HSecurityId", sql.RDSuniv(n)), 
             grp, "sum(HoldingValue/AssetsEnd) > 0")
     }
-    z <- c(paste(h, collapse = "\n"), paste(sql.unbracket(z), 
+    z <- c(paste(u, collapse = "\n"), paste(sql.unbracket(z), 
         collapse = "\n"))
     z
 }
@@ -10561,41 +10574,29 @@ sql.1dFloMo.FI <- function ()
 #' 
 #' implements filters for 1dFloMo
 #' @param x = a string vector of factors to be computed, the last elements of which are the type of fund used
-#' @param y = T/F depending on whether you are checking ftp
+#' @param y = breakdown filter (e.g. All/GeoId/DomicileId)
 #' @keywords sql.1dFloMo.filter
 #' @export
 #' @family sql
 
 sql.1dFloMo.filter <- function (x, y) 
 {
-    x <- sql.arguments(x)
-    if (y & x$factor[1] == "FloDollar") {
-        z <- sql.FundHistory(x$filter, T, c("FundId", "GeographicFocusId"))
-    }
-    else {
-        z <- sql.FundHistory(x$filter, T, "FundId")
-    }
-    z
+    sql.FundHistory(sql.arguments(x)$filter, T, c("FundId", sql.breakdown(y)))
 }
 
 #' sql.1dFloMo.grp
 #' 
 #' group by clause for 1dFloMo
-#' @param x = a string vector of factors to be computed
-#' @param y = T/F depending on whether you are checking ftp
+#' @param x = T/F depending on whether you are checking ftp
+#' @param y = breakdown filter (e.g. All/GeoId/DomicileId)
 #' @keywords sql.1dFloMo.grp
 #' @export
 #' @family sql
 
 sql.1dFloMo.grp <- function (x, y) 
 {
-    if (y & x[1] == "FloDollar") {
-        z <- "HSecurityId, GeographicFocusId"
-    }
-    else {
-        z <- ifelse(y, "HSecurityId", "SecurityId")
-    }
-    z
+    paste(c(ifelse(x, "HSecurityId", "SecurityId"), sql.breakdown(y)), 
+        collapse = ", ")
 }
 
 #' sql.1dFloMo.Rgn
@@ -10657,26 +10658,23 @@ sql.1dFloMo.select <- function (x)
 #' sql.1dFloMo.select.wrapper
 #' 
 #' Generates the SQL query to get the data for 1mFloMo for individual stocks
-#' @param x = the YYYYMM for which you want data (known 16 days later)
+#' @param x = a YYYYMMDD date
 #' @param y = a string vector of factors to be computed, the last elements of are the type of fund used
 #' @param n = T/F depending on whether you are checking ftp
+#' @param w = breakdown filter (e.g. All/GeoId/DomicileId)
 #' @keywords sql.1dFloMo.select.wrapper
 #' @export
 #' @family sql
 
-sql.1dFloMo.select.wrapper <- function (x, y, n) 
+sql.1dFloMo.select.wrapper <- function (x, y, n, w) 
 {
     y <- sql.arguments(y)$factor
-    if (n & y[1] == "FloDollar") {
-        z <- c(sql.ReportDate(x), "GeoId = GeographicFocusId", 
-            "HSecurityId")
-    }
-    else if (n) {
-        z <- c(sql.ReportDate(x), "HSecurityId")
-    }
-    else {
-        z <- c("SecurityId")
-    }
+    if (w == "GeoId") 
+        z <- "GeoId = GeographicFocusId"
+    else z <- sql.breakdown(w)
+    if (n) 
+        z <- c(sql.ReportDate(x), z, "HSecurityId")
+    else z <- c("SecurityId", z)
     for (i in y) {
         if (n & i == "FloDollar") {
             z <- c(z, paste("CalculatedStockFlow", txt.right(sql.1dFloMo.select(i), 
@@ -11469,11 +11467,12 @@ sql.1mChActWt <- function (x, y)
 #' @param y = a string vector of factors to be computed, the last element of which is the type of fund used
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
+#' @param h = breakdown filter (e.g. All/GeoId/DomicileId)
 #' @keywords sql.1mFloMo
 #' @export
 #' @family sql
 
-sql.1mFloMo <- function (x, y, n, w) 
+sql.1mFloMo <- function (x, y, n, w, h) 
 {
     z <- sql.tbl("ReportDate, HFundId, AssetsEnd = sum(AssetsEnd)", 
         "MonthlyData", "ReportDate = @dy", "ReportDate, HFundId", 
@@ -11481,12 +11480,12 @@ sql.1mFloMo <- function (x, y, n, w)
     z <- c(sql.label(z, "t0"), "inner join", sql.label(sql.tbl("ReportDate, HFundId, Flow, AssetsStart", 
         "MonthlyData", "ReportDate = @dy"), "t1"))
     z <- c(z, "\ton t1.HFundId = t0.HFundId", "inner join", sql.label(sql.1dFloMo.filter(y, 
-        w), "t3"), "\ton t3.HFundId = t1.HFundId")
+        h), "t3"), "\ton t3.HFundId = t1.HFundId")
     z <- c(z, "inner join", "Holdings t2 on t3.FundId = t2.FundId and t2.ReportDate = t1.ReportDate")
     if (!w) 
         z <- c(z, "inner join", "SecurityHistory id on id.HSecurityId = t2.HSecurityId")
-    grp <- sql.1dFloMo.grp(y, w)
-    y <- sql.1dFloMo.select.wrapper(yyyymm.to.day(x), y, w)
+    grp <- sql.1dFloMo.grp(w, h)
+    y <- sql.1dFloMo.select.wrapper(yyyymm.to.day(x), y, w, h)
     if (n == "All") {
         z <- sql.tbl(y, z, , grp, "sum(HoldingValue/AssetsEnd) > 0")
     }
@@ -11587,16 +11586,17 @@ sql.1mFloTrend.underlying <- function (x, y, n)
 #' @param y = a string vector of factors to be computed, the last elements of which are the types of fund used.
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
-#' @param h = T/F depending on whether only the top 5 funds matter
+#' @param h = breakdown filter (e.g. All/GeoId/DomicileId)
+#' @param u = T/F depending on whether only the top 5 funds matter
 #' @keywords sql.1mFundCt
 #' @export
 #' @family sql
 
-sql.1mFundCt <- function (x, y, n, w, h = F) 
+sql.1mFundCt <- function (x, y, n, w, h, u = F) 
 {
     y <- sql.arguments(y)
-    z <- yyyymm.to.day(x)
-    x <- sql.declare("@dy", "datetime", z)
+    r <- yyyymm.to.day(x)
+    x <- sql.declare("@dy", "datetime", r)
     if (n != "All") 
         n <- list(A = sql.in("h.HSecurityId", sql.RDSuniv(n)))
     else n <- list()
@@ -11606,16 +11606,12 @@ sql.1mFundCt <- function (x, y, n, w, h = F)
     n[[char.ex.int(length(n) + 65)]] <- sql.in("his.HFundId", 
         sql.tbl("HFundId", "MonthlyData", "ReportDate = @dy"))
     n <- sql.and(n)
-    if (w & !h) {
-        z <- c(sql.ReportDate(z), "GeoId = GeographicFocusId", 
-            "HSecurityId")
-    }
-    else if (w & h) {
-        z <- c(sql.ReportDate(z), "HSecurityId")
-    }
-    else {
-        z <- "SecurityId"
-    }
+    if (h == "GeoId") 
+        z <- "GeoId = GeographicFocusId"
+    else z <- sql.breakdown(h)
+    if (w) 
+        z <- c(sql.ReportDate(r), z, "HSecurityId")
+    else z <- c("SecurityId", z)
     for (j in y$factor) {
         if (j == "FundCt") {
             z <- c(z, paste(j, "count(HoldingValue)", sep = " = "))
@@ -11627,23 +11623,22 @@ sql.1mFundCt <- function (x, y, n, w, h = F)
             stop("Bad factor", j)
         }
     }
-    u <- c("Holdings h", "inner join", "FundHistory his on his.FundId = h.FundId")
+    r <- c("Holdings h", "inner join", "FundHistory his on his.FundId = h.FundId")
     if (!w) 
-        u <- c(u, "inner join", "SecurityHistory id on id.HSecurityId = h.HSecurityId")
-    if (h) {
-        w <- ifelse(w, "HSecurityId", "SecurityId")
-    }
-    else {
-        w <- ifelse(w, "HSecurityId, GeographicFocusId", "SecurityId")
-    }
-    if (h) {
+        r <- c(r, "inner join", "SecurityHistory id on id.HSecurityId = h.HSecurityId")
+    w <- ifelse(w, "HSecurityId", "SecurityId")
+    w <- paste(c(w, sql.breakdown(h)), collapse = ", ")
+    if (u & h == "All") {
         v <- c(w, "HoldingValue")
         v <- c(v, "HVRnk = rank() over (partition by h.HSecurityId order by HoldingValue desc)")
-        v <- sql.label(sql.tbl(v, u, n), "t")
+        v <- sql.label(sql.tbl(v, r, n), "t")
         z <- sql.tbl(z, v, "HVRnk < 6", w)
     }
+    else if (u) {
+        stop("Can't handle yet!")
+    }
     else {
-        z <- sql.tbl(z, u, n, w)
+        z <- sql.tbl(z, r, n, w)
     }
     z <- paste(c(x, sql.unbracket(z)), collapse = "\n")
     z
@@ -11851,6 +11846,22 @@ sql.bcp <- function (x, y, n = "Quant", w = "EPFRUI", h = "dbo")
             "PWD"])[z]
         z <- paste("bcp", h, "out", y, z, "-c")
     }
+    z
+}
+
+#' sql.breakdown
+#' 
+#' Returns
+#' @param x = breakdown filter (e.g. All/GeoId/DomicileId)
+#' @keywords sql.breakdown
+#' @export
+#' @family sql
+
+sql.breakdown <- function (x) 
+{
+    if (x == "All") 
+        z <- NULL
+    else z <- ifelse(x == "GeoId", "GeographicFocusId", x)
     z
 }
 
@@ -13168,14 +13179,15 @@ sql.tbl <- function (x, y, n, w, h)
 #' @param y = a string vector of top-down allocations wanted, the last element of which is the type of fund to be used.
 #' @param n = any of StockFlows/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
+#' @param h = breakdown filter (e.g. All/GeoId/DomicileId)
 #' @keywords sql.TopDownAllocs
 #' @export
 #' @family sql
 
-sql.TopDownAllocs <- function (x, y, n, w) 
+sql.TopDownAllocs <- function (x, y, n, w, h) 
 {
     z <- sql.TopDownAllocs.underlying(yyyymm.to.day(x), y, n, 
-        w)
+        w, h)
     z <- paste(sql.unbracket(z), collapse = "\n")
     z
 }
@@ -13241,11 +13253,12 @@ sql.TopDownAllocs.items <- function (x, y = T)
 #' @param y = a string vector of top-down allocations wanted, the last element of which is the type of fund to be used.
 #' @param n = any of StockFlows/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
+#' @param h = breakdown filter (e.g. All/GeoId/DomicileId)
 #' @keywords sql.TopDownAllocs.underlying
 #' @export
 #' @family sql
 
-sql.TopDownAllocs.underlying <- function (x, y, n, w) 
+sql.TopDownAllocs.underlying <- function (x, y, n, w, h) 
 {
     y <- sql.arguments(y)
     u <- paste0("ReportDate = '", x, "'")
@@ -13254,48 +13267,66 @@ sql.TopDownAllocs.underlying <- function (x, y, n, w)
     else n <- list(A = sql.in("HSecurityId", sql.RDSuniv(n)))
     n[[char.ex.int(length(n) + 65)]] <- u
     n <- sql.and(n)
-    h <- sql.label(sql.tbl("HFundId, AssetsEnd = sum(AssetsEnd)", 
-        "MonthlyData", u, "HFundId", "sum(AssetsEnd) > 0"), "t1")
-    h <- c(h, "inner join", sql.label(sql.FundHistory(y$filter, 
-        T, c("FundId", "GeographicFocusId")), "t2"), "\ton t2.HFundId = t1.HFundId")
-    h <- sql.tbl(c("FundId", "GeographicFocusId", "AssetsEnd"), 
-        h, sql.in("FundId", sql.tbl("FundId", "Holdings h", u)))
-    h <- sql.label(h, "t2")
-    if (w) {
-        v <- c("HSecurityId", "GeographicFocusId")
+    r <- sql.FundHistory(y$filter, T, c("FundId", sql.breakdown(h)))
+    r <- c("inner join", sql.label(r, "t2"), "\ton t2.HFundId = t1.HFundId")
+    r <- c(sql.label(sql.tbl("HFundId, AssetsEnd = sum(AssetsEnd)", 
+        "MonthlyData", u, "HFundId", "sum(AssetsEnd) > 0"), "t1"), 
+        r)
+    r <- sql.tbl(c("FundId", sql.breakdown(h), "AssetsEnd"), 
+        r, sql.in("FundId", sql.tbl("FundId", "Holdings h", u)))
+    r <- sql.label(r, "t2")
+    if (h != "All") {
+        v <- c("HSecurityId", sql.breakdown(h))
         u <- c("Holdings t1", "inner join", "FundHistory t2 on t2.HFundId = t1.HFundId")
         u <- sql.tbl(v, u, n, paste(v, collapse = ", "))
-        h <- c(h, "inner join", sql.label(u, "t1"))
-        h <- c(h, "\ton t1.GeographicFocusId = t2.GeographicFocusId")
+        r <- c(r, "inner join", sql.label(u, "t1"))
+        r <- c(r, paste0("\ton t1.", sql.breakdown(h), " = t2.", 
+            sql.breakdown(h)))
     }
     else {
-        h <- c(h, "cross join", sql.label(sql.tbl("HSecurityId", 
+        r <- c(r, "cross join", sql.label(sql.tbl("HSecurityId", 
             "Holdings", n, "HSecurityId"), "t1"))
     }
-    h <- c(h, "left join", sql.label(sql.Holdings(n, c("FundId", 
+    r <- c(r, "left join", sql.label(sql.Holdings(n, c("FundId", 
         "HSId = HSecurityId", "HoldingValue")), "t3"))
-    h <- c(h, "\ton t3.FundId = t2.FundId and HSId = HSecurityId")
+    r <- c(r, "\ton t3.FundId = t2.FundId and HSId = HSecurityId")
     if (!w) 
-        h <- c(h, "inner join", "SecurityHistory id on id.HSecurityId = t1.HSecurityId")
-    m <- length(y$factor)
-    if (w & m == 1) {
-        cols <- c("GeoId", "AverageAllocation")
-        n <- sql.TopDownAllocs.items(y$factor)
-        n <- txt.right(n, nchar(n) - nchar(y$factor) - 1)
-        n <- paste(cols[2], n)
-        n <- c(sql.ReportDate(x), "GeoId = t2.GeographicFocusId", 
-            "HSecurityId", n)
-        z <- sql.tbl(n, h, , "t2.GeographicFocusId, HSecurityId", 
-            sql.TopDownAllocs.items(y$factor, F))
+        r <- c(r, "inner join", "SecurityHistory id on id.HSecurityId = t1.HSecurityId")
+    u <- ifelse(w, "HSecurityId", "SecurityId")
+    if (h != "All") 
+        u <- paste(c(paste("t2.", sql.breakdown(h), sep = ""), 
+            u), collapse = ", ")
+    if (h == "GeoId") {
+        z <- "GeoId = t2.GeographicFocusId"
     }
-    else if (w & m > 1) {
-        z <- c(sql.ReportDate(x), "GeoId = t2.GeographicFocusId", 
-            "HSecurityId", sql.TopDownAllocs.items(y$factor))
-        z <- sql.tbl(z, h, , "t2.GeographicFocusId, HSecurityId")
+    else if (h == "All") {
+        z <- NULL
     }
     else {
-        z <- c("SecurityId", sql.TopDownAllocs.items(y$factor))
-        z <- sql.tbl(z, h, , "SecurityId")
+        z <- paste0("t2.", h)
+    }
+    if (w) {
+        z <- c(sql.ReportDate(x), z, "HSecurityId")
+    }
+    else {
+        z <- c("SecurityId", z)
+    }
+    if (length(y$factor) == 1) {
+        if (w) {
+            n <- sql.TopDownAllocs.items(y$factor)
+            n <- txt.right(n, nchar(n) - nchar(y$factor) - 1)
+            n <- paste("AverageAllocation", n)
+            z <- c(z, n)
+        }
+        else {
+            z <- c(z, sql.TopDownAllocs.items(y$factor))
+        }
+        z <- sql.tbl(z, r, , u, sql.TopDownAllocs.items(y$factor, 
+            F))
+    }
+    else {
+        z <- c(z, sql.TopDownAllocs.items(y$factor))
+        z <- sql.tbl(z, r, , u)
     }
     z
 }

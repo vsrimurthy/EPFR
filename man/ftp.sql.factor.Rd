@@ -4,7 +4,7 @@
 \alias{ftp.sql.factor}
 \title{ftp.sql.factor}
 \usage{
-ftp.sql.factor(x, y, n, w)
+ftp.sql.factor(x, y, n, w, h)
 }
 \arguments{
 \item{x}{= vector of M/W/D depending on whether flows are monthly/weekly/daily}
@@ -14,6 +14,8 @@ ftp.sql.factor(x, y, n, w)
 \item{n}{= fund filter (e.g. Aggregate/Active/Passive/ETF/Mutual)}
 
 \item{w}{= stock filter (e.g. All/China/Japan)}
+
+\item{h}{= breakdown filter (e.g. All/GeoId/DomicileId)}
 }
 \description{
 SQL code to validate <x> flows at the <y> level

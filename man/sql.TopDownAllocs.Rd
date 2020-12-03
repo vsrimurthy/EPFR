@@ -4,7 +4,7 @@
 \alias{sql.TopDownAllocs}
 \title{sql.TopDownAllocs}
 \usage{
-sql.TopDownAllocs(x, y, n, w)
+sql.TopDownAllocs(x, y, n, w, h)
 }
 \arguments{
 \item{x}{= the YYYYMM for which you want data (known 26 days later)}
@@ -14,6 +14,8 @@ sql.TopDownAllocs(x, y, n, w)
 \item{n}{= any of StockFlows/Japan/CSI300/Energy}
 
 \item{w}{= T/F depending on whether you are checking ftp}
+
+\item{h}{= breakdown filter (e.g. All/GeoId/DomicileId)}
 }
 \description{
 Generates the SQL query to get Active/Passive Top-Down Allocations
@@ -73,7 +75,8 @@ Other sql: \code{\link{sql.1dActWtTrend.select}},
   \code{\link{sql.TopDownAllocs.underlying}},
   \code{\link{sql.Trend}}, \code{\link{sql.and}},
   \code{\link{sql.arguments}}, \code{\link{sql.bcp}},
-  \code{\link{sql.case}}, \code{\link{sql.close}},
+  \code{\link{sql.breakdown}}, \code{\link{sql.case}},
+  \code{\link{sql.close}},
   \code{\link{sql.connect.wrapper}},
   \code{\link{sql.connect}},
   \code{\link{sql.cross.border}},

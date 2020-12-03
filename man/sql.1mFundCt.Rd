@@ -4,7 +4,7 @@
 \alias{sql.1mFundCt}
 \title{sql.1mFundCt}
 \usage{
-sql.1mFundCt(x, y, n, w, h = F)
+sql.1mFundCt(x, y, n, w, h, u = F)
 }
 \arguments{
 \item{x}{= the YYYYMM for which you want data (known 26 days later)}
@@ -15,7 +15,9 @@ sql.1mFundCt(x, y, n, w, h = F)
 
 \item{w}{= T/F depending on whether you are checking ftp}
 
-\item{h}{= T/F depending on whether only the top 5 funds matter}
+\item{h}{= breakdown filter (e.g. All/GeoId/DomicileId)}
+
+\item{u}{= T/F depending on whether only the top 5 funds matter}
 }
 \description{
 Generates FundCt, the ownership breadth measure set forth in Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
@@ -75,8 +77,8 @@ Other sql: \code{\link{sql.1dActWtTrend.select}},
   \code{\link{sql.TopDownAllocs.underlying}},
   \code{\link{sql.TopDownAllocs}}, \code{\link{sql.Trend}},
   \code{\link{sql.and}}, \code{\link{sql.arguments}},
-  \code{\link{sql.bcp}}, \code{\link{sql.case}},
-  \code{\link{sql.close}},
+  \code{\link{sql.bcp}}, \code{\link{sql.breakdown}},
+  \code{\link{sql.case}}, \code{\link{sql.close}},
   \code{\link{sql.connect.wrapper}},
   \code{\link{sql.connect}},
   \code{\link{sql.cross.border}},

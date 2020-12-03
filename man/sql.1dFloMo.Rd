@@ -9,7 +9,7 @@ sql.1dFloMo(x, y, n, w)
 \arguments{
 \item{x}{= the date for which you want flows (known one day later)}
 
-\item{y}{= a string vector of factors to be computed, the last element of which is the type of fund used}
+\item{y}{= a string vector of factors to be computed, the last elements of which are the type of fund used}
 
 \item{n}{= any of StockFlows/China/Japan/CSI300/Energy}
 
@@ -73,8 +73,8 @@ Other sql: \code{\link{sql.1dActWtTrend.select}},
   \code{\link{sql.TopDownAllocs.underlying}},
   \code{\link{sql.TopDownAllocs}}, \code{\link{sql.Trend}},
   \code{\link{sql.and}}, \code{\link{sql.arguments}},
-  \code{\link{sql.bcp}}, \code{\link{sql.case}},
-  \code{\link{sql.close}},
+  \code{\link{sql.bcp}}, \code{\link{sql.breakdown}},
+  \code{\link{sql.case}}, \code{\link{sql.close}},
   \code{\link{sql.connect.wrapper}},
   \code{\link{sql.connect}},
   \code{\link{sql.cross.border}},

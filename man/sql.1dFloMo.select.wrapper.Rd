@@ -4,14 +4,16 @@
 \alias{sql.1dFloMo.select.wrapper}
 \title{sql.1dFloMo.select.wrapper}
 \usage{
-sql.1dFloMo.select.wrapper(x, y, n)
+sql.1dFloMo.select.wrapper(x, y, n, w)
 }
 \arguments{
-\item{x}{= the YYYYMM for which you want data (known 16 days later)}
+\item{x}{= a YYYYMMDD date}
 
 \item{y}{= a string vector of factors to be computed, the last elements of are the type of fund used}
 
 \item{n}{= T/F depending on whether you are checking ftp}
+
+\item{w}{= breakdown filter (e.g. All/GeoId/DomicileId)}
 }
 \description{
 Generates the SQL query to get the data for 1mFloMo for individual stocks
@@ -70,8 +72,8 @@ Other sql: \code{\link{sql.1dActWtTrend.select}},
   \code{\link{sql.TopDownAllocs.underlying}},
   \code{\link{sql.TopDownAllocs}}, \code{\link{sql.Trend}},
   \code{\link{sql.and}}, \code{\link{sql.arguments}},
-  \code{\link{sql.bcp}}, \code{\link{sql.case}},
-  \code{\link{sql.close}},
+  \code{\link{sql.bcp}}, \code{\link{sql.breakdown}},
+  \code{\link{sql.case}}, \code{\link{sql.close}},
   \code{\link{sql.connect.wrapper}},
   \code{\link{sql.connect}},
   \code{\link{sql.cross.border}},

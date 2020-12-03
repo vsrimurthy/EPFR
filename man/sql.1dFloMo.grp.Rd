@@ -7,9 +7,9 @@
 sql.1dFloMo.grp(x, y)
 }
 \arguments{
-\item{x}{= a string vector of factors to be computed}
+\item{x}{= T/F depending on whether you are checking ftp}
 
-\item{y}{= T/F depending on whether you are checking ftp}
+\item{y}{= breakdown filter (e.g. All/GeoId/DomicileId)}
 }
 \description{
 group by clause for 1dFloMo
@@ -68,8 +68,8 @@ Other sql: \code{\link{sql.1dActWtTrend.select}},
   \code{\link{sql.TopDownAllocs.underlying}},
   \code{\link{sql.TopDownAllocs}}, \code{\link{sql.Trend}},
   \code{\link{sql.and}}, \code{\link{sql.arguments}},
-  \code{\link{sql.bcp}}, \code{\link{sql.case}},
-  \code{\link{sql.close}},
+  \code{\link{sql.bcp}}, \code{\link{sql.breakdown}},
+  \code{\link{sql.case}}, \code{\link{sql.close}},
   \code{\link{sql.connect.wrapper}},
   \code{\link{sql.connect}},
   \code{\link{sql.cross.border}},
