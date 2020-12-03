@@ -4,7 +4,7 @@
 \alias{sql.1dFloMo}
 \title{sql.1dFloMo}
 \usage{
-sql.1dFloMo(x, y, n, w)
+sql.1dFloMo(x, y, n, w, h)
 }
 \arguments{
 \item{x}{= the date for which you want flows (known one day later)}
@@ -14,6 +14,8 @@ sql.1dFloMo(x, y, n, w)
 \item{n}{= any of StockFlows/China/Japan/CSI300/Energy}
 
 \item{w}{= T/F depending on whether you are checking ftp}
+
+\item{h}{= breakdown filter (e.g. All/GeoId/DomicileId)}
 }
 \description{
 Generates the SQL query to get the data for 1dFloMo for individual stocks

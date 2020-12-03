@@ -4735,8 +4735,8 @@ ftp.rmdir <- function (x, y, n, w, h, u = 60)
 ftp.sql.factor <- function (x, y, n, w, h) 
 {
     if (missing(h)) {
-        if (any(x == c("StockM", "FwtdEx0", "FwtdIn0", "SwtdEx0", 
-            "SwtdIn0", "FundCtM", "HoldSum"))) {
+        if (any(x == c("StockM", "StockD", "FwtdEx0", "FwtdIn0", 
+            "SwtdEx0", "SwtdIn0", "FundCtM", "HoldSum"))) {
             h <- "GeoId"
         }
         else {
@@ -4752,11 +4752,11 @@ ftp.sql.factor <- function (x, y, n, w, h)
         z <- sql.1dActWtTrend(y, c(x, qa.filter.map(n)), w, T)
     }
     else if (all(x == "FloMo")) {
-        z <- sql.1dFloMo(y, c(x, qa.filter.map(n)), w, T)
+        z <- sql.1dFloMo(y, c(x, qa.filter.map(n)), w, T, h)
     }
     else if (all(x == "StockD")) {
         z <- sql.1dFloMo(y, c("FloDollar", qa.filter.map(n)), 
-            w, T)
+            w, T, h)
     }
     else if (all(x == "FundCtD")) {
         z <- sql.1dFundCt(y, c("FundCt", qa.filter.map(n)), w, 
@@ -4792,11 +4792,11 @@ ftp.sql.factor <- function (x, y, n, w, h)
     }
     else if (all(x == "IOND")) {
         z <- sql.1dFloMo(y, c("Inflow", "Outflow", qa.filter.map(n)), 
-            w, T)
+            w, T, h)
     }
     else if (all(x == "IONM")) {
         z <- sql.1mFloMo(yyyymmdd.to.yyyymm(y), c("Inflow", "Outflow", 
-            qa.filter.map(n)), w, T)
+            qa.filter.map(n)), w, T, h)
     }
     else if (all(is.element(x, paste0("Alloc", c("Trend", "Diff", 
         "Mo"))))) {
@@ -6652,7 +6652,7 @@ mk.1dFloMo <- function (x, y, n)
     vbls <- sql.arguments(y)[["factor"]]
     x <- flowdate.lag(x, 2)
     if (any(y[1] == c("FloMo", "FloMoCB", "FloDollar", "FloDollarGross"))) {
-        z <- sql.1dFloMo(x, y, n$DB, F)
+        z <- sql.1dFloMo(x, y, n$DB, F, "All")
     }
     else if (any(y[1] == c("FloTrendPMA", "FloDiffPMA", "FloDiff2PMA"))) {
         z <- sql.1dFloTrend(x, y, 1, n$DB, F)
@@ -6942,7 +6942,7 @@ mk.1mAllocMo <- function (x, y, n)
         z <- sql.1mAllocMo(x, y, n$DB, F)
     }
     else {
-        z <- sql.1mFloMo(x, y, n$DB, F)
+        z <- sql.1mFloMo(x, y, n$DB, F, "All")
     }
     z <- sql.map.classif(z, vbls, n$conn, n$classif)
     z
@@ -10442,15 +10442,13 @@ sql.1dActWtTrend.underlying <- function (x, y, n)
 #' @param y = a string vector of factors to be computed, the last elements of which are the type of fund used
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
+#' @param h = breakdown filter (e.g. All/GeoId/DomicileId)
 #' @keywords sql.1dFloMo
 #' @export
 #' @family sql
 
-sql.1dFloMo <- function (x, y, n, w) 
+sql.1dFloMo <- function (x, y, n, w, h) 
 {
-    if (any(y == "FloDollar") & w) 
-        h <- "GeoId"
-    else h <- "All"
     u <- sql.1dFloMo.underlying(x)
     if (any(y == "Pseudo")) {
         cols <- c("FundId", "HFundId", "HSecurityId", "HoldingValue")
