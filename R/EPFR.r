@@ -13071,8 +13071,16 @@ sql.RDSuniv <- function (x)
         z <- sql.and(z, "or")
         z <- sql.tbl("HSecurityId", "Holdings", z, "HSecurityId")
     }
+    else if (x == "R3") {
+        z <- sql.in("HFundId", sql.tbl("HFundId", "FundHistory", 
+            "FundId = 5158"))
+        z <- sql.tbl("HSecurityId", "Holdings", z, "HSecurityId")
+    }
     else if (x == "All") {
         z <- ""
+    }
+    else {
+        stop("Unknown universe!")
     }
     z
 }
