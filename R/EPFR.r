@@ -6328,30 +6328,14 @@ mat.index <- function (x, y = 1, n = T)
 
 mat.lag <- function (x, y, n, w = T, h = T) 
 {
-    z <- x
-    if (n & !is.null(dim(x))) {
-        v <- dim(x)[1]
-        if (y > 0) {
-            z[seq(1 + y, v), ] <- x[seq(1, v - y), ]
-            z[1:y, ] <- NA
-        }
-        if (y < 0) {
-            z[seq(1, v + y), ] <- x[seq(1 - y, v), ]
-            z[seq(v + y + 1, v), ] <- NA
-        }
+    if (n & is.null(dim(x))) {
+        z <- vec.lag(x, y)
     }
     else if (n) {
-        v <- length(x)
-        if (y > 0) {
-            z[seq(1 + y, v)] <- x[seq(1, v - y)]
-            z[1:y] <- NA
-        }
-        if (y < 0) {
-            z[seq(1, v + y)] <- x[seq(1 - y, v)]
-            z[seq(v + y + 1, v)] <- NA
-        }
+        z <- fcn.mat.vec(vec.lag, x, y, T)
     }
     else {
+        z <- x
         dimnames(z)[[1]] <- yyyymm.lag(dimnames(x)[[1]], -y, 
             h)
         if (w) 
@@ -14557,6 +14541,30 @@ vec.ex.filters <- function (x)
     z <- mat.read(parameters("classif-filters"), "\t", NULL)
     z <- z[is.element(z$type, x), ]
     z <- as.matrix(mat.index(z, "filter"))[, "SQL"]
+    z
+}
+
+#' vec.lag
+#' 
+#' <x> lagged <y> periods (simple positional lag)
+#' @param x = a vector indexed by time running FORWARDS
+#' @param y = number of periods over which to lag
+#' @keywords vec.lag
+#' @export
+#' @family vec
+
+vec.lag <- function (x, y) 
+{
+    z <- x
+    v <- length(x)
+    if (y > 0) {
+        z[seq(1 + y, v)] <- x[seq(1, v - y)]
+        z[1:y] <- NA
+    }
+    if (y < 0) {
+        z[seq(1, v + y)] <- x[seq(1 - y, v)]
+        z[seq(v + y + 1, v)] <- NA
+    }
     z
 }
 
