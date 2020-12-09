@@ -6329,16 +6329,26 @@ mat.index <- function (x, y = 1, n = T)
 mat.lag <- function (x, y, n, w = T, h = T) 
 {
     z <- x
-    if (n) {
+    if (n & !is.null(dim(x))) {
+        v <- dim(x)[1]
         if (y > 0) {
-            z[seq(1 + y, dim(x)[1]), ] <- x[seq(1, dim(x)[1] - 
-                y), ]
+            z[seq(1 + y, v), ] <- x[seq(1, v - y), ]
             z[1:y, ] <- NA
         }
         if (y < 0) {
-            z[seq(1, dim(x)[1] + y), ] <- x[seq(1 - y, dim(x)[1]), 
-                ]
-            z[seq(dim(x)[1] + y + 1, dim(x)[1]), ] <- NA
+            z[seq(1, v + y), ] <- x[seq(1 - y, v), ]
+            z[seq(v + y + 1, v), ] <- NA
+        }
+    }
+    else if (n) {
+        v <- length(x)
+        if (y > 0) {
+            z[seq(1 + y, v)] <- x[seq(1, v - y)]
+            z[1:y] <- NA
+        }
+        if (y < 0) {
+            z[seq(1, v + y)] <- x[seq(1 - y, v)]
+            z[seq(v + y + 1, v)] <- NA
         }
     }
     else {
