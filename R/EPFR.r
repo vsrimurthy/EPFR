@@ -4686,6 +4686,7 @@ ftp.remove <- function (x, y, n, w, h = 60)
     z <- c(x, paste(x, z, sep = "/"))
     z <- z[order(nchar(z), decreasing = T)]
     v <- ftp.parent(z)
+    z <- txt.right(z, nchar(z) - nchar(v) - 1)
     for (j in seq_along(z)) ftp.rmdir(v[j], z[j], y, n, w, h)
     invisible()
 }
