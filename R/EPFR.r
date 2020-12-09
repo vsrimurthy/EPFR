@@ -4759,6 +4759,10 @@ ftp.sql.factor <- function (x, y, n, w, h)
         z <- sql.1dFloMo(y, c("FloDollar", qa.filter.map(n)), 
             w, T, h)
     }
+    else if (all(x == "AssetsStartDollarD")) {
+        z <- sql.1dFloMo(y, c("AssetsStartDollar", qa.filter.map(n)), 
+            w, T, h)
+    }
     else if (all(x == "FundCtD")) {
         z <- sql.1dFundCt(y, c("FundCt", qa.filter.map(n)), w, 
             T)
@@ -10634,6 +10638,9 @@ sql.1dFloMo.select <- function (x)
     }
     else if (x == "FloDollar") {
         z <- paste(x, "= sum(Flow * HoldingValue/AssetsEnd)")
+    }
+    else if (x == "AssetsStartDollar") {
+        z <- paste(x, "= sum(AssetsStart * HoldingValue/AssetsEnd)")
     }
     else if (x == "Inflow") {
         z <- paste(x, "= sum(case when Flow > 0 then Flow else 0 end * HoldingValue/AssetsEnd)")
