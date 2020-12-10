@@ -6937,6 +6937,9 @@ mk.1mAllocMo <- function (x, y, n)
         "AllocDRem"))) {
         z <- sql.1mAllocD(x, y, n$DB, F, F)
     }
+    else if (any(y[1] == c("FwtdEx0", "FwtdIn0", "SwtdEx0", "SwtdIn0"))) {
+        z <- sql.TopDownAllocs(x, y, n$DB, F, "All")
+    }
     else if (any(y[1] == paste0("Alloc", c("Mo", "Trend", "Diff")))) {
         z <- sql.1mAllocMo(x, y, n$DB, F)
     }
