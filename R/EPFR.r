@@ -4153,6 +4153,7 @@ ftp.action <- function (x, y, n, w, h, u)
     bat.file <- "C:\\temp\\foo.bat"
     cat(paste0("C:\nftp -i -s:", ftp.file), file = bat.file)
     z <- shell.wrapper(bat.file, u)
+    shell("TASKKILL /IM FTP.EXE /F", wait = F)
     invisible()
 }
 
@@ -4318,6 +4319,7 @@ ftp.dir <- function (x, y, n, w, h = F, u = 60)
     }
     if (is.null(y)) 
         stop("Error in ftp.dir. Remote folder ", x, " does not exist ...")
+    shell("TASKKILL /IM FTP.EXE /F", wait = F)
     y <- ftp.dir.excise.crap(y, "150 Opening data channel for directory listing")
     if (!is.null(y)) {
         n <- min(nchar(y)) - 4
@@ -4531,6 +4533,7 @@ ftp.get <- function (x, y, n, w, h, u = 600)
     cat(paste0("C:\ncd \"", y, "\"\nftp -i -s:", ftp.file), file = bat.file)
     v <- paste(y, ftp.file(x), sep = "\\")
     while (!file.exists(v)) z <- shell.wrapper(bat.file, u)
+    shell("TASKKILL /IM FTP.EXE /F", wait = F)
     invisible()
 }
 
@@ -6502,28 +6505,6 @@ mat.to.last.Idx <- function (x)
     z
 }
 
-#' mat.to.matrix
-#' 
-#' converts <x> to a matrix
-#' @param x = a matrix/data-frame with 3 columns corresponding respectively with the rows, columns and entries of the resulting matrix
-#' @keywords mat.to.matrix
-#' @export
-#' @family mat
-
-mat.to.matrix <- function (x) 
-{
-    u.row <- vec.unique(x[, 1])
-    u.col <- vec.unique(x[, 2])
-    x <- vec.named(x[, 3], paste(x[, 1], x[, 2]))
-    n.row <- length(u.row)
-    n.col <- length(u.col)
-    vec <- rep(u.row, n.col)
-    vec <- paste(vec, rep(u.col, n.row)[order(rep(1:n.col, n.row))])
-    vec <- as.numeric(map.rname(x, vec))
-    z <- matrix(vec, n.row, n.col, F, list(u.row, u.col))
-    z
-}
-
 #' mat.to.obs
 #' 
 #' Returns 0 if <x> is NA or 1 otherwise.
@@ -6861,8 +6842,7 @@ mk.1mActPas.Ctry <- function (x, y)
     z <- c(sql.declare("@floDt", "datetime", yyyymm.to.day(x)), 
         sql.unbracket(z))
     z <- sql.query(paste(z, collapse = "\n"), y, F)
-    z <- map.rname(pivot(sum, z[, "Allocation"], z[, "CountryId"], 
-        z[, "Idx"]), names(w))
+    z <- map.rname(t(reshape.wide(z)), names(w))
     dimnames(z)[[1]] <- w
     z <- z[, "N"]/nonneg(z[, "Y"]) - 1
     z
@@ -6894,8 +6874,7 @@ mk.1mActPas.Sec <- function (x, y, n)
     v <- sql.tbl(v, "#SEC", , paste(v[-length(v)], collapse = ", "))
     v <- paste(sql.unbracket(v), collapse = "\n")
     z <- sql.query(c(z, v), y, F)
-    z <- map.rname(pivot(sum, z[, "Allocation"], z[, "SectorId"], 
-        z[, "Idx"]), names(u))
+    z <- map.rname(t(reshape.wide(z)), names(u))
     dimnames(z)[[1]] <- u
     z <- z[, "N"]/nonneg(z[, "Y"]) - 1
     z
@@ -7033,8 +7012,7 @@ mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = T)
     z <- c(sql.declare("@floDt", "datetime", x), sql.unbracket(z))
     z <- sql.query.underlying(paste(z, collapse = "\n"), h$conn, 
         F)
-    rslt[["CBA"]] <- pivot(sum, z[, "Allocation"], z[, "CountryId"], 
-        z[, "GeographicFocus"])
+    rslt[["CBA"]] <- t(reshape.wide(z))
     sql.close(h)
     rslt[["CBF"]] <- map.rname(mat.index(rslt[["CBF"]]), dimnames(rslt[["CBA"]])[[2]])
     rslt[["CBF"]] <- 0.01 * rslt[["CBA"]] %*% as.matrix(rslt[["CBF"]])
@@ -8014,7 +7992,7 @@ phone.list <- function (x = 4)
 pivot <- function (fcn, x, y, n) 
 {
     z <- aggregate(x = x, by = list(row = y, col = n), FUN = fcn)
-    z <- mat.to.matrix(z)
+    z <- reshape.wide(z)
     z
 }
 
@@ -9235,6 +9213,23 @@ renorm <- function (x)
     fcn <- function(x) 100 * x/excise.zeroes(sum(abs(x)))
     fcn2 <- function(x) fcn.nonNA(fcn, x)
     z <- fcn.mat.vec(fcn2, x, , F)
+    z
+}
+
+#' reshape.wide
+#' 
+#' converts <x> to a matrix
+#' @param x = a matrix/data-frame with 3 columns corresponding respectively with the rows, columns and entries of the resulting matrix
+#' @keywords reshape.wide
+#' @export
+
+reshape.wide <- function (x) 
+{
+    z <- reshape(x, idvar = dimnames(x)[[2]][1], timevar = dimnames(x)[[2]][2], 
+        direction = "wide")
+    z <- mat.index(z)
+    dimnames(z)[[2]] <- substring(dimnames(z)[[2]], nchar(dimnames(x)[[2]][3]) + 
+        2, nchar(dimnames(z)[[2]]))
     z
 }
 

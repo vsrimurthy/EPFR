@@ -31,8 +31,7 @@ Other mat: \code{\link{mat.compound}},
   \code{\link{mat.reverse}}, \code{\link{mat.same}},
   \code{\link{mat.sort}}, \code{\link{mat.subset}},
   \code{\link{mat.to.first.data.row}},
-  \code{\link{mat.to.last.Idx}},
-  \code{\link{mat.to.matrix}}, \code{\link{mat.to.obs}},
+  \code{\link{mat.to.last.Idx}}, \code{\link{mat.to.obs}},
   \code{\link{mat.to.xlModel}}, \code{\link{mat.write}},
   \code{\link{mat.zScore}}
 }
