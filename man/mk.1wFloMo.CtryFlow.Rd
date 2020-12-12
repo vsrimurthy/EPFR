@@ -11,7 +11,7 @@ mk.1wFloMo.CtryFlow(x, y, n, w, h, u = T)
 
 \item{y}{= FundType (one of E/B)}
 
-\item{n}{= item (one of Flow/AssetsStart/AssetsEnd)}
+\item{n}{= item(s) (any of Flow/AssetsStart/AssetsEnd)}
 
 \item{w}{= country list (one of Ctry/LatAm)}
 

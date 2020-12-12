@@ -6254,19 +6254,10 @@ mat.ex.vec <- function (x, y, n = T)
     if (!is.null(names(x))) 
         w <- names(x)
     else w <- seq_along(x)
-    x <- as.vector(x)
-    z <- x[!duplicated(x)]
-    z <- z[!is.na(z)]
-    z <- z[order(z)]
-    z <- matrix(x, length(x), length(z), F, list(w, z))
-    z <- !is.na(z) & z == matrix(dimnames(z)[[2]], dim(z)[1], 
-        dim(z)[2], T)
-    if (!missing(y)) 
-        z <- ifelse(z, y, NA)
-    else z <- fcn.mat.vec(as.numeric, z, , T)
     if (n) 
-        dimnames(z)[[2]] <- paste0("Q", dimnames(z)[[2]])
-    z <- mat.ex.matrix(z)
+        x <- paste0("Q", x)
+    z <- data.frame(w, x, y, stringsAsFactors = F)
+    z <- reshape.wide(z)
     z
 }
 
@@ -6832,7 +6823,7 @@ mk.1mActPas.Ctry <- function (x, y)
     w <- c("LK", "VE")
     w <- vec.named(w, Ctry.info(w, "CountryId"))
     w <- c(sql.1dFloMo.CountryId.List("Ctry"), w)
-    v <- c("Idx", "CountryId", "Allocation = avg(Allocation)")
+    v <- c("CountryId", "Idx", "Allocation = avg(Allocation)")
     z <- list(A = paste0("CountryId in (", paste(names(w), collapse = ", "), 
         ")"))
     z[["B"]] <- paste0("ReportDate = @floDt")
@@ -6842,9 +6833,8 @@ mk.1mActPas.Ctry <- function (x, y)
     z <- c(sql.declare("@floDt", "datetime", yyyymm.to.day(x)), 
         sql.unbracket(z))
     z <- sql.query(paste(z, collapse = "\n"), y, F)
-    z <- map.rname(t(reshape.wide(z)), names(w))
-    dimnames(z)[[1]] <- w
-    z <- z[, "N"]/nonneg(z[, "Y"]) - 1
+    z <- map.rname(reshape.wide(z), names(w))
+    z <- vec.named(z[, "N"]/nonneg(z[, "Y"]) - 1, w)
     z
 }
 
@@ -6870,13 +6860,12 @@ mk.1mActPas.Sec <- function (x, y, n)
         z)
     z <- c(z, "", "update #SEC set Idx = 'N' where Idx is NULL")
     z <- paste(c(sql.drop("#SEC"), "", z), collapse = "\n")
-    v <- c("Idx", "SectorId", "Allocation = avg(Allocation)")
+    v <- c("SectorId", "Idx", "Allocation = avg(Allocation)")
     v <- sql.tbl(v, "#SEC", , paste(v[-length(v)], collapse = ", "))
     v <- paste(sql.unbracket(v), collapse = "\n")
     z <- sql.query(c(z, v), y, F)
-    z <- map.rname(t(reshape.wide(z)), names(u))
-    dimnames(z)[[1]] <- u
-    z <- z[, "N"]/nonneg(z[, "Y"]) - 1
+    z <- map.rname(reshape.wide(z), names(u))
+    z <- vec.named(z[, "N"]/nonneg(z[, "Y"]) - 1, u)
     z
 }
 
@@ -6973,7 +6962,7 @@ mk.1mBullish.Sec <- function (x, y, n)
 #' SQL query for country-flow percentage for date <x>
 #' @param x = YYYYMMDD
 #' @param y = FundType (one of E/B)
-#' @param n = item (one of Flow/AssetsStart/AssetsEnd)
+#' @param n = item(s) (any of Flow/AssetsStart/AssetsEnd)
 #' @param w = country list (one of Ctry/LatAm)
 #' @param h = input to or output of sql.connect
 #' @param u = T/F depending on whether weekly or daily data needed
@@ -7001,7 +6990,7 @@ mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = T)
     z <- c(sql.declare("@floDt", "datetime", x), sql.unbracket(z))
     rslt[["CBF"]] <- sql.query.underlying(paste(z, collapse = "\n"), 
         h$conn, F)
-    r <- c("Advisor", "GeographicFocus", "CountryId", "Allocation = avg(Allocation)")
+    r <- c("Advisor", "CountryId", "GeographicFocus", "Allocation = avg(Allocation)")
     v <- list(A = paste0("CountryId in (", paste(w$CountryId[!is.na(w$CountryId)], 
         collapse = ", "), ")"))
     v[["B"]] <- "datediff(month, ReportDate, @floDt) = case when day(@floDt) < 23 then 2 else 1 end"
@@ -7012,10 +7001,10 @@ mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = T)
     z <- c(sql.declare("@floDt", "datetime", x), sql.unbracket(z))
     z <- sql.query.underlying(paste(z, collapse = "\n"), h$conn, 
         F)
-    rslt[["CBA"]] <- t(reshape.wide(z))
     sql.close(h)
+    rslt[["CBA"]] <- reshape.wide(z)
     rslt[["CBF"]] <- map.rname(mat.index(rslt[["CBF"]]), dimnames(rslt[["CBA"]])[[2]])
-    rslt[["CBF"]] <- 0.01 * rslt[["CBA"]] %*% as.matrix(rslt[["CBF"]])
+    rslt[["CBF"]] <- 0.01 * as.matrix(rslt[["CBA"]]) %*% as.matrix(rslt[["CBF"]])
     rslt[["CBF"]] <- map.rname(rslt[["CBF"]], rslt[["MAP"]][, 
         "CountryId"])
     rslt[["SCF"]] <- map.rname(mat.index(rslt[["SCF"]]), rslt[["MAP"]][, 
