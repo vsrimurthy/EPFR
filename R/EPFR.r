@@ -4153,7 +4153,6 @@ ftp.action <- function (x, y, n, w, h, u)
     bat.file <- "C:\\temp\\foo.bat"
     cat(paste0("C:\nftp -i -s:", ftp.file), file = bat.file)
     z <- shell.wrapper(bat.file, u)
-    shell("TASKKILL /IM FTP.EXE /F", wait = F)
     invisible()
 }
 
@@ -4319,7 +4318,6 @@ ftp.dir <- function (x, y, n, w, h = F, u = 60)
     }
     if (is.null(y)) 
         stop("Error in ftp.dir. Remote folder ", x, " does not exist ...")
-    shell("TASKKILL /IM FTP.EXE /F", wait = F)
     y <- ftp.dir.excise.crap(y, "150 Opening data channel for directory listing")
     if (!is.null(y)) {
         n <- min(nchar(y)) - 4
@@ -4533,7 +4531,6 @@ ftp.get <- function (x, y, n, w, h, u = 600)
     cat(paste0("C:\ncd \"", y, "\"\nftp -i -s:", ftp.file), file = bat.file)
     v <- paste(y, ftp.file(x), sep = "\\")
     while (!file.exists(v)) z <- shell.wrapper(bat.file, u)
-    shell("TASKKILL /IM FTP.EXE /F", wait = F)
     invisible()
 }
 
