@@ -4451,6 +4451,7 @@ ftp.download <- function (x, y, n, w, h, u = 600)
         cat(txt.right(z[j], nchar(z[j]) - nchar(x)), "...\n")
         ftp.get(z[j], y[j], n, w, h, u)
     }
+    shell("TASKKILL /IM FTP.EXE /F", wait = F)
     invisible()
 }
 
@@ -4927,6 +4928,7 @@ ftp.upload <- function (x, y, n, w, h, u = 600)
     for (j in foo) ftp.mkdir(x, j, n, w, h)
     z <- split(z, v)
     for (j in names(z)) ftp.put(j, z[[j]], n, w, h, u)
+    shell("TASKKILL /IM FTP.EXE /F", wait = F)
     invisible()
 }
 
