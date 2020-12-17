@@ -2077,11 +2077,7 @@ EHD <- function (x, y, n, w, h, u = NULL)
 
 email.exists <- function (x, y) 
 {
-    z <- email.list()
-    if (!is.null(z) & any(names(z) == x)) 
-        z <- z[x] >= y
-    else z <- F
-    z
+    record.exists(x, y, "emails.txt")
 }
 
 #' email.kill
@@ -2094,15 +2090,7 @@ email.exists <- function (x, y)
 
 email.kill <- function (x) 
 {
-    n <- paste(dir.parameters("parameters"), "emails.txt", sep = "\\")
-    if (file.exists(n)) {
-        z <- vec.read(n, T)
-        if (any(names(z) == x)) {
-            z <- z[!is.element(names(z), x)]
-            vec.write(z, n)
-        }
-    }
-    invisible()
+    record.kill(x, "emails.txt")
 }
 
 #' email.list
@@ -2114,11 +2102,7 @@ email.kill <- function (x)
 
 email.list <- function () 
 {
-    z <- paste(dir.parameters("parameters"), "emails.txt", sep = "\\")
-    if (file.exists(z)) 
-        z <- vec.read(z, T)
-    else z <- NULL
-    z
+    record.read("emails.txt")
 }
 
 #' email.record
@@ -2132,18 +2116,7 @@ email.list <- function ()
 
 email.record <- function (x, y) 
 {
-    n <- paste(dir.parameters("parameters"), "emails.txt", sep = "\\")
-    if (file.exists(n)) {
-        z <- vec.read(n, T)
-        if (any(names(z) == x)) {
-            z[x] <- max(z[x], y)
-        }
-        else {
-            z[x] <- y
-        }
-        vec.write(z, n)
-    }
-    invisible()
+    record.write(x, y, "emails.txt")
 }
 
 #' err.raise
@@ -4455,6 +4428,20 @@ ftp.download <- function (x, y, n, w, h, u = 600)
     invisible()
 }
 
+#' ftp.exists
+#' 
+#' T/F depending on whether upload already happened
+#' @param x = report name
+#' @param y = date for which you want to send the report
+#' @keywords ftp.exists
+#' @export
+#' @family ftp
+
+ftp.exists <- function (x, y) 
+{
+    record.exists(x, y, "ftp.txt")
+}
+
 #' ftp.file
 #' 
 #' strips out parent directory, returning just the file name
@@ -4552,6 +4539,31 @@ ftp.info <- function (x, y, n, w)
     z <- z[z[, "Type"] == x & z[, "FundLvl"] == y & z[, "filter"] == 
         w, n]
     z
+}
+
+#' ftp.kill
+#' 
+#' deletes entry <x> in the ftp record. Returns nothing.
+#' @param x = report name
+#' @keywords ftp.kill
+#' @export
+#' @family ftp
+
+ftp.kill <- function (x) 
+{
+    record.kill(x, "ftp.txt")
+}
+
+#' ftp.list
+#' 
+#' named vector of emails and sent dates
+#' @keywords ftp.list
+#' @export
+#' @family ftp
+
+ftp.list <- function () 
+{
+    record.read("ftp.txt")
 }
 
 #' ftp.mkdir
@@ -4653,6 +4665,20 @@ ftp.put <- function (x, y, n, w, h, u = 600)
         v <- is.element(ftp.file(y), names(ftp.dir(x)))
     }
     invisible()
+}
+
+#' ftp.record
+#' 
+#' updates the email record. Returns nothing.
+#' @param x = report name
+#' @param y = date for which you sent the report
+#' @keywords ftp.record
+#' @export
+#' @family ftp
+
+ftp.record <- function (x, y) 
+{
+    record.write(x, y, "ftp.txt")
 }
 
 #' ftp.remove
@@ -9045,6 +9071,90 @@ read.prcRet <- function (x)
     }
     else z <- mat.read(x, ",")
     z
+}
+
+#' record.exists
+#' 
+#' T/F depending on whether action already taken
+#' @param x = report name
+#' @param y = date for which you want to send the report
+#' @param n = file name
+#' @keywords record.exists
+#' @export
+#' @family record
+
+record.exists <- function (x, y, n) 
+{
+    z <- record.read(n)
+    if (!is.null(z) & any(names(z) == x)) 
+        z <- z[x] >= y
+    else z <- F
+    z
+}
+
+#' record.kill
+#' 
+#' deletes entry <x> in the record <y>. Returns nothing.
+#' @param x = report name
+#' @param y = file name
+#' @keywords record.kill
+#' @export
+#' @family record
+
+record.kill <- function (x, y) 
+{
+    n <- paste(dir.parameters("parameters"), y, sep = "\\")
+    if (file.exists(n)) {
+        z <- vec.read(n, T)
+        if (any(names(z) == x)) {
+            z <- z[!is.element(names(z), x)]
+            vec.write(z, n)
+        }
+    }
+    invisible()
+}
+
+#' record.read
+#' 
+#' named vector of records and sent dates
+#' @param x = file name
+#' @keywords record.read
+#' @export
+#' @family record
+
+record.read <- function (x) 
+{
+    z <- paste(dir.parameters("parameters"), x, sep = "\\")
+    if (file.exists(z)) 
+        z <- vec.read(z, T)
+    else z <- NULL
+    z
+}
+
+#' record.write
+#' 
+#' updates the record. Returns nothing.
+#' @param x = report name
+#' @param y = date for which you sent the report
+#' @param n = file name
+#' @keywords record.write
+#' @export
+#' @family record
+
+record.write <- function (x, y, n) 
+{
+    n <- paste(dir.parameters("parameters"), n, sep = "\\")
+    if (file.exists(n)) {
+        z <- vec.read(n, T)
+        if (any(names(z) == x)) {
+            z[x] <- max(z[x], y)
+        }
+        else {
+            z[x] <- y
+        }
+        vec.write(z, n)
+    }
+    invisible()
 }
 
 #' refresh.predictors
