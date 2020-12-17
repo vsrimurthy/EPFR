@@ -19,6 +19,7 @@ Other html: \code{\link{html.and}},
   \code{\link{html.flow.english}},
   \code{\link{html.image}}, \code{\link{html.list}},
   \code{\link{html.positioning}},
+  \code{\link{html.problem.underlying}},
   \code{\link{html.problem}}, \code{\link{html.signature}},
   \code{\link{html.tbl}}, \code{\link{html.tenure}}
 }

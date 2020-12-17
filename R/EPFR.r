@@ -5122,29 +5122,19 @@ html.email <- function (x)
 {
     if (missing(x)) 
         x <- today()
-    z <- mat.read(parameters("classif-email"), "\t")
-    w <- "D"
-    if (publish.weekly.last(x) > publish.weekly.last(flowdate.lag(x, 
-        1))) 
-        w <- c(w, "W")
-    if (publish.monthly.last(x, 16) > publish.monthly.last(flowdate.lag(x, 
-        1), 16)) 
-        w <- c(w, "M")
-    w <- is.element(z[, "freq"], w) & is.element(z[, "day"], 
-        c(weekday.to.name(day.to.weekday(x)), "All"))
-    z <- z[w, ]
-    z$yyyymmdd <- map.rname(email.list(), dimnames(z)[[1]])
-    z$target <- rep(NA, dim(z)[1])
-    z[z[, "entry"] == "flow" & z[, "freq"] == "D", "target"] <- publish.daily.last(x)
-    z[z[, "entry"] == "flow" & z[, "freq"] == "W", "target"] <- publish.weekly.last(x)
-    z[z[, "entry"] == "flow" & z[, "freq"] == "M", "target"] <- publish.monthly.last(x, 
-        16)
-    z[z[, "entry"] == "date" & z[, "freq"] == "D", "target"] <- x
-    x <- z
     y <- c("The QC process certified", "reports were successfully emailed.")
     y <- c(y, "This morning the following emails did not go out:")
     y <- c(y, "The QC process was unable to check delivery of the following:")
-    z <- html.problem(dimnames(x)[[1]], y, x$yyyymmdd != x$target)
+    h <- record.track(x, "email")
+    z <- html.problem.underlying(dimnames(h)[[1]], y, h$yyyymmdd != 
+        h$target)
+    y <- c("The QC process certified", "successful uploads.")
+    y <- c(y, "This morning the following ftp uploads did not happen:")
+    y <- c(y, "The QC process was unable to check uploads of the following:")
+    h <- record.track(x, "upload")
+    z <- c(z, html.problem.underlying(dimnames(h)[[1]], y, h$yyyymmdd != 
+        h$target))
+    z <- paste(c("Dear All,", z, html.signature()), collapse = "\n")
     email("Vikram.C.Srimurthy@epfrglobal.com", "Report Delivery", 
         z, , T)
     invisible()
@@ -5512,15 +5502,31 @@ html.positioning <- function (x, y)
 #' problem report
 #' @param x = report names
 #' @param y = string vector
-#' @param n =logical vector (T = error, F = not, NA = no check)
+#' @param n = logical vector (T = error, F = not, NA = no check)
 #' @keywords html.problem
 #' @export
 #' @family html
 
 html.problem <- function (x, y, n) 
 {
+    paste(c("Dear All,", html.problem.underlying(x, y, n), html.signature()), 
+        collapse = "\n")
+}
+
+#' html.problem.underlying
+#' 
+#' problem report
+#' @param x = report names
+#' @param y = string vector
+#' @param n = logical vector (T = error, F = not, NA = no check)
+#' @keywords html.problem.underlying
+#' @export
+#' @family html
+
+html.problem.underlying <- function (x, y, n) 
+{
     w <- !is.na(n) & n
-    z <- c("Dear All,")
+    z <- NULL
     if (sum(w) == 0) {
         z <- c(z, "<p>", paste(y[1], txt.ex.int(sum(!is.na(n))), 
             y[2], "</p>"))
@@ -5533,8 +5539,6 @@ html.problem <- function (x, y, n)
         z <- c(z, "<p>", y[4])
         z <- c(z, html.list(x[w]), "</p>")
     }
-    z <- c(z, html.signature())
-    z <- paste(z, collapse = "\n")
     z
 }
 
@@ -8368,16 +8372,18 @@ publish.daily.last <- function (x)
 #' date of last monthly publication
 #' @param x = a YYYYMMDD date
 #' @param y = calendar day in the next month when allocations are known (usually the 23rd)
+#' @param n = additional monthly lag (defaults to zero)
 #' @keywords publish.monthly.last
 #' @export
 #' @family publish
 
-publish.monthly.last <- function (x, y = 23) 
+publish.monthly.last <- function (x, y = 23, n = 0) 
 {
     if (missing(x)) 
         x <- today()
     z <- yyyymmdd.lag(x, 1)
     z <- yyyymmdd.to.AllocMo(z, y)
+    z <- yyyymm.lag(z, n)
     z <- yyyymm.to.day(z)
     z
 }
@@ -9128,6 +9134,37 @@ record.read <- function (x)
     if (file.exists(z)) 
         z <- vec.read(z, T)
     else z <- NULL
+    z
+}
+
+#' record.track
+#' 
+#' writes report for date <x> and type <y>
+#' @param x = a SINGLE YYYYMMDD date
+#' @param y = file name
+#' @keywords record.track
+#' @export
+#' @family record
+
+record.track <- function (x, y) 
+{
+    z <- mat.read(parameters(paste0("classif-", y)), "\t")
+    z <- z[is.element(z[, "day"], c(weekday.to.name(day.to.weekday(x)), 
+        "All")), ]
+    if (y == "email") 
+        fcn <- email.list
+    else fcn <- ftp.list
+    z$yyyymmdd <- map.rname(fcn(), dimnames(z)[[1]])
+    z$target <- rep(NA, dim(z)[1])
+    z[z[, "entry"] == "flow" & z[, "freq"] == "D", "target"] <- publish.daily.last(x)
+    z[z[, "entry"] == "flow" & z[, "freq"] == "W", "target"] <- publish.weekly.last(x)
+    z[z[, "entry"] == "flow" & z[, "freq"] == "M", "target"] <- publish.monthly.last(x, 
+        16)
+    z[z[, "entry"] == "hold" & z[, "freq"] == "M", "target"] <- publish.monthly.last(x, 
+        26)
+    z[z[, "entry"] == "FXalloc" & z[, "freq"] == "M", "target"] <- publish.monthly.last(x, 
+        9, 1)
+    z[z[, "entry"] == "date" & z[, "freq"] == "D", "target"] <- x
     z
 }
 

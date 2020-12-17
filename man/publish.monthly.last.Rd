@@ -4,12 +4,14 @@
 \alias{publish.monthly.last}
 \title{publish.monthly.last}
 \usage{
-publish.monthly.last(x, y = 23)
+publish.monthly.last(x, y = 23, n = 0)
 }
 \arguments{
 \item{x}{= a YYYYMMDD date}
 
 \item{y}{= calendar day in the next month when allocations are known (usually the 23rd)}
+
+\item{n}{= additional monthly lag (defaults to zero)}
 }
 \description{
 date of last monthly publication
