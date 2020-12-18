@@ -5137,8 +5137,7 @@ html.email <- function (x)
     z <- c(z, html.problem.underlying(paste0("<b>", dimnames(h)[[1]], 
         "</b>"), y, h$yyyymmdd != h$target))
     z <- paste(c("Dear All,", z, html.signature()), collapse = "\n")
-    email("Vikram.C.Srimurthy@epfrglobal.com", "Report Delivery", 
-        z, , T)
+    email("ReportDeliveryList", "Report Delivery", z, , T)
     invisible()
 }
 
