@@ -4439,7 +4439,7 @@ ftp.download <- function (x, y, n, w, h, u = 600)
 
 ftp.exists <- function (x, y) 
 {
-    record.exists(x, y, "ftp.txt")
+    record.exists(x, y, "upload.txt")
 }
 
 #' ftp.file
@@ -4551,7 +4551,7 @@ ftp.info <- function (x, y, n, w)
 
 ftp.kill <- function (x) 
 {
-    record.kill(x, "ftp.txt")
+    record.kill(x, "upload.txt")
 }
 
 #' ftp.list
@@ -4563,7 +4563,7 @@ ftp.kill <- function (x)
 
 ftp.list <- function () 
 {
-    record.read("ftp.txt")
+    record.read("upload.txt")
 }
 
 #' ftp.mkdir
@@ -4678,7 +4678,7 @@ ftp.put <- function (x, y, n, w, h, u = 600)
 
 ftp.record <- function (x, y) 
 {
-    record.write(x, y, "ftp.txt")
+    record.write(x, y, "upload.txt")
 }
 
 #' ftp.remove
@@ -5125,15 +5125,17 @@ html.email <- function (x)
     y <- c("The QC process certified", "reports were successfully emailed.")
     y <- c(y, "This morning the following emails did not go out:")
     y <- c(y, "The QC process was unable to check delivery of the following:")
-    h <- record.track(x, "email")
-    z <- html.problem.underlying(dimnames(h)[[1]], y, h$yyyymmdd != 
-        h$target)
+    h <- record.track(x, "emails")
+    h <- h[h$yyyymmdd != h$target | h$today, ]
+    z <- html.problem.underlying(paste0("<b>", dimnames(h)[[1]], 
+        "</b>"), y, h$yyyymmdd != h$target)
     y <- c("The QC process certified", "successful uploads.")
     y <- c(y, "This morning the following ftp uploads did not happen:")
     y <- c(y, "The QC process was unable to check uploads of the following:")
     h <- record.track(x, "upload")
-    z <- c(z, html.problem.underlying(dimnames(h)[[1]], y, h$yyyymmdd != 
-        h$target))
+    h <- h[h$yyyymmdd != h$target | h$today, ]
+    z <- c(z, html.problem.underlying(paste0("<b>", dimnames(h)[[1]], 
+        "</b>"), y, h$yyyymmdd != h$target))
     z <- paste(c("Dear All,", z, html.signature()), collapse = "\n")
     email("Vikram.C.Srimurthy@epfrglobal.com", "Report Delivery", 
         z, , T)
@@ -9151,20 +9153,30 @@ record.track <- function (x, y)
     z <- mat.read(parameters(paste0("classif-", y)), "\t")
     z <- z[is.element(z[, "day"], c(weekday.to.name(day.to.weekday(x)), 
         "All")), ]
-    if (y == "email") 
-        fcn <- email.list
-    else fcn <- ftp.list
-    z$yyyymmdd <- map.rname(fcn(), dimnames(z)[[1]])
-    z$target <- rep(NA, dim(z)[1])
-    z[z[, "entry"] == "flow" & z[, "freq"] == "D", "target"] <- publish.daily.last(x)
-    z[z[, "entry"] == "flow" & z[, "freq"] == "W", "target"] <- publish.weekly.last(x)
-    z[z[, "entry"] == "flow" & z[, "freq"] == "M", "target"] <- publish.monthly.last(x, 
-        16)
-    z[z[, "entry"] == "hold" & z[, "freq"] == "M", "target"] <- publish.monthly.last(x, 
-        26)
-    z[z[, "entry"] == "FXalloc" & z[, "freq"] == "M", "target"] <- publish.monthly.last(x, 
-        9, 1)
-    z[z[, "entry"] == "date" & z[, "freq"] == "D", "target"] <- x
+    z$yyyymmdd <- map.rname(record.read(paste0(y, ".txt")), dimnames(z)[[1]])
+    z$today <- z$target <- rep(NA, dim(z)[1])
+    w <- z[, "entry"] == "date" & z[, "freq"] == "D"
+    z[w, "target"] <- x
+    z[w, "today"] <- T
+    w <- z[, "entry"] == "flow" & z[, "freq"] == "D"
+    z[w, "target"] <- publish.daily.last(x)
+    z[w, "today"] <- T
+    w <- z[, "entry"] == "flow" & z[, "freq"] == "W"
+    z[w, "target"] <- publish.weekly.last(x)
+    z[w, "today"] <- publish.weekly.last(x) > publish.weekly.last(flowdate.lag(x, 
+        1))
+    w <- z[, "entry"] == "flow" & z[, "freq"] == "M"
+    z[w, "target"] <- publish.monthly.last(x, 16)
+    z[w, "today"] <- publish.monthly.last(x, 16) > publish.monthly.last(flowdate.lag(x, 
+        1), 16)
+    w <- z[, "entry"] == "hold" & z[, "freq"] == "M"
+    z[w, "target"] <- publish.monthly.last(x, 26)
+    z[w, "today"] <- publish.monthly.last(x, 26) > publish.monthly.last(flowdate.lag(x, 
+        1), 26)
+    w <- z[, "entry"] == "FXalloc" & z[, "freq"] == "M"
+    z[w, "target"] <- publish.monthly.last(x, 9, 1)
+    z[w, "today"] <- publish.monthly.last(x, 9, 1) > publish.monthly.last(flowdate.lag(x, 
+        1), 9, 1)
     z
 }
 
