@@ -4,10 +4,12 @@
 \alias{vec.to.list}
 \title{vec.to.list}
 \usage{
-vec.to.list(x)
+vec.to.list(x, y = F)
 }
 \arguments{
 \item{x}{= string vector}
+
+\item{y}{= T/F depending on whether to use <x> as group vector}
 }
 \description{
 list object

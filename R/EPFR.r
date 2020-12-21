@@ -3237,8 +3237,7 @@ fcn.num.nonNA <- function (fcn, x, y, n)
 
 fcn.order <- function () 
 {
-    x <- fcn.list()
-    x <- split(x, x)
+    x <- vec.to.list(fcn.list(), T)
     fcn <- function(x) paste(x, "<-", fcn.to.txt(x, T, F))
     x <- sapply(x, fcn)
     cat(x, file = fcn.path(), sep = "\n")
@@ -14887,13 +14886,16 @@ vec.to.lags <- function (x, y, n = T)
 #' 
 #' list object
 #' @param x = string vector
+#' @param y = T/F depending on whether to use <x> as group vector
 #' @keywords vec.to.list
 #' @export
 #' @family vec
 
-vec.to.list <- function (x) 
+vec.to.list <- function (x, y = F) 
 {
-    split(x, seq_along(x))
+    if (y) 
+        split(x, x)
+    else split(x, seq_along(x))
 }
 
 #' vec.unique
