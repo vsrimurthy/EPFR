@@ -183,6 +183,38 @@ angle <- function (x, y, n)
     z
 }
 
+#' array.ex.list
+#' 
+#' array
+#' @param x = a list of mat objects or named vectors
+#' @param y = T/F depending on whether you want union of rows
+#' @param n = T/F depending on whether you want union of columns
+#' @keywords array.ex.list
+#' @export
+#' @family array
+
+array.ex.list <- function (x, y, n) 
+{
+    w <- !is.null(dim(x[[1]]))
+    if (y) 
+        y <- union
+    else y <- intersect
+    if (w) 
+        fcn <- function(x) dimnames(x)[[1]]
+    else fcn <- names
+    y <- Reduce(y, lapply(x, fcn))
+    x <- lapply(x, function(x) map.rname(x, y))
+    if (w) {
+        if (n) 
+            n <- union
+        else n <- intersect
+        n <- Reduce(n, lapply(x, function(x) dimnames(x)[[2]]))
+        x <- lapply(x, function(x) t(map.rname(t(x), n)))
+    }
+    z <- simplify2array(x)
+    z
+}
+
 #' array.unlist
 #' 
 #' unlists the contents of an array
@@ -190,6 +222,7 @@ angle <- function (x, y, n)
 #' @param y = a vector of names for the columns of the output corresponding to the dimensions of <x>
 #' @keywords array.unlist
 #' @export
+#' @family array
 
 array.unlist <- function (x, y) 
 {
@@ -5911,29 +5944,6 @@ latin.to.arabic.underlying <- function ()
     z
 }
 
-#' list.common.row.space
-#' 
-#' list object with the elements mapped to the common row space
-#' @param fcn = function used to combine row spaces
-#' @param x = a list of mat objects
-#' @param y = column containing row names (optional)
-#' @param n = function to extract row identifiers (optional)
-#' @keywords list.common.row.space
-#' @export
-
-list.common.row.space <- function (fcn, x, y, n) 
-{
-    if (missing(n)) 
-        n <- function(x) dimnames(x)[[1]]
-    if (!missing(y)) 
-        x <- lapply(x, mat.index, y, F)
-    z <- lapply(x, n)
-    z <- Reduce(fcn, z)
-    z <- z[order(z)]
-    z <- lapply(x, map.rname, z)
-    z
-}
-
 #' load.dy.vbl
 #' 
 #' Loads a daily variable
@@ -9917,13 +9927,12 @@ sf.single.bsim <- function (fcn, prdBeg, prdEnd, univ, grp.nm, ret.nm, fldr, tra
         x <- x[, "bin"]
         pivot.1d(sum, x[z > 0], z[z > 0])
     }
-    h <- lapply(z, fcn)
-    h <- simplify2array(list.common.row.space(union, h, , names))
+    h <- array.ex.list(lapply(z, fcn), T)
     if (length(nBins) == 1) 
         h <- map.rname(h, sf.bin.nms(nBins, uRet))
     h <- t(h)
     z <- lapply(z, function(x) sf.underlying.summ(x, uRet))
-    z <- simplify2array(list.common.row.space(union, z, , names))
+    z <- array.ex.list(z, T)
     if (length(nBins) == 1) 
         z <- map.rname(z, sf.bin.nms(nBins, uRet))
     z <- t(z)
@@ -10455,6 +10464,25 @@ smear.Q1 <- function (x)
         neg.act <- tot.incr * wt.incr/x
         z <- incr * wt.incr - neg.act
     }
+    z
+}
+
+#' sql.1dActWtTrend
+#' 
+#' the SQL query to get 1dActWtTrend
+#' @param x = the YYYYMMDD for which you want flows (known one day later)
+#' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
+#' @param n = any of StockFlows/China/Japan/CSI300/Energy
+#' @param w = T/F depending on whether you are checking ftp
+#' @keywords sql.1dActWtTrend
+#' @export
+#' @family sql
+
+sql.1dActWtTrend <- function (x, y, n, w) 
+{
+    y <- sql.arguments(y)
+    z <- sql.1dActWtTrend.underlying(x, y$filter, sql.RDSuniv(n))
+    z <- c(z, sql.1dActWtTrend.topline(y$factor, x, w))
     z
 }
 
@@ -13682,8 +13710,7 @@ sqlts.wrapper <- function (x, y)
         z[[as.character(i)]] <- sqlQuery(h, y(i), stringsAsFactors = F)
     }
     close(h)
-    z <- list.common.row.space(union, z, 1)
-    z <- sapply(z, as.matrix, simplify = "array")[, -1, ]
+    z <- array.ex.list(lapply(z, mat.index), T)
     z
 }
 

@@ -20,6 +20,7 @@ SQL query to get the select statement for 1dActWtTrend
 Other sql: \code{\link{sql.1dActWtTrend.select}},
   \code{\link{sql.1dActWtTrend.topline.from}},
   \code{\link{sql.1dActWtTrend.underlying}},
+  \code{\link{sql.1dActWtTrend}},
   \code{\link{sql.1dFloMo.CountryId.List}},
   \code{\link{sql.1dFloMo.FI}},
   \code{\link{sql.1dFloMo.Rgn}},

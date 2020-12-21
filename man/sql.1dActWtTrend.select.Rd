@@ -16,6 +16,7 @@ select statement to compute <x>
 Other sql: \code{\link{sql.1dActWtTrend.topline.from}},
   \code{\link{sql.1dActWtTrend.topline}},
   \code{\link{sql.1dActWtTrend.underlying}},
+  \code{\link{sql.1dActWtTrend}},
   \code{\link{sql.1dFloMo.CountryId.List}},
   \code{\link{sql.1dFloMo.FI}},
   \code{\link{sql.1dFloMo.Rgn}},
