@@ -2200,7 +2200,7 @@ err.raise.txt <- function (x, y, n)
 
 event.read <- function (x) 
 {
-    z <- vec.read(x, F)
+    z <- readLines(x)
     z <- yyyymmdd.ex.txt(z, "/", "DMY")
     z <- z[order(z)]
     x <- seq_along(z)
@@ -2562,7 +2562,7 @@ fcn.canonical <- function (x)
 
 fcn.clean <- function () 
 {
-    z <- vec.read(fcn.path(), F)
+    z <- readLines(fcn.path())
     w.com <- fcn.indent.ignore(z, 0)
     w.del <- txt.has(z, paste("#", txt.space(65, "-")), T)
     w.beg <- txt.has(z, " <- function(", T) & c(w.del[-1], F)
@@ -2761,13 +2761,10 @@ fcn.dates.parse <- function (x)
 
 fcn.dir <- function () 
 {
-    if (Sys.info()[["nodename"]] != "OpsServerDev") {
-        z <- "C:\\temp\\Automation"
-    }
-    else {
+    z <- "C:\\temp\\Automation"
+    if (Sys.info()[["nodename"]] == "OpsServerDev") 
         z <- "C:\\Users\\vik\\Documents"
-    }
-    z <- vec.read(paste(z, "root.txt", sep = "\\"), F)
+    z <- readLines(paste0(z, "\\root.txt"))
     z
 }
 
@@ -4254,8 +4251,8 @@ ftp.all.files.underlying <- function (x, y, n, w, h)
 
 ftp.credential <- function (x) 
 {
-    as.character(map.rname(vec.read(parameters("ftp-credential"), 
-        T), x))
+    as.character(map.rname(vec.read(parameters("ftp-credential")), 
+        x))
 }
 
 #' ftp.del
@@ -5584,8 +5581,8 @@ html.problem.underlying <- function (x, y, n)
 
 html.signature <- function () 
 {
-    z <- paste0("<p>", sample(vec.read(parameters("letterClosings"), 
-        F), 1), "</p><p>")
+    z <- paste0("<p>", sample(readLines(parameters("letterClosings")), 
+        1), "</p><p>")
     z <- paste0(z, quant.info(machine.info("Quant"), "Name"), 
         "<br>Quantitative Team, EPFR</p>")
     z
@@ -7477,7 +7474,7 @@ mk.Mem <- function (x, y, n)
 mk.SatoMem <- function (x, y, n) 
 {
     n <- n[["classif"]]
-    y <- vec.read(y, F)
+    y <- readLines(y)
     z <- vec.to.list(intersect(c("isin", paste0("isin", 1:5)), 
         dimnames(n)[[2]]))
     fcn <- function(i) is.element(n[, i], y)
@@ -8480,8 +8477,8 @@ qa.columns <- function (x)
 
 qa.filter.map <- function (x) 
 {
-    z <- as.character(map.rname(vec.read(parameters("classif-filterNames"), 
-        T), x))
+    z <- as.character(map.rname(vec.read(parameters("classif-filterNames")), 
+        x))
     z <- ifelse(is.na(z), x, z)
     z
 }
@@ -9121,7 +9118,7 @@ record.kill <- function (x, y)
 {
     n <- paste(dir.parameters("parameters"), y, sep = "\\")
     if (file.exists(n)) {
-        z <- vec.read(n, T)
+        z <- vec.read(n)
         if (any(names(z) == x)) {
             z <- z[!is.element(names(z), x)]
             vec.write(z, n)
@@ -9142,7 +9139,7 @@ record.read <- function (x)
 {
     z <- paste(dir.parameters("parameters"), x, sep = "\\")
     if (file.exists(z)) 
-        z <- vec.read(z, T)
+        z <- vec.read(z)
     else z <- NULL
     z
 }
@@ -9202,7 +9199,7 @@ record.write <- function (x, y, n)
 {
     n <- paste(dir.parameters("parameters"), n, sep = "\\")
     if (file.exists(n)) {
-        z <- vec.read(n, T)
+        z <- vec.read(n)
         if (any(names(z) == x)) {
             z[x] <- max(z[x], y)
         }
@@ -9515,7 +9512,7 @@ rpt.email <- function (x, y, n, w, h, u, v)
     proceed <- file.exists(flo.dt)
     if (proceed) {
         cat("Reading date from", flo.dt, "...\n")
-        flo.dt <- vec.read(flo.dt, F)[1]
+        flo.dt <- readLines(flo.dt)[1]
     }
     else {
         cat("File", flo.dt, "does not exist ...\n")
@@ -9578,7 +9575,7 @@ rpt.email.send <- function (x, y, n, w, h)
 {
     err.raise(h, T, paste("Emailing the following to", y))
     if (txt.right(h, 5) == ".html") {
-        z <- paste(vec.read(h, F), collapse = "\n")
+        z <- txt.ex.file(h)
         h <- ""
     }
     else {
@@ -11385,7 +11382,7 @@ sql.1mAllocD <- function (x, y, n, w, h)
 
 sql.1mAllocD.select <- function (x) 
 {
-    z <- vec.read(parameters("classif-AllocD"), T, "\t")
+    z <- vec.read(parameters("classif-AllocD"), "\t")
     if (any(x == names(z))) 
         z <- as.character(z[x])
     else stop("Bad Argument")
@@ -14015,7 +14012,7 @@ txt.count <- function (x, y)
 
 txt.ex.file <- function (x) 
 {
-    paste(vec.read(x, F), collapse = "\n")
+    paste(readLines(x), collapse = "\n")
 }
 
 #' txt.ex.int
@@ -14635,7 +14632,7 @@ txt.words <- function (x = "All")
     else {
         z <- x
     }
-    z <- vec.read(z, F)
+    z <- readLines(z)
     z
 }
 
@@ -14800,24 +14797,16 @@ vec.named <- function (x, y)
 
 #' vec.read
 #' 
-#' reads into a vector
+#' reads into <x> a named vector
 #' @param x = path to a vector
-#' @param y = T/F depending on whether the elements are named
-#' @param n = separator
+#' @param y = separator (defaults to comma)
 #' @keywords vec.read
 #' @export
 #' @family vec
 
-vec.read <- function (x, y, n = ",") 
+vec.read <- function (x, y = ",") 
 {
-    if (!y & !file.exists(x)) {
-        stop("File ", x, " doesn't exist!\n")
-    }
-    else if (!y) {
-        z <- scan(x, what = "", sep = "\n", quiet = T)
-    }
-    else z <- as.matrix(mat.read(x, n, , F))[, 1]
-    z
+    as.matrix(mat.read(x, y, , F))[, 1]
 }
 
 #' vec.same
