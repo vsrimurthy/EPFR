@@ -2666,8 +2666,7 @@ fcn.comments.parse <- function (x)
             z$detl.args <- fcn.extract.args(z$detl.args)
             if (length(z$detl.args) == 1 & z$detl.args[1] != 
                 "none") {
-                z$args <- as.character(txt.parse(z$detl.args, 
-                  " =")[1])
+                z$args <- txt.parse(z$detl.args, " =")[1]
             }
             else if (length(z$detl.args) > 1) 
                 z$args <- txt.parse(z$detl.args, " =")[, 1]
@@ -2738,7 +2737,7 @@ fcn.date <- function (x)
 
 fcn.dates.parse <- function (x) 
 {
-    z <- as.character(txt.parse(x, ","))
+    z <- txt.parse(x, ",")
     if (length(z) == 1) 
         z <- yyyymmdd.ex.txt(z)
     if (length(z) > 1) {
@@ -3020,7 +3019,7 @@ fcn.lines.code <- function (x, y)
 {
     z <- length(fcn.to.comments(x))
     x <- fcn.to.txt(x, T)
-    x <- as.character(txt.parse(x, "\n"))
+    x <- txt.parse(x, "\n")
     z <- x[seq(z + 4, length(x) - 1)]
     if (!y) 
         z <- z[txt.left(txt.trim.left(z, "\t"), 1) != "#"]
@@ -4616,7 +4615,7 @@ ftp.mkdir <- function (x, y, n, w, h, u = 60)
         w <- ftp.credential("user")
     if (missing(h)) 
         h <- ftp.credential("pwd")
-    y <- as.character(txt.parse(y, "/"))
+    y <- txt.parse(y, "/")
     halt <- F
     while (!halt) {
         v <- ftp.dir(x, n, w, h, F, u)
@@ -10284,9 +10283,10 @@ sim.optimal <- function (x, y, n, w, h, u)
         if (u > 0) {
             vec <- list(A = apply(x[, c("Grp", "Stk")], 1, min), 
                 B = sign(h) * x[, "Ret"])
-            vec <- lapply(vec, function(x) x/sqrt(sum(x^2)))
-            x <- x[order((simplify2array(vec) %*% c(100 - u, 
-                u))[, 1], decreasing = T), ]
+            vec <- sapply(vec, function(x) x/sqrt(sum(x^2)), 
+                simplify = "array")
+            x <- x[order((vec %*% c(100 - u, u))[, 1], decreasing = T), 
+                ]
             x <- mat.sort(x, c("Trd", "Alp"), c(T, h < 0))
         }
         else {
@@ -14217,7 +14217,7 @@ txt.gunning <- function (x, y, n)
     if (missing(y)) 
         y <- txt.words()
     else y <- txt.words(y)
-    x <- as.character(txt.parse(x, " "))
+    x <- txt.parse(x, " ")
     x <- x[is.element(x, c(y, "."))]
     z <- 1 + sum(x == ".")
     x <- x[x != "."]
@@ -14408,8 +14408,7 @@ txt.parse <- function (x, y)
         x <- strsplit(x, y, fixed = T)
         n <- max(sapply(x, length))
         y <- rep("", n)
-        x <- lapply(x, function(x) c(x, y)[1:n])
-        z <- simplify2array(x)
+        z <- sapply(x, function(x) c(x, y)[1:n], simplify = "array")
         if (is.null(dim(z))) 
             z <- as.matrix(z)
         else z <- t(z)
