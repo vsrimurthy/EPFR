@@ -14401,27 +14401,19 @@ txt.name.format <- function (x)
 
 txt.parse <- function (x, y) 
 {
-    if (any(is.na(x))) 
-        stop("Bad")
-    x0 <- x
-    ctr <- 1
-    z <- list()
-    w <- as.numeric(regexpr(y, x, fixed = T))
-    while (any(!is.element(w, -1))) {
-        w <- ifelse(is.element(w, -1), 1 + nchar(x), w)
-        vec <- ifelse(w > 1, substring(x, 1, w - 1), "")
-        z[[paste("pos", ctr, sep = ".")]] <- vec
-        x <- txt.right(x, nchar(x) - nchar(vec) - nchar(y))
-        ctr <- ctr + 1
-        w <- as.numeric(regexpr(y, x, fixed = T))
+    if (length(x) == 1) {
+        z <- strsplit(x, y, fixed = T)[[1]]
     }
-    z[[paste("pos", ctr, sep = ".")]] <- x
-    if (length(x0) > 1) {
-        z <- mat.ex.matrix(z)
-        if (all(!duplicated(x0))) 
-            dimnames(z)[[1]] <- x0
+    else {
+        x <- strsplit(x, y, fixed = T)
+        n <- max(sapply(x, length))
+        y <- rep("", n)
+        x <- lapply(x, function(x) c(x, y)[1:n])
+        z <- simplify2array(x)
+        if (is.null(dim(z))) 
+            z <- as.matrix(z)
+        else z <- t(z)
     }
-    else z <- unlist(z)
     z
 }
 
