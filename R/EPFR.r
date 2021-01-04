@@ -5406,8 +5406,8 @@ html.flow.underlying <- function (x)
     y <- x[txt.left(names(x), 4) != txt.left(names(x)[1], 4)]
     y <- y[txt.left(names(y), 4) == txt.left(names(y)[1], 4)]
     y <- y[order(names(y))]
-    y <- y[1:sum(txt.left(names(x), 4) == txt.left(names(x)[1], 
-        4))]
+    y <- y[1:min(sum(txt.left(names(x), 4) == txt.left(names(x)[1], 
+        4)), length(y))]
     y <- y[order(names(y), decreasing = T)]
     n["PriorYrWeek"] <- names(y)[1]
     z["PriorYrCumAvg"] <- mean(y)
