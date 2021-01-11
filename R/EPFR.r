@@ -6955,6 +6955,51 @@ mk.1mAllocMo <- function (x, y, n)
     z
 }
 
+#' mk.1mBullish.Ctry
+#' 
+#' SQL query for monthly Bullish country indicator
+#' @param x = YYYYMM month
+#' @param y = input to or output of sql.connect
+#' @keywords mk.1mBullish.Ctry
+#' @export
+#' @family mk
+
+mk.1mBullish.Ctry <- function (x, y) 
+{
+    u <- c("LK", "VE")
+    u <- vec.named(u, Ctry.info(u, "CountryId"))
+    u <- c(sql.1dFloMo.CountryId.List("Ctry"), u)
+    z <- list(A = paste0("ReportDate = '", yyyymm.to.day(x), 
+        "'"))
+    z[["B"]] <- paste0("CountryId in (", paste(names(u), collapse = ", "), 
+        ")")
+    v <- c("FundId", "CountryId", "BenchIndex", "Idx", "Allocation")
+    z <- sql.unbracket(sql.Allocation(v, "Country", c("BenchIndex", 
+        "Idx"), "E", sql.and(z)))
+    z <- c("insert into", paste0("\t#CTRY (", paste(v, collapse = ", "), 
+        ")"), z)
+    z <- c("create clustered index TempRandomCtryIndex ON #CTRY (FundId, CountryId)", 
+        z)
+    z <- c("create table #CTRY (FundId int not null, CountryId int not null, BenchIndex int, Idx char(1), Allocation float)", 
+        z)
+    z <- c(z, "", "update #CTRY set Idx = 'N' where Idx is NULL")
+    z <- paste(c(sql.drop("#CTRY"), "", z), collapse = "\n")
+    r <- "Bullish = 100 * sum(case when t1.Allocation > t2.Allocation then 1.0 else 0.0 end)/count(t1.FundId)"
+    r <- c("t1.CountryId", r)
+    v <- "BenchIndex, CountryId, Allocation = avg(Allocation)"
+    v <- sql.tbl(v, "#CTRY", "Idx = 'Y'", "BenchIndex, CountryId")
+    v <- sql.label(v, "t2 on t2.BenchIndex = t1.BenchIndex and t2.CountryId = t1.CountryId")
+    v <- c("#CTRY t1", "inner join", v)
+    v <- paste(sql.unbracket(sql.tbl(r, v, "Idx = 'N'", "t1.CountryId")), 
+        collapse = "\n")
+    z <- c(z, v)
+    z <- sql.query(z, y, F)
+    z <- mat.index(z)
+    z <- map.rname(z, names(u))
+    names(z) <- u
+    z
+}
+
 #' mk.1mBullish.Sec
 #' 
 #' SQL query for monthly Bullish sector indicator
