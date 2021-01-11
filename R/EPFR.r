@@ -4320,9 +4320,14 @@ ftp.dir <- function (x, y, n, w, h = F, u = 60)
     if (is.null(y)) 
         stop("Error in ftp.dir. Remote folder ", x, " does not exist ...")
     y <- ftp.dir.excise.crap(y, "150 Opening data channel for directory listing")
-    if (length(y) > 0) 
+    if (length(y) > 1) {
         y <- y[txt.left(y, 1) != "-" | txt.parse(txt.itrim(y), 
             txt.space(1))[, 5] != 0]
+    }
+    else if (length(y) == 1) {
+        y <- y[txt.left(y, 1) != "-" | txt.parse(txt.itrim(y), 
+            txt.space(1))[5] != 0]
+    }
     if (length(y) > 0) {
         n <- min(nchar(y)) - 4
         while (any(!is.element(substring(y, n, n + 4), paste0(" ", 
