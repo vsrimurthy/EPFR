@@ -6725,6 +6725,137 @@ mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E")
     z
 }
 
+#' mk.1dFloMo.Indy
+#' 
+#' SQL query for daily/weekly CBE flow momentum
+#' @param x = flowdate/YYYYMMDD depending on whether daily/weekly
+#' @param y = item (one of Flow/AssetsStart/AssetsEnd)
+#' @param n = input to or output of sql.connect
+#' @param w = T/F depending on whether daily/weekly
+#' @param h = one of US/UK/JP/EM/Eurozone/All (full global)
+#' @keywords mk.1dFloMo.Indy
+#' @export
+#' @family mk
+
+mk.1dFloMo.Indy <- function (x, y, n, w, h) 
+{
+    s <- sql.1dFloMo.CountryId.List("Industry", x)
+    if (h == "UK") {
+        h <- "GB"
+    }
+    else if (h == "Eurozone") {
+        h <- c("AT", "BE", "DE", "FI", "FR", "IE", "IT", "NL", 
+            "PT", "ES")
+    }
+    else if (h == "EM") {
+        h <- c("AE", "BR", "CL", "CN", "CO", "CZ", "EG", "GR", 
+            "HU", "ID", "IN", "KR", "MX", "MY", "PE", "PH", "PL", 
+            "QA", "RU", "TH", "TR", "TW", "ZA")
+    }
+    else if (h == "All") {
+        h <- mat.read(parameters("classif-Ctry"))
+        h <- dimnames(h)[[1]][!is.na(h$CountryId)]
+    }
+    else if (all(h != c("US", "JP"))) {
+        stop("Can't handle yet!")
+    }
+    h <- Ctry.info(h, "CountryId")
+    h <- paste(h, collapse = ", ")
+    v <- list(A = paste0("CountryId in (", h, ")"))
+    v[["B"]] <- paste0("ReportDate = '", yyyymm.to.day(yyyymmdd.to.AllocMo(x)), 
+        "'")
+    z <- c("FundId", "GeographicFocus", "Universe = sum(Allocation)")
+    z <- sql.Allocation(z, "Country", "GeographicFocus", "E", 
+        sql.and(v), paste(z[-length(z)], collapse = ", "))
+    z <- c("insert into", "\t#CTRY (FundId, GeographicFocus, Universe)", 
+        sql.unbracket(z))
+    z <- c("create clustered index TempRandomCtryIndex ON #CTRY (FundId)", 
+        z)
+    z <- c("create table #CTRY (FundId int not null, GeographicFocus int, Universe float)", 
+        z)
+    v <- paste0("ReportDate = '", yyyymm.to.day(yyyymmdd.to.AllocMo(x)), 
+        "'")
+    r <- c("FundId", "IndustryId", "GeographicFocus", "Allocation")
+    v <- sql.unbracket(sql.Allocation(r, "Industry", "GeographicFocus", 
+        "All", v))
+    v <- c("insert into", paste0("\t#INDY (", paste(r, collapse = ", "), 
+        ")"), v)
+    v <- c("create clustered index TempRandomIndyIndex ON #INDY (FundId, IndustryId)", 
+        v)
+    v <- c("create table #INDY (FundId int not null, IndustryId int not null, GeographicFocus int, Allocation float)", 
+        v)
+    z <- c(z, "", v)
+    v <- c("GeographicFocus", "StyleSector")
+    v <- c("FundId", paste0(v, " = max(", v, ")"), paste0(y, 
+        " = sum(", y, ")"))
+    v <- sql.Flow(v, list(A = paste0("'", x, "'")), c("CB", "E"), 
+        c("GeographicFocus", "StyleSector"), w, "FundId")
+    v <- c("insert into", paste0("\t#FLO (FundId, GeographicFocus, StyleSector, ", 
+        paste(y, collapse = ", "), ")"), sql.unbracket(v))
+    v <- c("create clustered index TempRandomFloIndex ON #FLO (FundId)", 
+        v)
+    v <- c(paste0("create table #FLO (FundId int not null, GeographicFocus int, StyleSector int, ", 
+        paste(paste(y, "float"), collapse = ", "), ")"), v)
+    z <- c(z, "", v)
+    r <- c("GeographicFocus", "Universe = avg(Universe)")
+    r <- sql.label(sql.tbl(r, "#CTRY", , "GeographicFocus"), 
+        "t2")
+    v <- sql.in("FundId", sql.tbl("FundId", "#CTRY"), F)
+    v <- sql.label(sql.tbl(c("FundId", "GeographicFocus"), "#FLO", 
+        v), "t1")
+    v <- c(v, "inner join", r, "\ton t2.GeographicFocus = t1.GeographicFocus")
+    v <- sql.unbracket(sql.tbl(c("FundId", "t1.GeographicFocus", 
+        "Universe"), v))
+    v <- c("insert into", "\t#CTRY (FundId, GeographicFocus, Universe)", 
+        v)
+    z <- c(z, "", v)
+    r <- c("GeographicFocus", "IndustryId", "Allocation = avg(Allocation)")
+    r <- sql.label(sql.tbl(r, "#INDY", , "GeographicFocus, IndustryId"), 
+        "t2")
+    v <- sql.in("FundId", sql.tbl("FundId", "#INDY"), F)
+    v <- sql.label(sql.tbl(c("FundId", "GeographicFocus"), "#FLO", 
+        v), "t1")
+    v <- c(v, "inner join", r, "\ton t2.GeographicFocus = t1.GeographicFocus")
+    v <- sql.unbracket(sql.tbl("FundId, t1.GeographicFocus, IndustryId, Allocation", 
+        v))
+    v <- c("\t#INDY (FundId, GeographicFocus, IndustryId, Allocation)", 
+        v)
+    z <- c(z, "", "insert into", v)
+    foo <- mat.read(parameters("classif-GIgrp"))[, c("IndustryId", 
+        "StyleSector")]
+    foo <- foo[!is.na(foo$StyleSector), ]
+    v <- paste0("StyleSector in (", paste(foo$StyleSector, collapse = ", "), 
+        ")")
+    v <- sql.in("FundId", sql.tbl("FundId", "#FLO", v))
+    v <- sql.unbracket(sql.tbl("FundId", "#INDY", v))
+    v[1] <- "delete from"
+    v <- v[-2][-2]
+    z <- c(z, "", v)
+    for (j in dimnames(foo)[[1]]) {
+        v <- c("FundId", "GeographicFocus", paste("IndustryId =", 
+            foo[j, "IndustryId"]), "Allocation = 100")
+        v <- sql.unbracket(sql.tbl(v, "#FLO", paste0("StyleSector in (", 
+            foo[j, "StyleSector"], ")")))
+        v <- c("\t#INDY (FundId, GeographicFocus, IndustryId, Allocation)", 
+            v)
+        z <- c(z, "", "insert into", v)
+    }
+    z <- paste(c(sql.drop(c("#FLO", "#CTRY", "#INDY")), "", z), 
+        collapse = "\n")
+    r <- c("IndustryId", paste0(y, " = 0.0001 * sum(", y, " * Universe * Allocation)"))
+    v <- c("#FLO t1", "inner join", "#CTRY t2 on t2.FundId = t1.FundId")
+    v <- c(v, "inner join", "#INDY t3 on t3.FundId = t1.FundId")
+    v <- paste(sql.unbracket(sql.tbl(r, v, , "IndustryId")), 
+        collapse = "\n")
+    z <- sql.query(c(z, v), n, F)
+    z <- mat.index(z)
+    z <- map.rname(z, names(s))
+    if (is.null(dim(z))) 
+        names(z) <- s
+    else dimnames(z)[[1]] <- s
+    z
+}
+
 #' mk.1dFloMo.Sec
 #' 
 #' SQL query for daily/weekly CBE flow momentum
@@ -6732,7 +6863,7 @@ mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E")
 #' @param y = item (one of Flow/AssetsStart/AssetsEnd)
 #' @param n = input to or output of sql.connect
 #' @param w = T/F depending on whether daily/weekly
-#' @param h = one of US/UK/JP/EM/Eurozone
+#' @param h = one of US/UK/JP/EM/Eurozone/All (full global)
 #' @keywords mk.1dFloMo.Sec
 #' @export
 #' @family mk
@@ -6751,6 +6882,10 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h)
         h <- c("AE", "BR", "CL", "CN", "CO", "CZ", "EG", "GR", 
             "HU", "ID", "IN", "KR", "MX", "MY", "PE", "PH", "PL", 
             "QA", "RU", "TH", "TR", "TW", "ZA")
+    }
+    else if (h == "All") {
+        h <- mat.read(parameters("classif-Ctry"))
+        h <- dimnames(h)[[1]][!is.na(h$CountryId)]
     }
     else if (all(h != c("US", "JP"))) {
         stop("Can't handle yet!")
@@ -10738,6 +10873,11 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
         classif.type <- "GSec"
         sep <- "\t"
     }
+    else if (x == "Industry") {
+        z <- dimnames(mat.read(parameters("classif-GIgrp"), "\t"))[[1]]
+        classif.type <- "GIgrp"
+        sep <- "\t"
+    }
     h <- parameters(paste("classif", classif.type, sep = "-"))
     h <- mat.read(h, sep)
     h <- map.rname(h, z)
@@ -10757,6 +10897,9 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
     else if (x == "Sector") {
         z <- vec.named(z, h$SectorId)
         z["30"] <- "FinsExREst"
+    }
+    else if (x == "Industry") {
+        z <- vec.named(z, h$IndustryId)
     }
     z
 }

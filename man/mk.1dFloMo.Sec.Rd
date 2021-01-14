@@ -15,14 +15,15 @@ mk.1dFloMo.Sec(x, y, n, w, h)
 
 \item{w}{= T/F depending on whether daily/weekly}
 
-\item{h}{= one of US/UK/JP/EM/Eurozone}
+\item{h}{= one of US/UK/JP/EM/Eurozone/All (full global)}
 }
 \description{
 SQL query for daily/weekly CBE flow momentum
 }
 \seealso{
 Other mk: \code{\link{mk.1dFloMo.Ctry}},
-  \code{\link{mk.1dFloMo}}, \code{\link{mk.1mActPas.Ctry}},
+  \code{\link{mk.1dFloMo.Indy}}, \code{\link{mk.1dFloMo}},
+  \code{\link{mk.1mActPas.Ctry}},
   \code{\link{mk.1mActPas.Sec}},
   \code{\link{mk.1mAllocMo}},
   \code{\link{mk.1mBullish.Ctry}},

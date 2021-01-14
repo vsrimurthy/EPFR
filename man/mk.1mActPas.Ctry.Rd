@@ -16,6 +16,7 @@ Generates the SQL query to get monthly AIS for countries
 }
 \seealso{
 Other mk: \code{\link{mk.1dFloMo.Ctry}},
+  \code{\link{mk.1dFloMo.Indy}},
   \code{\link{mk.1dFloMo.Sec}}, \code{\link{mk.1dFloMo}},
   \code{\link{mk.1mActPas.Sec}},
   \code{\link{mk.1mAllocMo}},

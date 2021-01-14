@@ -18,6 +18,7 @@ Generates the herding measure set forth in LSV's 1991 paper "Do institutional in
 }
 \seealso{
 Other mk: \code{\link{mk.1dFloMo.Ctry}},
+  \code{\link{mk.1dFloMo.Indy}},
   \code{\link{mk.1dFloMo.Sec}}, \code{\link{mk.1dFloMo}},
   \code{\link{mk.1mActPas.Ctry}},
   \code{\link{mk.1mActPas.Sec}},
