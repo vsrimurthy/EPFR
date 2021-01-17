@@ -4,7 +4,7 @@
 \alias{stunden}
 \title{stunden}
 \usage{
-stunden(x = 4, y = 8)
+stunden(x = 5, y = 8)
 }
 \arguments{
 \item{x}{= integer}

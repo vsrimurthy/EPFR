@@ -6739,6 +6739,10 @@ mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E")
 
 mk.1dFloMo.Indy <- function (x, y, n, w, h) 
 {
+    u <- yyyymmdd.to.AllocMo(x)
+    if (all(u == u[1])) 
+        u <- u[1]
+    else stop("Bad Allocation Month")
     s <- sql.1dFloMo.CountryId.List("Industry", x)
     if (h == "UK") {
         h <- "GB"
@@ -6762,8 +6766,7 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
     h <- Ctry.info(h, "CountryId")
     h <- paste(h, collapse = ", ")
     v <- list(A = paste0("CountryId in (", h, ")"))
-    v[["B"]] <- paste0("ReportDate = '", yyyymm.to.day(yyyymmdd.to.AllocMo(x)), 
-        "'")
+    v[["B"]] <- paste0("ReportDate = '", yyyymm.to.day(u), "'")
     z <- c("FundId", "GeographicFocus", "Universe = sum(Allocation)")
     z <- sql.Allocation(z, "Country", "GeographicFocus", "E", 
         sql.and(v), paste(z[-length(z)], collapse = ", "))
@@ -6773,8 +6776,7 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
         z)
     z <- c("create table #CTRY (FundId int not null, GeographicFocus int, Universe float)", 
         z)
-    v <- paste0("ReportDate = '", yyyymm.to.day(yyyymmdd.to.AllocMo(x)), 
-        "'")
+    v <- paste0("ReportDate = '", yyyymm.to.day(u), "'")
     r <- c("FundId", "IndustryId", "GeographicFocus", "Allocation")
     v <- sql.unbracket(sql.Allocation(r, "Industry", "GeographicFocus", 
         "All", v))
@@ -6786,24 +6788,26 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
         v)
     z <- c(z, "", v)
     v <- c("GeographicFocus", "StyleSector")
-    v <- c("FundId", paste0(v, " = max(", v, ")"), paste0(y, 
-        " = sum(", y, ")"))
+    r <- c(ifelse(w, "DayEnding", "WeekEnding"), "FundId")
+    v <- c(r, paste0(v, " = max(", v, ")"), paste0(y, " = sum(", 
+        y, ")"))
     v <- sql.Flow(v, list(A = paste0("'", x, "'")), c("CB", "E"), 
-        c("GeographicFocus", "StyleSector"), w, "FundId")
-    v <- c("insert into", paste0("\t#FLO (FundId, GeographicFocus, StyleSector, ", 
-        paste(y, collapse = ", "), ")"), sql.unbracket(v))
-    v <- c("create clustered index TempRandomFloIndex ON #FLO (FundId)", 
-        v)
-    v <- c(paste0("create table #FLO (FundId int not null, GeographicFocus int, StyleSector int, ", 
+        c("GeographicFocus", "StyleSector"), w, paste(r, collapse = ", "))
+    v <- c("insert into", paste0("\t#FLO (", paste(r, collapse = ", "), 
+        ", GeographicFocus, StyleSector, ", paste(y, collapse = ", "), 
+        ")"), sql.unbracket(v))
+    v <- c(paste0("create clustered index TempRandomFloIndex ON #FLO (", 
+        paste(r, collapse = ", "), ")"), v)
+    v <- c(paste0("create table #FLO (", r[1], " datetime not null, FundId int not null, GeographicFocus int, StyleSector int, ", 
         paste(paste(y, "float"), collapse = ", "), ")"), v)
     z <- c(z, "", v)
     r <- c("GeographicFocus", "Universe = avg(Universe)")
     r <- sql.label(sql.tbl(r, "#CTRY", , "GeographicFocus"), 
         "t2")
     v <- sql.in("FundId", sql.tbl("FundId", "#CTRY"), F)
-    v <- sql.label(sql.tbl(c("FundId", "GeographicFocus"), "#FLO", 
-        v), "t1")
-    v <- c(v, "inner join", r, "\ton t2.GeographicFocus = t1.GeographicFocus")
+    v <- sql.tbl(c("FundId", "GeographicFocus = max(GeographicFocus)"), 
+        "#FLO", v, "FundId")
+    v <- c(sql.label(v, "t1"), "inner join", r, "\ton t2.GeographicFocus = t1.GeographicFocus")
     v <- sql.unbracket(sql.tbl(c("FundId", "t1.GeographicFocus", 
         "Universe"), v))
     v <- c("insert into", "\t#CTRY (FundId, GeographicFocus, Universe)", 
@@ -6813,9 +6817,9 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
     r <- sql.label(sql.tbl(r, "#INDY", , "GeographicFocus, IndustryId"), 
         "t2")
     v <- sql.in("FundId", sql.tbl("FundId", "#INDY"), F)
-    v <- sql.label(sql.tbl(c("FundId", "GeographicFocus"), "#FLO", 
-        v), "t1")
-    v <- c(v, "inner join", r, "\ton t2.GeographicFocus = t1.GeographicFocus")
+    v <- sql.tbl(c("FundId", "GeographicFocus = max(GeographicFocus)"), 
+        "#FLO", v, "FundId")
+    v <- c(sql.label(v, "t1"), "inner join", r, "\ton t2.GeographicFocus = t1.GeographicFocus")
     v <- sql.unbracket(sql.tbl("FundId, t1.GeographicFocus, IndustryId, Allocation", 
         v))
     v <- c("\t#INDY (FundId, GeographicFocus, IndustryId, Allocation)", 
@@ -6842,17 +6846,25 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
     }
     z <- paste(c(sql.drop(c("#FLO", "#CTRY", "#INDY")), "", z), 
         collapse = "\n")
-    r <- c("IndustryId", paste0(y, " = 0.0001 * sum(", y, " * Universe * Allocation)"))
+    r <- sql.yyyymmdd(ifelse(w, "DayEnding", "WeekEnding"))
+    r <- c(r, "IndustryId", paste0(y, " = 0.0001 * sum(", y, 
+        " * Universe * Allocation)"))
     v <- c("#FLO t1", "inner join", "#CTRY t2 on t2.FundId = t1.FundId")
     v <- c(v, "inner join", "#INDY t3 on t3.FundId = t1.FundId")
-    v <- paste(sql.unbracket(sql.tbl(r, v, , "IndustryId")), 
-        collapse = "\n")
+    v <- sql.tbl(r, v, , paste0(ifelse(w, "DayEnding", "WeekEnding"), 
+        ", IndustryId"))
+    v <- paste(sql.unbracket(v), collapse = "\n")
     z <- sql.query(c(z, v), n, F)
-    z <- mat.index(z)
-    z <- map.rname(z, names(s))
-    if (is.null(dim(z))) 
-        names(z) <- s
-    else dimnames(z)[[1]] <- s
+    y <- split(y, y)
+    for (j in names(y)) {
+        y[[j]] <- reshape.wide(z[, c(ifelse(w, "DayEnding", "WeekEnding"), 
+            "IndustryId", j)])
+        y[[j]] <- map.rname(t(y[[j]]), names(s))
+        dimnames(y[[j]])[[1]] <- as.character(s)
+    }
+    if (length(names(y)) == 1) 
+        z <- y[[1]]
+    else z <- simplify2array(y)
     z
 }
 
@@ -12599,8 +12611,15 @@ sql.Flow <- function (x, y, n = "All", w = NULL, h = T, u, v)
     z <- c(z, "\ton t2.HFundId = t1.HFundId")
     z <- c(paste(ifelse(h, "DailyData", "WeeklyData"), "t1"), 
         "inner join", z)
-    y[[1]] <- paste(ifelse(h, "DayEnding", "WeekEnding"), "=", 
-        y[[1]])
+    if (length(y[[1]]) == 1) {
+        y[[1]] <- paste(ifelse(h, "DayEnding", "WeekEnding"), 
+            "=", y[[1]])
+    }
+    else {
+        y[[1]] <- paste(y[[1]], collapse = ", ")
+        y[[1]] <- paste0(ifelse(h, "DayEnding", "WeekEnding"), 
+            " in (", y[[1]], ")")
+    }
     z <- list(x = x, y = z, n = sql.and(y))
     if (!missing(u)) 
         z[["w"]] <- u
@@ -14020,7 +14039,7 @@ strat.path <- function (x, y)
 #' @keywords stunden
 #' @export
 
-stunden <- function (x = 4, y = 8) 
+stunden <- function (x = 5, y = 8) 
 {
     z <- y - 1
     while (mean(z) != y) {
