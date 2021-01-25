@@ -15,7 +15,7 @@ mk.1dFloMo.Sec(x, y, n, w, h)
 
 \item{w}{= T/F depending on whether daily/weekly}
 
-\item{h}{= one of US/UK/JP/EM/Eurozone/All (full global)}
+\item{h}{= a list object with the following elements: Region - one of US/UK/JP/EM/Eurozone/All (full global) Filter - a vector of filters Group - allocation bulking group (e.g. GeographicFocus/BenchIndex)}
 }
 \description{
 SQL query for daily/weekly CBE flow momentum

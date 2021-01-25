@@ -6801,30 +6801,10 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
     v <- c(paste0("create table #FLO (", r[1], " datetime not null, FundId int not null, GeographicFocus int, StyleSector int, ", 
         paste(paste(y, "float"), collapse = ", "), ")"), v)
     z <- c(z, "", v)
-    r <- c("GeographicFocus", "Universe = avg(Universe)")
-    r <- sql.label(sql.tbl(r, "#CTRY", , "GeographicFocus"), 
-        "t2")
-    v <- sql.in("FundId", sql.tbl("FundId", "#CTRY"), F)
-    v <- sql.tbl(c("FundId", "GeographicFocus = max(GeographicFocus)"), 
-        "#FLO", v, "FundId")
-    v <- c(sql.label(v, "t1"), "inner join", r, "\ton t2.GeographicFocus = t1.GeographicFocus")
-    v <- sql.unbracket(sql.tbl(c("FundId", "t1.GeographicFocus", 
-        "Universe"), v))
-    v <- c("insert into", "\t#CTRY (FundId, GeographicFocus, Universe)", 
-        v)
-    z <- c(z, "", v)
-    r <- c("GeographicFocus", "IndustryId", "Allocation = avg(Allocation)")
-    r <- sql.label(sql.tbl(r, "#INDY", , "GeographicFocus, IndustryId"), 
-        "t2")
-    v <- sql.in("FundId", sql.tbl("FundId", "#INDY"), F)
-    v <- sql.tbl(c("FundId", "GeographicFocus = max(GeographicFocus)"), 
-        "#FLO", v, "FundId")
-    v <- c(sql.label(v, "t1"), "inner join", r, "\ton t2.GeographicFocus = t1.GeographicFocus")
-    v <- sql.unbracket(sql.tbl("FundId, t1.GeographicFocus, IndustryId, Allocation", 
-        v))
-    v <- c("\t#INDY (FundId, GeographicFocus, IndustryId, Allocation)", 
-        v)
-    z <- c(z, "", "insert into", v)
+    z <- c(z, "", sql.Allocations.bulk.EqWtAvg("Universe", NULL, 
+        "#CTRY", "GeographicFocus"))
+    z <- c(z, "", sql.Allocations.bulk.EqWtAvg("Allocation", 
+        "IndustryId", "#INDY", "GeographicFocus"))
     foo <- mat.read(parameters("classif-GIgrp"))[, c("IndustryId", 
         "StyleSector")]
     foo <- foo[!is.na(foo$StyleSector), ]
@@ -6875,91 +6855,75 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
 #' @param y = item (one of Flow/AssetsStart/AssetsEnd)
 #' @param n = input to or output of sql.connect
 #' @param w = T/F depending on whether daily/weekly
-#' @param h = one of US/UK/JP/EM/Eurozone/All (full global)
+#' @param h = a list object with the following elements: Region - one of US/UK/JP/EM/Eurozone/All (full global) Filter - a vector of filters Group - allocation bulking group (e.g. GeographicFocus/BenchIndex)
 #' @keywords mk.1dFloMo.Sec
 #' @export
 #' @family mk
 
 mk.1dFloMo.Sec <- function (x, y, n, w, h) 
 {
+    u <- yyyymmdd.to.AllocMo(x)
+    if (all(u == u[1])) 
+        u <- u[1]
+    else stop("Bad Allocation Month")
     s <- sql.1dFloMo.CountryId.List("Sector", x)
-    if (h == "UK") {
-        h <- "GB"
+    if (h$Region == "UK") {
+        h$Region <- "GB"
     }
-    else if (h == "Eurozone") {
-        h <- c("AT", "BE", "DE", "FI", "FR", "IE", "IT", "NL", 
-            "PT", "ES")
+    else if (h$Region == "Eurozone") {
+        h$Region <- c("AT", "BE", "DE", "FI", "FR", "IE", "IT", 
+            "NL", "PT", "ES")
     }
-    else if (h == "EM") {
-        h <- c("AE", "BR", "CL", "CN", "CO", "CZ", "EG", "GR", 
-            "HU", "ID", "IN", "KR", "MX", "MY", "PE", "PH", "PL", 
-            "QA", "RU", "TH", "TR", "TW", "ZA")
+    else if (h$Region == "EM") {
+        h$Region <- c("AE", "BR", "CL", "CN", "CO", "CZ", "EG", 
+            "GR", "HU", "ID", "IN", "KR", "MX", "MY", "PE", "PH", 
+            "PL", "QA", "RU", "TH", "TR", "TW", "ZA")
     }
-    else if (h == "All") {
-        h <- mat.read(parameters("classif-Ctry"))
-        h <- dimnames(h)[[1]][!is.na(h$CountryId)]
+    else if (h$Region == "All") {
+        h$Region <- mat.read(parameters("classif-Ctry"))
+        h$Region <- dimnames(h$Region)[[1]][!is.na(h$Region$CountryId)]
     }
-    else if (all(h != c("US", "JP"))) {
+    else if (all(h$Region != c("US", "JP"))) {
         stop("Can't handle yet!")
     }
-    h <- Ctry.info(h, "CountryId")
-    h <- paste(h, collapse = ", ")
-    v <- list(A = paste0("CountryId in (", h, ")"))
-    v[["B"]] <- paste0("ReportDate = '", yyyymm.to.day(yyyymmdd.to.AllocMo(x)), 
-        "'")
-    z <- c("FundId", "GeographicFocus", "Universe = sum(Allocation)")
-    z <- sql.Allocation(z, "Country", "GeographicFocus", "E", 
-        sql.and(v), paste(z[-length(z)], collapse = ", "))
-    z <- c("insert into", "\t#CTRY (FundId, GeographicFocus, Universe)", 
-        sql.unbracket(z))
+    h$Region <- Ctry.info(h$Region, "CountryId")
+    h$Region <- paste(h$Region, collapse = ", ")
+    v <- list(A = paste0("CountryId in (", h$Region, ")"))
+    v[["B"]] <- paste0("ReportDate = '", yyyymm.to.day(u), "'")
+    z <- c("FundId", h$Group, "Universe = sum(Allocation)")
+    z <- sql.Allocation(z, "Country", h$Group, "E", sql.and(v), 
+        paste(z[-length(z)], collapse = ", "))
+    z <- c("insert into", paste0("\t#CTRY (FundId, ", h$Group, 
+        ", Universe)"), sql.unbracket(z))
     z <- c("create clustered index TempRandomCtryIndex ON #CTRY (FundId)", 
         z)
-    z <- c("create table #CTRY (FundId int not null, GeographicFocus int, Universe float)", 
-        z)
-    v <- paste0("ReportDate = '", yyyymm.to.day(yyyymmdd.to.AllocMo(x)), 
-        "'")
-    v <- sql.Allocation.Sec(v, "GeographicFocus")
+    z <- c(paste0("create table #CTRY (FundId int not null, ", 
+        h$Group, " int, Universe float)"), z)
+    v <- paste0("ReportDate = '", yyyymm.to.day(u), "'")
+    v <- sql.Allocation.Sec(v, h$Group)
     v <- c("create clustered index TempRandomSecIndex ON #SEC (FundId, SectorId)", 
         v)
-    v <- c("create table #SEC (FundId int not null, SectorId int not null, GeographicFocus int, Allocation float)", 
-        v)
+    v <- c(paste0("create table #SEC (FundId int not null, SectorId int not null, ", 
+        h$Group, " int, Allocation float)"), v)
     z <- c(z, "", v)
-    v <- c("GeographicFocus", "StyleSector")
-    v <- c("FundId", paste0(v, " = max(", v, ")"), paste0(y, 
-        " = sum(", y, ")"))
-    v <- sql.Flow(v, list(A = paste0("'", x, "'")), c("CB", "E"), 
-        c("GeographicFocus", "StyleSector"), w, "FundId")
-    v <- c("insert into", paste0("\t#FLO (FundId, GeographicFocus, StyleSector, ", 
-        paste(y, collapse = ", "), ")"), sql.unbracket(v))
-    v <- c("create clustered index TempRandomFloIndex ON #FLO (FundId)", 
-        v)
-    v <- c(paste0("create table #FLO (FundId int not null, GeographicFocus int, StyleSector int, ", 
-        paste(paste(y, "float"), collapse = ", "), ")"), v)
+    v <- c(h$Group, "StyleSector")
+    r <- c(ifelse(w, "DayEnding", "WeekEnding"), "FundId")
+    v <- c(r, paste0(v, " = max(", v, ")"), paste0(y, " = sum(", 
+        y, ")"))
+    v <- sql.Flow(v, list(A = paste0("'", x, "'")), h$Filter, 
+        c(h$Group, "StyleSector"), w, paste(r, collapse = ", "))
+    v <- c("insert into", paste0("\t#FLO (", paste(c(r, h$Group, 
+        "StyleSector", y), collapse = ", "), ")"), sql.unbracket(v))
+    v <- c(paste0("create clustered index TempRandomFloIndex ON #FLO (", 
+        paste(r, collapse = ", "), ")"), v)
+    v <- c(paste0("create table #FLO (", r[1], " datetime not null, FundId int not null, ", 
+        h$Group, " int, StyleSector int, ", paste(paste(y, "float"), 
+            collapse = ", "), ")"), v)
     z <- c(z, "", v)
-    r <- c("GeographicFocus", "Universe = avg(Universe)")
-    r <- sql.label(sql.tbl(r, "#CTRY", , "GeographicFocus"), 
-        "t2")
-    v <- sql.in("FundId", sql.tbl("FundId", "#CTRY"), F)
-    v <- sql.label(sql.tbl(c("FundId", "GeographicFocus"), "#FLO", 
-        v), "t1")
-    v <- c(v, "inner join", r, "\ton t2.GeographicFocus = t1.GeographicFocus")
-    v <- sql.unbracket(sql.tbl(c("FundId", "t1.GeographicFocus", 
-        "Universe"), v))
-    v <- c("insert into", "\t#CTRY (FundId, GeographicFocus, Universe)", 
-        v)
-    z <- c(z, "", v)
-    r <- c("GeographicFocus", "SectorId", "Allocation = avg(Allocation)")
-    r <- sql.label(sql.tbl(r, "#SEC", , "GeographicFocus, SectorId"), 
-        "t2")
-    v <- sql.in("FundId", sql.tbl("FundId", "#SEC"), F)
-    v <- sql.label(sql.tbl(c("FundId", "GeographicFocus"), "#FLO", 
-        v), "t1")
-    v <- c(v, "inner join", r, "\ton t2.GeographicFocus = t1.GeographicFocus")
-    v <- sql.unbracket(sql.tbl("FundId, t1.GeographicFocus, SectorId, Allocation", 
-        v))
-    v <- c("\t#SEC (FundId, GeographicFocus, SectorId, Allocation)", 
-        v)
-    z <- c(z, "", "insert into", v)
+    z <- c(z, "", sql.Allocations.bulk.EqWtAvg("Universe", NULL, 
+        "#CTRY", h$Group))
+    z <- c(z, "", sql.Allocations.bulk.EqWtAvg("Allocation", 
+        "SectorId", "#SEC", h$Group))
     foo <- mat.read(parameters("classif-GSec"))[, c("SectorId", 
         "StyleSector")]
     foo <- foo[!is.na(foo$StyleSector), ]
@@ -6976,26 +6940,34 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h)
     foo["Fins", "StyleSector"] <- paste(foo[c("Fins", "REst"), 
         "StyleSector"], collapse = ", ")
     for (j in dimnames(foo)[[1]]) {
-        v <- c("FundId", "GeographicFocus", paste("SectorId =", 
-            foo[j, "SectorId"]), "Allocation = 100")
+        v <- c("FundId", h$Group, paste("SectorId =", foo[j, 
+            "SectorId"]), "Allocation = 100")
         v <- sql.unbracket(sql.tbl(v, "#FLO", paste0("StyleSector in (", 
             foo[j, "StyleSector"], ")")))
-        v <- c("\t#SEC (FundId, GeographicFocus, SectorId, Allocation)", 
+        v <- c(paste0("\t#SEC (FundId, ", h$Group, ", SectorId, Allocation)"), 
             v)
         z <- c(z, "", "insert into", v)
     }
     z <- paste(c(sql.drop(c("#FLO", "#CTRY", "#SEC")), "", z), 
         collapse = "\n")
-    r <- c("SectorId", paste0(y, " = 0.0001 * sum(", y, " * Universe * Allocation)"))
+    r <- sql.yyyymmdd(ifelse(w, "DayEnding", "WeekEnding"))
+    r <- c(r, "SectorId", paste0(y, " = 0.0001 * sum(", y, " * Universe * Allocation)"))
     v <- c("#FLO t1", "inner join", "#CTRY t2 on t2.FundId = t1.FundId")
     v <- c(v, "inner join", "#SEC t3 on t3.FundId = t1.FundId")
-    v <- paste(sql.unbracket(sql.tbl(r, v, , "SectorId")), collapse = "\n")
+    v <- sql.tbl(r, v, , paste0(ifelse(w, "DayEnding", "WeekEnding"), 
+        ", SectorId"))
+    v <- paste(sql.unbracket(v), collapse = "\n")
     z <- sql.query(c(z, v), n, F)
-    z <- mat.index(z)
-    z <- map.rname(z, names(s))
-    if (is.null(dim(z))) 
-        names(z) <- s
-    else dimnames(z)[[1]] <- s
+    y <- split(y, y)
+    for (j in names(y)) {
+        y[[j]] <- reshape.wide(z[, c(ifelse(w, "DayEnding", "WeekEnding"), 
+            "SectorId", j)])
+        y[[j]] <- map.rname(t(y[[j]]), names(s))
+        dimnames(y[[j]])[[1]] <- as.character(s)
+    }
+    if (length(names(y)) == 1) 
+        z <- y[[1]]
+    else z <- simplify2array(y)
     z
 }
 
@@ -12152,6 +12124,35 @@ sql.Allocation.Sec <- function (x, y = NULL, n = "All")
         v))
     z <- c(z, "", "insert into", paste0("\t#SEC (", paste(r, 
         collapse = ", "), ")"), v)
+    z
+}
+
+#' sql.Allocations.bulk.EqWtAvg
+#' 
+#' Bulks up allocations with equal-weight averages
+#' @param x = name of column being bulked up
+#' @param y = vector of columns in addition to <w> within which averages are computed
+#' @param n = allocation table name
+#' @param w = primary grouping within which averages are computed
+#' @keywords sql.Allocations.bulk.EqWtAvg
+#' @export
+#' @family sql
+
+sql.Allocations.bulk.EqWtAvg <- function (x, y, n, w) 
+{
+    r <- c(w, y, paste0(x, " = avg(", x, ")"))
+    r <- sql.label(sql.tbl(r, n, , paste(c(w, y), collapse = ", ")), 
+        "t2")
+    z <- sql.in("FundId", sql.tbl("FundId", n), F)
+    z <- sql.label(sql.tbl(c("FundId", paste0(w, " = max(", w, 
+        ")")), "#FLO", z, "FundId"), "t1")
+    z <- c(z, "inner join", r, paste0("\ton t2.", w, " = t1.", 
+        w))
+    z <- sql.unbracket(sql.tbl(c("FundId", paste0("t1.", w), 
+        y, x), z))
+    r <- paste0("\t", n, " (", paste(c("FundId", w, y, x), collapse = ", "), 
+        ")")
+    z <- c("insert into", r, z)
     z
 }
 
