@@ -6816,12 +6816,14 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
     v <- v[-2][-2]
     z <- c(z, "", v)
     for (j in dimnames(foo)[[1]]) {
-        v <- c("FundId", "GeographicFocus", paste("IndustryId =", 
-            foo[j, "IndustryId"]), "Allocation = 100")
-        v <- sql.unbracket(sql.tbl(v, "#FLO", paste0("StyleSector in (", 
-            foo[j, "StyleSector"], ")")))
+        v <- "GeographicFocus"
+        v <- paste0(v, " = max(", v, ")")
+        v <- c("FundId", v, paste("IndustryId =", foo[j, "IndustryId"]), 
+            "Allocation = 100")
+        v <- sql.tbl(v, "#FLO", paste0("StyleSector in (", foo[j, 
+            "StyleSector"], ")"), "FundId")
         v <- c("\t#INDY (FundId, GeographicFocus, IndustryId, Allocation)", 
-            v)
+            sql.unbracket(v))
         z <- c(z, "", "insert into", v)
     }
     z <- paste(c(sql.drop(c("#FLO", "#CTRY", "#INDY")), "", z), 
@@ -6940,12 +6942,14 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h)
     foo["Fins", "StyleSector"] <- paste(foo[c("Fins", "REst"), 
         "StyleSector"], collapse = ", ")
     for (j in dimnames(foo)[[1]]) {
-        v <- c("FundId", h$Group, paste("SectorId =", foo[j, 
-            "SectorId"]), "Allocation = 100")
-        v <- sql.unbracket(sql.tbl(v, "#FLO", paste0("StyleSector in (", 
-            foo[j, "StyleSector"], ")")))
+        v <- h$Group
+        v <- paste0(v, " = max(", v, ")")
+        v <- c("FundId", v, paste("SectorId =", foo[j, "SectorId"]), 
+            "Allocation = 100")
+        v <- sql.tbl(v, "#FLO", paste0("StyleSector in (", foo[j, 
+            "StyleSector"], ")"), "FundId")
         v <- c(paste0("\t#SEC (FundId, ", h$Group, ", SectorId, Allocation)"), 
-            v)
+            sql.unbracket(v))
         z <- c(z, "", "insert into", v)
     }
     z <- paste(c(sql.drop(c("#FLO", "#CTRY", "#SEC")), "", z), 
