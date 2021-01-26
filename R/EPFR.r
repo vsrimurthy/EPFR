@@ -6763,9 +6763,9 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
     else if (all(h != c("US", "JP"))) {
         stop("Can't handle yet!")
     }
-    h <- Ctry.info(h, "CountryId")
-    h <- paste(h, collapse = ", ")
-    v <- list(A = paste0("CountryId in (", h, ")"))
+    h <- vec.named(Ctry.info(h, "CountryId"), h)
+    v <- list(A = paste0("CountryId in (", paste(h, collapse = ", "), 
+        ")"))
     v[["B"]] <- paste0("ReportDate = '", yyyymm.to.day(u), "'")
     z <- c("FundId", "GeographicFocus", "Universe = sum(Allocation)")
     z <- sql.Allocation(z, "Country", "GeographicFocus", "E", 
@@ -6801,6 +6801,9 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
     v <- c(paste0("create table #FLO (", r[1], " datetime not null, FundId int not null, GeographicFocus int, StyleSector int, ", 
         paste(paste(y, "float"), collapse = ", "), ")"), v)
     z <- c(z, "", v)
+    v <- paste(Ctry.info(names(h), "GeoId"), collapse = ", ")
+    z <- c(z, "", sql.Allocations.bulk.Single("Universe", NULL, 
+        "#CTRY", "GeographicFocus", c("GeographicFocus", v)))
     z <- c(z, "", sql.Allocations.bulk.EqWtAvg("Universe", NULL, 
         "#CTRY", "GeographicFocus"))
     z <- c(z, "", sql.Allocations.bulk.EqWtAvg("Allocation", 
@@ -6816,15 +6819,10 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
     v <- v[-2][-2]
     z <- c(z, "", v)
     for (j in dimnames(foo)[[1]]) {
-        v <- "GeographicFocus"
-        v <- paste0(v, " = max(", v, ")")
-        v <- c("FundId", v, paste("IndustryId =", foo[j, "IndustryId"]), 
-            "Allocation = 100")
-        v <- sql.tbl(v, "#FLO", paste0("StyleSector in (", foo[j, 
-            "StyleSector"], ")"), "FundId")
-        v <- c("\t#INDY (FundId, GeographicFocus, IndustryId, Allocation)", 
-            sql.unbracket(v))
-        z <- c(z, "", "insert into", v)
+        v <- c("StyleSector", foo[j, "StyleSector"])
+        r <- c("IndustryId", foo[j, "IndustryId"])
+        z <- c(z, "", sql.Allocations.bulk.Single("Allocation", 
+            r, "#INDY", "GeographicFocus", v))
     }
     z <- paste(c(sql.drop(c("#FLO", "#CTRY", "#INDY")), "", z), 
         collapse = "\n")
@@ -6888,9 +6886,9 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h)
     else if (all(h$Region != c("US", "JP"))) {
         stop("Can't handle yet!")
     }
-    h$Region <- Ctry.info(h$Region, "CountryId")
-    h$Region <- paste(h$Region, collapse = ", ")
-    v <- list(A = paste0("CountryId in (", h$Region, ")"))
+    h$Region <- vec.named(Ctry.info(h$Region, "CountryId"), h$Region)
+    v <- list(A = paste0("CountryId in (", paste(h$Region, collapse = ", "), 
+        ")"))
     v[["B"]] <- paste0("ReportDate = '", yyyymm.to.day(u), "'")
     z <- c("FundId", h$Group, "Universe = sum(Allocation)")
     z <- sql.Allocation(z, "Country", h$Group, "E", sql.and(v), 
@@ -6922,6 +6920,9 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h)
         h$Group, " int, StyleSector int, ", paste(paste(y, "float"), 
             collapse = ", "), ")"), v)
     z <- c(z, "", v)
+    v <- paste(Ctry.info(names(h$Region), "GeoId"), collapse = ", ")
+    z <- c(z, "", sql.Allocations.bulk.Single("Universe", NULL, 
+        "#CTRY", h$Group, c("GeographicFocus", v)))
     z <- c(z, "", sql.Allocations.bulk.EqWtAvg("Universe", NULL, 
         "#CTRY", h$Group))
     z <- c(z, "", sql.Allocations.bulk.EqWtAvg("Allocation", 
@@ -6942,15 +6943,10 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h)
     foo["Fins", "StyleSector"] <- paste(foo[c("Fins", "REst"), 
         "StyleSector"], collapse = ", ")
     for (j in dimnames(foo)[[1]]) {
-        v <- h$Group
-        v <- paste0(v, " = max(", v, ")")
-        v <- c("FundId", v, paste("SectorId =", foo[j, "SectorId"]), 
-            "Allocation = 100")
-        v <- sql.tbl(v, "#FLO", paste0("StyleSector in (", foo[j, 
-            "StyleSector"], ")"), "FundId")
-        v <- c(paste0("\t#SEC (FundId, ", h$Group, ", SectorId, Allocation)"), 
-            sql.unbracket(v))
-        z <- c(z, "", "insert into", v)
+        v <- c("StyleSector", foo[j, "StyleSector"])
+        r <- c("SectorId", foo[j, "SectorId"])
+        z <- c(z, "", sql.Allocations.bulk.Single("Allocation", 
+            r, "#SEC", h$Group, v))
     }
     z <- paste(c(sql.drop(c("#FLO", "#CTRY", "#SEC")), "", z), 
         collapse = "\n")
@@ -12157,6 +12153,33 @@ sql.Allocations.bulk.EqWtAvg <- function (x, y, n, w)
     r <- paste0("\t", n, " (", paste(c("FundId", w, y, x), collapse = ", "), 
         ")")
     z <- c("insert into", r, z)
+    z
+}
+
+#' sql.Allocations.bulk.Single
+#' 
+#' Bulks up allocations with single-group funds
+#' @param x = name of column being bulked up
+#' @param y = vector of columns in addition to <w> with which funds are tagged
+#' @param n = allocation table name
+#' @param w = allocation bulking group (e.g. GeographicFocus/BenchIndex)
+#' @param h = single-group column and value
+#' @keywords sql.Allocations.bulk.Single
+#' @export
+#' @family sql
+
+sql.Allocations.bulk.Single <- function (x, y, n, w, h) 
+{
+    r <- y[1]
+    if (!is.null(y)) 
+        y <- paste(y, collapse = " = ")
+    z <- paste0(w[1], " = max(", w[1], ")")
+    z <- c("FundId", z, y, paste(x, "= 100"))
+    z <- sql.tbl(z, "#FLO", paste0(h[1], " in (", h[2], ")"), 
+        "FundId")
+    z <- c(paste0("\t", n, " (", paste(c("FundId", w, r, x), 
+        collapse = ", "), ")"), sql.unbracket(z))
+    z <- c("insert into", z)
     z
 }
 
