@@ -6772,8 +6772,7 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
         sql.and(v), paste(z[-length(z)], collapse = ", "))
     z <- c("insert into", "\t#CTRY (FundId, GeographicFocus, Universe)", 
         sql.unbracket(z))
-    z <- c("create clustered index TempRandomCtryIndex ON #CTRY (FundId)", 
-        z)
+    z <- c(sql.index("#CTRY", "FundId"), z)
     z <- c("create table #CTRY (FundId int not null, GeographicFocus int, Universe float)", 
         z)
     v <- paste0("ReportDate = '", yyyymm.to.day(u), "'")
@@ -6782,8 +6781,7 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
         "All", v))
     v <- c("insert into", paste0("\t#INDY (", paste(r, collapse = ", "), 
         ")"), v)
-    v <- c("create clustered index TempRandomIndyIndex ON #INDY (FundId, IndustryId)", 
-        v)
+    v <- c(sql.index("#INDY", "FundId, IndustryId"), v)
     v <- c("create table #INDY (FundId int not null, IndustryId int not null, GeographicFocus int, Allocation float)", 
         v)
     z <- c(z, "", v)
@@ -6796,8 +6794,7 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
     v <- c("insert into", paste0("\t#FLO (", paste(r, collapse = ", "), 
         ", GeographicFocus, StyleSector, ", paste(y, collapse = ", "), 
         ")"), sql.unbracket(v))
-    v <- c(paste0("create clustered index TempRandomFloIndex ON #FLO (", 
-        paste(r, collapse = ", "), ")"), v)
+    v <- c(sql.index("#FLO", paste(r, collapse = ", ")), v)
     v <- c(paste0("create table #FLO (", r[1], " datetime not null, FundId int not null, GeographicFocus int, StyleSector int, ", 
         paste(paste(y, "float"), collapse = ", "), ")"), v)
     z <- c(z, "", v)
@@ -6895,14 +6892,12 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h)
         paste(z[-length(z)], collapse = ", "))
     z <- c("insert into", paste0("\t#CTRY (FundId, ", h$Group, 
         ", Universe)"), sql.unbracket(z))
-    z <- c("create clustered index TempRandomCtryIndex ON #CTRY (FundId)", 
-        z)
+    z <- c(sql.index("#CTRY", "FundId"), z)
     z <- c(paste0("create table #CTRY (FundId int not null, ", 
         h$Group, " int, Universe float)"), z)
     v <- paste0("ReportDate = '", yyyymm.to.day(u), "'")
     v <- sql.Allocation.Sec(v, h$Group)
-    v <- c("create clustered index TempRandomSecIndex ON #SEC (FundId, SectorId)", 
-        v)
+    v <- c(sql.index("#SEC", "FundId, SectorId"), v)
     v <- c(paste0("create table #SEC (FundId int not null, SectorId int not null, ", 
         h$Group, " int, Allocation float)"), v)
     z <- c(z, "", v)
@@ -6914,8 +6909,7 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h)
         c(h$Group, "StyleSector"), w, paste(r, collapse = ", "))
     v <- c("insert into", paste0("\t#FLO (", paste(c(r, h$Group, 
         "StyleSector", y), collapse = ", "), ")"), sql.unbracket(v))
-    v <- c(paste0("create clustered index TempRandomFloIndex ON #FLO (", 
-        paste(r, collapse = ", "), ")"), v)
+    v <- c(sql.index("#FLO", paste(r, collapse = ", ")), v)
     v <- c(paste0("create table #FLO (", r[1], " datetime not null, FundId int not null, ", 
         h$Group, " int, StyleSector int, ", paste(paste(y, "float"), 
             collapse = ", "), ")"), v)
@@ -7016,8 +7010,7 @@ mk.1mActPas.Sec <- function (x, y, n)
     z <- list(A = paste0("ReportDate = '", yyyymm.to.day(x), 
         "'"))
     z <- sql.Allocation.Sec(z, "Idx", c("E", n))
-    z <- c("create clustered index TempRandomSecIndex ON #SEC (FundId, SectorId)", 
-        z)
+    z <- c(sql.index("#SEC", "FundId, SectorId"), z)
     z <- c("create table #SEC (FundId int not null, SectorId int not null, Idx char(1), Allocation float)", 
         z)
     z <- c(z, "", "update #SEC set Idx = 'N' where Idx is NULL")
@@ -7103,8 +7096,7 @@ mk.1mBullish.Ctry <- function (x, y)
         "Idx"), "E", sql.and(z)))
     z <- c("insert into", paste0("\t#CTRY (", paste(v, collapse = ", "), 
         ")"), z)
-    z <- c("create clustered index TempRandomCtryIndex ON #CTRY (FundId, CountryId)", 
-        z)
+    z <- c(sql.index("#CTRY", "FundId, CountryId"), z)
     z <- c("create table #CTRY (FundId int not null, CountryId int not null, BenchIndex int, Idx char(1), Allocation float)", 
         z)
     z <- c(z, "", "update #CTRY set Idx = 'N' where Idx is NULL")
@@ -7142,8 +7134,7 @@ mk.1mBullish.Sec <- function (x, y, n)
         "'"))
     z <- sql.Allocation.Sec(z, c("BenchIndex", "Idx"), c("E", 
         n))
-    z <- c("create clustered index TempRandomSecIndex ON #SEC (FundId, SectorId)", 
-        z)
+    z <- c(sql.index("#SEC", "FundId, SectorId"), z)
     z <- c("create table #SEC (FundId int not null, SectorId int not null, BenchIndex int, Idx char(1), Allocation float)", 
         z)
     z <- c(z, "", "update #SEC set Idx = 'N' where Idx is NULL")
@@ -10745,19 +10736,18 @@ sql.1dActWtTrend.underlying <- function (x, y, n)
         z, paste0("ReportDate = '", x, "'"), "FundId, GeographicFocusId")
     z <- c("insert into", "\t#FLO (FundId, GeographicFocusId, Flow, AssetsStart)", 
         sql.unbracket(z))
-    z <- c("create clustered index TempRandomFloIndex ON #FLO(FundId)", 
-        z)
+    z <- c(sql.index("#FLO", "FundId"), z)
     z <- c("create table #FLO (FundId int not null, GeographicFocusId int, Flow float, AssetsStart float)", 
         z)
     z <- c(sql.drop(c("#AUM", "#HLD", "#FLO")), "", z)
-    z <- c(z, "", "create table #AUM (FundId int not null, PortVal float not null)", 
-        "create clustered index TempRandomAumIndex ON #AUM(FundId)")
+    z <- c(z, "", "create table #AUM (FundId int not null, PortVal float not null)")
+    z <- c(z, sql.index("#AUM", "FundId"))
     w <- c("MonthlyData t1", "inner join", "FundHistory t2 on t2.HFundId = t1.HFundId")
     w <- sql.unbracket(sql.tbl("FundId, PortVal = sum(AssetsEnd)", 
         w, paste0("ReportDate = '", mo.end, "'"), "FundId", "sum(AssetsEnd) > 0"))
     z <- c(z, "insert into", "\t#AUM (FundId, PortVal)", w)
     z <- c(z, "", "create table #HLD (FundId int not null, HFundId int not null, HSecurityId int not null, HoldingValue float)")
-    z <- c(z, "create clustered index TempRandomHoldIndex ON #HLD(FundId, HSecurityId)")
+    z <- c(z, sql.index("#HLD", "FundId, HSecurityId"))
     z <- c(z, "insert into", "\t#HLD (FundId, HFundId, HSecurityId, HoldingValue)", 
         sql.unbracket(sql.MonthlyAlloc(paste0("'", mo.end, "'"))))
     if (any(y == "Pseudo")) {
@@ -11417,19 +11407,18 @@ sql.1mActWtTrend.underlying <- function (x, y, n)
         z, paste0("ReportDate = '", x, "'"), "FundId, GeographicFocusId")
     z <- c("insert into", "\t#FLO (FundId, GeographicFocusId, Flow, AssetsStart)", 
         sql.unbracket(z))
-    z <- c("create clustered index TempRandomFloIndex ON #FLO(FundId)", 
-        z)
+    z <- c(sql.index("#FLO", "FundId"), z)
     z <- c("create table #FLO (FundId int not null, GeographicFocusId int, Flow float, AssetsStart float)", 
         z)
     z <- c(sql.drop(c("#AUM", "#HLD", "#FLO")), "", z)
-    z <- c(z, "", "create table #AUM (FundId int not null, PortVal float not null)", 
-        "create clustered index TempRandomAumIndex ON #AUM(FundId)")
+    z <- c(z, "", "create table #AUM (FundId int not null, PortVal float not null)")
+    z <- c(z, sql.index("#AUM", "FundId"))
     w <- c("MonthlyData t1", "inner join", "FundHistory t2 on t2.HFundId = t1.HFundId")
     w <- sql.unbracket(sql.tbl("FundId, PortVal = sum(AssetsEnd)", 
         w, paste0("ReportDate = '", x, "'"), "FundId", "sum(AssetsEnd) > 0"))
     z <- c(z, "insert into", "\t#AUM (FundId, PortVal)", w)
     z <- c(z, "", "create table #HLD (FundId int not null, HFundId int not null, HSecurityId int not null, HoldingValue float)")
-    z <- c(z, "create clustered index TempRandomHoldIndex ON #HLD(FundId, HSecurityId)")
+    z <- c(z, sql.index("#HLD", "FundId, HSecurityId"))
     z <- c(z, "insert into", "\t#HLD (FundId, HFundId, HSecurityId, HoldingValue)", 
         sql.unbracket(sql.MonthlyAlloc(paste0("'", x, "'"))))
     if (any(y == "Pseudo")) {
@@ -12294,7 +12283,7 @@ sql.Bullish <- function (x, y, n, w)
     cols <- c("HFundId", "HSecurityId", "HoldingValue")
     z <- c(sql.drop(c("#HLD", "#BMK")), "")
     z <- c(z, "create table #HLD (HFundId int not null, HSecurityId int not null, HoldingValue float)")
-    z <- c(z, "create clustered index TempRandomHoldIndex ON #HLD(HFundId, HSecurityId)")
+    z <- c(z, sql.index("#HLD", "HFundId, HSecurityId"))
     z <- c(z, "insert into", paste0("\t#HLD (", paste(cols, collapse = ", "), 
         ")"))
     h <- paste0("ReportDate = '", x, "'")
@@ -12516,7 +12505,7 @@ sql.Dispersion <- function (x, y, n, w)
     x <- yyyymm.to.day(x)
     z <- sql.drop(c("#HLD", "#BMK"))
     z <- c(z, "", "create table #BMK (BenchIndexId int not null, HSecurityId int not null, HoldingValue float not null)")
-    z <- c(z, "create clustered index TempRandomBmkIndex ON #BMK(BenchIndexId, HSecurityId)")
+    z <- c(z, sql.index("#BMK", "BenchIndexId, HSecurityId"))
     u <- sql.and(list(A = paste0("ReportDate = '", x, "'"), B = "[Index] = 1"))
     h <- "Holdings t1 inner join FundHistory t2 on t2.HFundId = t1.HFundId"
     h <- sql.tbl("BenchIndexId, HSecurityId, HoldingValue = sum(HoldingValue)", 
@@ -12528,7 +12517,7 @@ sql.Dispersion <- function (x, y, n, w)
         h, "#BMK.BenchIndexId = t.BenchIndexId"))
     z <- c(z, "", "update #BMK set", h[-1])
     z <- c(z, "", "create table #HLD (HFundId int not null, HSecurityId int not null, HoldingValue float not null)")
-    z <- c(z, "create clustered index TempRandomHldIndex ON #HLD(HFundId, HSecurityId)")
+    z <- c(z, sql.index("#HLD", "HFundId, HSecurityId"))
     u <- "BenchIndexId in (select BenchIndexId from #BMK)"
     u <- sql.and(list(A = paste0("ReportDate = '", x, "'"), B = "[Index] = 0", 
         C = u, D = "HoldingValue > 0"))
@@ -12973,6 +12962,21 @@ sql.HSIdmap <- function (x)
 sql.in <- function (x, y, n = T) 
 {
     c(paste(x, ifelse(n, "in", "not in")), paste0("\t", y))
+}
+
+#' sql.index
+#' 
+#' SQL for primary key on <x> by columns <y>
+#' @param x = table name
+#' @param y = string of column labels to index by (e.g. "DayEnding, FundId")
+#' @keywords sql.index
+#' @export
+#' @family sql
+
+sql.index <- function (x, y) 
+{
+    paste0("alter table ", x, " add constraint constraintName PRIMARY KEY (", 
+        y, ")")
 }
 
 #' sql.into
