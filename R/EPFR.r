@@ -12175,8 +12175,15 @@ sql.Allocations.bulk.Single <- function (x, y, n, w, h)
         y <- paste(y, collapse = " = ")
     z <- paste0(w[1], " = max(", w[1], ")")
     z <- c("FundId", z, y, paste(x, "= 100"))
-    z <- sql.tbl(z, "#FLO", paste0(h[1], " in (", h[2], ")"), 
-        "FundId")
+    if (h[1] != w & is.null(y)) {
+        h <- paste0(h[1], " in (", h[2], ")")
+        h <- sql.tbl("FundId", "FundHistory", h)
+        h <- sql.in("FundId", h)
+    }
+    else {
+        h <- paste0(h[1], " in (", h[2], ")")
+    }
+    z <- sql.tbl(z, "#FLO", h, "FundId")
     z <- c(paste0("\t", n, " (", paste(c("FundId", w, r, x), 
         collapse = ", "), ")"), sql.unbracket(z))
     z <- c("insert into", z)
