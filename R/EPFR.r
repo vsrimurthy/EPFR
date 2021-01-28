@@ -12975,8 +12975,8 @@ sql.in <- function (x, y, n = T)
 
 sql.index <- function (x, y) 
 {
-    paste0("create unique index ", substring(x, 2, nchar(x)), 
-        "Index ON ", x, " (", y, ")")
+    paste0("create unique clustered index ", substring(x, 2, 
+        nchar(x)), "Index ON ", x, " (", y, ")")
 }
 
 #' sql.into
