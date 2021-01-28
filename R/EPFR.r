@@ -12975,8 +12975,8 @@ sql.in <- function (x, y, n = T)
 
 sql.index <- function (x, y) 
 {
-    paste0("alter table ", x, " add constraint ", substring(x, 
-        2, nchar(x)), "Key PRIMARY KEY (", y, ")")
+    paste0("create unique index ", substring(x, 2, nchar(x)), 
+        "Index ON ", x, " (", y, ")")
 }
 
 #' sql.into
