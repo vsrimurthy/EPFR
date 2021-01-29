@@ -7170,48 +7170,68 @@ mk.1mBullish.Sec <- function (x, y, n)
 
 mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = T) 
 {
+    v <- yyyymmdd.to.AllocMo(x)
+    if (all(v == v[1])) 
+        v <- v[1]
+    else stop("Bad Allocation Month")
+    v <- yyyymm.to.day(v)
     h <- sql.connect.wrapper(h)
     w <- sql.1dFloMo.CountryId.List(w)
     w <- Ctry.info(w, c("GeoId", "CountryId"))
     rslt <- list(MAP = w)
-    r <- c("GeographicFocus", paste0(n, " = sum(", n, ")"))
-    z <- paste0("GeographicFocus in (", paste(w$GeoId[!is.na(w$GeoId)], 
-        collapse = ", "), ")")
-    z <- sql.Flow(r, list(A = "@floDt"), c(y, z, "UI"), "GeographicFocus", 
-        !u, "GeographicFocus")
-    z <- c(sql.declare("@floDt", "datetime", x), sql.unbracket(z))
-    rslt[["SCF"]] <- sql.query.underlying(paste(z, collapse = "\n"), 
-        h$conn, F)
-    r <- c("GeographicFocus", paste0(n, " = sum(", n, ")"))
-    z <- sql.Flow(r, list(A = "@floDt"), c(y, "CB", "UI"), "GeographicFocus", 
-        !u, "GeographicFocus")
-    z <- c(sql.declare("@floDt", "datetime", x), sql.unbracket(z))
-    rslt[["CBF"]] <- sql.query.underlying(paste(z, collapse = "\n"), 
-        h$conn, F)
+    rslt[["SCF"]] <- list()
+    for (j in x) {
+        r <- c("GeographicFocus", paste0(n, " = sum(", n, ")"))
+        z <- paste0("GeographicFocus in (", paste(w$GeoId[!is.na(w$GeoId)], 
+            collapse = ", "), ")")
+        z <- sql.Flow(r, list(A = "@floDt"), c(y, z, "UI"), "GeographicFocus", 
+            !u, "GeographicFocus")
+        z <- c(sql.declare("@floDt", "datetime", j), sql.unbracket(z))
+        rslt[["SCF"]][[j]] <- sql.query.underlying(paste(z, collapse = "\n"), 
+            h$conn, F)
+    }
+    rslt[["CBF"]] <- list()
+    for (j in x) {
+        r <- c("GeographicFocus", paste0(n, " = sum(", n, ")"))
+        z <- sql.Flow(r, list(A = "@floDt"), c(y, "CB", "UI"), 
+            "GeographicFocus", !u, "GeographicFocus")
+        z <- c(sql.declare("@floDt", "datetime", j), sql.unbracket(z))
+        rslt[["CBF"]][[j]] <- sql.query.underlying(paste(z, collapse = "\n"), 
+            h$conn, F)
+    }
     r <- c("Advisor", "CountryId", "GeographicFocus", "Allocation = avg(Allocation)")
-    v <- list(A = paste0("CountryId in (", paste(w$CountryId[!is.na(w$CountryId)], 
+    u <- list(A = paste0("CountryId in (", paste(w$CountryId[!is.na(w$CountryId)], 
         collapse = ", "), ")"))
-    v[["B"]] <- "datediff(month, ReportDate, @floDt) = case when day(@floDt) < 23 then 2 else 1 end"
+    u[["B"]] <- "ReportDate = @floDt"
     z <- sql.Allocation(r, "Country", c("Advisor", "GeographicFocus"), 
-        c("CB", y, "UI"), sql.and(v), paste(r[-length(r)], collapse = ", "))
+        c("CB", y, "UI"), sql.and(u), paste(r[-length(r)], collapse = ", "))
     z <- sql.tbl(r[-1], sql.label(z, "t"), , paste(r[-length(r)][-1], 
         collapse = ", "))
-    z <- c(sql.declare("@floDt", "datetime", x), sql.unbracket(z))
+    z <- c(sql.declare("@floDt", "datetime", v), sql.unbracket(z))
     z <- sql.query.underlying(paste(z, collapse = "\n"), h$conn, 
         F)
     sql.close(h)
     rslt[["CBA"]] <- reshape.wide(z)
-    rslt[["CBF"]] <- map.rname(mat.index(rslt[["CBF"]]), dimnames(rslt[["CBA"]])[[2]])
-    rslt[["CBF"]] <- 0.01 * as.matrix(rslt[["CBA"]]) %*% as.matrix(rslt[["CBF"]])
-    rslt[["CBF"]] <- map.rname(rslt[["CBF"]], rslt[["MAP"]][, 
-        "CountryId"])
-    rslt[["SCF"]] <- map.rname(mat.index(rslt[["SCF"]]), rslt[["MAP"]][, 
+    fcn <- function(x) {
+        x <- map.rname(mat.index(x), dimnames(rslt[["CBA"]])[[2]])
+        x <- 0.01 * as.matrix(rslt[["CBA"]]) %*% as.matrix(x)
+        x <- map.rname(x, rslt[["MAP"]][, "CountryId"])
+        x
+    }
+    rslt[["CBF"]] <- lapply(rslt[["CBF"]], fcn)
+    fcn <- function(x) map.rname(mat.index(x), rslt[["MAP"]][, 
         "GeoId"])
-    z <- zav(rslt[["SCF"]]) + zav(rslt[["CBF"]])
-    dimnames(z)[[1]] <- dimnames(rslt[["MAP"]])[[1]]
-    if (length(n) == 1) 
-        z <- as.matrix(z)[, 1]
-    else z <- mat.ex.matrix(z)
+    rslt[["SCF"]] <- lapply(rslt[["SCF"]], fcn)
+    z <- list()
+    for (j in x) {
+        z[[j]] <- zav(rslt[["SCF"]][[j]]) + zav(rslt[["CBF"]][[j]])
+        dimnames(z[[j]])[[1]] <- dimnames(rslt[["MAP"]])[[1]]
+        if (length(n) == 1) 
+            z[[j]] <- as.matrix(z[[j]])[, 1]
+        else z[[j]] <- mat.ex.matrix(z[[j]])
+    }
+    if (length(x) == 1) 
+        z <- z[[x]]
     z
 }
 
@@ -10831,6 +10851,11 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
     else if (x == "LatAm") {
         z <- mat.read(parameters("classif-Ctry"))
         z <- dimnames(z)[[1]][is.element(z$EpfrRgn, "Latin America")]
+        classif.type <- "Ctry"
+    }
+    else if (x == "CountryFlow") {
+        z <- mat.read(parameters("classif-Ctry"))
+        z <- dimnames(z)[[1]][!is.na(z$CountryId)]
         classif.type <- "Ctry"
     }
     else if (x == "EMDM") {
