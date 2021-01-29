@@ -10830,7 +10830,7 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
     }
     else if (x == "LatAm") {
         z <- mat.read(parameters("classif-Ctry"))
-        z <- dimnames(z)[[1]][is.element(z$EpfrRgn, x)]
+        z <- dimnames(z)[[1]][is.element(z$EpfrRgn, "Latin America")]
         classif.type <- "Ctry"
     }
     else if (x == "EMDM") {
