@@ -9720,7 +9720,7 @@ rpt.email <- function (x, y, n, w, h, u, v)
     if (missing(h)) {
         if (recipient.exists(x)) {
             h <- recipient.read(x)
-            if (length(v) > 1) 
+            if (length(v) > 1 & length(h) > 1) 
                 v <- ifelse(is.element(names(h), v), names(h), 
                   x)
             h <- as.character(h)
