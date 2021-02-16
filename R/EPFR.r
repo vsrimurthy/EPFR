@@ -9300,7 +9300,7 @@ recipient.read <- function (x)
         z[[j]] <- setdiff(z[[j]], "ALLES")
         z[[j]] <- c(z[[j]], recipient.read("ALLES"))
     }
-    z <- as.character(sapply(z, function(x) paste(x, collapse = "; ")))
+    z <- sapply(z, function(x) paste(x, collapse = "; "))
     z
 }
 
@@ -9713,18 +9713,22 @@ rgb.diff <- function (x, y)
 
 rpt.email <- function (x, y, n, w, h, u, v) 
 {
+    if (missing(u)) 
+        u <- paste0(x, "Email.log")
+    if (missing(v)) 
+        v <- x
     if (missing(h)) {
         if (recipient.exists(x)) {
             h <- recipient.read(x)
+            if (length(v) > 1) 
+                v <- ifelse(is.element(names(h), v), names(h), 
+                  x)
+            h <- as.character(h)
         }
         else {
             h <- paste0(x, "List")
         }
     }
-    if (missing(u)) 
-        u <- paste0(x, "Email.log")
-    if (missing(v)) 
-        v <- x
     fldr <- paste0("C:\\temp\\Automation\\R\\", x)
     u <- paste(fldr, u, sep = "\\")
     if (w) {
