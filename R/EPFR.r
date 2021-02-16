@@ -9268,6 +9268,42 @@ read.prcRet <- function (x)
     z
 }
 
+#' recipient.exists
+#' 
+#' T/F depending on whether recipient list exists
+#' @param x = report name
+#' @keywords recipient.exists
+#' @export
+#' @family recipient
+
+recipient.exists <- function (x) 
+{
+    any(is.element(mat.read(parameters("classif-recipient"), 
+        "\t", NULL)[, 1], x))
+}
+
+#' recipient.read
+#' 
+#' vector of recipient tranches
+#' @param x = report name
+#' @keywords recipient.read
+#' @export
+#' @family recipient
+
+recipient.read <- function (x) 
+{
+    z <- mat.read(parameters("classif-recipient"), "\t", NULL)
+    z <- z[is.element(z[, "email"], x), ]
+    z <- split(z$recipient, z$tranche)
+    w <- sapply(z, function(x) any(x == "ALLES"))
+    for (j in names(z)[w]) {
+        z[[j]] <- setdiff(z[[j]], "ALLES")
+        z[[j]] <- c(z[[j]], recipient.read("ALLES"))
+    }
+    z <- as.character(sapply(z, function(x) paste(x, collapse = "; ")))
+    z
+}
+
 #' record.exists
 #' 
 #' T/F depending on whether action already taken
@@ -9677,8 +9713,14 @@ rgb.diff <- function (x, y)
 
 rpt.email <- function (x, y, n, w, h, u, v) 
 {
-    if (missing(h)) 
-        h <- paste0(x, "List")
+    if (missing(h)) {
+        if (recipient.exists(x)) {
+            h <- recipient.read(x)
+        }
+        else {
+            h <- paste0(x, "List")
+        }
+    }
     if (missing(u)) 
         u <- paste0(x, "Email.log")
     if (missing(v)) 
