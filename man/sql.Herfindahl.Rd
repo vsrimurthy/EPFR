@@ -4,7 +4,7 @@
 \alias{sql.Herfindahl}
 \title{sql.Herfindahl}
 \usage{
-sql.Herfindahl(x, y, n, w)
+sql.Herfindahl(x, y, n, w, h)
 }
 \arguments{
 \item{x}{= the YYYYMM for which you want data (known 26 days later)}
@@ -14,6 +14,8 @@ sql.Herfindahl(x, y, n, w)
 \item{n}{= any of StockFlows/China/Japan/CSI300/Energy}
 
 \item{w}{= T/F depending on whether you are checking ftp}
+
+\item{h}{= breakdown filter (e.g. All/GeoId/DomicileId)}
 }
 \description{
 Generates Herfindahl dispersion and FundCt, the ownership breadth measure set forth in Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"

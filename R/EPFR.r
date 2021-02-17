@@ -4800,7 +4800,7 @@ ftp.sql.factor <- function (x, y, n, w, h)
 {
     if (missing(h)) {
         if (any(x == c("StockM", "StockD", "FwtdEx0", "FwtdIn0", 
-            "SwtdEx0", "SwtdIn0", "FundCtM", "HoldSum"))) {
+            "SwtdEx0", "SwtdIn0", "FundCtM", "HoldSum", "FundCt"))) {
             h <- "GeoId"
         }
         else {
@@ -4848,7 +4848,7 @@ ftp.sql.factor <- function (x, y, n, w, h)
     }
     else if (all(is.element(x, c("FundCt", "Herfindahl")))) {
         z <- sql.Herfindahl(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
-            w, T)
+            w, T, h)
     }
     else if (all(x == "StockM")) {
         z <- sql.1mFloMo(yyyymmdd.to.yyyymm(y), c("FloDollar", 
@@ -7051,7 +7051,7 @@ mk.1mAllocMo <- function (x, y, n)
         z <- sql.Dispersion(x, y, n$DB, F)
     }
     else if (any(y[1] == c("Herfindahl", "HerfindahlEq", "FundCt"))) {
-        z <- sql.Herfindahl(x, y, n$DB, F)
+        z <- sql.Herfindahl(x, y, n$DB, F, "All")
     }
     else if (y[1] == "HoldSum") {
         z <- sql.1mFundCt(x, y, n$DB, F, "All")
@@ -12864,11 +12864,12 @@ sql.HerdingLSV <- function (x, y)
 #' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
+#' @param h = breakdown filter (e.g. All/GeoId/DomicileId)
 #' @keywords sql.Herfindahl
 #' @export
 #' @family sql
 
-sql.Herfindahl <- function (x, y, n, w) 
+sql.Herfindahl <- function (x, y, n, w, h) 
 {
     y <- sql.arguments(y)
     z <- yyyymm.to.day(x)
@@ -12883,16 +12884,12 @@ sql.Herfindahl <- function (x, y, n, w)
     if (length(n) == 1) 
         n <- n[[1]]
     else n <- sql.and(n)
-    if (w & any(y$factor == "FundCt")) {
-        z <- c(sql.ReportDate(z), "GeoId = GeographicFocusId", 
-            "HSecurityId")
-    }
-    else if (w & all(y$factor != "FundCt")) {
-        z <- c(sql.ReportDate(z), "HSecurityId")
-    }
-    else {
-        z <- "SecurityId"
-    }
+    if (h == "GeoId") 
+        r <- "GeoId = GeographicFocusId"
+    else r <- sql.breakdown(h)
+    if (w) 
+        z <- c(sql.ReportDate(z), r, "HSecurityId")
+    else z <- "SecurityId"
     for (j in y$factor) {
         if (j == "Herfindahl") {
             z <- c(z, paste(j, "1 - sum(square(HoldingValue))/square(sum(HoldingValue))", 
@@ -12909,22 +12906,16 @@ sql.Herfindahl <- function (x, y, n, w)
             stop("Bad factor", j)
         }
     }
-    h <- "Holdings h"
-    if (any(y$factor == "FundCt") & w) 
-        h <- c(h, "inner join", "FundHistory t on t.HFundId = h.HFundId")
+    r <- "Holdings h"
+    if (!is.null(sql.breakdown(h))) 
+        r <- c(r, "inner join", "FundHistory t on t.HFundId = h.HFundId")
     if (!w) 
-        h <- c(h, "inner join", "SecurityHistory id on id.HSecurityId = h.HSecurityId")
+        r <- c(r, "inner join", "SecurityHistory id on id.HSecurityId = h.HSecurityId")
     if (any(y$factor == "HerfindahlEq")) {
-        h <- c(h, "inner join", sql.label(sql.MonthlyAssetsEnd("@mo"), 
+        r <- c(r, "inner join", sql.label(sql.MonthlyAssetsEnd("@mo"), 
             "t on t.HFundId = h.HFundId"))
     }
-    if (any(y$factor == "FundCt") & w) {
-        w <- "HSecurityId, GeographicFocusId"
-    }
-    else {
-        w <- ifelse(w, "HSecurityId", "SecurityId")
-    }
-    z <- sql.tbl(z, h, n, w, "sum(HoldingValue) > 0")
+    z <- sql.tbl(z, r, n, sql.1dFloMo.grp(w, h), "sum(HoldingValue) > 0")
     z <- paste(c(x, sql.unbracket(z)), collapse = "\n")
     z
 }
