@@ -4281,6 +4281,7 @@ ftp.del <- function (x, y, n, w, h, u = 60)
         cat("Deleting", length(y), "files from", x, "...\n")
         ftp.action(x, paste(paste0("del \"", y, "\""), collapse = "\n"), 
             n, w, h, u)
+        proc.kill("ftp.exe", 5)
         v <- is.element(y, names(ftp.dir(x)))
     }
     invisible()
@@ -4316,6 +4317,7 @@ ftp.dir <- function (x, y, n, w, h = F, u = 60)
         y <- shell.wrapper(paste0("ftp -i -s:", ftp.file), u)
         y <- ftp.dir.excise.crap(y, "250 CWD successful.", "226 Successfully transferred")
         j <- j - 1
+        proc.kill("ftp.exe", 5)
     }
     if (is.null(y)) 
         stop("Error in ftp.dir. Remote folder ", x, " does not exist ...")
@@ -4554,7 +4556,10 @@ ftp.get <- function (x, y, n, w, h, u = 600)
     bat.file <- "C:\\temp\\foo.bat"
     cat(paste0("C:\ncd \"", y, "\"\nftp -i -s:", ftp.file), file = bat.file)
     v <- paste(y, ftp.file(x), sep = "\\")
-    while (!file.exists(v)) z <- shell.wrapper(bat.file, u)
+    while (!file.exists(v)) {
+        z <- shell.wrapper(bat.file, u)
+        proc.kill("ftp.exe", 5)
+    }
     invisible()
 }
 
@@ -4640,6 +4645,7 @@ ftp.mkdir <- function (x, y, n, w, h, u = 60)
         cat("Creating subfolder", y, "under", x, "...\n")
         ftp.action(x, paste0("mkdir \"", paste(y, collapse = "/"), 
             "\""), n, w, h, u)
+        proc.kill("ftp.exe", 5)
         halt <- F
         while (!halt) {
             v <- ftp.dir(x, n, w, h, F, u)
@@ -4698,6 +4704,7 @@ ftp.put <- function (x, y, n, w, h, u = 600)
         cat("Uploading", length(y), "files to", x, "...\n")
         ftp.action(x, paste(paste0("put \"", y, "\""), collapse = "\n"), 
             n, w, h, u)
+        proc.kill("ftp.exe", 5)
         v <- is.element(ftp.file(y), names(ftp.dir(x)))
     }
     invisible()
@@ -4779,6 +4786,7 @@ ftp.rmdir <- function (x, y, n, w, h, u = 60)
     while (any(names(v) == y)) {
         cat("Removing subfolder", y, "from", x, "...\n")
         ftp.action(x, paste0("rmdir \"", y, "\""), n, w, h, u)
+        proc.kill("ftp.exe", 5)
         v <- ftp.dir(x, n, w, h, F, u)
     }
     invisible()
@@ -8415,6 +8423,24 @@ principal.components.underlying <- function (x, y)
             1:y])
     }
     z
+}
+
+#' proc.kill
+#' 
+#' kills of all processes <x> if more than <y> of them are running
+#' @param x = process name (e.g. "ftp.exe")
+#' @param y = number of instances
+#' @keywords proc.kill
+#' @export
+
+proc.kill <- function (x, y) 
+{
+    z <- shell("tasklist", intern = T)
+    z <- txt.parse(z, " ")[, 1]
+    z <- sum(z == x)
+    if (z > y) 
+        z <- shell(paste("TASKKILL /IM", x, "/F"), intern = T)
+    invisible()
 }
 
 #' product
