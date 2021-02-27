@@ -17,6 +17,7 @@ array.ex.list(x, y, n)
 array
 }
 \seealso{
-Other array: \code{\link{array.unlist}}
+Other array: \code{\link{array.bind}},
+  \code{\link{array.unlist}}
 }
 \keyword{array.ex.list}

@@ -183,6 +183,26 @@ angle <- function (x, y, n)
     z
 }
 
+#' array.bind
+#' 
+#' binds together <x> and <y> along the dimension they differ on
+#' @param x = an array
+#' @param y = an array
+#' @keywords array.bind
+#' @export
+#' @family array
+
+array.bind <- function (x, y) 
+{
+    x <- array.unlist(x)
+    y <- array.unlist(y)
+    x <- rbind(x, y)
+    x <- mat.sort(x, dim(x)[2]:2 - 1, rep(F, dim(x)[2] - 1))
+    z <- lapply(x[, -dim(x)[2]], unique)
+    z <- array(x[, dim(x)[2]], sapply(z, length), z)
+    z
+}
+
 #' array.ex.list
 #' 
 #' array

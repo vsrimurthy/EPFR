@@ -15,6 +15,7 @@ array.unlist(x, y)
 unlists the contents of an array
 }
 \seealso{
-Other array: \code{\link{array.ex.list}}
+Other array: \code{\link{array.bind}},
+  \code{\link{array.ex.list}}
 }
 \keyword{array.unlist}
