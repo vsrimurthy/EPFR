@@ -4,16 +4,14 @@
 \alias{sql.1dFloMo.select.wrapper}
 \title{sql.1dFloMo.select.wrapper}
 \usage{
-sql.1dFloMo.select.wrapper(x, y, n, w)
+sql.1dFloMo.select.wrapper(x, y, n)
 }
 \arguments{
-\item{x}{= a YYYYMMDD date}
+\item{x}{= a string vector of factors to be computed, the last elements of are the type of fund used}
 
-\item{y}{= a string vector of factors to be computed, the last elements of are the type of fund used}
+\item{y}{= T/F depending on whether you are checking ftp}
 
-\item{n}{= T/F depending on whether you are checking ftp}
-
-\item{w}{= breakdown filter (e.g. All/GeoId/DomicileId)}
+\item{n}{= breakdown filter (e.g. All/GeoId/DomicileId)}
 }
 \description{
 Generates the SQL query to get the data for 1mFloMo for individual stocks

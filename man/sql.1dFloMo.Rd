@@ -7,7 +7,7 @@
 sql.1dFloMo(x, y, n, w, h)
 }
 \arguments{
-\item{x}{= the date for which you want flows (known one day later)}
+\item{x}{= vector of flow dates in YYYYMMDD (known two days later)}
 
 \item{y}{= a string vector of factors to be computed, the last elements of which are the type of fund used}
 

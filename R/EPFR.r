@@ -10741,7 +10741,7 @@ smear.Q1 <- function (x)
 #' sql.1dActWtTrend
 #' 
 #' the SQL query to get 1dActWtTrend
-#' @param x = the YYYYMMDD for which you want flows (known one day later)
+#' @param x = vector of flow dates in YYYYMMDD (known two days later)
 #' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
@@ -10753,7 +10753,7 @@ sql.1dActWtTrend <- function (x, y, n, w)
 {
     y <- sql.arguments(y)
     z <- sql.1dActWtTrend.underlying(x, y$filter, sql.RDSuniv(n))
-    z <- c(z, sql.1dActWtTrend.topline(y$factor, x, w))
+    z <- c(z, sql.1dActWtTrend.topline(y$factor, w))
     z
 }
 
@@ -10785,26 +10785,26 @@ sql.1dActWtTrend.select <- function (x)
 #' 
 #' SQL query to get the select statement for 1dActWtTrend
 #' @param x = a string vector of factors to be computed
-#' @param y = the YYYYMMDD for which you want flows (known one day later)
-#' @param n = T/F depending on whether you are checking ftp
+#' @param y = T/F depending on whether you are checking ftp
 #' @keywords sql.1dActWtTrend.topline
 #' @export
 #' @family sql
 
-sql.1dActWtTrend.topline <- function (x, y, n) 
+sql.1dActWtTrend.topline <- function (x, y) 
 {
-    if (n) {
-        z <- c(sql.ReportDate(y), "hld.HSecurityId")
+    if (y) {
+        z <- c("ReportDate = convert(char(10), flo.ReportDate, 101) + ' 12:00:00 AM'", 
+            "hld.HSecurityId")
     }
     else {
         z <- "SecurityId"
     }
     z <- c(z, sapply(vec.to.list(x), sql.1dActWtTrend.select))
     x <- sql.1dActWtTrend.topline.from()
-    if (!n) 
+    if (!y) 
         x <- c(x, "inner join", "SecurityHistory id on id.HSecurityId = hld.HSecurityId")
-    n <- ifelse(n, "hld.HSecurityId", "SecurityId")
-    z <- paste(sql.unbracket(sql.tbl(z, x, , n)), collapse = "\n")
+    y <- ifelse(y, "hld.HSecurityId, flo.ReportDate", "SecurityId")
+    z <- paste(sql.unbracket(sql.tbl(z, x, , y)), collapse = "\n")
     z
 }
 
@@ -10817,22 +10817,22 @@ sql.1dActWtTrend.topline <- function (x, y, n)
 
 sql.1dActWtTrend.topline.from <- function () 
 {
-    w <- "HSecurityId, GeographicFocusId, FundWtdExcl0 = sum(HoldingValue)/sum(PortVal)"
+    w <- "ReportDate, HSecurityId, GeographicFocusId, FundWtdExcl0 = sum(HoldingValue)/sum(PortVal)"
     z <- c("#FLO t1", "inner join", "#HLD t2 on t2.FundId = t1.FundId", 
         "inner join", "#AUM t3 on t3.FundId = t1.FundId")
-    w <- sql.label(sql.tbl(w, z, , "HSecurityId, GeographicFocusId"), 
+    w <- sql.label(sql.tbl(w, z, , "ReportDate, HSecurityId, GeographicFocusId"), 
         "mnW")
     z <- c("#FLO flo", "inner join", "#HLD hld on hld.FundId = flo.FundId", 
         "inner join", "#AUM aum on aum.FundId = hld.FundId", 
         "inner join")
-    z <- c(z, w, "\ton mnW.HSecurityId = hld.HSecurityId and mnW.GeographicFocusId = flo.GeographicFocusId")
+    z <- c(z, w, "\ton mnW.ReportDate = flo.ReportDate and mnW.HSecurityId = hld.HSecurityId and mnW.GeographicFocusId = flo.GeographicFocusId")
     z
 }
 
 #' sql.1dActWtTrend.underlying
 #' 
 #' the SQL query to get the data for 1dActWtTrend
-#' @param x = the YYYYMMDD for which you want flows (known one day later)
+#' @param x = vector of flow dates in YYYYMMDD (known two days later)
 #' @param y = the type of fund used in the computation
 #' @param n = "" or the SQL query to subset to securities desired
 #' @keywords sql.1dActWtTrend.underlying
@@ -10842,14 +10842,22 @@ sql.1dActWtTrend.topline.from <- function ()
 sql.1dActWtTrend.underlying <- function (x, y, n) 
 {
     mo.end <- yyyymm.to.day(yyyymmdd.to.AllocMo(x, 26))
+    if (all(mo.end == mo.end[1])) 
+        mo.end <- mo.end[1]
+    else stop("Bad Allocation Month")
+    x <- paste0("'", x, "'")
+    if (length(x) == 1) 
+        x <- paste("=", x)
+    else x <- paste0("in (", paste(x, collapse = ", "), ")")
+    x <- paste("ReportDate", x)
     z <- c("DailyData t1", "inner join", sql.label(sql.FundHistory(y, 
         T, c("FundId", "GeographicFocusId")), "t2"), "on t2.HFundId = t1.HFundId")
-    z <- sql.tbl("FundId, GeographicFocusId, Flow = sum(Flow), AssetsStart = sum(AssetsStart)", 
-        z, paste0("ReportDate = '", x, "'"), "FundId, GeographicFocusId")
-    z <- c("insert into", "\t#FLO (FundId, GeographicFocusId, Flow, AssetsStart)", 
+    z <- sql.tbl("ReportDate, FundId, GeographicFocusId, Flow = sum(Flow), AssetsStart = sum(AssetsStart)", 
+        z, x, "ReportDate, FundId, GeographicFocusId")
+    z <- c("insert into", "\t#FLO (ReportDate, FundId, GeographicFocusId, Flow, AssetsStart)", 
         sql.unbracket(z))
-    z <- c(sql.index("#FLO", "FundId"), z)
-    z <- c("create table #FLO (FundId int not null, GeographicFocusId int, Flow float, AssetsStart float)", 
+    z <- c(sql.index("#FLO", "ReportDate, FundId"), z)
+    z <- c("create table #FLO (ReportDate datetime not null, FundId int not null, GeographicFocusId int, Flow float, AssetsStart float)", 
         z)
     z <- c(sql.drop(c("#AUM", "#HLD", "#FLO")), "", z)
     z <- c(z, "", "create table #AUM (FundId int not null, PortVal float not null)")
@@ -10870,8 +10878,6 @@ sql.1dActWtTrend.underlying <- function (x, y, n)
     if (n[1] != "") 
         z <- c(z, "", "delete from #HLD where", paste0("\t", 
             sql.in("HSecurityId", n, F)))
-    z <- c(z, "", "delete from #HLD where", paste0("\t", sql.in("FundId", 
-        sql.tbl("FundId", "#FLO"), F)), "")
     z <- paste(z, collapse = "\n")
     z
 }
@@ -10879,7 +10885,7 @@ sql.1dActWtTrend.underlying <- function (x, y, n)
 #' sql.1dFloMo
 #' 
 #' Generates the SQL query to get the data for 1dFloMo for individual stocks
-#' @param x = the date for which you want flows (known one day later)
+#' @param x = vector of flow dates in YYYYMMDD (known two days later)
 #' @param y = a string vector of factors to be computed, the last elements of which are the type of fund used
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
@@ -10896,12 +10902,18 @@ sql.1dFloMo <- function (x, y, n, w, h)
         u <- c(u, "", sql.Holdings.bulk("#HLD", cols, yyyymm.to.day(yyyymmdd.to.AllocMo(x, 
             26)), "#BMKHLD", "#BMKAUM"), "")
     }
-    z <- sql.1dFloMo.select.wrapper(x, y, w, h)
+    z <- sql.1dFloMo.select.wrapper(y, w, h)
     grp <- sql.1dFloMo.grp(w, h)
+    x <- paste0("'", x, "'")
+    if (length(x) == 1) 
+        x <- paste("=", x)
+    else x <- paste0("in (", paste(x, collapse = ", "), ")")
+    x <- paste("ReportDate", x)
+    x <- sql.tbl("ReportDate, HFundId, Flow, AssetsStart", "DailyData", 
+        x)
     y <- c(sql.label(sql.1dFloMo.filter(y, h), "t0"), "inner join", 
         "#HLD t1 on t1.FundId = t0.FundId")
-    y <- c(y, "inner join", sql.label(sql.tbl("HFundId, Flow, AssetsStart", 
-        "DailyData", paste0("ReportDate = '", x, "'")), "t2 on t2.HFundId = t0.HFundId"))
+    y <- c(y, "inner join", sql.label(x, "t2 on t2.HFundId = t0.HFundId"))
     y <- c(y, "inner join", "#AUM t3 on t3.FundId = t1.FundId")
     if (!w) 
         y <- c(y, "inner join", "SecurityHistory id on id.HSecurityId = t1.HSecurityId")
@@ -11047,8 +11059,10 @@ sql.1dFloMo.filter <- function (x, y)
 
 sql.1dFloMo.grp <- function (x, y) 
 {
-    paste(c(ifelse(x, "HSecurityId", "SecurityId"), sql.breakdown(y)), 
-        collapse = ", ")
+    z <- c("ReportDate", ifelse(x, "HSecurityId", "SecurityId"), 
+        sql.breakdown(y))
+    z <- paste(z, collapse = ", ")
+    z
 }
 
 #' sql.1dFloMo.Rgn
@@ -11113,25 +11127,28 @@ sql.1dFloMo.select <- function (x)
 #' sql.1dFloMo.select.wrapper
 #' 
 #' Generates the SQL query to get the data for 1mFloMo for individual stocks
-#' @param x = a YYYYMMDD date
-#' @param y = a string vector of factors to be computed, the last elements of are the type of fund used
-#' @param n = T/F depending on whether you are checking ftp
-#' @param w = breakdown filter (e.g. All/GeoId/DomicileId)
+#' @param x = a string vector of factors to be computed, the last elements of are the type of fund used
+#' @param y = T/F depending on whether you are checking ftp
+#' @param n = breakdown filter (e.g. All/GeoId/DomicileId)
 #' @keywords sql.1dFloMo.select.wrapper
 #' @export
 #' @family sql
 
-sql.1dFloMo.select.wrapper <- function (x, y, n, w) 
+sql.1dFloMo.select.wrapper <- function (x, y, n) 
 {
-    y <- sql.arguments(y)$factor
-    if (w == "GeoId") 
+    x <- sql.arguments(x)$factor
+    if (n == "GeoId") 
         z <- "GeoId = GeographicFocusId"
-    else z <- sql.breakdown(w)
-    if (n) 
-        z <- c(sql.ReportDate(x), z, "HSecurityId")
-    else z <- c("SecurityId", z)
-    for (i in y) {
-        if (n & i == "FloDollar") {
+    else z <- sql.breakdown(n)
+    if (y) {
+        z <- c("ReportDate = convert(char(10), ReportDate, 101) + ' 12:00:00 AM'", 
+            z, "HSecurityId")
+    }
+    else {
+        z <- c("SecurityId", z)
+    }
+    for (i in x) {
+        if (y & i == "FloDollar") {
             z <- c(z, paste("CalculatedStockFlow", txt.right(sql.1dFloMo.select(i), 
                 nchar(sql.1dFloMo.select(i)) - nchar(i) - 1)))
         }
@@ -11152,7 +11169,11 @@ sql.1dFloMo.select.wrapper <- function (x, y, n, w)
 
 sql.1dFloMo.underlying <- function (x) 
 {
-    x <- yyyymm.to.day(yyyymmdd.to.AllocMo(x, 26))
+    x <- yyyymmdd.to.AllocMo(x, 26)
+    if (all(x == x[1])) 
+        x <- x[1]
+    else stop("Bad Allocation Month")
+    x <- yyyymm.to.day(x)
     z <- c(sql.into(sql.MonthlyAlloc(paste0("'", x, "'")), "#HLD"))
     z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(paste0("'", x, 
         "'"), F, T), "#AUM"))
@@ -11204,7 +11225,7 @@ sql.1dFloMoAggr <- function (x, y, n)
 #' sql.1dFloTrend
 #' 
 #' Generates the SQL query to get the data for 1dFloTrend
-#' @param x = data date in YYYYMMDD (known two days later)
+#' @param x = vector of flow dates in YYYYMMDD (known two days later)
 #' @param y = a string vector of factors to be computed,       the last element of which is the type of fund used.
 #' @param n = the delay in knowing allocations
 #' @param w = any of StockFlows/China/Japan/CSI300/Energy
@@ -11217,14 +11238,15 @@ sql.1dFloTrend <- function (x, y, n, w, h)
 {
     y <- sql.arguments(y)
     if (h) {
-        z <- c(sql.ReportDate(x), "n1.HSecurityId")
+        z <- c("ReportDate = convert(char(10), ReportDate, 101) + ' 12:00:00 AM'", 
+            "n1.HSecurityId")
     }
     else {
         z <- "n1.SecurityId"
     }
     z <- c(z, sapply(vec.to.list(y$factor), sql.1dFloTrend.select))
     x <- sql.1dFloTrend.underlying(y$filter, w, x, n)
-    h <- ifelse(h, "n1.HSecurityId", "n1.SecurityId")
+    h <- ifelse(h, "n1.HSecurityId, ReportDate", "n1.SecurityId")
     z <- c(paste(x$PRE, collapse = "\n"), paste(sql.unbracket(sql.tbl(z, 
         x$FINAL, , h)), collapse = "\n"))
     z
@@ -11259,7 +11281,7 @@ sql.1dFloTrend.select <- function (x)
 #' Generates the SQL query to get the data for 1dFloTrend
 #' @param x = a vector of filters
 #' @param y = any of All/StockFlows/China/Japan/CSI300/Energy
-#' @param n = flow date in YYYYMMDD (known two days later)
+#' @param n = vector of flow dates in YYYYMMDD (known two days later)
 #' @param w = the delay in knowing allocations
 #' @keywords sql.1dFloTrend.underlying
 #' @export
@@ -11268,10 +11290,13 @@ sql.1dFloTrend.select <- function (x)
 sql.1dFloTrend.underlying <- function (x, y, n, w) 
 {
     vec <- vec.named(c("#NEW", "#OLD"), c("n", "o"))
-    z <- sql.into(sql.DailyFlo(paste0("'", n, "'")), "#DLYFLO")
+    u <- sql.DailyFlo(paste0("'", n, "'"))
     n <- yyyymmdd.to.AllocMo(n, w)
+    if (all(n == n[1])) 
+        n <- n[1]
+    else stop("Bad Allocation Month")
     n <- c(n, yyyymm.lag(n))
-    z <- c(z, "", sql.into(sql.MonthlyAlloc(paste0("'", yyyymm.to.day(n[1]), 
+    z <- c(sql.into(sql.MonthlyAlloc(paste0("'", yyyymm.to.day(n[1]), 
         "'")), "#NEWHLD"))
     z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(paste0("'", yyyymm.to.day(n[1]), 
         "'"), F, T), "#NEWAUM"))
@@ -11289,10 +11314,10 @@ sql.1dFloTrend.underlying <- function (x, y, n, w)
     if (y != "All") 
         z <- c(z, "", "delete from #NEWHLD where", paste0("\t", 
             sql.in("HSecurityId", sql.RDSuniv(y), F)), "")
-    h <- c(sql.drop(c("#DLYFLO", txt.expand(vec, c("HLD", "AUM"), 
-        ""))), "", z, "")
-    z <- c(sql.label(sql.FundHistory(x, T, "FundId"), "his"), 
-        "inner join", "#DLYFLO flo on flo.HFundId = his.HFundId")
+    h <- c(sql.drop(txt.expand(vec, c("HLD", "AUM"), "")), "", 
+        z, "")
+    z <- sql.label(sql.FundHistory(x, T, "FundId"), "his")
+    z <- c(z, "inner join", sql.label(u, "flo on flo.HFundId = his.HFundId"))
     for (i in names(vec)) {
         y <- c(paste0(vec[i], "HLD t"), "inner join", "SecurityHistory id on id.HSecurityId = t.HSecurityId")
         y <- sql.label(sql.tbl("FundId, HFundId, t.HSecurityId, SecurityId, HoldingValue", 
@@ -11500,8 +11525,7 @@ sql.1mActWtTrend <- function (x, y, n, w)
 {
     y <- sql.arguments(y)
     z <- sql.1mActWtTrend.underlying(x, y$filter, sql.RDSuniv(n))
-    z <- c(z, sql.1dActWtTrend.topline(y$factor, yyyymm.to.day(x), 
-        w))
+    z <- c(z, sql.1dActWtTrend.topline(y$factor, w))
     z
 }
 
@@ -11520,12 +11544,12 @@ sql.1mActWtTrend.underlying <- function (x, y, n)
     x <- yyyymm.to.day(x)
     z <- c("MonthlyData t1", "inner join", sql.label(sql.FundHistory(y, 
         T, c("FundId", "GeographicFocusId")), "t2"), "on t2.HFundId = t1.HFundId")
-    z <- sql.tbl("FundId, GeographicFocusId, Flow = sum(Flow), AssetsStart = sum(AssetsStart)", 
-        z, paste0("ReportDate = '", x, "'"), "FundId, GeographicFocusId")
-    z <- c("insert into", "\t#FLO (FundId, GeographicFocusId, Flow, AssetsStart)", 
+    z <- sql.tbl("ReportDate, FundId, GeographicFocusId, Flow = sum(Flow), AssetsStart = sum(AssetsStart)", 
+        z, paste0("ReportDate = '", x, "'"), "ReportDate, FundId, GeographicFocusId")
+    z <- c("insert into", "\t#FLO (ReportDate, FundId, GeographicFocusId, Flow, AssetsStart)", 
         sql.unbracket(z))
-    z <- c(sql.index("#FLO", "FundId"), z)
-    z <- c("create table #FLO (FundId int not null, GeographicFocusId int, Flow float, AssetsStart float)", 
+    z <- c(sql.index("#FLO", "ReportDate, FundId"), z)
+    z <- c("create table #FLO (ReportDate datetime not null, FundId int not null, GeographicFocusId int, Flow float, AssetsStart float)", 
         z)
     z <- c(sql.drop(c("#AUM", "#HLD", "#FLO")), "", z)
     z <- c(z, "", "create table #AUM (FundId int not null, PortVal float not null)")
@@ -11928,9 +11952,8 @@ sql.1mChActWt <- function (x, y)
 
 sql.1mFloMo <- function (x, y, n, w, h) 
 {
-    z <- sql.tbl("ReportDate, HFundId, AssetsEnd = sum(AssetsEnd)", 
-        "MonthlyData", "ReportDate = @dy", "ReportDate, HFundId", 
-        "sum(AssetsEnd) > 0")
+    z <- sql.tbl("HFundId, AssetsEnd = sum(AssetsEnd)", "MonthlyData", 
+        "ReportDate = @dy", "HFundId", "sum(AssetsEnd) > 0")
     z <- c(sql.label(z, "t0"), "inner join", sql.label(sql.tbl("ReportDate, HFundId, Flow, AssetsStart", 
         "MonthlyData", "ReportDate = @dy"), "t1"))
     z <- c(z, "\ton t1.HFundId = t0.HFundId", "inner join", sql.label(sql.1dFloMo.filter(y, 
@@ -11939,7 +11962,7 @@ sql.1mFloMo <- function (x, y, n, w, h)
     if (!w) 
         z <- c(z, "inner join", "SecurityHistory id on id.HSecurityId = t2.HSecurityId")
     grp <- sql.1dFloMo.grp(w, h)
-    y <- sql.1dFloMo.select.wrapper(yyyymm.to.day(x), y, w, h)
+    y <- sql.1dFloMo.select.wrapper(y, w, h)
     if (n == "All") {
         z <- sql.tbl(y, z, , grp, "sum(HoldingValue/AssetsEnd) > 0")
     }
@@ -12154,7 +12177,7 @@ sql.ActWtDiff2 <- function (x)
     w[["C"]] <- sql.in("HSecurityId", z)
     w <- sql.tbl("HSecurityId", "Holdings", sql.and(w), "HSecurityId")
     z <- sql.1dActWtTrend.underlying(x, "All", w)
-    z <- c(z, sql.1dActWtTrend.topline("ActWtDiff2", , F))
+    z <- c(z, sql.1dActWtTrend.topline("ActWtDiff2", F))
     z
 }
 
@@ -12543,7 +12566,7 @@ sql.cross.border <- function (x)
 #' sql.DailyFlo
 #' 
 #' Generates the SQL query to get the data for daily Flow
-#' @param x = the date for which you want flows (known one day later)
+#' @param x = a vector of dates for which you want flows (known one day later)
 #' @param y = the temp table to hold output
 #' @param n = T/F depending on whether StockFlows data are being used
 #' @keywords sql.DailyFlo
@@ -12552,9 +12575,13 @@ sql.cross.border <- function (x)
 
 sql.DailyFlo <- function (x, y, n = T) 
 {
-    z <- c("HFundId, Flow = sum(Flow), AssetsStart = sum(AssetsStart)")
-    z <- sql.tbl(z, "DailyData", paste(ifelse(n, "ReportDate", 
-        "DayEnding"), "=", x), "HFundId")
+    n <- ifelse(n, "ReportDate", "DayEnding")
+    if (length(x) == 1) 
+        x <- paste("=", x)
+    else x <- paste0("in (", paste(x, collapse = ", "), ")")
+    x <- paste(n, x)
+    z <- c(n, "HFundId", "Flow = sum(Flow)", "AssetsStart = sum(AssetsStart)")
+    z <- sql.tbl(z, "DailyData", x, paste(c(n, "HFundId"), collapse = ", "))
     if (!missing(y)) 
         z <- sql.into(z, y)
     z
@@ -14188,6 +14215,7 @@ strat.path <- function (x, y)
 
 stunden <- function (x = 5, y = 8) 
 {
+    set.seed(seed = NULL)
     z <- y - 1
     while (mean(z) != y) {
         z <- NULL

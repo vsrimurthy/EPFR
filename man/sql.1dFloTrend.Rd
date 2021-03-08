@@ -7,7 +7,7 @@
 sql.1dFloTrend(x, y, n, w, h)
 }
 \arguments{
-\item{x}{= data date in YYYYMMDD (known two days later)}
+\item{x}{= vector of flow dates in YYYYMMDD (known two days later)}
 
 \item{y}{= a string vector of factors to be computed,       the last element of which is the type of fund used.}
 

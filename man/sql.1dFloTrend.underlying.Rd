@@ -11,7 +11,7 @@ sql.1dFloTrend.underlying(x, y, n, w)
 
 \item{y}{= any of All/StockFlows/China/Japan/CSI300/Energy}
 
-\item{n}{= flow date in YYYYMMDD (known two days later)}
+\item{n}{= vector of flow dates in YYYYMMDD (known two days later)}
 
 \item{w}{= the delay in knowing allocations}
 }

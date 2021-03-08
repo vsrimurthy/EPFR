@@ -7,7 +7,7 @@
 sql.1dActWtTrend.underlying(x, y, n)
 }
 \arguments{
-\item{x}{= the YYYYMMDD for which you want flows (known one day later)}
+\item{x}{= vector of flow dates in YYYYMMDD (known two days later)}
 
 \item{y}{= the type of fund used in the computation}
 

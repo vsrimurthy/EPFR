@@ -7,7 +7,7 @@
 sql.DailyFlo(x, y, n = T)
 }
 \arguments{
-\item{x}{= the date for which you want flows (known one day later)}
+\item{x}{= a vector of dates for which you want flows (known one day later)}
 
 \item{y}{= the temp table to hold output}
 
