@@ -7263,6 +7263,94 @@ mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = T)
     z
 }
 
+#' mk.1wFloMo.IndyFlow
+#' 
+#' SQL query for country-flow percentage for date <x>
+#' @param x = YYYYMMDD
+#' @param y = item(s) (any of Flow/AssetsStart/AssetsEnd)
+#' @param n = input to or output of sql.connect
+#' @param w = T/F depending on whether weekly or daily data needed
+#' @keywords mk.1wFloMo.IndyFlow
+#' @export
+#' @family mk
+
+mk.1wFloMo.IndyFlow <- function (x, y, n, w) 
+{
+    v <- yyyymmdd.to.AllocMo(x)
+    if (all(v == v[1])) 
+        v <- v[1]
+    else stop("Bad Allocation Month")
+    v <- yyyymm.to.day(v)
+    n <- sql.connect.wrapper(n)
+    rslt <- mat.read(parameters("classif-GIgrp"))[, c("IndustryId", 
+        "UINm", "StyleSector")]
+    rslt <- list(MAP = mat.index(rslt))
+    rslt[["SCF"]] <- list()
+    for (j in x) {
+        r <- c("StyleSector", "GeographicFocus", paste0(y, " = sum(", 
+            y, ")"))
+        z <- paste(rslt$MAP$StyleSector[!is.na(rslt$MAP$StyleSector)], 
+            collapse = ", ")
+        z <- paste0("StyleSector in (", z, ")")
+        z <- sql.Flow(r, list(A = "@floDt"), c("E", z, "UI"), 
+            c("StyleSector", "GeographicFocus"), !w, c("StyleSector, GeographicFocus"))
+        z <- c(sql.declare("@floDt", "datetime", j), sql.unbracket(z))
+        rslt[["SCF"]][[j]] <- sql.query.underlying(paste(z, collapse = "\n"), 
+            n$conn, F)
+    }
+    rslt[["CBF"]] <- list()
+    for (j in x) {
+        r <- c("GeographicFocus", paste0(y, " = sum(", y, ")"))
+        z <- paste(rslt$MAP$StyleSector[!is.na(rslt$MAP$StyleSector)], 
+            collapse = ", ")
+        z <- paste0("StyleSector not in (", z, ")")
+        z <- sql.Flow(r, list(A = "@floDt"), c("E", z, "UI"), 
+            "GeographicFocus", !w, "GeographicFocus")
+        z <- c(sql.declare("@floDt", "datetime", j), sql.unbracket(z))
+        rslt[["CBF"]][[j]] <- sql.query.underlying(paste(z, collapse = "\n"), 
+            n$conn, F)
+    }
+    r <- c("Advisor", "IndustryId", "GeographicFocus", "Allocation = avg(Allocation)")
+    u <- list(A = "ReportDate = @floDt")
+    z <- paste(rslt$MAP$StyleSector[!is.na(rslt$MAP$StyleSector)], 
+        collapse = ", ")
+    z <- paste0("StyleSector not in (", z, ")")
+    z <- sql.Allocation(r, "Industry", c("Advisor", "GeographicFocus"), 
+        c(z, "E", "UI"), sql.and(u), paste(r[-length(r)], collapse = ", "))
+    z <- sql.tbl(r[-1], sql.label(z, "t"), , paste(r[-length(r)][-1], 
+        collapse = ", "))
+    z <- c(sql.declare("@floDt", "datetime", v), sql.unbracket(z))
+    rslt[["CBA"]] <- sql.query.underlying(paste(z, collapse = "\n"), 
+        n$conn, F)
+    sql.close(n)
+    fcn <- function(x) {
+        x <- map.rname(mat.index(x), rslt[["CBA"]][, "GeographicFocus"])
+        x <- 0.01 * x * rslt[["CBA"]][, "Allocation"]
+        x <- data.frame(rslt[["CBA"]][, 1:2], x, stringsAsFactors = F)
+        x
+    }
+    rslt[["CBF"]] <- lapply(rslt[["CBF"]], fcn)
+    r <- rslt[["MAP"]][!is.na(rslt[["MAP"]][, "StyleSector"]), 
+        ]
+    r$IndustryId <- dimnames(r)[[1]]
+    r <- mat.index(r, "StyleSector")
+    fcn <- function(x) {
+        x$StyleSector <- map.rname(r, x$StyleSector)$IndustryId
+        names(x) <- ifelse(names(x) == "StyleSector", "IndustryId", 
+            names(x))
+        x
+    }
+    rslt[["SCF"]] <- lapply(rslt[["SCF"]], fcn)
+    z <- list()
+    for (j in x) {
+        r <- rbind(rslt[["SCF"]][[j]], rslt[["CBF"]][[j]])
+        z[[j]] <- aggregate(x = r[, y], by = r[, 1:2], FUN = sum)
+    }
+    if (length(x) == 1) 
+        z <- z[[x]]
+    z
+}
+
 #' mk.ActWt
 #' 
 #' Active weight
@@ -10852,8 +10940,8 @@ sql.1dActWtTrend.underlying <- function (x, y, n)
     x <- paste("ReportDate", x)
     z <- c("DailyData t1", "inner join", sql.label(sql.FundHistory(y, 
         T, c("FundId", "GeographicFocusId")), "t2"), "on t2.HFundId = t1.HFundId")
-    z <- sql.tbl("ReportDate, FundId, GeographicFocusId, Flow = sum(Flow), AssetsStart = sum(AssetsStart)", 
-        z, x, "ReportDate, FundId, GeographicFocusId")
+    z <- sql.tbl("ReportDate, FundId, GeographicFocusId = max(GeographicFocusId), Flow = sum(Flow), AssetsStart = sum(AssetsStart)", 
+        z, x, "ReportDate, FundId")
     z <- c("insert into", "\t#FLO (ReportDate, FundId, GeographicFocusId, Flow, AssetsStart)", 
         sql.unbracket(z))
     z <- c(sql.index("#FLO", "ReportDate, FundId"), z)
@@ -11296,8 +11384,11 @@ sql.1dFloTrend.underlying <- function (x, y, n, w)
         n <- n[1]
     else stop("Bad Allocation Month")
     n <- c(n, yyyymm.lag(n))
-    z <- c(sql.into(sql.MonthlyAlloc(paste0("'", yyyymm.to.day(n[1]), 
-        "'")), "#NEWHLD"))
+    z <- c("create table #NEWHLD (FundId int not null, HFundId int not null, HSecurityId int not null, HoldingValue float)")
+    z <- c(z, sql.index("#NEWHLD", "FundId, HSecurityId"))
+    z <- c(z, "insert into", "\t#NEWHLD (FundId, HFundId, HSecurityId, HoldingValue)", 
+        sql.unbracket(sql.MonthlyAlloc(paste0("'", yyyymm.to.day(n[1]), 
+            "'"))))
     z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(paste0("'", yyyymm.to.day(n[1]), 
         "'"), F, T), "#NEWAUM"))
     z <- c(z, "", sql.into(sql.MonthlyAlloc(paste0("'", yyyymm.to.day(n[2]), 
