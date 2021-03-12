@@ -11403,8 +11403,8 @@ sql.1dFloTrend.underlying <- function (x, y, n, w)
     if (y != "All") 
         z <- c(z, "", "delete from #NEWHLD where", paste0("\t", 
             sql.in("HSecurityId", sql.RDSuniv(y), F)), "")
-    h <- c(sql.drop(txt.expand(vec, c("HLD", "AUM"), "")), "", 
-        z, "")
+    h <- c(sql.drop(c("#NEWHLD", "#NEWAUM", "#OLDHLD", "#OLDAUM")), 
+        "", z, "")
     z <- sql.label(sql.FundHistory(x, T, "FundId"), "his")
     z <- c(z, "inner join", sql.label(u, "flo on flo.HFundId = his.HFundId"))
     z <- c(z, "inner join", "#NEWHLD n1 on n1.FundId = his.FundId")
