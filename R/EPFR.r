@@ -11351,13 +11351,13 @@ sql.1dFloTrend <- function (x, y, n, w, h)
 sql.1dFloTrend.select <- function (x) 
 {
     if (is.element(x, paste0("FloTrend", c("", "CB", "PMA")))) {
-        z <- paste0(x, " ", sql.Trend("Flow * (n1.HoldingValue/n2.AssetsEnd - o1.HoldingValue/o2.AssetsEnd)"))
+        z <- paste0(x, " ", sql.Trend("Flow * (n1.HoldingValue - o1.HoldingValue)"))
     }
     else if (is.element(x, paste0("FloDiff", c("", "CB", "PMA")))) {
-        z <- paste0(x, " ", sql.Diff("Flow", "n1.HoldingValue/n2.AssetsEnd - o1.HoldingValue/o2.AssetsEnd"))
+        z <- paste0(x, " ", sql.Diff("Flow", "n1.HoldingValue - o1.HoldingValue"))
     }
     else if (is.element(x, paste0("FloDiff2", c("", "CB", "PMA")))) {
-        z <- paste0(x, " ", sql.Diff("n1.HoldingValue/n2.AssetsEnd - o1.HoldingValue/o2.AssetsEnd", 
+        z <- paste0(x, " ", sql.Diff("n1.HoldingValue - o1.HoldingValue", 
             "Flow"))
     }
     else stop("Bad Argument")
@@ -11377,31 +11377,29 @@ sql.1dFloTrend.select <- function (x)
 
 sql.1dFloTrend.underlying <- function (x, y, n, w) 
 {
-    vec <- vec.named(c("#NEW", "#OLD"), c("n", "o"))
     u <- sql.DailyFlo(paste0("'", n, "'"))
     n <- yyyymmdd.to.AllocMo(n, w)
     if (all(n == n[1])) 
         n <- n[1]
     else stop("Bad Allocation Month")
     n <- c(n, yyyymm.lag(n))
+    n <- yyyymm.to.day(n)
     z <- c("create table #NEWHLD (FundId int not null, HFundId int not null, HSecurityId int not null, HoldingValue float)")
     z <- c(z, sql.index("#NEWHLD", "FundId, HSecurityId"))
     z <- c(z, "insert into", "\t#NEWHLD (FundId, HFundId, HSecurityId, HoldingValue)", 
-        sql.unbracket(sql.MonthlyAlloc(paste0("'", yyyymm.to.day(n[1]), 
-            "'"))))
-    z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(paste0("'", yyyymm.to.day(n[1]), 
+        sql.unbracket(sql.MonthlyAlloc(paste0("'", n[1], "'"))))
+    z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(paste0("'", n[1], 
         "'"), F, T), "#NEWAUM"))
-    z <- c(z, "", sql.into(sql.MonthlyAlloc(paste0("'", yyyymm.to.day(n[2]), 
-        "'")), "#OLDHLD"))
-    z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(paste0("'", yyyymm.to.day(n[2]), 
+    z <- c(z, "delete from #NEWHLD where FundId not in (select FundId from #NEWAUM)")
+    z <- c(z, "update #NEWHLD set HoldingValue = HoldingValue/AssetsEnd from #NEWAUM where #NEWAUM.FundId = #NEWHLD.FundId")
+    z <- c(z, "", "create table #OLDHLD (FundId int not null, HFundId int not null, HSecurityId int not null, HoldingValue float)")
+    z <- c(z, sql.index("#OLDHLD", "FundId, HSecurityId"))
+    z <- c(z, "insert into", "\t#OLDHLD (FundId, HFundId, HSecurityId, HoldingValue)", 
+        sql.unbracket(sql.MonthlyAlloc(paste0("'", n[2], "'"))))
+    z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(paste0("'", n[2], 
         "'"), F, T), "#OLDAUM"))
-    if (any(x == "Pseudo")) {
-        cols <- c("FundId", "HFundId", "HSecurityId", "HoldingValue")
-        z <- c(z, "", sql.Holdings.bulk("#NEWHLD", cols, yyyymm.to.day(n[1]), 
-            "#NEWBMKHLD", "#NEWBMKAUM"), "")
-        z <- c(z, "", sql.Holdings.bulk("#OLDHLD", cols, yyyymm.to.day(n[2]), 
-            "#OLDBMKHLD", "#OLDBMKAUM"), "")
-    }
+    z <- c(z, "delete from #OLDHLD where FundId not in (select FundId from #OLDAUM)")
+    z <- c(z, "update #OLDHLD set HoldingValue = HoldingValue/AssetsEnd from #OLDAUM where #OLDAUM.FundId = #OLDHLD.FundId")
     if (y != "All") 
         z <- c(z, "", "delete from #NEWHLD where", paste0("\t", 
             sql.in("HSecurityId", sql.RDSuniv(y), F)), "")
@@ -11409,15 +11407,10 @@ sql.1dFloTrend.underlying <- function (x, y, n, w)
         z, "")
     z <- sql.label(sql.FundHistory(x, T, "FundId"), "his")
     z <- c(z, "inner join", sql.label(u, "flo on flo.HFundId = his.HFundId"))
-    for (i in names(vec)) {
-        y <- c(paste0(vec[i], "HLD t"), "inner join", "SecurityHistory id on id.HSecurityId = t.HSecurityId")
-        y <- sql.label(sql.tbl("FundId, HFundId, t.HSecurityId, SecurityId, HoldingValue", 
-            y), paste0(i, "1"))
-        z <- c(z, "inner join", y, paste0("\ton ", i, "1.FundId = his.FundId"))
-    }
-    z <- c(z, "\tand o1.SecurityId = n1.SecurityId")
-    for (i in names(vec)) z <- c(z, "inner join", paste0(vec[i], 
-        "AUM ", i, "2 on ", i, "2.FundId = ", i, "1.FundId"))
+    z <- c(z, "inner join", "#NEWHLD n1 on n1.FundId = his.FundId")
+    z <- c(z, "inner join", "SecurityHistory idn on idn.HSecurityId = n1.HSecurityId")
+    z <- c(z, "inner join", "SecurityHistory ido on ido.SecurityId = idn.SecurityId")
+    z <- c(z, "inner join", "#OLDHLD o1 on o1.FundId = his.FundId and o1.HSecurityId = ido.HSecurityId")
     z <- list(PRE = h, FINAL = z)
     z
 }
