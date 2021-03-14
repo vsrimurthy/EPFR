@@ -16,7 +16,6 @@ number of days after Monday, January 1, 2018
 Other day: \code{\link{day.ex.date}},
   \code{\link{day.ex.int}}, \code{\link{day.lag}},
   \code{\link{day.seq}}, \code{\link{day.to.date}},
-  \code{\link{day.to.ui}}, \code{\link{day.to.weekday}},
-  \code{\link{day.to.week}}
+  \code{\link{day.to.weekday}}, \code{\link{day.to.week}}
 }
 \keyword{day.to.int}

@@ -4,12 +4,14 @@
 \alias{sql.1dActWtTrend.topline}
 \title{sql.1dActWtTrend.topline}
 \usage{
-sql.1dActWtTrend.topline(x, y)
+sql.1dActWtTrend.topline(x, y, n = F)
 }
 \arguments{
 \item{x}{= a string vector of factors to be computed}
 
 \item{y}{= T/F depending on whether you are checking ftp}
+
+\item{n}{= T/F depending on whether ReportDate must be a column}
 }
 \description{
 SQL query to get the select statement for 1dActWtTrend

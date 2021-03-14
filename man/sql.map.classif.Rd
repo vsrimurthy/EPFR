@@ -4,16 +4,14 @@
 \alias{sql.map.classif}
 \title{sql.map.classif}
 \usage{
-sql.map.classif(x, y, n, w)
+sql.map.classif(x, y, n)
 }
 \arguments{
 \item{x}{= SQL queries to be submitted}
 
-\item{y}{= names of factors to be returned}
+\item{y}{= a connection, the output of odbcDriverConnect}
 
-\item{n}{= a connection, the output of odbcDriverConnect}
-
-\item{w}{= classif file}
+\item{n}{= classif file}
 }
 \description{
 Returns flow variables with the same row space as <w>

@@ -4,12 +4,14 @@
 \alias{sql.yyyymmdd}
 \title{sql.yyyymmdd}
 \usage{
-sql.yyyymmdd(x, y)
+sql.yyyymmdd(x, y, n = F)
 }
 \arguments{
 \item{x}{= name of a datetime column in an SQL table}
 
 \item{y}{= label after conversion (defaults to <x> if missing)}
+
+\item{n}{= T/F depending on whether you are checking ftp}
 }
 \description{
 SQL code to convert to YYYYMMDD

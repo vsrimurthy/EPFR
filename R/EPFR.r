@@ -1815,20 +1815,6 @@ day.to.int <- function (x)
     as.numeric(day.to.date(x) - as.Date("2018-01-01"))
 }
 
-#' day.to.ui
-#' 
-#' <x> rendered in Engineering team's format
-#' @param x = a YYYYMMDD date
-#' @keywords day.to.ui
-#' @export
-#' @family day
-
-day.to.ui <- function (x) 
-{
-    paste0(substring(x, 5, 6), "/", txt.right(x, 2), "/", txt.left(x, 
-        4), " 12:00:00 AM")
-}
-
 #' day.to.week
 #' 
 #' maps days to weeks
@@ -6691,31 +6677,21 @@ mat.zScore <- function (x, y, n)
 
 mk.1dFloMo <- function (x, y, n) 
 {
-    vbls <- sql.arguments(y)[["factor"]]
     x <- flowdate.lag(x, 2)
     if (any(y[1] == c("FloMo", "FloMoCB", "FloDollar", "FloDollarGross"))) {
         z <- sql.1dFloMo(x, y, n$DB, F, "All")
-    }
-    else if (any(y[1] == c("FloTrendPMA", "FloDiffPMA", "FloDiff2PMA"))) {
-        z <- sql.1dFloTrend(x, y, 1, n$DB, F)
-    }
-    else if (any(y[1] == c("FloTrend", "FloDiff", "FloDiff2"))) {
-        z <- sql.1dFloTrend(x, y, 26, n$DB, F)
-    }
-    else if (any(y[1] == c("FloTrendCB", "FloDiffCB", "FloDiff2CB"))) {
-        z <- sql.1dFloTrend(x, y, 26, n$DB, F)
     }
     else if (any(y[1] == c("ActWtTrend", "ActWtDiff", "ActWtDiff2"))) {
         z <- sql.1dActWtTrend(x, y, n$DB, F)
     }
     else if (any(y[1] == c("FwtdIn0", "FwtdEx0", "SwtdIn0", "SwtdEx0"))) {
-        z <- sql.1dFloMoAggr(x, vbls, n$DB)
+        z <- sql.1dFloMoAggr(x, y, n$DB)
     }
     else if (any(y[1] == c("ION$", "ION%"))) {
         z <- sql.1dION(x, y, 26, n$DB)
     }
     else stop("Bad Argument")
-    z <- sql.map.classif(z, vbls, n$conn, n$classif)
+    z <- sql.map.classif(z, n$conn, n$classif)
     z
 }
 
@@ -7064,7 +7040,6 @@ mk.1mActPas.Sec <- function (x, y, n)
 
 mk.1mAllocMo <- function (x, y, n) 
 {
-    vbls <- sql.arguments(y)[["factor"]]
     x <- yyyymm.lag(x, 1)
     if (y[1] == "AllocSkew") {
         z <- sql.1mAllocSkew(x, y, n$DB, F)
@@ -7097,7 +7072,7 @@ mk.1mAllocMo <- function (x, y, n)
     else {
         z <- sql.1mFloMo(x, y, n$DB, F, "All")
     }
-    z <- sql.map.classif(z, vbls, n$conn, n$classif)
+    z <- sql.map.classif(z, n$conn, n$classif)
     z
 }
 
@@ -7662,28 +7637,6 @@ mk.HerdingLSV <- function (x, y, n)
     z
 }
 
-#' mk.HoldValTot
-#' 
-#' Total Holding Value ($MM)
-#' @param x = a single YYYYMM
-#' @param y = one of All/Act/Pas/Etf/Mutual/JP/xJP/CBE
-#' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect
-#' @keywords mk.HoldValTot
-#' @export
-#' @family mk
-
-mk.HoldValTot <- function (x, y, n) 
-{
-    x <- sql.declare("@mo", "datetime", yyyymm.to.day(yyyymm.lag(x)))
-    y <- list(A = sql.in("HFundId", sql.FundHistory(y, T)), B = "ReportDate = @mo")
-    w <- "Holdings t1 inner join SecurityHistory t2 on t1.HSecurityId = t2.HSecurityId"
-    z <- sql.tbl("SecurityId, AUM = sum(HoldingValue)", w, sql.and(y), 
-        "SecurityId")
-    z <- paste(c(x, sql.unbracket(z)), collapse = "\n")
-    z <- sql.map.classif(z, "AUM", n$conn, n$classif)
-    z
-}
-
 #' mk.isin
 #' 
 #' Looks up date from external file and maps on isin
@@ -7754,7 +7707,7 @@ mk.Mem <- function (x, y, n)
         z, y, "SecurityId"))
     z <- paste(c(sql.declare("@mo", "datetime", yyyymm.to.day(x)), 
         z), collapse = "\n")
-    z <- sql.map.classif(z, "Mem", n$conn, n$classif)
+    z <- sql.map.classif(z, n$conn, n$classif)
     z <- zav(z)
     z
 }
@@ -7855,7 +7808,7 @@ mk.SRIMem <- function (x, y, n)
 {
     x <- yyyymm.lag(x)
     x <- sql.SRI(x, n$DB)
-    z <- sql.map.classif(x, "Ct", n$conn, n$classif)
+    z <- sql.map.classif(x, n$conn, n$classif)
     z <- as.numeric(!is.na(z) & z >= y)
     z
 }
@@ -8073,7 +8026,7 @@ mk.Wt <- function (x, y, n)
         z, y))
     z <- paste(c(sql.declare("@mo", "datetime", yyyymm.to.day(x)), 
         z), collapse = "\n")
-    z <- sql.map.classif(z, "Wt", n$conn, n$classif)
+    z <- sql.map.classif(z, n$conn, n$classif)
     z <- zav(z)
     z
 }
@@ -10881,7 +10834,7 @@ sql.1dActWtTrend <- function (x, y, n, w)
 {
     y <- sql.arguments(y)
     z <- sql.1dActWtTrend.underlying(x, y$filter, sql.RDSuniv(n))
-    z <- c(z, sql.1dActWtTrend.topline(y$factor, w))
+    z <- c(z, sql.1dActWtTrend.topline(y$factor, w, T))
     z
 }
 
@@ -10914,25 +10867,24 @@ sql.1dActWtTrend.select <- function (x)
 #' SQL query to get the select statement for 1dActWtTrend
 #' @param x = a string vector of factors to be computed
 #' @param y = T/F depending on whether you are checking ftp
+#' @param n = T/F depending on whether ReportDate must be a column
 #' @keywords sql.1dActWtTrend.topline
 #' @export
 #' @family sql
 
-sql.1dActWtTrend.topline <- function (x, y) 
+sql.1dActWtTrend.topline <- function (x, y, n = F) 
 {
-    if (y) {
-        z <- c("ReportDate = convert(char(10), flo.ReportDate, 101) + ' 12:00:00 AM'", 
-            "hld.HSecurityId")
-    }
-    else {
-        z <- "SecurityId"
+    z <- h <- ifelse(y, "hld.HSecurityId", "SecurityId")
+    if (y | n) {
+        z <- c(sql.yyyymmdd("flo.ReportDate", "ReportDate", y), 
+            z)
+        h <- paste0(h, ", flo.ReportDate")
     }
     z <- c(z, sapply(vec.to.list(x), sql.1dActWtTrend.select))
     x <- sql.1dActWtTrend.topline.from()
     if (!y) 
         x <- c(x, "inner join", "SecurityHistory id on id.HSecurityId = hld.HSecurityId")
-    y <- ifelse(y, "hld.HSecurityId, flo.ReportDate", "SecurityId")
-    z <- paste(sql.unbracket(sql.tbl(z, x, , y)), collapse = "\n")
+    z <- paste(sql.unbracket(sql.tbl(z, x, , h)), collapse = "\n")
     z
 }
 
@@ -11269,8 +11221,7 @@ sql.1dFloMo.select.wrapper <- function (x, y, n)
         z <- "GeoId = GeographicFocusId"
     else z <- sql.breakdown(n)
     if (y) {
-        z <- c("ReportDate = convert(char(10), ReportDate, 101) + ' 12:00:00 AM'", 
-            z, "HSecurityId")
+        z <- c(sql.yyyymmdd("ReportDate", , T), z, "HSecurityId")
     }
     else {
         z <- c("SecurityId", z)
@@ -11365,16 +11316,12 @@ sql.1dFloMoAggr <- function (x, y, n)
 sql.1dFloTrend <- function (x, y, n, w, h) 
 {
     y <- sql.arguments(y)
-    if (h) {
-        z <- c("ReportDate = convert(char(10), ReportDate, 101) + ' 12:00:00 AM'", 
-            "n1.HSecurityId")
-    }
-    else {
-        z <- "n1.SecurityId"
-    }
+    z <- sql.yyyymmdd("ReportDate", , h)
+    h <- ifelse(h, "idn.HSecurityId", "idn.SecurityId")
+    z <- c(z, h)
     z <- c(z, sapply(vec.to.list(y$factor), sql.1dFloTrend.select))
     x <- sql.1dFloTrend.underlying(y$filter, w, x, n)
-    h <- ifelse(h, "n1.HSecurityId, ReportDate", "n1.SecurityId")
+    h <- paste0(h, ", ReportDate")
     z <- c(paste(x$PRE, collapse = "\n"), paste(sql.unbracket(sql.tbl(z, 
         x$FINAL, , h)), collapse = "\n"))
     z
@@ -13324,23 +13271,18 @@ sql.label <- function (x, y)
 #' 
 #' Returns flow variables with the same row space as <w>
 #' @param x = SQL queries to be submitted
-#' @param y = names of factors to be returned
-#' @param n = a connection, the output of odbcDriverConnect
-#' @param w = classif file
+#' @param y = a connection, the output of odbcDriverConnect
+#' @param n = classif file
 #' @keywords sql.map.classif
 #' @export
 #' @family sql
 #' @@importFrom RODBC sqlQuery
 
-sql.map.classif <- function (x, y, n, w) 
+sql.map.classif <- function (x, y, n) 
 {
-    z <- sql.query.underlying(x, n, F)
-    if (any(duplicated(z[, "SecurityId"]))) 
-        stop("Problem...\n")
-    dimnames(z)[[1]] <- z[, "SecurityId"]
-    z <- map.rname(z, dimnames(w)[[1]])
-    z <- z[, y]
-    if (length(y) == 1) 
+    z <- sql.query.underlying(x, y, F)
+    z <- map.rname(mat.index(z, "SecurityId"), dimnames(n)[[1]])
+    if (is.null(dim(z))) 
         z <- as.numeric(z)
     z
 }
@@ -13803,7 +13745,7 @@ sql.regr <- function (x, y, n)
 
 sql.ReportDate <- function (x) 
 {
-    paste0("ReportDate = '", day.to.ui(x), "'")
+    paste0("ReportDate = '", yyyymmdd.to.txt(x), "'")
 }
 
 #' sql.SRI
@@ -14102,16 +14044,22 @@ sql.yyyymm <- function (x, y)
 #' SQL code to convert to YYYYMMDD
 #' @param x = name of a datetime column in an SQL table
 #' @param y = label after conversion (defaults to <x> if missing)
+#' @param n = T/F depending on whether you are checking ftp
 #' @keywords sql.yyyymmdd
 #' @export
 #' @family sql
 
-sql.yyyymmdd <- function (x, y) 
+sql.yyyymmdd <- function (x, y, n = F) 
 {
     if (missing(y)) 
         z <- x
     else z <- y
-    z <- paste0(z, " = convert(char(8), ", x, ", 112)")
+    if (n) {
+        z <- paste0(z, " = convert(char(10), ", x, ", 101) + ' 12:00:00 AM'")
+    }
+    else {
+        z <- paste0(z, " = convert(char(8), ", x, ", 112)")
+    }
     z
 }
 
