@@ -6678,13 +6678,7 @@ mat.zScore <- function (x, y, n)
 mk.1dFloMo <- function (x, y, n) 
 {
     x <- flowdate.lag(x, 2)
-    if (any(y[1] == c("FloMo", "FloMoCB", "FloDollar", "FloDollarGross"))) {
-        z <- sql.1dFloMo(x, y, n$DB, F, "All")
-    }
-    else if (any(y[1] == c("ActWtTrend", "ActWtDiff", "ActWtDiff2"))) {
-        z <- sql.1dActWtTrend(x, y, n$DB, F)
-    }
-    else if (any(y[1] == c("FwtdIn0", "FwtdEx0", "SwtdIn0", "SwtdEx0"))) {
+    if (any(y[1] == c("FwtdIn0", "FwtdEx0", "SwtdIn0", "SwtdEx0"))) {
         z <- sql.1dFloMoAggr(x, y, n$DB)
     }
     else if (any(y[1] == c("ION$", "ION%"))) {
@@ -10982,7 +10976,7 @@ sql.1dFloMo <- function (x, y, n, w, h)
         u <- c(u, "", sql.Holdings.bulk("#HLD", cols, yyyymm.to.day(yyyymmdd.to.AllocMo(x, 
             26)), "#BMKHLD", "#BMKAUM"), "")
     }
-    z <- sql.1dFloMo.select.wrapper(y, w, h)
+    z <- sql.1dFloMo.select.wrapper(y, w, h, T)
     grp <- sql.1dFloMo.grp(w, h)
     x <- paste0("'", x, "'")
     if (length(x) == 1) 
@@ -11210,22 +11204,20 @@ sql.1dFloMo.select <- function (x)
 #' @param x = a string vector of factors to be computed, the last elements of are the type of fund used
 #' @param y = T/F depending on whether you are checking ftp
 #' @param n = breakdown filter (e.g. All/GeoId/DomicileId)
+#' @param w = T/F depending on whether ReportDate must be a column
 #' @keywords sql.1dFloMo.select.wrapper
 #' @export
 #' @family sql
 
-sql.1dFloMo.select.wrapper <- function (x, y, n) 
+sql.1dFloMo.select.wrapper <- function (x, y, n, w = F) 
 {
     x <- sql.arguments(x)$factor
     if (n == "GeoId") 
         z <- "GeoId = GeographicFocusId"
     else z <- sql.breakdown(n)
-    if (y) {
-        z <- c(sql.yyyymmdd("ReportDate", , T), z, "HSecurityId")
-    }
-    else {
-        z <- c("SecurityId", z)
-    }
+    if (y | w) 
+        z <- c(sql.yyyymmdd("ReportDate", , y), z)
+    z <- c(z, ifelse(y, "HSecurityId", "SecurityId"))
     for (i in x) {
         if (y & i == "FloDollar") {
             z <- c(z, paste("CalculatedStockFlow", txt.right(sql.1dFloMo.select(i), 
