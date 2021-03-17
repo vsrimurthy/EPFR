@@ -13648,7 +13648,8 @@ sql.query.underlying <- function (x, y, n = T)
 
 sql.RDSuniv <- function (x) 
 {
-    if (any(x == c("StockFlows", "StockFlowsJP", "Japan", "CSI300"))) {
+    if (any(x == c("StockFlows", "StockFlowsJP", "US", "Japan", 
+        "CSI300"))) {
         if (x == "CSI300") {
             bmks <- vec.named("CSI300", 31873)
         }
@@ -13659,6 +13660,9 @@ sql.RDSuniv <- function (x)
         else if (x == "Japan") {
             bmks <- vec.named(c("Nikkei", "Topix"), c(13667, 
                 17558))
+        }
+        else if (x == "US") {
+            bmks <- vec.named(c("S&P500", "R3"), c(5164, 5158))
         }
         else if (x == "StockFlows") {
             bmks <- c("S&P500", "Eafe", "Gem", "R3", "EafeSc", 
