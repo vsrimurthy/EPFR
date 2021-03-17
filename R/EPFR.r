@@ -12021,7 +12021,8 @@ sql.1mFloMo <- function (x, y, n, w, h)
         "MonthlyData", "ReportDate = @dy"), "t1"))
     z <- c(z, "\ton t1.HFundId = t0.HFundId", "inner join", sql.label(sql.1dFloMo.filter(y, 
         h), "t3"), "\ton t3.HFundId = t1.HFundId")
-    z <- c(z, "inner join", "Holdings t2 on t3.FundId = t2.FundId and t2.ReportDate = t1.ReportDate")
+    z <- c(z, "inner join", sql.label(sql.Holdings("ReportDate = @dy", 
+        c("HSecurityId", "FundId", "HoldingValue")), "t2 on t3.FundId = t2.FundId"))
     if (!w) 
         z <- c(z, "inner join", "SecurityHistory id on id.HSecurityId = t2.HSecurityId")
     grp <- sql.1dFloMo.grp(w, h)
