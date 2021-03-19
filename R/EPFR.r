@@ -11397,7 +11397,7 @@ sql.1dFloTrend.underlying <- function (x, y, n, w)
 #' sql.1dFundCt
 #' 
 #' Generates FundCt, the ownership breadth measure set forth in Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
-#' @param x = the YYYYMM for which you want data (known 26 days later)
+#' @param x = vector of flow dates in YYYYMMDD (known two days later)
 #' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
@@ -11407,21 +11407,30 @@ sql.1dFloTrend.underlying <- function (x, y, n, w)
 
 sql.1dFundCt <- function (x, y, n, w) 
 {
+    mo.end <- yyyymm.to.day(yyyymmdd.to.AllocMo(x, 26))
+    if (all(mo.end == mo.end[1])) 
+        mo.end <- mo.end[1]
+    else stop("Bad Allocation Month")
+    x <- paste0("'", x, "'")
+    if (length(x) == 1) 
+        x <- paste("=", x)
+    else x <- paste0("in (", paste(x, collapse = ", "), ")")
+    x <- paste("flo.ReportDate", x)
     y <- sql.arguments(y)
-    z <- x
-    x <- sql.declare("@dy", "datetime", z)
     if (n != "All") 
         n <- list(A = sql.in("h.HSecurityId", sql.RDSuniv(n)))
     else n <- list()
-    n[[char.ex.int(length(n) + 65)]] <- "flo.ReportDate = @dy"
+    n[[char.ex.int(length(n) + 65)]] <- paste0("h.ReportDate = '", 
+        mo.end, "'")
+    n[[char.ex.int(length(n) + 65)]] <- x
     if (y$filter != "All") 
         n[[char.ex.int(length(n) + 65)]] <- sql.FundHistory.sf(y$filter)
     if (length(n) == 1) 
         n <- n[[1]]
     else n <- sql.and(n)
     if (w) {
-        z <- c(sql.ReportDate(z), "GeoId = GeographicFocusId", 
-            "HSecurityId")
+        z <- c(sql.yyyymmdd("flo.ReportDate", "ReportDate", w), 
+            "GeoId = GeographicFocusId", "HSecurityId")
     }
     else {
         z <- "SecurityId"
@@ -11435,16 +11444,15 @@ sql.1dFundCt <- function (x, y, n, w)
             stop("Bad factor", j)
         }
     }
-    h <- "datediff(month, h.ReportDate, flo.ReportDate) = case when day(flo.ReportDate) < 26 then 2 else 1 end"
-    h <- c("inner join", paste("Holdings h on h.FundId = his.FundId", 
-        h, sep = " and "))
+    h <- c("inner join", "Holdings h on h.FundId = his.FundId")
     h <- c("DailyData flo", "inner join", "FundHistory his on his.HFundId = flo.HFundId", 
         h)
     if (!w) 
         h <- c(h, "inner join", "SecurityHistory id on id.HSecurityId = h.HSecurityId")
-    w <- ifelse(w, "HSecurityId, GeographicFocusId", "SecurityId")
+    w <- ifelse(w, "flo.ReportDate, HSecurityId, GeographicFocusId", 
+        "SecurityId")
     z <- sql.tbl(z, h, n, w)
-    z <- paste(c(x, sql.unbracket(z)), collapse = "\n")
+    z <- paste(sql.unbracket(z), collapse = "\n")
     z
 }
 
