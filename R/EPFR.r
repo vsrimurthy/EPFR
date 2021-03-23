@@ -7888,7 +7888,7 @@ mk.vbl.max <- function (x, y, n)
 mk.vbl.ratio <- function (x, y, n) 
 {
     z <- fetch(y, x, 1, paste(n$fldr, "data", sep = "\\"), n$classif)
-    z <- z[, 1]/nonneg(z[, 2])
+    z <- zav(z[, 1])/nonneg(z[, 2])
     z
 }
 
