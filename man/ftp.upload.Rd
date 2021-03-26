@@ -4,7 +4,7 @@
 \alias{ftp.upload}
 \title{ftp.upload}
 \usage{
-ftp.upload(x, y, n, w, h, u = 600)
+ftp.upload(x, y, n, w, h)
 }
 \arguments{
 \item{x}{= empty remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
@@ -16,28 +16,21 @@ ftp.upload(x, y, n, w, h, u = 600)
 \item{w}{= user id (defaults to standard)}
 
 \item{h}{= password (defaults to standard)}
-
-\item{u}{= timeout in seconds}
 }
 \description{
-returns ftp script to copy up files from the local machine
+Copies up files from the local machine
 }
 \seealso{
-Other ftp: \code{\link{ftp.action}},
-  \code{\link{ftp.all.dir}},
+Other ftp: \code{\link{ftp.all.dir}},
   \code{\link{ftp.all.files.underlying}},
   \code{\link{ftp.all.files}},
-  \code{\link{ftp.credential}}, \code{\link{ftp.del}},
-  \code{\link{ftp.dir.excise.crap}},
-  \code{\link{ftp.dir.ftp.code}}, \code{\link{ftp.dir}},
+  \code{\link{ftp.credential}}, \code{\link{ftp.dir}},
   \code{\link{ftp.download}}, \code{\link{ftp.exists}},
   \code{\link{ftp.file.size}}, \code{\link{ftp.file}},
   \code{\link{ftp.get}}, \code{\link{ftp.info}},
   \code{\link{ftp.kill}}, \code{\link{ftp.list}},
-  \code{\link{ftp.mkdir}}, \code{\link{ftp.parent}},
-  \code{\link{ftp.put}}, \code{\link{ftp.record}},
-  \code{\link{ftp.remove}}, \code{\link{ftp.rmdir}},
-  \code{\link{ftp.sql.factor}},
-  \code{\link{ftp.sql.other}}, \code{\link{ftp.txt}}
+  \code{\link{ftp.parent}}, \code{\link{ftp.put}},
+  \code{\link{ftp.record}}, \code{\link{ftp.sql.factor}},
+  \code{\link{ftp.sql.other}}
 }
 \keyword{ftp.upload}
