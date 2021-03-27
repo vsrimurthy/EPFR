@@ -4237,6 +4237,34 @@ ftp.credential <- function (x)
         x))
 }
 
+#' ftp.del
+#' 
+#' deletes file <y> on remote site <x>
+#' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
+#' @param y = a vector of remote file(s) (e.g. "foo.txt")
+#' @param n = ftp site (defaults to standard)
+#' @param w = user id (defaults to standard)
+#' @param h = password (defaults to standard)
+#' @keywords ftp.del
+#' @export
+#' @family ftp
+
+ftp.del <- function (x, y, n, w, h) 
+{
+    if (missing(n)) 
+        n <- ftp.credential("ftp")
+    if (missing(w)) 
+        w <- ftp.credential("user")
+    if (missing(h)) 
+        h <- ftp.credential("pwd")
+    z <- tryCatch(curlPerform(url = paste0("ftp://", n, x, "/", 
+        y), quote = paste0("DELE ", x, "/", y), userpwd = paste0(w, 
+        ":", h)), error = function(e) {
+        NULL
+    })
+    invisible()
+}
+
 #' ftp.dir
 #' 
 #' logical or YYYYMMDD vector indexed by remote file names
@@ -4518,6 +4546,34 @@ ftp.put <- function (x, y, n, w, h)
 ftp.record <- function (x, y) 
 {
     record.write(x, y, "upload.txt")
+}
+
+#' ftp.rmdir
+#' 
+#' removes directory <y> under <x>
+#' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
+#' @param y = folder to be deleted (e.g. "hoo")
+#' @param n = ftp site (defaults to standard)
+#' @param w = user id (defaults to standard)
+#' @param h = password (defaults to standard)
+#' @keywords ftp.rmdir
+#' @export
+#' @family ftp
+
+ftp.rmdir <- function (x, y, n, w, h) 
+{
+    if (missing(n)) 
+        n <- ftp.credential("ftp")
+    if (missing(w)) 
+        w <- ftp.credential("user")
+    if (missing(h)) 
+        h <- ftp.credential("pwd")
+    z <- tryCatch(curlPerform(url = paste0("ftp://", n, x, "/", 
+        y, "/"), quote = paste0("RMD ", x, "/", y, "/"), userpwd = paste0(w, 
+        ":", h)), error = function(e) {
+        NULL
+    })
+    invisible()
 }
 
 #' ftp.sql.factor
