@@ -165,6 +165,67 @@ email <- function (x, y, n, w = "", h = F, u, v)
     invisible()
 }
 
+#' ftp.dir
+#' 
+#' logical or YYYYMMDD vector indexed by remote file names
+#' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
+#' @param y = ftp site (defaults to standard)
+#' @param n = user id (defaults to standard)
+#' @param w = password (defaults to standard)
+#' @param h = T/F depending on whether you want time stamps
+#' @param u = protocol (either "ftp" or "sftp")
+#' @keywords ftp.dir
+#' @export
+#' @family ftp
+#' @import RCurl
+
+ftp.dir <- function (x, y, n, w, h = F, u = "ftp") 
+{
+    if (missing(y)) 
+        y <- ftp.credential("ftp", u)
+    if (missing(n)) 
+        n <- ftp.credential("user", u)
+    if (missing(w)) 
+        w <- ftp.credential("pwd", u)
+    y <- getURL(paste0(u, "://", y, x, "/"), userpwd = paste0(n, 
+        ":", w), ftp.use.epsv = F)
+    u <- ifelse(u == "ftp", "\r\n", "\n")
+    y <- txt.parse(y, u)
+    if (length(y) > 1) {
+        y <- y[txt.left(y, 1) != "-" | txt.parse(txt.itrim(y), 
+            txt.space(1))[, 5] != 0]
+    }
+    else if (length(y) == 1) {
+        y <- y[txt.left(y, 1) != "-" | txt.parse(txt.itrim(y), 
+            txt.space(1))[5] != 0]
+    }
+    if (length(y) > 0) {
+        n <- ftp.break(y)
+        z <- substring(y, n + 1, nchar(y))
+        y <- substring(y, 1, n - 1)
+        z <- data.frame(substring(z, 1, 3), as.numeric(substring(z, 
+            5, 6)), substring(z, 8, 12), substring(z, 14, nchar(z)), 
+            stringsAsFactors = F)
+        names(z) <- c("mm", "dd", "yyyy", "file")
+        if (h) {
+            month.abbrv <- vec.named(1:12, month.abb)
+            z$mm <- map.rname(month.abbrv, z$mm)
+            z$yyyy <- ifelse(txt.has(z$yyyy, ":", T), yyyymm.to.yyyy(yyyymmdd.to.yyyymm(today())), 
+                z$yyyy)
+            z$yyyy <- as.numeric(z$yyyy)
+            z <- vec.named(10000 * z$yyyy + 100 * z$mm + z$dd, 
+                z$file)
+        }
+        else {
+            z <- vec.named(txt.left(y, 1) == "-", z$file)
+        }
+    }
+    else {
+        z <- NULL
+    }
+    z
+}
+
 #' angle
 #' 
 #' angle ABC
@@ -2456,6 +2517,7 @@ fcn.all.roxygenize <- function (x)
     y["stats"] <- "ret.outliers"
     y["RODBC"] <- "mk.1mPerfTrend"
     y["RDCOMClient"] <- "email"
+    y["RCurl"] <- "ftp.dir"
     z <- NULL
     for (w in names(y)) z <- c(z, "", fcn.roxygenize(y[w], w, 
         n))
@@ -4290,67 +4352,6 @@ ftp.del <- function (x, y, n, w, h)
         NULL
     })
     invisible()
-}
-
-#' ftp.dir
-#' 
-#' logical or YYYYMMDD vector indexed by remote file names
-#' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
-#' @param y = ftp site (defaults to standard)
-#' @param n = user id (defaults to standard)
-#' @param w = password (defaults to standard)
-#' @param h = T/F depending on whether you want time stamps
-#' @param u = protocol (either "ftp" or "sftp")
-#' @keywords ftp.dir
-#' @export
-#' @family ftp
-#' @@importFrom RCurl getURL
-
-ftp.dir <- function (x, y, n, w, h = F, u = "ftp") 
-{
-    if (missing(y)) 
-        y <- ftp.credential("ftp", u)
-    if (missing(n)) 
-        n <- ftp.credential("user", u)
-    if (missing(w)) 
-        w <- ftp.credential("pwd", u)
-    y <- getURL(paste0(u, "://", y, x, "/"), userpwd = paste0(n, 
-        ":", w), ftp.use.epsv = F)
-    u <- ifelse(u == "ftp", "\r\n", "\n")
-    y <- txt.parse(y, u)
-    if (length(y) > 1) {
-        y <- y[txt.left(y, 1) != "-" | txt.parse(txt.itrim(y), 
-            txt.space(1))[, 5] != 0]
-    }
-    else if (length(y) == 1) {
-        y <- y[txt.left(y, 1) != "-" | txt.parse(txt.itrim(y), 
-            txt.space(1))[5] != 0]
-    }
-    if (length(y) > 0) {
-        n <- ftp.break(y)
-        z <- substring(y, n + 1, nchar(y))
-        y <- substring(y, 1, n - 1)
-        z <- data.frame(substring(z, 1, 3), as.numeric(substring(z, 
-            5, 6)), substring(z, 8, 12), substring(z, 14, nchar(z)), 
-            stringsAsFactors = F)
-        names(z) <- c("mm", "dd", "yyyy", "file")
-        if (h) {
-            month.abbrv <- vec.named(1:12, month.abb)
-            z$mm <- map.rname(month.abbrv, z$mm)
-            z$yyyy <- ifelse(txt.has(z$yyyy, ":", T), yyyymm.to.yyyy(yyyymmdd.to.yyyymm(today())), 
-                z$yyyy)
-            z$yyyy <- as.numeric(z$yyyy)
-            z <- vec.named(10000 * z$yyyy + 100 * z$mm + z$dd, 
-                z$file)
-        }
-        else {
-            z <- vec.named(txt.left(y, 1) == "-", z$file)
-        }
-    }
-    else {
-        z <- NULL
-    }
-    z
 }
 
 #' ftp.download
