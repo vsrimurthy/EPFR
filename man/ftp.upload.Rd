@@ -4,7 +4,7 @@
 \alias{ftp.upload}
 \title{ftp.upload}
 \usage{
-ftp.upload(x, y, n, w, h)
+ftp.upload(x, y, n, w, h, u = "ftp")
 }
 \arguments{
 \item{x}{= empty remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
@@ -16,6 +16,8 @@ ftp.upload(x, y, n, w, h)
 \item{w}{= user id (defaults to standard)}
 
 \item{h}{= password (defaults to standard)}
+
+\item{u}{= protocol (either "ftp" or "sftp")}
 }
 \description{
 Copies up files from the local machine
@@ -23,7 +25,7 @@ Copies up files from the local machine
 \seealso{
 Other ftp: \code{\link{ftp.all.dir}},
   \code{\link{ftp.all.files.underlying}},
-  \code{\link{ftp.all.files}},
+  \code{\link{ftp.all.files}}, \code{\link{ftp.break}},
   \code{\link{ftp.credential}}, \code{\link{ftp.del}},
   \code{\link{ftp.dir}}, \code{\link{ftp.download}},
   \code{\link{ftp.exists}}, \code{\link{ftp.file.size}},

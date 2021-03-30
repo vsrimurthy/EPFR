@@ -4,7 +4,7 @@
 \alias{ftp.dir}
 \title{ftp.dir}
 \usage{
-ftp.dir(x, y, n, w, h = F)
+ftp.dir(x, y, n, w, h = F, u = "ftp")
 }
 \arguments{
 \item{x}{= remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
@@ -16,6 +16,8 @@ ftp.dir(x, y, n, w, h = F)
 \item{w}{= password (defaults to standard)}
 
 \item{h}{= T/F depending on whether you want time stamps}
+
+\item{u}{= protocol (either "ftp" or "sftp")}
 }
 \description{
 logical or YYYYMMDD vector indexed by remote file names
@@ -23,7 +25,7 @@ logical or YYYYMMDD vector indexed by remote file names
 \seealso{
 Other ftp: \code{\link{ftp.all.dir}},
   \code{\link{ftp.all.files.underlying}},
-  \code{\link{ftp.all.files}},
+  \code{\link{ftp.all.files}}, \code{\link{ftp.break}},
   \code{\link{ftp.credential}}, \code{\link{ftp.del}},
   \code{\link{ftp.download}}, \code{\link{ftp.exists}},
   \code{\link{ftp.file.size}}, \code{\link{ftp.file}},

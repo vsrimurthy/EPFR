@@ -4171,19 +4171,20 @@ ftp.all.dir <- function (x, y, n, w)
 #' @param y = ftp site (defaults to standard)
 #' @param n = user id (defaults to standard)
 #' @param w = password (defaults to standard)
+#' @param h = protocol (either "ftp" or "sftp")
 #' @keywords ftp.all.files
 #' @export
 #' @family ftp
 
-ftp.all.files <- function (x, y, n, w) 
+ftp.all.files <- function (x, y, n, w, h = "ftp") 
 {
     if (missing(y)) 
-        y <- ftp.credential("ftp")
+        y <- ftp.credential("ftp", h)
     if (missing(n)) 
-        n <- ftp.credential("user")
+        n <- ftp.credential("user", h)
     if (missing(w)) 
-        w <- ftp.credential("pwd")
-    z <- ftp.all.files.underlying(x, y, n, w, T)
+        w <- ftp.credential("pwd", h)
+    z <- ftp.all.files.underlying(x, y, n, w, T, h)
     if (x == "/") 
         x <- ""
     z <- txt.right(z, nchar(z) - nchar(x) - 1)
@@ -4198,16 +4199,17 @@ ftp.all.files <- function (x, y, n, w)
 #' @param n = user id
 #' @param w = password
 #' @param h = T/F depending on whether you want files or folders
+#' @param u = protocol (either "ftp" or "sftp")
 #' @keywords ftp.all.files.underlying
 #' @export
 #' @family ftp
 
-ftp.all.files.underlying <- function (x, y, n, w, h) 
+ftp.all.files.underlying <- function (x, y, n, w, h, u = "ftp") 
 {
     z <- NULL
     while (length(x) > 0) {
         cat(x[1], "...\n")
-        m <- ftp.dir(x[1], y, n, w, F)
+        m <- ftp.dir(x[1], y, n, w, F, u)
         if (!is.null(m)) {
             j <- names(m)
             if (x[1] != "/" & x[1] != "") 
@@ -4223,17 +4225,42 @@ ftp.all.files.underlying <- function (x, y, n, w, h)
     z
 }
 
+#' ftp.break
+#' 
+#' integer vector locating " MMM " in <x>
+#' @param x = string vector
+#' @keywords ftp.break
+#' @export
+#' @family ftp
+
+ftp.break <- function (x) 
+{
+    month.abbrv <- vec.named(1:12, month.abb)
+    n <- min(nchar(x)) - 4
+    z <- rep(NA, n)
+    for (i in 1:n) z[i] <- sum(!is.element(substring(x, i, i + 
+        4), paste0(" ", names(month.abbrv), " ")))
+    z <- (1:n)[order(z)][1]
+    w <- is.element(substring(x, z, z + 4), paste0(" ", names(month.abbrv), 
+        " "))
+    z <- ifelse(w, z, NA)
+    if (any(!w)) 
+        z[!w] <- ftp.break(x[!w])
+    z
+}
+
 #' ftp.credential
 #' 
 #' relevant ftp credential
 #' @param x = one of ftp/user/pwd
+#' @param y = one of ftp/sftp
 #' @keywords ftp.credential
 #' @export
 #' @family ftp
 
-ftp.credential <- function (x) 
+ftp.credential <- function (x, y = "ftp") 
 {
-    as.character(map.rname(vec.read(parameters("ftp-credential")), 
+    as.character(map.rname(vec.read(parameters(paste0(y, "-credential"))), 
         x))
 }
 
@@ -4273,23 +4300,24 @@ ftp.del <- function (x, y, n, w, h)
 #' @param n = user id (defaults to standard)
 #' @param w = password (defaults to standard)
 #' @param h = T/F depending on whether you want time stamps
+#' @param u = protocol (either "ftp" or "sftp")
 #' @keywords ftp.dir
 #' @export
 #' @family ftp
 #' @@importFrom RCurl getURL
 
-ftp.dir <- function (x, y, n, w, h = F) 
+ftp.dir <- function (x, y, n, w, h = F, u = "ftp") 
 {
     if (missing(y)) 
-        y <- ftp.credential("ftp")
+        y <- ftp.credential("ftp", u)
     if (missing(n)) 
-        n <- ftp.credential("user")
+        n <- ftp.credential("user", u)
     if (missing(w)) 
-        w <- ftp.credential("pwd")
-    month.abbrv <- vec.named(1:12, month.abb)
-    y <- getURL(paste0("ftp://", y, x, "/"), userpwd = paste0(n, 
+        w <- ftp.credential("pwd", u)
+    y <- getURL(paste0(u, "://", y, x, "/"), userpwd = paste0(n, 
         ":", w), ftp.use.epsv = F)
-    y <- txt.parse(y, "\r\n")
+    u <- ifelse(u == "ftp", "\r\n", "\n")
+    y <- txt.parse(y, u)
     if (length(y) > 1) {
         y <- y[txt.left(y, 1) != "-" | txt.parse(txt.itrim(y), 
             txt.space(1))[, 5] != 0]
@@ -4299,9 +4327,7 @@ ftp.dir <- function (x, y, n, w, h = F)
             txt.space(1))[5] != 0]
     }
     if (length(y) > 0) {
-        n <- min(nchar(y)) - 4
-        while (any(!is.element(substring(y, n, n + 4), paste0(" ", 
-            names(month.abbrv), " ")))) n <- n - 1
+        n <- ftp.break(y)
         z <- substring(y, n + 1, nchar(y))
         y <- substring(y, 1, n - 1)
         z <- data.frame(substring(z, 1, 3), as.numeric(substring(z, 
@@ -4309,6 +4335,7 @@ ftp.dir <- function (x, y, n, w, h = F)
             stringsAsFactors = F)
         names(z) <- c("mm", "dd", "yyyy", "file")
         if (h) {
+            month.abbrv <- vec.named(1:12, month.abb)
             z$mm <- map.rname(month.abbrv, z$mm)
             z$yyyy <- ifelse(txt.has(z$yyyy, ":", T), yyyymm.to.yyyy(yyyymmdd.to.yyyymm(today())), 
                 z$yyyy)
@@ -4334,19 +4361,20 @@ ftp.dir <- function (x, y, n, w, h = F)
 #' @param n = ftp site
 #' @param w = user id
 #' @param h = password
+#' @param u = protocol (either "ftp" or "sftp")
 #' @keywords ftp.download
 #' @export
 #' @family ftp
 
-ftp.download <- function (x, y, n, w, h) 
+ftp.download <- function (x, y, n, w, h, u = "ftp") 
 {
     if (missing(n)) 
-        n <- ftp.credential("ftp")
+        n <- ftp.credential("ftp", u)
     if (missing(w)) 
-        w <- ftp.credential("user")
+        w <- ftp.credential("user", u)
     if (missing(h)) 
-        h <- ftp.credential("pwd")
-    z <- ftp.all.files(x, n, w, h)
+        h <- ftp.credential("pwd", u)
+    z <- ftp.all.files(x, n, w, h, u)
     y <- paste(y, dir.parent(z), sep = "\\")
     y <- ifelse(txt.right(y, 1) == "\\", txt.left(y, nchar(y) - 
         1), y)
@@ -4354,7 +4382,7 @@ ftp.download <- function (x, y, n, w, h)
     z <- paste(x, z, sep = "/")
     for (j in seq_along(z)) {
         cat(txt.right(z[j], nchar(z[j]) - nchar(x)), "...\n")
-        ftp.get(z[j], y[j], n, w, h)
+        ftp.get(z[j], y[j], n, w, h, u)
     }
     invisible()
 }
@@ -4430,19 +4458,20 @@ ftp.file.size <- function (x, y, n, w)
 #' @param n = ftp site (defaults to standard)
 #' @param w = user id (defaults to standard)
 #' @param h = password (defaults to standard)
+#' @param u = protocol (either "ftp" or "sftp")
 #' @keywords ftp.get
 #' @export
 #' @family ftp
 
-ftp.get <- function (x, y, n, w, h) 
+ftp.get <- function (x, y, n, w, h, u = "ftp") 
 {
     if (missing(n)) 
-        n <- ftp.credential("ftp")
+        n <- ftp.credential("ftp", u)
     if (missing(w)) 
-        w <- ftp.credential("user")
+        w <- ftp.credential("user", u)
     if (missing(h)) 
-        h <- ftp.credential("pwd")
-    z <- getBinaryURL(paste0("ftp://", n, x), userpwd = paste0(w, 
+        h <- ftp.credential("pwd", u)
+    z <- getBinaryURL(paste0(u, "://", n, x), userpwd = paste0(w, 
         ":", h))
     writeBin(z, con = paste0(y, "\\", ftp.file(x)))
     invisible()
@@ -4515,21 +4544,22 @@ ftp.parent <- function (x)
 #' @param n = ftp site (defaults to standard)
 #' @param w = user id (defaults to standard)
 #' @param h = password (defaults to standard)
+#' @param u = protocol (either "ftp" or "sftp")
 #' @keywords ftp.put
 #' @export
 #' @family ftp
 
-ftp.put <- function (x, y, n, w, h) 
+ftp.put <- function (x, y, n, w, h, u = "ftp") 
 {
     if (missing(n)) 
-        n <- ftp.credential("ftp")
+        n <- ftp.credential("ftp", u)
     if (missing(w)) 
-        w <- ftp.credential("user")
+        w <- ftp.credential("user", u)
     if (missing(h)) 
-        h <- ftp.credential("pwd")
-    z <- getCurlHandle(ftp.use.epsv = FALSE, userpwd = paste0(w, 
+        h <- ftp.credential("pwd", u)
+    z <- getCurlHandle(ftp.use.epsv = F, userpwd = paste0(w, 
         ":", h))
-    z <- ftpUpload(y, paste0("ftp://", n, x, "/", ftp.file(y)), 
+    z <- ftpUpload(y, paste0(u, "://", n, x, "/", ftp.file(y)), 
         curl = z, ftp.create.missing.dirs = T)
     invisible()
 }
@@ -4734,23 +4764,28 @@ ftp.sql.other <- function (x, y, n)
 #' @param n = ftp site (defaults to standard)
 #' @param w = user id (defaults to standard)
 #' @param h = password (defaults to standard)
+#' @param u = protocol (either "ftp" or "sftp")
 #' @keywords ftp.upload
 #' @export
 #' @family ftp
 
-ftp.upload <- function (x, y, n, w, h) 
+ftp.upload <- function (x, y, n, w, h, u = "ftp") 
 {
     if (missing(n)) 
-        n <- ftp.credential("ftp")
+        n <- ftp.credential("ftp", u)
     if (missing(w)) 
-        w <- ftp.credential("user")
+        w <- ftp.credential("user", u)
     if (missing(h)) 
-        h <- ftp.credential("pwd")
+        h <- ftp.credential("pwd", u)
     z <- dir.all.files(y, "*.*")
     v <- ftp.parent(z)
     v <- txt.right(v, nchar(v) - nchar(y))
     v <- paste0(x, v)
-    for (j in seq_along(z)) ftp.put(v[j], z[j], n, w, h)
+    for (j in seq_along(z)) {
+        cat(ftp.file(z[j]), "")
+        ftp.put(v[j], z[j], n, w, h, u)
+        cat(substring(Sys.time(), 12, 16), "\n")
+    }
     invisible()
 }
 

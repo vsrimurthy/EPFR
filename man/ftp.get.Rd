@@ -4,7 +4,7 @@
 \alias{ftp.get}
 \title{ftp.get}
 \usage{
-ftp.get(x, y, n, w, h)
+ftp.get(x, y, n, w, h, u = "ftp")
 }
 \arguments{
 \item{x}{= remote file on an ftp site (e.g. "/ftpdata/mystuff/foo.txt")}
@@ -16,6 +16,8 @@ ftp.get(x, y, n, w, h)
 \item{w}{= user id (defaults to standard)}
 
 \item{h}{= password (defaults to standard)}
+
+\item{u}{= protocol (either "ftp" or "sftp")}
 }
 \description{
 file <x> from remote site
@@ -23,7 +25,7 @@ file <x> from remote site
 \seealso{
 Other ftp: \code{\link{ftp.all.dir}},
   \code{\link{ftp.all.files.underlying}},
-  \code{\link{ftp.all.files}},
+  \code{\link{ftp.all.files}}, \code{\link{ftp.break}},
   \code{\link{ftp.credential}}, \code{\link{ftp.del}},
   \code{\link{ftp.dir}}, \code{\link{ftp.download}},
   \code{\link{ftp.exists}}, \code{\link{ftp.file.size}},

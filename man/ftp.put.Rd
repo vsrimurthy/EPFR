@@ -4,7 +4,7 @@
 \alias{ftp.put}
 \title{ftp.put}
 \usage{
-ftp.put(x, y, n, w, h)
+ftp.put(x, y, n, w, h, u = "ftp")
 }
 \arguments{
 \item{x}{= remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
@@ -16,6 +16,8 @@ ftp.put(x, y, n, w, h)
 \item{w}{= user id (defaults to standard)}
 
 \item{h}{= password (defaults to standard)}
+
+\item{u}{= protocol (either "ftp" or "sftp")}
 }
 \description{
 puts file <y> to remote site <x>, creating folders as needed
@@ -23,7 +25,7 @@ puts file <y> to remote site <x>, creating folders as needed
 \seealso{
 Other ftp: \code{\link{ftp.all.dir}},
   \code{\link{ftp.all.files.underlying}},
-  \code{\link{ftp.all.files}},
+  \code{\link{ftp.all.files}}, \code{\link{ftp.break}},
   \code{\link{ftp.credential}}, \code{\link{ftp.del}},
   \code{\link{ftp.dir}}, \code{\link{ftp.download}},
   \code{\link{ftp.exists}}, \code{\link{ftp.file.size}},

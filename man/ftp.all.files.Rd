@@ -4,7 +4,7 @@
 \alias{ftp.all.files}
 \title{ftp.all.files}
 \usage{
-ftp.all.files(x, y, n, w)
+ftp.all.files(x, y, n, w, h = "ftp")
 }
 \arguments{
 \item{x}{= remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
@@ -14,6 +14,8 @@ ftp.all.files(x, y, n, w)
 \item{n}{= user id (defaults to standard)}
 
 \item{w}{= password (defaults to standard)}
+
+\item{h}{= protocol (either "ftp" or "sftp")}
 }
 \description{
 remote-site directory listing of files (incl. sub-folders)
@@ -21,14 +23,15 @@ remote-site directory listing of files (incl. sub-folders)
 \seealso{
 Other ftp: \code{\link{ftp.all.dir}},
   \code{\link{ftp.all.files.underlying}},
-  \code{\link{ftp.credential}}, \code{\link{ftp.del}},
-  \code{\link{ftp.dir}}, \code{\link{ftp.download}},
-  \code{\link{ftp.exists}}, \code{\link{ftp.file.size}},
-  \code{\link{ftp.file}}, \code{\link{ftp.get}},
-  \code{\link{ftp.info}}, \code{\link{ftp.kill}},
-  \code{\link{ftp.list}}, \code{\link{ftp.parent}},
-  \code{\link{ftp.put}}, \code{\link{ftp.record}},
-  \code{\link{ftp.rmdir}}, \code{\link{ftp.sql.factor}},
+  \code{\link{ftp.break}}, \code{\link{ftp.credential}},
+  \code{\link{ftp.del}}, \code{\link{ftp.dir}},
+  \code{\link{ftp.download}}, \code{\link{ftp.exists}},
+  \code{\link{ftp.file.size}}, \code{\link{ftp.file}},
+  \code{\link{ftp.get}}, \code{\link{ftp.info}},
+  \code{\link{ftp.kill}}, \code{\link{ftp.list}},
+  \code{\link{ftp.parent}}, \code{\link{ftp.put}},
+  \code{\link{ftp.record}}, \code{\link{ftp.rmdir}},
+  \code{\link{ftp.sql.factor}},
   \code{\link{ftp.sql.other}}, \code{\link{ftp.upload}}
 }
 \keyword{ftp.all.files}

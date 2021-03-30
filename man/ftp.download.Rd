@@ -4,7 +4,7 @@
 \alias{ftp.download}
 \title{ftp.download}
 \usage{
-ftp.download(x, y, n, w, h)
+ftp.download(x, y, n, w, h, u = "ftp")
 }
 \arguments{
 \item{x}{= remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
@@ -16,6 +16,8 @@ ftp.download(x, y, n, w, h)
 \item{w}{= user id}
 
 \item{h}{= password}
+
+\item{u}{= protocol (either "ftp" or "sftp")}
 }
 \description{
 replicates <x> in folder <y>
@@ -23,7 +25,7 @@ replicates <x> in folder <y>
 \seealso{
 Other ftp: \code{\link{ftp.all.dir}},
   \code{\link{ftp.all.files.underlying}},
-  \code{\link{ftp.all.files}},
+  \code{\link{ftp.all.files}}, \code{\link{ftp.break}},
   \code{\link{ftp.credential}}, \code{\link{ftp.del}},
   \code{\link{ftp.dir}}, \code{\link{ftp.exists}},
   \code{\link{ftp.file.size}}, \code{\link{ftp.file}},
