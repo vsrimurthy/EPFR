@@ -4,7 +4,7 @@
 \alias{ftp.del}
 \title{ftp.del}
 \usage{
-ftp.del(x, y, n, w, h)
+ftp.del(x, y, n, w, h, u = "ftp")
 }
 \arguments{
 \item{x}{= remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
@@ -16,6 +16,8 @@ ftp.del(x, y, n, w, h)
 \item{w}{= user id (defaults to standard)}
 
 \item{h}{= password (defaults to standard)}
+
+\item{u}{= protocol (either "ftp" or "sftp")}
 }
 \description{
 deletes file <y> on remote site <x>

@@ -4334,21 +4334,23 @@ ftp.credential <- function (x, y = "ftp")
 #' @param n = ftp site (defaults to standard)
 #' @param w = user id (defaults to standard)
 #' @param h = password (defaults to standard)
+#' @param u = protocol (either "ftp" or "sftp")
 #' @keywords ftp.del
 #' @export
 #' @family ftp
 
-ftp.del <- function (x, y, n, w, h) 
+ftp.del <- function (x, y, n, w, h, u = "ftp") 
 {
     if (missing(n)) 
-        n <- ftp.credential("ftp")
+        n <- ftp.credential("ftp", u)
     if (missing(w)) 
-        w <- ftp.credential("user")
+        w <- ftp.credential("user", u)
     if (missing(h)) 
-        h <- ftp.credential("pwd")
-    z <- tryCatch(curlPerform(url = paste0("ftp://", n, x, "/", 
-        y), quote = paste0("DELE ", x, "/", y), userpwd = paste0(w, 
-        ":", h)), error = function(e) {
+        h <- ftp.credential("pwd", u)
+    z <- paste0(u, "://", n, x, "/", y)
+    u <- ifelse(u == "ftp", "DELE", "RM")
+    z <- tryCatch(curlPerform(url = z, quote = paste0(u, " ", 
+        x, "/", y), userpwd = paste0(w, ":", h)), error = function(e) {
         NULL
     })
     invisible()
