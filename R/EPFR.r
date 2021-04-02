@@ -4663,9 +4663,13 @@ ftp.sql.factor <- function (x, y, n, w, h)
         z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c("HoldSum", 
             qa.filter.map(n)), w, T, h)
     }
-    else if (all(x == "TopV")) {
+    else if (all(x == "HoldSumTopV")) {
         z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c("HoldSum", 
-            qa.filter.map(n)), w, T, h, T)
+            qa.filter.map(n)), w, T, h, 5)
+    }
+    else if (all(x == "HoldSumTopX")) {
+        z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c("HoldSum", 
+            qa.filter.map(n)), w, T, h, 10)
     }
     else if (all(x == "Dispersion")) {
         z <- sql.Dispersion(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
@@ -11920,12 +11924,12 @@ sql.1mFloTrend.underlying <- function (x, y, n)
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
 #' @param h = breakdown filter (e.g. All/GeoId/DomicileId)
-#' @param u = T/F depending on whether only the top 5 funds matter
+#' @param u = when non-zero only the biggest <u> funds for each security matter
 #' @keywords sql.1mFundCt
 #' @export
 #' @family sql
 
-sql.1mFundCt <- function (x, y, n, w, h, u = F) 
+sql.1mFundCt <- function (x, y, n, w, h, u = 0) 
 {
     y <- sql.arguments(y)
     r <- yyyymm.to.day(x)
@@ -11961,13 +11965,13 @@ sql.1mFundCt <- function (x, y, n, w, h, u = F)
         r <- c(r, "inner join", "SecurityHistory id on id.HSecurityId = h.HSecurityId")
     w <- ifelse(w, "HSecurityId", "SecurityId")
     w <- paste(c(w, sql.breakdown(h)), collapse = ", ")
-    if (u & h == "All") {
+    if (u > 0 & h == "All") {
         v <- c(w, "HoldingValue")
-        v <- c(v, "HVRnk = rank() over (partition by h.HSecurityId order by HoldingValue desc)")
+        v <- c(v, "HVRnk = ROW_NUMBER() over (partition by h.HSecurityId order by HoldingValue desc)")
         v <- sql.label(sql.tbl(v, r, n), "t")
-        z <- sql.tbl(z, v, "HVRnk < 6", w)
+        z <- sql.tbl(z, v, paste("HVRnk <", u + 1), w)
     }
-    else if (u) {
+    else if (u > 0) {
         stop("Can't handle yet!")
     }
     else {

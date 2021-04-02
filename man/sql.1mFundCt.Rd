@@ -4,7 +4,7 @@
 \alias{sql.1mFundCt}
 \title{sql.1mFundCt}
 \usage{
-sql.1mFundCt(x, y, n, w, h, u = F)
+sql.1mFundCt(x, y, n, w, h, u = 0)
 }
 \arguments{
 \item{x}{= the YYYYMM for which you want data (known 26 days later)}
@@ -17,7 +17,7 @@ sql.1mFundCt(x, y, n, w, h, u = F)
 
 \item{h}{= breakdown filter (e.g. All/GeoId/DomicileId)}
 
-\item{u}{= T/F depending on whether only the top 5 funds matter}
+\item{u}{= when non-zero only the biggest <u> funds for each security matter}
 }
 \description{
 Generates FundCt, the ownership breadth measure set forth in Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
