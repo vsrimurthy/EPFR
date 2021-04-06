@@ -17,7 +17,7 @@ mk.1dFloMo.Ctry(x, y, n, w, h, u = "E")
 
 \item{h}{= T/F depending on whether daily/weekly}
 
-\item{u}{= Fund Type (one of E/B)}
+\item{u}{= vector of filters}
 }
 \description{
 SQL query for daily/weekly CBE flow momentum

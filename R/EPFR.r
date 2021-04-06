@@ -4979,6 +4979,29 @@ html.email <- function (x)
     invisible()
 }
 
+#' html.ex.utf8
+#' 
+#' code to represent <x> in html
+#' @param x = string vector
+#' @keywords html.ex.utf8
+#' @export
+#' @family html
+
+html.ex.utf8 <- function (x) 
+{
+    z <- txt.to.char(x)
+    w <- !is.element(z, char.seq("A", "Z"))
+    w <- w & !is.element(z, tolower(char.seq("A", "Z")))
+    w <- w & !is.element(z, c("\n", "\t", "\\", " "))
+    w <- w & !is.element(z, c(">", "<", "=", "/", "%", "%", "$", 
+        ":", ".", ",", ";", "?", "!"))
+    w <- w & !is.element(z, 0:9)
+    for (j in seq_along(z[w])) z[w][j] <- paste0("&#x", as.hexmode(utf8ToInt(z[w][j])), 
+        ";")
+    z <- paste(z, collapse = "")
+    z
+}
+
 #' html.flow.breakdown
 #' 
 #' html breaking down flows into constituents
@@ -6485,7 +6508,7 @@ mk.1dFloMo <- function (x, y, n)
 #' @param n = country list (one of Ctry/FX/Sector)
 #' @param w = input to or output of sql.connect
 #' @param h = T/F depending on whether daily/weekly
-#' @param u = Fund Type (one of E/B)
+#' @param u = vector of filters
 #' @keywords mk.1dFloMo.Ctry
 #' @export
 #' @family mk
@@ -10846,7 +10869,7 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
     h <- parameters(paste("classif", classif.type, sep = "-"))
     h <- mat.read(h, sep)
     h <- map.rname(h, z)
-    if (any(x == c("Ctry", "LatAm", "APac"))) {
+    if (any(x == c("Ctry", "CountryFlow", "LatAm", "APac"))) {
         z <- vec.named(z, h$CountryId)
     }
     else if (x == "EMDM") {

@@ -14,7 +14,7 @@ html.list(x)
 }
 \seealso{
 Other html: \code{\link{html.and}},
-  \code{\link{html.email}},
+  \code{\link{html.email}}, \code{\link{html.ex.utf8}},
   \code{\link{html.flow.breakdown}},
   \code{\link{html.flow.english}},
   \code{\link{html.flow.underlying}},
