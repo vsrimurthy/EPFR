@@ -14927,6 +14927,33 @@ urn.exact <- function (x, y)
     z
 }
 
+#' utf8.to.quoted.printable
+#' 
+#' quoted-printable representation of <x>
+#' @param x = a single character
+#' @keywords utf8.to.quoted.printable
+#' @export
+
+utf8.to.quoted.printable <- function (x) 
+{
+    y <- c(0:9, char.seq("A", "F"))
+    h <- c(8, 9, "A", "B")
+    r <- c("E", "F", "G", "H")
+    x <- utf8ToInt(x)
+    x <- base.ex.int(x, 64)
+    x <- split(x, 1:3)
+    x <- lapply(x, function(x) base.ex.int(x, 16))
+    x <- lapply(x, function(x) c(rep(0, 2 - length(x)), x))
+    x <- lapply(x, function(x) x + 1)
+    x <- lapply(x, function(x) c(x[1], y[x[2]]))
+    x[[1]][1] <- r[as.numeric(x[[1]][1])]
+    x[[2]][1] <- h[as.numeric(x[[2]][1])]
+    x[[3]][1] <- h[as.numeric(x[[3]][1])]
+    x <- sapply(x, function(x) paste(x, collapse = ""))
+    z <- paste(x, collapse = "=")
+    z
+}
+
 #' variance.ratio.test
 #' 
 #' tests whether <x> follows a random walk (i.e. <x> independent of prior values)
