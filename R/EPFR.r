@@ -6539,7 +6539,9 @@ mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E")
     for (j in names(y)) {
         y[[j]] <- reshape.wide(z[, c(dimnames(z)[[2]][1:2], j)])
         y[[j]] <- map.rname(t(y[[j]]), names(n))
-        dimnames(y[[j]])[[1]] <- as.character(n)
+        y[[j]] <- aggregate(x = y[[j]], by = list(grp = n), FUN = sum)
+        y[[j]] <- matrix(unlist(y[[j]][, -1]), dim(y[[j]])[1], 
+            dim(y[[j]])[2] - 1, F, list(y[[j]][, 1], dimnames(y[[j]])[[2]][-1]))
     }
     if (length(names(y)) == 1) 
         z <- y[[1]]
