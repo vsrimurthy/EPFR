@@ -6515,22 +6515,35 @@ mk.1dFloMo <- function (x, y, n)
 
 mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E") 
 {
+    v <- yyyymmdd.to.AllocMo(x)
+    if (all(v == v[1])) 
+        v <- v[1]
+    else stop("Bad Allocation Month")
     n <- sql.1dFloMo.CountryId.List(n, x)
-    z <- sql.Flow(c("FundId", y), list(A = "@floDt"), c("CB", 
-        u, "UI"), , h)
-    v <- list(A = paste0("CountryId in (", paste(names(n), collapse = ", "), 
-        ")"))
-    v[["B"]] <- "datediff(month, ReportDate, @floDt) = case when day(@floDt) < 23 then 2 else 1 end"
+    v <- list(A = paste0("ReportDate = '", yyyymm.to.day(v), 
+        "'"))
+    v[["B"]] <- paste0("CountryId in (", paste(names(n), collapse = ", "), 
+        ")")
     v <- sql.Allocation(c("FundId", "CountryId", "Allocation"), 
         "Country", , , sql.and(v))
+    r <- c(ifelse(h, "DayEnding", "WeekEnding"), "FundId", y)
+    z <- sql.Flow(r, list(A = paste0("'", x, "'")), c("CB", u, 
+        "UI"), , h)
     z <- c(sql.label(z, "t1"), "inner join", sql.label(v, "t2"), 
         "\ton t2.FundId = t1.FundId")
-    v <- c("CountryId", paste0(y, " = 0.01 * sum(Allocation * ", 
+    v <- c(sql.yyyymmdd(r[1]), "CountryId", paste0(y, " = 0.01 * sum(Allocation * ", 
         y, ")"))
-    z <- c(sql.declare("@floDt", "datetime", x), sql.unbracket(sql.tbl(v, 
-        z, , v[1])))
+    z <- sql.unbracket(sql.tbl(v, z, , paste0(r[1], ", ", v[2])))
     z <- sql.query(paste(z, collapse = "\n"), w, F)
-    z <- pivot.1d(sum, map.rname(n, z[, 1]), z[, -1])
+    y <- split(y, y)
+    for (j in names(y)) {
+        y[[j]] <- reshape.wide(z[, c(dimnames(z)[[2]][1:2], j)])
+        y[[j]] <- map.rname(t(y[[j]]), names(n))
+        dimnames(y[[j]])[[1]] <- as.character(n)
+    }
+    if (length(names(y)) == 1) 
+        z <- y[[1]]
+    else z <- simplify2array(y)
     z
 }
 
