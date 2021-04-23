@@ -6922,6 +6922,7 @@ mk.1mBullish.Ctry <- function (x, y)
     z <- c(sql.index("#CTRY", "FundId, CountryId"), z)
     z <- c("create table #CTRY (FundId int not null, CountryId int not null, BenchIndex int, Idx char(1), Allocation float)", 
         z)
+    z <- c(z, "", sql.BenchIndex.duplication("#CTRY"))
     z <- c(z, "", "update #CTRY set Idx = 'N' where Idx is NULL")
     z <- paste(c(sql.drop("#CTRY"), "", z), collapse = "\n")
     r <- "Bullish = 100 * sum(case when t1.Allocation > t2.Allocation then 1.0 else 0.0 end)/count(t1.FundId)"
@@ -6960,6 +6961,7 @@ mk.1mBullish.Sec <- function (x, y, n)
     z <- c(sql.index("#SEC", "FundId, SectorId"), z)
     z <- c("create table #SEC (FundId int not null, SectorId int not null, BenchIndex int, Idx char(1), Allocation float)", 
         z)
+    z <- c(z, "", sql.BenchIndex.duplication("#SEC"))
     z <- c(z, "", "update #SEC set Idx = 'N' where Idx is NULL")
     z <- paste(c(sql.drop("#SEC"), "", z), collapse = "\n")
     r <- "Bullish = 100 * sum(case when t1.Allocation > t2.Allocation then 1.0 else 0.0 end)/count(t1.FundId)"
@@ -12288,6 +12290,32 @@ sql.bcp <- function (x, y, n = "Quant", w = "EPFRUI", h = "dbo")
             "PWD"])[z]
         z <- paste("bcp", h, "out", y, z, "-c")
     }
+    z
+}
+
+#' sql.BenchIndex.duplication
+#' 
+#' updates BenchIndex field in table <x> to remove duplicates
+#' @param x = name of table being updated
+#' @keywords sql.BenchIndex.duplication
+#' @export
+#' @family sql
+
+sql.BenchIndex.duplication <- function (x) 
+{
+    z <- sql.tbl(c("BenchIndex", "obs = count(BenchIndex)"), 
+        x, , "BenchIndex")
+    v <- c("BIDesc", "BenchIndex", "obs")
+    v <- c(v, "Rnk = ROW_NUMBER() over (partition by BIDesc order by obs desc)")
+    z <- sql.tbl(v, c(sql.label(z, "t1"), "inner join", "BenchIndexes t2 on BIID = BenchIndex"))
+    z <- sql.tbl(c("BIDesc", "BenchIndex"), sql.label(z, "t"), 
+        "Rnk = 1")
+    z <- c(sql.label(z, "t1"), "inner join", "BenchIndexes t2 on t2.BIDesc = t1.BIDesc")
+    z <- sql.label(sql.tbl(c("BIID", "BenchIndex"), z, "not BIID = BenchIndex"), 
+        "t")
+    z <- sql.unbracket(sql.tbl("BenchIndex = t.BenchIndex", z, 
+        paste0(x, ".BenchIndex = t.BIID")))
+    z[1] <- paste("update", x, "set")
     z
 }
 
