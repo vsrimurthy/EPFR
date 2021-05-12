@@ -56,78 +56,112 @@ ret.outliers <- function (x, y = 1.5)
 #' 
 #' Returns a variable with the same row space as <n>
 #' @param x = a single YYYYMM
-#' @param y = variable to build
+#' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
 #' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) uiconn - a connection to EPFRUI, the output of odbcDriverConnect d) DB - any of StockFlows/China/Japan/CSI300/Energy
+#' @param w = T/F depending on whether you are checking ftp
 #' @keywords mk.1mPerfTrend
 #' @export
 #' @family mk
 #' @import RODBC
 
-mk.1mPerfTrend <- function (x, y, n) 
+mk.1mPerfTrend <- function (x, y, n, w) 
 {
     vbls <- paste0("Perf", txt.expand(c("", "ActWt"), c("Trend", 
         "Diff", "Diff2"), ""))
-    if (length(y) != 1) 
-        stop("Bad Argument Count")
-    if (!is.element(y, vbls)) 
-        stop("<y> must be one of", paste(vbls, collapse = "\\"))
-    x <- yyyymm.lag(x, 1)
-    ui <- "HFundId, FundRet = sum(PortfolioChange)/sum(AssetsStart)"
-    ui <- sql.tbl(ui, "MonthlyData", "MonthEnding = @newDt", 
-        "HFundId", "sum(AssetsStart) > 0")
-    ui <- sql.tbl("t1.HFundId, GeographicFocus, FundRet", c(sql.label(ui, 
-        "t1"), "inner join", "FundHistory t2", "\ton t2.HFundId = t1.HFundId"))
-    ui <- paste(c(sql.declare("@newDt", "datetime", yyyymm.to.day(x)), 
-        sql.unbracket(ui)), collapse = "\n")
-    ui <- sqlQuery(n$uiconn, ui, stringsAsFactors = F)
-    ui[, "FundRet"] <- ui[, "FundRet"] - map.rname(pivot.1d(mean, 
-        ui[, "GeographicFocus"], ui[, "FundRet"]), ui[, "GeographicFocus"])
-    if (any(duplicated(ui[, "HFundId"]))) 
-        stop("Problem")
-    ui <- vec.named(ui[, "FundRet"], ui[, "HFundId"])
-    if (is.element(y, paste0("Perf", c("Trend", "Diff", "Diff2")))) {
-        sf <- c("SecurityId", "his.FundId", "WtCol = n1.HoldingValue/AssetsEnd - o1.HoldingValue/AssetsStart")
-        w <- sql.1mAllocMo.underlying.pre("All", yyyymm.to.day(x), 
+    y <- sql.arguments(y)
+    if (length(y$factor) != 1) 
+        stop("Too many factors!")
+    if (!is.element(y$factor, vbls)) 
+        stop("Factors must be one of", paste(vbls, collapse = "\\"))
+    if (!w) 
+        x <- yyyymm.lag(x, 1)
+    ui <- c("MonthlyData t1", "inner join", "FundHistory t2 on t2.HFundId = t1.HFundId")
+    h <- c("FundId", "GeographicFocus = max(GeographicFocus)")
+    h <- c(h, "FundRet = sum(PortfolioChange)/sum(AssetsStart)")
+    ui <- sql.tbl(h, ui, "MonthEnding = @newDt", "FundId", "sum(AssetsStart) > 0")
+    ui <- c(sql.declare("@newDt", "datetime", yyyymm.to.day(x)), 
+        "", sql.unbracket(ui))
+    ui <- sql.query.underlying(paste(ui, collapse = "\n"), n$uiconn, 
+        F)
+    if (is.element(y$factor, vbls[1:3])) {
+        sf <- ifelse(w, "n1.HSecurityId", "n1.SecurityId")
+        sf <- c(sf, "his.FundId", "WtCol = n1.HoldingValue/AssetsEnd - o1.HoldingValue/AssetsStart")
+        u <- sql.1mAllocMo.underlying.pre(y$filter, yyyymm.to.day(x), 
             yyyymm.to.day(yyyymm.lag(x)))
-        h <- c(sql.1mAllocMo.underlying.from("All"), "inner join", 
-            "SecurityHistory id on id.HSecurityId = n1.HSecurityId")
-        sf <- c(paste(w, collapse = "\n"), paste(sql.unbracket(sql.tbl(sf, 
-            h, sql.in("n1.HSecurityId", sql.RDSuniv(n$DB)))), 
-            collapse = "\n"))
+        h <- sql.1mAllocMo.underlying.from(y$filter)
+        if (!w) 
+            h <- c(h, "inner join", "SecurityHistory id on id.HSecurityId = n1.HSecurityId")
+        if (n$DB == "All") {
+            sf <- sql.unbracket(sql.tbl(sf, h))
+        }
+        else {
+            sf <- sql.unbracket(sql.tbl(sf, h, sql.in("n1.HSecurityId", 
+                sql.RDSuniv(n$DB))))
+        }
+        sf <- c(paste(u, collapse = "\n"), paste(sf, collapse = "\n"))
     }
     else {
+        sf <- sql.FundHistory(y$filter, T, c("FundId", "GeographicFocusId"))
+        sf <- c(sql.label(sf, "his"), "\ton his.HFundId = t.HFundId")
         sf <- c(sql.label(sql.MonthlyAssetsEnd("@newDt"), "t"), 
-            "inner join", "FundHistory his", "\ton his.HFundId = t.HFundId")
+            "inner join", sf)
         sf <- c(sf, "inner join", sql.label(sql.MonthlyAlloc("@newDt"), 
-            "n1"), "\ton n1.HFundId = t.HFundId", "inner join")
-        sf <- c(sf, "SecurityHistory id", "\ton id.HSecurityId = n1.HSecurityId")
-        sf <- sql.tbl("SecurityId, t.HFundId, GeographicFocusId, WtCol = HoldingValue/AssetsEnd", 
-            sf, sql.in("n1.HSecurityId", sql.RDSuniv(n$DB)))
-        sf <- paste(c(sql.declare("@newDt", "datetime", yyyymm.to.day(x)), 
-            sql.unbracket(sf)), collapse = "\n")
+            "n1"), "\ton n1.FundId = his.FundId")
+        if (!w) 
+            sf <- c(sf, "inner join", "SecurityHistory id on id.HSecurityId = n1.HSecurityId")
+        h <- ifelse(w, "n1.HSecurityId", "SecurityId")
+        h <- c(h, "his.FundId", "GeographicFocusId", "WtCol = HoldingValue/AssetsEnd")
+        if (n$DB == "All") {
+            sf <- sql.tbl(h, sf)
+        }
+        else {
+            sf <- sql.tbl(h, sf, sql.in("n1.HSecurityId", sql.RDSuniv(n$DB)))
+        }
+        sf <- c(sql.declare("@newDt", "datetime", yyyymm.to.day(x)), 
+            "", sql.unbracket(sf))
+        sf <- paste(sf, collapse = "\n")
     }
-    sf <- sqlQuery(n$conn, sf, stringsAsFactors = F)
-    sf <- sf[is.element(sf[, "HFundId"], names(ui)), ]
-    if (is.element(y, paste0("PerfActWt", c("Trend", "Diff", 
-        "Diff2")))) {
-        vec <- paste(sf[, "SecurityId"], sf[, "GeographicFocusId"])
+    sf <- sql.query.underlying(sf, n$conn, F)
+    ui <- ui[is.element(ui[, "FundId"], sf[, "FundId"]), ]
+    sf <- sf[is.element(sf[, "FundId"], ui[, "FundId"]), ]
+    ui[, "FundRet"] <- ui[, "FundRet"] - map.rname(pivot.1d(mean, 
+        ui[, "GeographicFocus"], ui[, "FundRet"]), ui[, "GeographicFocus"])
+    ui <- mat.index(ui, "FundId")
+    ui <- as.numeric(map.rname(ui, sf[, "FundId"])[, "FundRet"])
+    if (any(is.element(y, vbls[4:6]))) {
+        vec <- paste(sf[, 1], sf[, "GeographicFocusId"])
         vec <- pivot.1d(mean, vec, sf[, "WtCol"])
-        vec <- as.numeric(map.rname(vec, paste(sf[, "SecurityId"], 
-            sf[, "GeographicFocusId"])))
+        vec <- as.numeric(map.rname(vec, paste(sf[, 1], sf[, 
+            "GeographicFocusId"])))
         sf[, "WtCol"] <- sf[, "WtCol"] - vec
     }
-    z <- as.numeric(ui[as.character(sf[, "HFundId"])])
-    if (is.element(y, c("PerfDiff2", "PerfActWtDiff2"))) 
+    z <- ui
+    if (is.element(y$factor, c("PerfDiff2", "PerfActWtDiff2"))) 
         z <- sign(z)
-    if (is.element(y, c("PerfDiff", "PerfActWtDiff"))) 
+    if (is.element(y$factor, c("PerfDiff", "PerfActWtDiff"))) {
         z <- z * sign(sf[, "WtCol"])
-    else z <- z * sf[, "WtCol"]
-    num <- pivot.1d(sum, sf[, "SecurityId"], z)
-    den <- pivot.1d(sum, sf[, "SecurityId"], abs(z))
-    z <- map.rname(den, dimnames(n$classif)[[1]])
-    z <- nonneg(z)
-    z <- map.rname(num, dimnames(n$classif)[[1]])/z
-    z <- as.numeric(z)
+    }
+    else {
+        z <- z * sf[, "WtCol"]
+    }
+    num <- pivot.1d(sum, sf[, 1], z)
+    den <- pivot.1d(sum, sf[, 1], abs(z))
+    if (w) {
+        den <- den[den > 0]
+        num <- num[names(den)]
+        z <- list(HSecurityId = names(den))
+        z[[y$factor]] <- num/den
+        z[["ReportDate"]] <- rep(yyyymmdd.to.txt(yyyymm.to.day(x)), 
+            length(z[[1]]))
+        z <- mat.ex.matrix(z)[, c("ReportDate", "HSecurityId", 
+            y$factor)]
+    }
+    else {
+        z <- map.rname(den, dimnames(n$classif)[[1]])
+        z <- nonneg(z)
+        z <- map.rname(num, dimnames(n$classif)[[1]])/z
+        z <- as.numeric(z)
+    }
     z
 }
 
@@ -6864,6 +6898,9 @@ mk.1mAllocMo <- function (x, y, n)
     if (y[1] == "AllocSkew") {
         z <- sql.1mAllocSkew(x, y, n$DB, F)
     }
+    else if (y[1] == "SRIAdvisorPct") {
+        z <- sql.1mSRIAdvisorPct(x, y, n$DB, F)
+    }
     else if (y[1] == "FloDollar") {
         z <- sql.1mFloMo(x, y, n$DB, F, "All")
     }
@@ -12022,6 +12059,42 @@ sql.1mFundCt <- function (x, y, n, w, h, u = 0)
         z <- sql.tbl(z, r, n, w)
     }
     z <- paste(c(x, sql.unbracket(z)), collapse = "\n")
+    z
+}
+
+#' sql.1mSRIAdvisorPct
+#' 
+#' Generates the SQL query to get the data for 1mSRIAdvisorPct
+#' @param x = the YYYYMM for which you want data (known 26 days later)
+#' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
+#' @param n = any of StockFlows/China/Japan/CSI300/Energy
+#' @param w = T/F depending on whether you are checking ftp
+#' @keywords sql.1mSRIAdvisorPct
+#' @export
+#' @family sql
+
+sql.1mSRIAdvisorPct <- function (x, y, n, w) 
+{
+    y <- sql.arguments(y)
+    x <- yyyymm.to.day(x)
+    h <- sql.FundHistory(c(y$filter, "SRI"), T, "AdvisorId")
+    h <- c("Holdings t1", "inner join", sql.label(h, "t2 on t2.HFundId = t1.HFundId"))
+    z <- c("HSecurityId", "Num = count(distinct AdvisorId)")
+    z <- sql.label(sql.tbl(z, h, "ReportDate = @floDt", z[1]), 
+        "t1")
+    h <- sql.tbl("Den = count(distinct AdvisorId)", h, "ReportDate = @floDt")
+    z <- c(z, "cross join", sql.label(h, "t2"))
+    h <- sql.declare("@floDt", "datetime", yyyymm.to.day(x))
+    if (w) 
+        x <- c(sql.ReportDate(x), "t1.HSecurityId")
+    else x <- "SecurityId"
+    if (length(y$factor) != 1 | y$factor[1] != "SRIAdvisorPct") 
+        stop("Bad Argument")
+    x <- c(x, "SRIAdvisorPct = 100 * cast(sum(Num) as float)/max(Den)")
+    if (!w) 
+        z <- c(z, "inner join", "SecurityHistory id on id.HSecurityId = t1.HSecurityId")
+    w <- ifelse(w, "t1.HSecurityId", "SecurityId")
+    z <- paste(c(h, "", sql.unbracket(sql.tbl(x, z, , w))), collapse = "\n")
     z
 }
 

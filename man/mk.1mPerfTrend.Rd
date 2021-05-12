@@ -4,14 +4,16 @@
 \alias{mk.1mPerfTrend}
 \title{mk.1mPerfTrend}
 \usage{
-mk.1mPerfTrend(x, y, n)
+mk.1mPerfTrend(x, y, n, w)
 }
 \arguments{
 \item{x}{= a single YYYYMM}
 
-\item{y}{= variable to build}
+\item{y}{= a string vector of factors to be computed, the last element of which is the type of fund used.}
 
 \item{n}{= list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) uiconn - a connection to EPFRUI, the output of odbcDriverConnect d) DB - any of StockFlows/China/Japan/CSI300/Energy}
+
+\item{w}{= T/F depending on whether you are checking ftp}
 }
 \description{
 Returns a variable with the same row space as <n>
