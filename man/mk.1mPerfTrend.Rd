@@ -4,7 +4,7 @@
 \alias{mk.1mPerfTrend}
 \title{mk.1mPerfTrend}
 \usage{
-mk.1mPerfTrend(x, y, n, w)
+mk.1mPerfTrend(x, y, n, w = F)
 }
 \arguments{
 \item{x}{= a single YYYYMM}
@@ -27,6 +27,7 @@ Other mk: \code{\link{mk.1dFloMo.Ctry}},
   \code{\link{mk.1mAllocMo}},
   \code{\link{mk.1mBullish.Ctry}},
   \code{\link{mk.1mBullish.Sec}},
+  \code{\link{mk.1mFloMo.Ctry}},
   \code{\link{mk.1wFloMo.CtryFlow}},
   \code{\link{mk.1wFloMo.IndyFlow}},
   \code{\link{mk.ActWt}}, \code{\link{mk.Alpha.daily}},

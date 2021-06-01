@@ -64,7 +64,7 @@ ret.outliers <- function (x, y = 1.5)
 #' @family mk
 #' @import RODBC
 
-mk.1mPerfTrend <- function (x, y, n, w) 
+mk.1mPerfTrend <- function (x, y, n, w = F) 
 {
     vbls <- paste0("Perf", txt.expand(c("", "ActWt"), c("Trend", 
         "Diff", "Diff2"), ""))
@@ -7014,6 +7014,52 @@ mk.1mBullish.Sec <- function (x, y, n)
     z <- mat.index(z)
     z <- map.rname(z, names(u))
     names(z) <- u
+    z
+}
+
+#' mk.1mFloMo.Ctry
+#' 
+#' SQL query for daily/weekly CBE flow momentum
+#' @param x = a YYYYMM month
+#' @param y = item (one of Flow/AssetsStart/AssetsEnd)
+#' @param n = country list (one of Ctry/FX/Sector)
+#' @param w = input to or output of sql.connect
+#' @param h = vector of filters
+#' @keywords mk.1mFloMo.Ctry
+#' @export
+#' @family mk
+
+mk.1mFloMo.Ctry <- function (x, y, n, w, h = "E") 
+{
+    n <- sql.1dFloMo.CountryId.List(n)
+    v <- list(A = paste0("ReportDate = '", yyyymm.to.day(yyyymm.lag(x)), 
+        "'"))
+    v[["B"]] <- paste0("CountryId in (", paste(names(n), collapse = ", "), 
+        ")")
+    v <- sql.Allocation(c("FundId", "CountryId", "Allocation"), 
+        "Country", , , sql.and(v))
+    r <- c("MonthEnding", "FundId", y)
+    z <- sql.FundHistory(c("CB", h, "UI"), F, "FundId")
+    z <- c("MonthlyData t1", "inner join", sql.label(z, "t2 on t2.HFundId = t1.HFundId"))
+    z <- sql.tbl(r, z, paste0("MonthEnding = '", yyyymm.to.day(x), 
+        "'"))
+    z <- c(sql.label(z, "t1"), "inner join", sql.label(v, "t2"), 
+        "\ton t2.FundId = t1.FundId")
+    v <- c(sql.yyyymmdd(r[1]), "CountryId", paste0(y, " = 0.01 * sum(Allocation * ", 
+        y, ")"))
+    z <- sql.unbracket(sql.tbl(v, z, , paste0(r[1], ", ", v[2])))
+    z <- sql.query(paste(z, collapse = "\n"), w, F)
+    y <- split(y, y)
+    for (j in names(y)) {
+        y[[j]] <- reshape.wide(z[, c(dimnames(z)[[2]][1:2], j)])
+        y[[j]] <- map.rname(t(y[[j]]), names(n))
+        y[[j]] <- aggregate(x = y[[j]], by = list(grp = n), FUN = sum)
+        y[[j]] <- matrix(unlist(y[[j]][, -1]), dim(y[[j]])[1], 
+            dim(y[[j]])[2] - 1, F, list(y[[j]][, 1], dimnames(y[[j]])[[2]][-1]))
+    }
+    if (length(names(y)) == 1) 
+        z <- y[[1]]
+    else z <- simplify2array(y)
     z
 }
 
