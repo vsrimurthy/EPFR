@@ -4,7 +4,7 @@
 \alias{mk.1dFloMo.Ctry}
 \title{mk.1dFloMo.Ctry}
 \usage{
-mk.1dFloMo.Ctry(x, y, n, w, h, u = "E")
+mk.1dFloMo.Ctry(x, y, n, w, h, u = "E", v = F)
 }
 \arguments{
 \item{x}{= flowdate/YYYYMMDD depending on whether daily/weekly}
@@ -18,6 +18,8 @@ mk.1dFloMo.Ctry(x, y, n, w, h, u = "E")
 \item{h}{= T/F depending on whether daily/weekly}
 
 \item{u}{= vector of filters}
+
+\item{v}{= T/F to use extra-domicile or all allocations}
 }
 \description{
 SQL query for daily/weekly CBE flow momentum

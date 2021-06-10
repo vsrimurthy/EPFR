@@ -6543,31 +6543,42 @@ mk.1dFloMo <- function (x, y, n)
 #' @param w = input to or output of sql.connect
 #' @param h = T/F depending on whether daily/weekly
 #' @param u = vector of filters
+#' @param v = T/F to use extra-domicile or all allocations
 #' @keywords mk.1dFloMo.Ctry
 #' @export
 #' @family mk
 
-mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E") 
+mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E", v = F) 
 {
-    v <- yyyymmdd.to.AllocMo(x)
-    if (all(v == v[1])) 
-        v <- v[1]
+    s <- yyyymmdd.to.AllocMo(x)
+    if (all(s == s[1])) 
+        s <- s[1]
     else stop("Bad Allocation Month")
     n <- sql.1dFloMo.CountryId.List(n, x)
-    v <- list(A = paste0("ReportDate = '", yyyymm.to.day(v), 
-        "'"))
-    v[["B"]] <- paste0("CountryId in (", paste(names(n), collapse = ", "), 
+    if (v) 
+        v <- sql.extra.domicile(n, "CountryId", "CountryId")
+    else v <- NULL
+    if (is.null(v)) {
+        s <- list(A = paste0("ReportDate = '", yyyymm.to.day(s), 
+            "'"))
+    }
+    else {
+        v[["A"]] <- paste0("ReportDate = '", yyyymm.to.day(s), 
+            "'")
+        s <- v
+    }
+    s[["B"]] <- paste0("CountryId in (", paste(names(n), collapse = ", "), 
         ")")
-    v <- sql.Allocation(c("FundId", "CountryId", "Allocation"), 
-        "Country", , , sql.and(v))
+    s <- sql.Allocation(c("FundId", "CountryId", "Allocation"), 
+        "Country", "Domicile", , sql.and(s))
     r <- c(ifelse(h, "DayEnding", "WeekEnding"), "FundId", y)
     z <- sql.Flow(r, list(A = paste0("'", x, "'")), c("CB", u, 
         "UI"), , h)
-    z <- c(sql.label(z, "t1"), "inner join", sql.label(v, "t2"), 
+    z <- c(sql.label(z, "t1"), "inner join", sql.label(s, "t2"), 
         "\ton t2.FundId = t1.FundId")
-    v <- c(sql.yyyymmdd(r[1]), "CountryId", paste0(y, " = 0.01 * sum(Allocation * ", 
+    s <- c(sql.yyyymmdd(r[1]), "CountryId", paste0(y, " = 0.01 * sum(Allocation * ", 
         y, ")"))
-    z <- sql.unbracket(sql.tbl(v, z, , paste0(r[1], ", ", v[2])))
+    z <- sql.unbracket(sql.tbl(s, z, , paste0(r[1], ", ", s[2])))
     z <- sql.query(paste(z, collapse = "\n"), w, F)
     y <- split(y, y)
     for (j in names(y)) {
@@ -6724,6 +6735,13 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h)
     s <- sql.1dFloMo.CountryId.List("Sector", x)
     if (h$Region == "UK") {
         h$Region <- "GB"
+    }
+    else if (h$Region == "CN") {
+        h$Region <- "CN"
+    }
+    else if (h$Region == "APAC") {
+        h$Region <- c("AU", "HK", "JP", "NZ", "SG", "CN", "IN", 
+            "ID", "KR", "MY", "PK", "PH", "TW", "TH")
     }
     else if (h$Region == "Eurozone") {
         h$Region <- c("AT", "BE", "DE", "FI", "FR", "IE", "IT", 
@@ -12777,6 +12795,56 @@ sql.drop <- function (x)
 sql.exists <- function (x, y = T) 
 {
     c(ifelse(y, "exists", "not exists"), paste0("\t", x))
+}
+
+#' sql.extra.domicile
+#' 
+#' where clauses to ensure extra-domicile flow
+#' @param x = flowdate/YYYYMMDD depending on whether daily/weekly
+#' @param y = column in classif-Ctry corresponding to names of <x>
+#' @param n = column in FundHistory corresponding to names of <x>
+#' @keywords sql.extra.domicile
+#' @export
+#' @family sql
+
+sql.extra.domicile <- function (x, y, n) 
+{
+    z <- mat.read(parameters("classif-Ctry"))
+    z <- z[is.element(z[, y], names(x)) & !is.na(z$DomicileId), 
+        ]
+    z <- vec.named(z$DomicileId, z[, y])
+    z <- split(as.character(z), x[names(z)])
+    z <- list(Domicile = z, Allocation = x[is.element(x, names(z))])
+    z[["Allocation"]] <- split(names(z$Allocation), z$Allocation)
+    for (j in names(z[["Domicile"]])) {
+        if (length(z[["Domicile"]][[j]]) == 1) {
+            z[["Domicile"]][[j]] <- paste0("Domicile = '", z[["Domicile"]][[j]], 
+                "'")
+        }
+        else {
+            z[["Domicile"]][[j]] <- paste(z[["Domicile"]][[j]], 
+                collapse = "', '")
+            z[["Domicile"]][[j]] <- paste0("Domicile in ('", 
+                z[["Domicile"]][[j]], "')")
+        }
+    }
+    for (j in names(z[["Allocation"]])) {
+        if (length(z[["Allocation"]][[j]]) == 1) {
+            z[["Allocation"]][[j]] <- paste0(n, " = ", z[["Allocation"]][[j]])
+        }
+        else {
+            z[["Allocation"]][[j]] <- paste(z[["Allocation"]][[j]], 
+                collapse = ", ")
+            z[["Allocation"]][[j]] <- paste0(n, " in (", z[["Allocation"]][[j]], 
+                ")")
+        }
+    }
+    z <- lapply(z, unlist)
+    z <- array.ex.list(z, F, T)
+    z <- vec.named(paste0("not (", z[, 1], " and ", z[, 2], ")"), 
+        dimnames(z)[[1]])
+    z <- split(z, names(z))
+    z
 }
 
 #' sql.FloMo.Funds
