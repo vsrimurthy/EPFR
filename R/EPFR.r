@@ -6733,30 +6733,15 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h)
         u <- u[1]
     else stop("Bad Allocation Month")
     s <- sql.1dFloMo.CountryId.List("Sector", x)
-    if (h$Region == "UK") {
-        h$Region <- "GB"
-    }
-    else if (h$Region == "CN") {
-        h$Region <- "CN"
-    }
-    else if (h$Region == "APAC") {
-        h$Region <- c("AU", "HK", "JP", "NZ", "SG", "CN", "IN", 
-            "ID", "KR", "MY", "PK", "PH", "TW", "TH")
-    }
-    else if (h$Region == "Eurozone") {
-        h$Region <- c("AT", "BE", "DE", "FI", "FR", "IE", "IT", 
-            "NL", "PT", "ES")
-    }
-    else if (h$Region == "EM") {
-        h$Region <- c("AE", "BR", "CL", "CN", "CO", "CZ", "EG", 
-            "GR", "HU", "ID", "IN", "KR", "MX", "MY", "PE", "PH", 
-            "PL", "QA", "RU", "TH", "TR", "TW", "ZA")
+    r <- vec.ex.filters("sector")
+    if (any(h$Region == names(r))) {
+        h$Region <- txt.parse(r[h$Region], ",")
     }
     else if (h$Region == "All") {
         h$Region <- mat.read(parameters("classif-Ctry"))
         h$Region <- dimnames(h$Region)[[1]][!is.na(h$Region$CountryId)]
     }
-    else if (all(h$Region != c("US", "JP"))) {
+    else {
         stop("Can't handle yet!")
     }
     h$Region <- vec.named(Ctry.info(h$Region, "CountryId"), h$Region)
@@ -11258,15 +11243,24 @@ sql.1dFloTrend <- function (x, y, n, w, h)
 
 sql.1dFloTrend.select <- function (x) 
 {
+    if (is.element(txt.right(x, 3), c("Num", "Den"))) {
+        y <- txt.right(x, 3)
+        x <- txt.left(x, nchar(x) - nchar(y))
+    }
+    else {
+        y <- ""
+    }
     if (is.element(x, paste0("FloTrend", c("", "CB", "PMA")))) {
-        z <- paste0(x, " ", sql.Trend("Flow * (n1.HoldingValue - o1.HoldingValue)"))
+        z <- paste0(x, y, " ", sql.Trend("Flow * (n1.HoldingValue - o1.HoldingValue)", 
+            y))
     }
     else if (is.element(x, paste0("FloDiff", c("", "CB", "PMA")))) {
-        z <- paste0(x, " ", sql.Diff("Flow", "n1.HoldingValue - o1.HoldingValue"))
+        z <- paste0(x, y, " ", sql.Diff("Flow", "n1.HoldingValue - o1.HoldingValue", 
+            y))
     }
     else if (is.element(x, paste0("FloDiff2", c("", "CB", "PMA")))) {
-        z <- paste0(x, " ", sql.Diff("n1.HoldingValue - o1.HoldingValue", 
-            "Flow"))
+        z <- paste0(x, y, " ", sql.Diff("n1.HoldingValue - o1.HoldingValue", 
+            "Flow", y))
     }
     else stop("Bad Argument")
     z
@@ -12688,16 +12682,24 @@ sql.declare <- function (x, y, n)
 #' sql.Diff
 #' 
 #' SQL statement for diffusion
-#' @param x = vector
-#' @param y = isomekic vector
+#' @param x = bit of SQL string
+#' @param y = bit of SQL string
+#' @param n = one of ""/"Num"/"Den"
 #' @keywords sql.Diff
 #' @export
 #' @family sql
 
-sql.Diff <- function (x, y) 
+sql.Diff <- function (x, y, n = "") 
 {
-    paste0("= sum((", x, ") * cast(sign(", y, ") as float))", 
-        "/", sql.nonneg(paste0("sum(abs(", x, "))")))
+    z <- paste0("= sum((", x, ") * cast(sign(", y, ") as float))")
+    if (n == "") {
+        z <- paste0(z, "/", sql.nonneg(paste0("sum(abs(", x, 
+            "))")))
+    }
+    else if (n == "Den") {
+        z <- paste0("= sum(abs(", x, "))")
+    }
+    z
 }
 
 #' sql.Dispersion
@@ -14016,14 +14018,21 @@ sql.TopDownAllocs.underlying <- function (x, y, n, w, h)
 #' 
 #'  = sum(<x>)/case when sum(<x>) = 0 then NULL else sum(<x>) end
 #' @param x = bit of SQL string
+#' @param y = one of ""/"Num"/"Den"
 #' @keywords sql.Trend
 #' @export
 #' @family sql
 
-sql.Trend <- function (x) 
+sql.Trend <- function (x, y = "") 
 {
     z <- paste0("= sum(", x, ")")
-    z <- paste0(z, "/", sql.nonneg(paste0("sum(abs(", x, "))")))
+    if (y == "") {
+        z <- paste0(z, "/", sql.nonneg(paste0("sum(abs(", x, 
+            "))")))
+    }
+    else if (y == "Den") {
+        z <- paste0("= sum(abs(", x, "))")
+    }
     z
 }
 

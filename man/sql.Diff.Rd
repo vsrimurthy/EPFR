@@ -4,12 +4,14 @@
 \alias{sql.Diff}
 \title{sql.Diff}
 \usage{
-sql.Diff(x, y)
+sql.Diff(x, y, n = "")
 }
 \arguments{
-\item{x}{= vector}
+\item{x}{= bit of SQL string}
 
-\item{y}{= isomekic vector}
+\item{y}{= bit of SQL string}
+
+\item{n}{= one of ""/"Num"/"Den"}
 }
 \description{
 SQL statement for diffusion

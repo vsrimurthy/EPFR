@@ -4,10 +4,12 @@
 \alias{sql.Trend}
 \title{sql.Trend}
 \usage{
-sql.Trend(x)
+sql.Trend(x, y = "")
 }
 \arguments{
 \item{x}{= bit of SQL string}
+
+\item{y}{= one of ""/"Num"/"Den"}
 }
 \description{
 = sum(<x>)/case when sum(<x>) = 0 then NULL else sum(<x>) end
