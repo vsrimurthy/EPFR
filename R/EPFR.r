@@ -10756,15 +10756,24 @@ sql.1dActWtTrend <- function (x, y, n, w)
 
 sql.1dActWtTrend.select <- function (x) 
 {
+    if (is.element(txt.right(x, 3), c("Num", "Den"))) {
+        y <- txt.right(x, 3)
+        x <- txt.left(x, nchar(x) - nchar(y))
+    }
+    else {
+        y <- ""
+    }
     if (x == "ActWtTrend") {
-        z <- paste(x, sql.Trend("Flow * (hld.HoldingValue/aum.PortVal - FundWtdExcl0)"))
+        z <- paste0(x, y, " ", sql.Trend("Flow * (hld.HoldingValue/aum.PortVal - FundWtdExcl0)", 
+            y))
     }
     else if (x == "ActWtDiff") {
-        z <- paste(x, sql.Diff("Flow", "hld.HoldingValue/aum.PortVal - FundWtdExcl0"))
+        z <- paste0(x, y, " ", sql.Diff("Flow", "hld.HoldingValue/aum.PortVal - FundWtdExcl0", 
+            y))
     }
     else if (x == "ActWtDiff2") {
-        z <- paste(x, sql.Diff("hld.HoldingValue/aum.PortVal - FundWtdExcl0", 
-            "Flow"))
+        z <- paste0(x, y, " ", sql.Diff("hld.HoldingValue/aum.PortVal - FundWtdExcl0", 
+            "Flow", y))
     }
     else stop("Bad Argument")
     z
@@ -14883,7 +14892,8 @@ txt.levenshtein <- function (x, y)
 
 txt.na <- function () 
 {
-    c("#N/A", "NA", "NULL", "<NA>", "--", "#N/A N/A", "#VALUE!")
+    c("#N/A", "NA", "N/A", "NULL", "<NA>", "--", "#N/A N/A", 
+        "#VALUE!")
 }
 
 #' txt.name.format
