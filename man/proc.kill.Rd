@@ -14,4 +14,7 @@ proc.kill(x, y)
 \description{
 kills of all processes <x> if more than <y> of them are running
 }
+\seealso{
+Other proc: \code{\link{proc.count}}
+}
 \keyword{proc.kill}

@@ -8434,6 +8434,27 @@ principal.components.underlying <- function (x, y)
     z
 }
 
+#' proc.count
+#' 
+#' returns top <x> processes by number running
+#' @param x = number of records to return (0 = everything)
+#' @keywords proc.count
+#' @export
+#' @family proc
+
+proc.count <- function (x = 10) 
+{
+    z <- shell("tasklist /FO LIST", intern = T)
+    z <- z[seq(2, length(z), by = 6)]
+    z <- txt.right(z, nchar(z) - nchar("Image Name:"))
+    z <- txt.trim(z)
+    z <- vec.count(z)
+    z <- z[order(z, decreasing = T)]
+    if (x > 0) 
+        z <- z[1:x]
+    z
+}
+
 #' proc.kill
 #' 
 #' kills of all processes <x> if more than <y> of them are running
@@ -8441,6 +8462,7 @@ principal.components.underlying <- function (x, y)
 #' @param y = number of instances
 #' @keywords proc.kill
 #' @export
+#' @family proc
 
 proc.kill <- function (x, y) 
 {
@@ -10929,7 +10951,7 @@ sql.1dFloMo <- function (x, y, n, w, h)
 #' sql.1dFloMo.CountryId.List
 #' 
 #' map of security to CountryId
-#' @param x = one of Ctry/FX/Sector/EMDM
+#' @param x = one of Ctry/FX/Sector/EMDM/Aux
 #' @param y = one of the following: (a) a YYYYMM date (b) a YYYYMMDD date
 #' @keywords sql.1dFloMo.CountryId.List
 #' @export
@@ -10941,6 +10963,11 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
     sep <- ","
     if (x == "Ctry") {
         z <- Ctry.msci.members.rng("ACWI", "200704", "300012")
+        classif.type <- "Ctry"
+    }
+    else if (x == "Aux") {
+        z <- c("BG", "EE", "GH", "KE", "KZ", "LT", "UA", "NG", 
+            "RO", "RS", "SI", "LK")
         classif.type <- "Ctry"
     }
     else if (x == "APac") {
@@ -10981,7 +11008,7 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
     h <- parameters(paste("classif", classif.type, sep = "-"))
     h <- mat.read(h, sep)
     h <- map.rname(h, z)
-    if (any(x == c("Ctry", "CountryFlow", "LatAm", "APac"))) {
+    if (any(x == c("Ctry", "CountryFlow", "LatAm", "APac", "Aux"))) {
         z <- vec.named(z, h$CountryId)
     }
     else if (x == "EMDM") {

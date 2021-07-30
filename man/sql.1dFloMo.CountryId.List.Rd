@@ -7,7 +7,7 @@
 sql.1dFloMo.CountryId.List(x, y = "")
 }
 \arguments{
-\item{x}{= one of Ctry/FX/Sector/EMDM}
+\item{x}{= one of Ctry/FX/Sector/EMDM/Aux}
 
 \item{y}{= one of the following: (a) a YYYYMM date (b) a YYYYMMDD date}
 }
