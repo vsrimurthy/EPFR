@@ -4364,7 +4364,7 @@ ftp.credential <- function (x, y = "ftp")
 #' 
 #' deletes file <y> on remote site <x>
 #' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
-#' @param y = a vector of remote file(s) (e.g. "foo.txt")
+#' @param y = a SINGLE remote file (e.g. "foo.txt")
 #' @param n = ftp site (defaults to standard)
 #' @param w = user id (defaults to standard)
 #' @param h = password (defaults to standard)
@@ -12523,9 +12523,14 @@ sql.Bullish <- function (x, y, n, w)
     z <- c(z, sql.index("#HLD", "HFundId, HSecurityId"))
     z <- c(z, "insert into", paste0("\t#HLD (", paste(cols, collapse = ", "), 
         ")"))
-    h <- paste0("ReportDate = '", x, "'")
+    h <- list(A = paste0("ReportDate = '", x, "'"))
     if (n != "All") 
-        h <- sql.and(list(A = h, B = sql.in("HSecurityId", sql.RDSuniv(n))))
+        h[[char.ex.int(length(h) + 65)]] <- sql.in("HSecurityId", 
+            sql.RDSuniv(n))
+    if (y$filter != "All") 
+        h[[char.ex.int(length(h) + 65)]] <- sql.in("HFundId", 
+            sql.FundHistory(y$filter, T))
+    h <- sql.and(h)
     z <- c(z, sql.unbracket(sql.tbl(cols, "Holdings", h)), "")
     h <- sql.tbl("HFundId, PortVal = sum(AssetsEnd)", "MonthlyData", 
         paste0("ReportDate = '", x, "'"), "HFundId", "sum(AssetsEnd) > 0")

@@ -9,7 +9,7 @@ ftp.del(x, y, n, w, h, u = "ftp")
 \arguments{
 \item{x}{= remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
 
-\item{y}{= a vector of remote file(s) (e.g. "foo.txt")}
+\item{y}{= a SINGLE remote file (e.g. "foo.txt")}
 
 \item{n}{= ftp site (defaults to standard)}
 
