@@ -24,7 +24,7 @@ sf.detail(fcn, prdBeg, prdEnd, univ, grp.nm, ret.nm, trail, fldr, nBins = 5,
 
 \item{fldr}{= data folder}
 
-\item{nBins}{= number of bins}
+\item{nBins}{= number of bins or numeric vector with last element T/F for dependent/independent}
 
 \item{classif}{= classif file}
 

@@ -4,7 +4,7 @@
 \alias{sql.1dFloMo}
 \title{sql.1dFloMo}
 \usage{
-sql.1dFloMo(x, y, n, w, h)
+sql.1dFloMo(x, y, n, w, h, u = "All")
 }
 \arguments{
 \item{x}{= vector of flow dates in YYYYMMDD (known two days later)}
@@ -16,6 +16,8 @@ sql.1dFloMo(x, y, n, w, h)
 \item{w}{= T/F depending on whether you are checking ftp}
 
 \item{h}{= breakdown filter (e.g. All/GeoId/DomicileId)}
+
+\item{u}{= share-class filter (one of All/Inst/Retail)}
 }
 \description{
 Generates the SQL query to get the data for 1dFloMo for individual stocks
@@ -40,6 +42,7 @@ Other sql: \code{\link{sql.1dActWtTrend.select}},
   \code{\link{sql.1dFloTrend}}, \code{\link{sql.1dFundCt}},
   \code{\link{sql.1dFundRet}}, \code{\link{sql.1dION}},
   \code{\link{sql.1mActWt.underlying}},
+  \code{\link{sql.1mActWtIncrPct}},
   \code{\link{sql.1mActWtTrend.underlying}},
   \code{\link{sql.1mActWtTrend}},
   \code{\link{sql.1mActWt}},

@@ -9,7 +9,7 @@ sf.underlying.data.bin(x, y, n, w)
 \arguments{
 \item{x}{= either vector or list of vectors}
 
-\item{y}{= integer vector of number of bins}
+\item{y}{= number of bins or numeric vector with last element T/F for dependent/independent}
 
 \item{n}{= numeric vector of weighting factors}
 

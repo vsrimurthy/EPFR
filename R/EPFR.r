@@ -6901,6 +6901,9 @@ mk.1mAllocMo <- function (x, y, n)
     if (y[1] == "AllocSkew") {
         z <- sql.1mAllocSkew(x, y, n$DB, F)
     }
+    else if (y[1] == "ActWtIncrPct") {
+        z <- sql.1mActWtIncrPct(x, y, n$DB, F)
+    }
     else if (y[1] == "SRIAdvisorPct") {
         z <- sql.1mSRIAdvisorPct(x, y, n$DB, F)
     }
@@ -10150,7 +10153,7 @@ sf.bin.nms <- function (x, y)
 #' @param ret.nm = return variable
 #' @param trail = variable parameter
 #' @param fldr = data folder
-#' @param nBins = number of bins
+#' @param nBins = number of bins or numeric vector with last element T/F for dependent/independent
 #' @param classif = classif file
 #' @param weighting.factor = factor you want to use for Cap-weighted back-tests (defaults to NULL)
 #' @keywords sf.detail
@@ -10186,7 +10189,7 @@ sf.detail <- function (fcn, prdBeg, prdEnd, univ, grp.nm, ret.nm, trail, fldr,
 #' @param fldr = data folder
 #' @param trail = variable parameter
 #' @param uRet = T/F depending on whether the equal-weight universe return is desired
-#' @param nBins = number of bins
+#' @param nBins = number of bins or numeric vector with last element T/F for dependent/independent
 #' @param retHz = forward return horizon in months
 #' @param classif = classif file
 #' @param weighting.factor = factor you want to use for Cap-weighted back-tests (defaults to NULL)
@@ -10258,7 +10261,7 @@ sf.subset <- function (x, y, n, w)
 #' @param ret.prd = the period for which you want returns
 #' @param trail = variable parameter
 #' @param grp = group within which binning is to be performed
-#' @param nBins = number of bins
+#' @param nBins = number of bins or numeric vector with last element T/F for dependent/independent
 #' @param fldr = data folder
 #' @param retHz = forward return horizon in months
 #' @param classif = classif file
@@ -10300,7 +10303,7 @@ sf.underlying.data <- function (fcn, univ, ret.nm, ret.prd, trail, grp, nBins, f
 #' 
 #' character vector of bin memberships
 #' @param x = either vector or list of vectors
-#' @param y = integer vector of number of bins
+#' @param y = number of bins or numeric vector with last element T/F for dependent/independent
 #' @param n = numeric vector of weighting factors
 #' @param w = vector of binning groups
 #' @keywords sf.underlying.data.bin
@@ -10909,16 +10912,17 @@ sql.1dActWtTrend.underlying <- function (x, y, n)
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
 #' @param h = breakdown filter (e.g. All/GeoId/DomicileId)
+#' @param u = share-class filter (one of All/Inst/Retail)
 #' @keywords sql.1dFloMo
 #' @export
 #' @family sql
 
-sql.1dFloMo <- function (x, y, n, w, h) 
+sql.1dFloMo <- function (x, y, n, w, h, u = "All") 
 {
-    u <- sql.1dFloMo.underlying(x)
+    v <- sql.1dFloMo.underlying(x)
     if (any(y == "Pseudo")) {
         cols <- c("FundId", "HFundId", "HSecurityId", "HoldingValue")
-        u <- c(u, "", sql.Holdings.bulk("#HLD", cols, yyyymm.to.day(yyyymmdd.to.AllocMo(x, 
+        v <- c(v, "", sql.Holdings.bulk("#HLD", cols, yyyymm.to.day(yyyymmdd.to.AllocMo(x, 
             26)), "#BMKHLD", "#BMKAUM"), "")
     }
     z <- sql.1dFloMo.select.wrapper(y, w, h, T)
@@ -10928,6 +10932,12 @@ sql.1dFloMo <- function (x, y, n, w, h)
         x <- paste("=", x)
     else x <- paste0("in (", paste(x, collapse = ", "), ")")
     x <- paste("ReportDate", x)
+    if (any(u == c("Inst", "Retail"))) {
+        u <- ifelse(u == "Inst", "Institutional = 1", "Institutional is null or not Institutional = 1")
+        u <- sql.in("ShareClassId", sql.tbl("[Id]", "ShareClasses", 
+            u))
+        x <- sql.and(list(A = x, B = u))
+    }
     x <- sql.tbl("ReportDate, HFundId, Flow, AssetsStart", "DailyData", 
         x)
     y <- c(sql.label(sql.1dFloMo.filter(y, h), "t0"), "inner join", 
@@ -10943,7 +10953,7 @@ sql.1dFloMo <- function (x, y, n, w, h)
         z <- sql.tbl(z, y, sql.in("t1.HSecurityId", sql.RDSuniv(n)), 
             grp, "sum(HoldingValue/AssetsEnd) > 0")
     }
-    z <- c(paste(u, collapse = "\n"), paste(sql.unbracket(z), 
+    z <- c(paste(v, collapse = "\n"), paste(sql.unbracket(z), 
         collapse = "\n"))
     z
 }
@@ -11537,6 +11547,131 @@ sql.1mActWt.underlying <- function (x, y)
         "inner join")
     z <- c(z, "\tSecurityHistory id on id.HSecurityId = t0.HSecurityId")
     z <- paste0(y, z)
+    z
+}
+
+#' sql.1mActWtIncrPct
+#' 
+#' Generates the SQL query to get the data for 1mAllocMo
+#' @param x = the YYYYMM for which you want data (known 26 days later)
+#' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
+#' @param n = any of StockFlows/China/Japan/CSI300/Energy
+#' @param w = T/F depending on whether you are checking ftp
+#' @keywords sql.1mActWtIncrPct
+#' @export
+#' @family sql
+
+sql.1mActWtIncrPct <- function (x, y, n, w) 
+{
+    y <- sql.arguments(y)
+    v <- paste0("'", yyyymm.to.day(x), "'")
+    v <- sql.label(sql.MonthlyAssetsEnd(v), "t1")
+    v <- c(v, "inner join", sql.label(sql.FundHistory(y$filter, 
+        T, c("FundId", "[Index]", "BenchIndexId")), "his on his.HFundId = t1.HFundId"))
+    v <- c(v, "inner join", "Holdings t2 on t2.FundId = his.FundId")
+    v <- c(v, "inner join", "SecurityHistory t3 on t3.HSecurityId = t2.HSecurityId")
+    v <- c(v, "inner join", "BenchIndexes t4 on [Id] = BenchIndexId")
+    u <- sql.and(list(A = paste0("ReportDate = '", yyyymm.to.day(x), 
+        "'"), B = "HoldingValue > 0"))
+    z <- sql.into(sql.tbl(c("his.FundId", "SecurityId", "[Index]", 
+        "[Description]", "Allocation = HoldingValue/AssetsEnd"), 
+        v, u), "#NEW")
+    v <- paste0("'", yyyymm.to.day(yyyymm.lag(x)), "'")
+    v <- sql.label(sql.MonthlyAssetsEnd(v), "t1")
+    v <- c(v, "inner join", "FundHistory his on his.HFundId = t1.HFundId")
+    v <- c(v, "inner join", "Holdings t2 on t2.FundId = his.FundId")
+    v <- c(v, "inner join", "SecurityHistory t3 on t3.HSecurityId = t2.HSecurityId")
+    v <- c(v, "inner join", "BenchIndexes t4 on [Id] = BenchIndexId")
+    u <- list(A = paste0("ReportDate = '", yyyymm.to.day(yyyymm.lag(x)), 
+        "'"), B = "HoldingValue > 0")
+    u <- sql.and(u)
+    u <- sql.into(sql.tbl(c("t2.FundId", "SecurityId", "[Index]", 
+        "[Description]", "Allocation = HoldingValue/AssetsEnd"), 
+        v, u), "#OLD")
+    z <- c(sql.drop(c("#NEW", "#OLD")), "", z, "", u)
+    for (j in c("#NEW", "#OLD")) {
+        v <- sql.tbl("[Description]", j, "[Index] = 0", "[Description]")
+        v <- sql.in("[Description]", v, F)
+        v <- sql.unbracket(sql.tbl("", j, v))
+        v[1] <- "delete from"
+        v <- v[-2][-2]
+        z <- c(z, "", v)
+        v <- sql.tbl("[Description]", j, "[Index] = 1", "[Description]")
+        v <- sql.in("[Description]", v, F)
+        v <- sql.unbracket(sql.tbl("", j, v))
+        v[1] <- "delete from"
+        v <- v[-2][-2]
+        z <- c(z, "", v)
+    }
+    for (j in c("#NEW", "#OLD")) {
+        u <- c("FundId", "[Index]", "[Description]")
+        u <- sql.label(sql.tbl(u, j, , paste(u, collapse = ", ")), 
+            "t1")
+        v <- c("SecurityId", "[Description]")
+        v <- sql.tbl(v, j, "[Index] = 1", paste(v, collapse = ", "))
+        v <- sql.label(v, "t2 on t2.[Description] = t1.[Description]")
+        v <- c(u, "inner join", v)
+        v <- sql.tbl(c("FundId", "SecurityId", "[Index]", "t1.[Description]", 
+            "Allocation = 0"), v)
+        v <- sql.label(v, "t1")
+        u <- list(A = "t2.FundId = t1.FundId", B = "t2.SecurityId = t1.SecurityId")
+        u <- sql.exists(sql.tbl(c("FundId", "SecurityId"), sql.label(j, 
+            "t2"), sql.and(u)), F)
+        v <- sql.tbl(c("FundId", "SecurityId", "[Index]", "[Description]", 
+            "Allocation"), v, u)
+        v <- sql.unbracket(v)
+        v <- c("insert into", paste0("\t", j, " (FundId, SecurityId, [Index], [Description], Allocation)"), 
+            v)
+        z <- c(z, "", v)
+    }
+    for (j in c("#NEW", "#OLD")) {
+        u <- c("[Description]", "SecurityId", "Allocation = avg(Allocation)")
+        u <- sql.label(sql.tbl(u, j, "[Index] = 1", "[Description], SecurityId"), 
+            "t")
+        v <- vec.to.list(c("[Description]", "SecurityId"))
+        v <- lapply(v, function(x) paste0(j, ".", x, " = t.", 
+            x))
+        v <- sql.tbl(paste0("Allocation = ", j, ".Allocation - t.Allocation"), 
+            u, sql.and(v))
+        v <- sql.unbracket(v)
+        v[1] <- paste("update", j, "set")
+        z <- c(z, "", v)
+        z <- c(z, "", paste("delete from", j, "where [Index] = 1"))
+    }
+    z <- c(z, "", "delete from #NEW where FundId not in (select FundId from #OLD)")
+    z <- c(z, "", "delete from #OLD where FundId not in (select FundId from #NEW)")
+    v <- paste(z, collapse = "\n")
+    if (!w) {
+        z <- "SecurityId = isnull(t1.SecurityId, t2.SecurityId)"
+    }
+    else {
+        z <- c(sql.ReportDate(yyyymm.to.day(x)), "HSecurityId")
+    }
+    u <- "sum(case when t1.Allocation > t2.Allocation then 1.0 else 0.0 end)"
+    u <- paste0(u, "/count(isnull(t1.SecurityId, t2.SecurityId))")
+    u <- paste("ActWtIncrPct =", u)
+    z <- c(z, u)
+    if (any(y$factor != "ActWtIncrPct")) 
+        stop("Can't handle this!")
+    if (w) {
+        u <- sql.Holdings(paste0("ReportDate = '", yyyymm.to.day(x), 
+            "'"), "HSecurityId")
+        u <- sql.in("HSecurityId", u)
+        u <- sql.label(sql.tbl(c("SecurityId", "HSecurityId"), 
+            "SecurityHistory", u), "t3")
+        u <- c("inner join", u, "\ton t3.SecurityId = isnull(t1.SecurityId, t2.SecurityId)")
+        u <- c("#OLD t2 on t2.FundId = t1.FundId and t2.SecurityId = t1.SecurityId", 
+            u)
+        u <- c("#NEW t1", "full outer join", u)
+    }
+    else {
+        u <- c("#NEW t1", "full outer join")
+        u <- c(u, "#OLD t2 on t2.FundId = t1.FundId and t2.SecurityId = t1.SecurityId")
+    }
+    w <- ifelse(w, "HSecurityId", "isnull(t1.SecurityId, t2.SecurityId)")
+    z <- sql.tbl(z, u, , w, "count(isnull(t1.SecurityId, t2.SecurityId)) > 1")
+    z <- paste(sql.unbracket(z), collapse = "\n")
+    z <- c(v, z)
     z
 }
 

@@ -26,7 +26,7 @@ sf.single.bsim(fcn, prdBeg, prdEnd, univ, grp.nm, ret.nm, fldr, trail,
 
 \item{uRet}{= T/F depending on whether the equal-weight universe return is desired}
 
-\item{nBins}{= number of bins}
+\item{nBins}{= number of bins or numeric vector with last element T/F for dependent/independent}
 
 \item{retHz}{= forward return horizon in months}
 

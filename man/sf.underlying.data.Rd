@@ -20,7 +20,7 @@ sf.underlying.data(fcn, univ, ret.nm, ret.prd, trail, grp, nBins, fldr, retHz,
 
 \item{grp}{= group within which binning is to be performed}
 
-\item{nBins}{= number of bins}
+\item{nBins}{= number of bins or numeric vector with last element T/F for dependent/independent}
 
 \item{fldr}{= data folder}
 
