@@ -11,7 +11,7 @@ sql.1dFloMo.select.wrapper(x, y, n, w = F)
 
 \item{y}{= T/F depending on whether you are checking ftp}
 
-\item{n}{= breakdown filter (e.g. All/GeoId/DomicileId)}
+\item{n}{= one or more breakdown filters (e.g. All/GeoId/DomicileId)}
 
 \item{w}{= T/F depending on whether ReportDate must be a column}
 }

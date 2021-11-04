@@ -7,7 +7,7 @@
 sql.breakdown(x)
 }
 \arguments{
-\item{x}{= breakdown filter (e.g. All/GeoId/DomicileId)}
+\item{x}{= one or more breakdown filters (e.g. All/GeoId/DomicileId)}
 }
 \description{
 Returns

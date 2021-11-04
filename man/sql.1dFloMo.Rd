@@ -15,7 +15,7 @@ sql.1dFloMo(x, y, n, w, h, u = "All")
 
 \item{w}{= T/F depending on whether you are checking ftp}
 
-\item{h}{= breakdown filter (e.g. All/GeoId/DomicileId)}
+\item{h}{= one or more breakdown filters (e.g. All/GeoId/DomicileId)}
 
 \item{u}{= share-class filter (one of All/Inst/Retail)}
 }

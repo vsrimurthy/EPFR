@@ -6544,11 +6544,12 @@ mk.1dFloMo <- function (x, y, n)
 #' @param h = T/F depending on whether daily/weekly
 #' @param u = vector of filters
 #' @param v = T/F to use extra-domicile or all allocations
+#' @param g = T/F to use institutional or all share classes
 #' @keywords mk.1dFloMo.Ctry
 #' @export
 #' @family mk
 
-mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E", v = F) 
+mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E", v = F, g = F) 
 {
     s <- yyyymmdd.to.AllocMo(x)
     if (all(s == s[1])) 
@@ -6571,9 +6572,14 @@ mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E", v = F)
         ")")
     s <- sql.Allocation(c("FundId", "CountryId", "Allocation"), 
         "Country", "Domicile", , sql.and(s))
+    if (g) {
+        g <- list(A = paste0("'", x, "'"))
+        g[["B"]] <- sql.in("SCID", sql.tbl("SCID", "ShareClass", 
+            "InstOrRetail = 'Inst'"))
+    }
+    else g <- list(A = paste0("'", x, "'"))
     r <- c(ifelse(h, "DayEnding", "WeekEnding"), "FundId", y)
-    z <- sql.Flow(r, list(A = paste0("'", x, "'")), c("CB", u, 
-        "UI"), , h)
+    z <- sql.Flow(r, g, c("CB", u, "UI"), , h)
     z <- c(sql.label(z, "t1"), "inner join", sql.label(s, "t2"), 
         "\ton t2.FundId = t1.FundId")
     s <- c(sql.yyyymmdd(r[1]), "CountryId", paste0(y, " = 0.01 * sum(Allocation * ", 
@@ -7073,7 +7079,7 @@ mk.1mFloMo.Ctry <- function (x, y, n, w, h = "E")
 #' 
 #' SQL query for country-flow percentage for date <x>
 #' @param x = YYYYMMDD
-#' @param y = FundType (one of E/B)
+#' @param y = a vector of FundHistory filters
 #' @param n = item(s) (any of Flow/AssetsStart/AssetsEnd)
 #' @param w = country list (one of Ctry/LatAm)
 #' @param h = input to or output of sql.connect
@@ -7128,7 +7134,7 @@ mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = T)
     rslt[["CBA"]] <- reshape.wide(z)
     fcn <- function(x) {
         x <- map.rname(mat.index(x), dimnames(rslt[["CBA"]])[[2]])
-        x <- 0.01 * as.matrix(rslt[["CBA"]]) %*% as.matrix(x)
+        x <- 0.01 * as.matrix(rslt[["CBA"]]) %*% as.matrix(zav(x))
         x <- map.rname(x, rslt[["MAP"]][, "CountryId"])
         x
     }
@@ -10911,7 +10917,7 @@ sql.1dActWtTrend.underlying <- function (x, y, n)
 #' @param y = a string vector of factors to be computed, the last elements of which are the type of fund used
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
-#' @param h = breakdown filter (e.g. All/GeoId/DomicileId)
+#' @param h = one or more breakdown filters (e.g. All/GeoId/DomicileId)
 #' @param u = share-class filter (one of All/Inst/Retail)
 #' @keywords sql.1dFloMo
 #' @export
@@ -11086,7 +11092,7 @@ sql.1dFloMo.filter <- function (x, y)
 #' 
 #' group by clause for 1dFloMo
 #' @param x = T/F depending on whether you are checking ftp
-#' @param y = breakdown filter (e.g. All/GeoId/DomicileId)
+#' @param y = one or more breakdown filters (e.g. All/GeoId/DomicileId)
 #' @keywords sql.1dFloMo.grp
 #' @export
 #' @family sql
@@ -11163,7 +11169,7 @@ sql.1dFloMo.select <- function (x)
 #' Generates the SQL query to get the data for 1mFloMo for individual stocks
 #' @param x = a string vector of factors to be computed, the last elements of are the type of fund used
 #' @param y = T/F depending on whether you are checking ftp
-#' @param n = breakdown filter (e.g. All/GeoId/DomicileId)
+#' @param n = one or more breakdown filters (e.g. All/GeoId/DomicileId)
 #' @param w = T/F depending on whether ReportDate must be a column
 #' @keywords sql.1dFloMo.select.wrapper
 #' @export
@@ -11172,9 +11178,15 @@ sql.1dFloMo.select <- function (x)
 sql.1dFloMo.select.wrapper <- function (x, y, n, w = F) 
 {
     x <- sql.arguments(x)$factor
-    if (n == "GeoId") 
+    if (length(n) > 1) {
+        z <- n
+    }
+    else if (n == "GeoId") {
         z <- "GeoId = GeographicFocusId"
-    else z <- sql.breakdown(n)
+    }
+    else {
+        z <- sql.breakdown(n)
+    }
     if (y | w) 
         z <- c(sql.yyyymmdd("ReportDate", , y), z)
     z <- c(z, ifelse(y, "HSecurityId", "SecurityId"))
@@ -12624,16 +12636,15 @@ sql.BenchIndex.duplication <- function (x)
 #' sql.breakdown
 #' 
 #' Returns
-#' @param x = breakdown filter (e.g. All/GeoId/DomicileId)
+#' @param x = one or more breakdown filters (e.g. All/GeoId/DomicileId)
 #' @keywords sql.breakdown
 #' @export
 #' @family sql
 
 sql.breakdown <- function (x) 
 {
-    if (x == "All") 
-        z <- NULL
-    else z <- ifelse(x == "GeoId", "GeographicFocusId", x)
+    z <- setdiff(x, "All")
+    z <- ifelse(z == "GeoId", "GeographicFocusId", x)
     z
 }
 
@@ -13922,6 +13933,11 @@ sql.RDSuniv <- function (x)
         z <- list(A = z, B = sql.in("HFundId", sql.tbl("HFundId", 
             "FundHistory", "GeographicFocusId = 16")))
         z <- sql.and(z, "or")
+        z <- sql.tbl("HSecurityId", "Holdings", z, "HSecurityId")
+    }
+    else if (x == "R1") {
+        z <- sql.in("HFundId", sql.tbl("HFundId", "FundHistory", 
+            "FundId = 5152"))
         z <- sql.tbl("HSecurityId", "Holdings", z, "HSecurityId")
     }
     else if (x == "R3") {

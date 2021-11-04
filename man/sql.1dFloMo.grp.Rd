@@ -9,7 +9,7 @@ sql.1dFloMo.grp(x, y)
 \arguments{
 \item{x}{= T/F depending on whether you are checking ftp}
 
-\item{y}{= breakdown filter (e.g. All/GeoId/DomicileId)}
+\item{y}{= one or more breakdown filters (e.g. All/GeoId/DomicileId)}
 }
 \description{
 group by clause for 1dFloMo
