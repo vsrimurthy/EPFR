@@ -17,7 +17,8 @@ mk.isin(x, y, n)
 Looks up date from external file and maps on isin
 }
 \seealso{
-Other mk: \code{\link{mk.1dFloMo.Ctry}},
+Other mk: \code{\link{mk.1dFloMo.Ctry.rslt}},
+  \code{\link{mk.1dFloMo.Ctry}},
   \code{\link{mk.1dFloMo.Indy}},
   \code{\link{mk.1dFloMo.Sec}}, \code{\link{mk.1dFloMo}},
   \code{\link{mk.1mActPas.Ctry}},

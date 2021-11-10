@@ -27,7 +27,8 @@ mk.1dFloMo.Ctry(x, y, n, w, h, u = "E", v = F, g = F)
 SQL query for daily/weekly CBE flow momentum
 }
 \seealso{
-Other mk: \code{\link{mk.1dFloMo.Indy}},
+Other mk: \code{\link{mk.1dFloMo.Ctry.rslt}},
+  \code{\link{mk.1dFloMo.Indy}},
   \code{\link{mk.1dFloMo.Sec}}, \code{\link{mk.1dFloMo}},
   \code{\link{mk.1mActPas.Ctry}},
   \code{\link{mk.1mActPas.Sec}},

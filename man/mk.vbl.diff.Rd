@@ -17,7 +17,8 @@ mk.vbl.diff(x, y, n)
 Computes the difference of the two variables
 }
 \seealso{
-Other mk: \code{\link{mk.1dFloMo.Ctry}},
+Other mk: \code{\link{mk.1dFloMo.Ctry.rslt}},
+  \code{\link{mk.1dFloMo.Ctry}},
   \code{\link{mk.1dFloMo.Indy}},
   \code{\link{mk.1dFloMo.Sec}}, \code{\link{mk.1dFloMo}},
   \code{\link{mk.1mActPas.Ctry}},

@@ -17,7 +17,8 @@ mk.beta(x, y, n)
 Computes monthly beta versus relevant benchmark
 }
 \seealso{
-Other mk: \code{\link{mk.1dFloMo.Ctry}},
+Other mk: \code{\link{mk.1dFloMo.Ctry.rslt}},
+  \code{\link{mk.1dFloMo.Ctry}},
   \code{\link{mk.1dFloMo.Indy}},
   \code{\link{mk.1dFloMo.Sec}}, \code{\link{mk.1dFloMo}},
   \code{\link{mk.1mActPas.Ctry}},

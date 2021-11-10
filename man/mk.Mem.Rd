@@ -17,7 +17,8 @@ mk.Mem(x, y, n)
 Returns a 1/0 membership vector
 }
 \seealso{
-Other mk: \code{\link{mk.1dFloMo.Ctry}},
+Other mk: \code{\link{mk.1dFloMo.Ctry.rslt}},
+  \code{\link{mk.1dFloMo.Ctry}},
   \code{\link{mk.1dFloMo.Indy}},
   \code{\link{mk.1dFloMo.Sec}}, \code{\link{mk.1dFloMo}},
   \code{\link{mk.1mActPas.Ctry}},

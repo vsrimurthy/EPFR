@@ -6551,10 +6551,7 @@ mk.1dFloMo <- function (x, y, n)
 
 mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E", v = F, g = F) 
 {
-    s <- yyyymmdd.to.AllocMo(x)
-    if (all(s == s[1])) 
-        s <- s[1]
-    else stop("Bad Allocation Month")
+    s <- yyyymmdd.to.AllocMo.unique(x, 23, F)
     n <- sql.1dFloMo.CountryId.List(n, x)
     if (v) 
         v <- sql.extra.domicile(n, "CountryId", "CountryId")
@@ -6586,17 +6583,33 @@ mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E", v = F, g = F)
         y, ")"))
     z <- sql.unbracket(sql.tbl(s, z, , paste0(r[1], ", ", s[2])))
     z <- sql.query(paste(z, collapse = "\n"), w, F)
-    y <- split(y, y)
-    for (j in names(y)) {
-        y[[j]] <- reshape.wide(z[, c(dimnames(z)[[2]][1:2], j)])
-        y[[j]] <- map.rname(t(y[[j]]), names(n))
-        y[[j]] <- aggregate(x = y[[j]], by = list(grp = n), FUN = sum)
-        y[[j]] <- matrix(unlist(y[[j]][, -1]), dim(y[[j]])[1], 
-            dim(y[[j]])[2] - 1, F, list(y[[j]][, 1], dimnames(y[[j]])[[2]][-1]))
+    z <- mk.1dFloMo.Ctry.rslt(y, z, n)
+    z
+}
+
+#' mk.1dFloMo.Ctry.rslt
+#' 
+#' formats flow momentum output
+#' @param x = item (one of Flow/AssetsStart/AssetsEnd)
+#' @param y = flow momentum output
+#' @param n = named vector of country codes indexed by CountryId
+#' @keywords mk.1dFloMo.Ctry.rslt
+#' @export
+#' @family mk
+
+mk.1dFloMo.Ctry.rslt <- function (x, y, n) 
+{
+    x <- split(x, x)
+    for (j in names(x)) {
+        x[[j]] <- reshape.wide(y[, c(dimnames(y)[[2]][1:2], j)])
+        x[[j]] <- map.rname(t(x[[j]]), names(n))
+        x[[j]] <- aggregate(x = x[[j]], by = list(grp = n), FUN = sum)
+        x[[j]] <- matrix(unlist(x[[j]][, -1]), dim(x[[j]])[1], 
+            dim(x[[j]])[2] - 1, F, list(x[[j]][, 1], dimnames(x[[j]])[[2]][-1]))
     }
-    if (length(names(y)) == 1) 
-        z <- y[[1]]
-    else z <- simplify2array(y)
+    if (length(names(x)) == 1) 
+        z <- x[[1]]
+    else z <- simplify2array(x)
     z
 }
 
@@ -6614,10 +6627,7 @@ mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E", v = F, g = F)
 
 mk.1dFloMo.Indy <- function (x, y, n, w, h) 
 {
-    u <- yyyymmdd.to.AllocMo(x)
-    if (all(u == u[1])) 
-        u <- u[1]
-    else stop("Bad Allocation Month")
+    u <- yyyymmdd.to.AllocMo.unique(x, 23, F)
     s <- sql.1dFloMo.CountryId.List("Industry", x)
     if (h == "UK") {
         h <- "GB"
@@ -6734,10 +6744,7 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
 
 mk.1dFloMo.Sec <- function (x, y, n, w, h) 
 {
-    u <- yyyymmdd.to.AllocMo(x)
-    if (all(u == u[1])) 
-        u <- u[1]
-    else stop("Bad Allocation Month")
+    u <- yyyymmdd.to.AllocMo.unique(x, 23, F)
     s <- sql.1dFloMo.CountryId.List("Sector", x)
     r <- vec.ex.filters("sector")
     if (any(h$Region == names(r))) {
@@ -6980,8 +6987,8 @@ mk.1mBullish.Ctry <- function (x, y)
     v <- sql.tbl(v, "#CTRY", "Idx = 'Y'", "BenchIndex, CountryId")
     v <- sql.label(v, "t2 on t2.BenchIndex = t1.BenchIndex and t2.CountryId = t1.CountryId")
     v <- c("#CTRY t1", "inner join", v)
-    v <- paste(sql.unbracket(sql.tbl(r, v, "Idx = 'N'", "t1.CountryId")), 
-        collapse = "\n")
+    v <- sql.unbracket(sql.tbl(r, v, "Idx = 'N'", "t1.CountryId"))
+    v <- paste(v, collapse = "\n")
     z <- c(z, v)
     z <- sql.query(z, y, F)
     z <- mat.index(z)
@@ -7061,17 +7068,7 @@ mk.1mFloMo.Ctry <- function (x, y, n, w, h = "E")
         y, ")"))
     z <- sql.unbracket(sql.tbl(v, z, , paste0(r[1], ", ", v[2])))
     z <- sql.query(paste(z, collapse = "\n"), w, F)
-    y <- split(y, y)
-    for (j in names(y)) {
-        y[[j]] <- reshape.wide(z[, c(dimnames(z)[[2]][1:2], j)])
-        y[[j]] <- map.rname(t(y[[j]]), names(n))
-        y[[j]] <- aggregate(x = y[[j]], by = list(grp = n), FUN = sum)
-        y[[j]] <- matrix(unlist(y[[j]][, -1]), dim(y[[j]])[1], 
-            dim(y[[j]])[2] - 1, F, list(y[[j]][, 1], dimnames(y[[j]])[[2]][-1]))
-    }
-    if (length(names(y)) == 1) 
-        z <- y[[1]]
-    else z <- simplify2array(y)
+    z <- mk.1dFloMo.Ctry.rslt(y, z, n)
     z
 }
 
@@ -7090,10 +7087,7 @@ mk.1mFloMo.Ctry <- function (x, y, n, w, h = "E")
 
 mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = T) 
 {
-    v <- yyyymmdd.to.AllocMo(x)
-    if (all(v == v[1])) 
-        v <- v[1]
-    else stop("Bad Allocation Month")
+    v <- yyyymmdd.to.AllocMo.unique(x, 23, F)
     v <- yyyymm.to.day(v)
     h <- sql.connect.wrapper(h)
     w <- sql.1dFloMo.CountryId.List(w)
@@ -7168,11 +7162,7 @@ mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = T)
 
 mk.1wFloMo.IndyFlow <- function (x, y, n, w) 
 {
-    v <- yyyymmdd.to.AllocMo(x)
-    if (all(v == v[1])) 
-        v <- v[1]
-    else stop("Bad Allocation Month")
-    v <- yyyymm.to.day(v)
+    v <- yyyymmdd.to.AllocMo.unique(x, 23, T)
     n <- sql.connect.wrapper(n)
     rslt <- mat.read(parameters("classif-GIgrp"))[, c("IndustryId", 
         "UINm", "StyleSector")]
@@ -10787,12 +10777,10 @@ sql.1dActWtTrend <- function (x, y, n, w)
 
 sql.1dActWtTrend.select <- function (x) 
 {
+    y <- ""
     if (is.element(txt.right(x, 3), c("Num", "Den"))) {
         y <- txt.right(x, 3)
         x <- txt.left(x, nchar(x) - nchar(y))
-    }
-    else {
-        y <- ""
     }
     if (x == "ActWtTrend") {
         z <- paste0(x, y, " ", sql.Trend("Flow * (hld.HoldingValue/aum.PortVal - FundWtdExcl0)", 
@@ -10869,10 +10857,7 @@ sql.1dActWtTrend.topline.from <- function ()
 
 sql.1dActWtTrend.underlying <- function (x, y, n) 
 {
-    mo.end <- yyyymm.to.day(yyyymmdd.to.AllocMo(x, 26))
-    if (all(mo.end == mo.end[1])) 
-        mo.end <- mo.end[1]
-    else stop("Bad Allocation Month")
+    mo.end <- yyyymmdd.to.AllocMo.unique(x, 26, T)
     x <- paste0("'", x, "'")
     if (length(x) == 1) 
         x <- paste("=", x)
@@ -10882,14 +10867,7 @@ sql.1dActWtTrend.underlying <- function (x, y, n)
         T, c("FundId", "GeographicFocusId")), "t2"), "on t2.HFundId = t1.HFundId")
     z <- sql.tbl("ReportDate, FundId, GeographicFocusId = max(GeographicFocusId), Flow = sum(Flow), AssetsStart = sum(AssetsStart)", 
         z, x, "ReportDate, FundId")
-    z <- c("insert into", "\t#FLO (ReportDate, FundId, GeographicFocusId, Flow, AssetsStart)", 
-        sql.unbracket(z))
-    z <- c(sql.index("#FLO", "ReportDate, FundId"), z)
-    z <- c("create table #FLO (ReportDate datetime not null, FundId int not null, GeographicFocusId int, Flow float, AssetsStart float)", 
-        z)
-    z <- c(sql.drop(c("#AUM", "#HLD", "#FLO")), "", z)
-    z <- c(z, "", "create table #AUM (FundId int not null, PortVal float not null)")
-    z <- c(z, sql.index("#AUM", "FundId"))
+    z <- sql.1dActWtTrend.underlying.basic(z)
     w <- c("MonthlyData t1", "inner join", "FundHistory t2 on t2.HFundId = t1.HFundId")
     w <- sql.unbracket(sql.tbl("FundId, PortVal = sum(AssetsEnd)", 
         w, paste0("ReportDate = '", mo.end, "'"), "FundId", "sum(AssetsEnd) > 0"))
@@ -10907,6 +10885,27 @@ sql.1dActWtTrend.underlying <- function (x, y, n)
         z <- c(z, "", "delete from #HLD where", paste0("\t", 
             sql.in("HSecurityId", n, F)))
     z <- paste(z, collapse = "\n")
+    z
+}
+
+#' sql.1dActWtTrend.underlying.basic
+#' 
+#' Query to insert <x> into flow table
+#' @param x = SQL query
+#' @keywords sql.1dActWtTrend.underlying.basic
+#' @export
+#' @family sql
+
+sql.1dActWtTrend.underlying.basic <- function (x) 
+{
+    x <- c("insert into", "\t#FLO (ReportDate, FundId, GeographicFocusId, Flow, AssetsStart)", 
+        sql.unbracket(x))
+    x <- c(sql.index("#FLO", "ReportDate, FundId"), x)
+    x <- c("create table #FLO (ReportDate datetime not null, FundId int not null, GeographicFocusId int, Flow float, AssetsStart float)", 
+        x)
+    x <- c(sql.drop(c("#AUM", "#HLD", "#FLO")), "", x)
+    x <- c(x, "", "create table #AUM (FundId int not null, PortVal float not null)")
+    z <- c(x, sql.index("#AUM", "FundId"))
     z
 }
 
@@ -11212,11 +11211,7 @@ sql.1dFloMo.select.wrapper <- function (x, y, n, w = F)
 
 sql.1dFloMo.underlying <- function (x) 
 {
-    x <- yyyymmdd.to.AllocMo(x, 26)
-    if (all(x == x[1])) 
-        x <- x[1]
-    else stop("Bad Allocation Month")
-    x <- yyyymm.to.day(x)
+    x <- yyyymmdd.to.AllocMo.unique(x, 26, T)
     z <- c(sql.into(sql.MonthlyAlloc(paste0("'", x, "'")), "#HLD"))
     z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(paste0("'", x, 
         "'"), F, T), "#AUM"))
@@ -11301,12 +11296,10 @@ sql.1dFloTrend <- function (x, y, n, w, h)
 
 sql.1dFloTrend.select <- function (x) 
 {
+    y <- ""
     if (is.element(txt.right(x, 3), c("Num", "Den"))) {
         y <- txt.right(x, 3)
         x <- txt.left(x, nchar(x) - nchar(y))
-    }
-    else {
-        y <- ""
     }
     if (is.element(x, paste0("FloTrend", c("", "CB", "PMA")))) {
         z <- paste0(x, y, " ", sql.Trend("Flow * (n1.HoldingValue - o1.HoldingValue)", 
@@ -11338,10 +11331,7 @@ sql.1dFloTrend.select <- function (x)
 sql.1dFloTrend.underlying <- function (x, y, n, w) 
 {
     u <- sql.DailyFlo(paste0("'", n, "'"))
-    n <- yyyymmdd.to.AllocMo(n, w)
-    if (all(n == n[1])) 
-        n <- n[1]
-    else stop("Bad Allocation Month")
+    n <- yyyymmdd.to.AllocMo.unique(n, w, F)
     n <- c(n, yyyymm.lag(n))
     n <- yyyymm.to.day(n)
     z <- c("create table #NEWHLD (FundId int not null, HFundId int not null, HSecurityId int not null, HoldingValue float)")
@@ -11388,10 +11378,7 @@ sql.1dFloTrend.underlying <- function (x, y, n, w)
 
 sql.1dFundCt <- function (x, y, n, w) 
 {
-    mo.end <- yyyymm.to.day(yyyymmdd.to.AllocMo(x, 26))
-    if (all(mo.end == mo.end[1])) 
-        mo.end <- mo.end[1]
-    else stop("Bad Allocation Month")
+    mo.end <- yyyymmdd.to.AllocMo.unique(x, 26, T)
     x <- paste0("'", x, "'")
     if (length(x) == 1) 
         x <- paste("=", x)
@@ -11665,21 +11652,7 @@ sql.1mActWtIncrPct <- function (x, y, n, w)
     z <- c(z, u)
     if (any(y$factor != "ActWtIncrPct")) 
         stop("Can't handle this!")
-    if (w) {
-        u <- sql.Holdings(paste0("ReportDate = '", yyyymm.to.day(x), 
-            "'"), "HSecurityId")
-        u <- sql.in("HSecurityId", u)
-        u <- sql.label(sql.tbl(c("SecurityId", "HSecurityId"), 
-            "SecurityHistory", u), "t3")
-        u <- c("inner join", u, "\ton t3.SecurityId = isnull(t1.SecurityId, t2.SecurityId)")
-        u <- c("#OLD t2 on t2.FundId = t1.FundId and t2.SecurityId = t1.SecurityId", 
-            u)
-        u <- c("#NEW t1", "full outer join", u)
-    }
-    else {
-        u <- c("#NEW t1", "full outer join")
-        u <- c(u, "#OLD t2 on t2.FundId = t1.FundId and t2.SecurityId = t1.SecurityId")
-    }
+    u <- sql.1mAllocD.topline.from(x, w)
     w <- ifelse(w, "HSecurityId", "isnull(t1.SecurityId, t2.SecurityId)")
     z <- sql.tbl(z, u, , w, "count(isnull(t1.SecurityId, t2.SecurityId)) > 1")
     z <- paste(sql.unbracket(z), collapse = "\n")
@@ -11723,14 +11696,7 @@ sql.1mActWtTrend.underlying <- function (x, y, n)
         T, c("FundId", "GeographicFocusId")), "t2"), "on t2.HFundId = t1.HFundId")
     z <- sql.tbl("ReportDate, FundId, GeographicFocusId, Flow = sum(Flow), AssetsStart = sum(AssetsStart)", 
         z, paste0("ReportDate = '", x, "'"), "ReportDate, FundId, GeographicFocusId")
-    z <- c("insert into", "\t#FLO (ReportDate, FundId, GeographicFocusId, Flow, AssetsStart)", 
-        sql.unbracket(z))
-    z <- c(sql.index("#FLO", "ReportDate, FundId"), z)
-    z <- c("create table #FLO (ReportDate datetime not null, FundId int not null, GeographicFocusId int, Flow float, AssetsStart float)", 
-        z)
-    z <- c(sql.drop(c("#AUM", "#HLD", "#FLO")), "", z)
-    z <- c(z, "", "create table #AUM (FundId int not null, PortVal float not null)")
-    z <- c(z, sql.index("#AUM", "FundId"))
+    z <- sql.1dActWtTrend.underlying.basic(z)
     w <- c("MonthlyData t1", "inner join", "FundHistory t2 on t2.HFundId = t1.HFundId")
     w <- sql.unbracket(sql.tbl("FundId, PortVal = sum(AssetsEnd)", 
         w, paste0("ReportDate = '", x, "'"), "FundId", "sum(AssetsEnd) > 0"))
@@ -11837,21 +11803,7 @@ sql.1mAllocD <- function (x, y, n, w, h)
         z <- c(sql.ReportDate(yyyymm.to.day(x)), "HSecurityId")
     }
     for (i in y$factor) z <- c(z, sql.1mAllocD.select(i))
-    if (w) {
-        u <- sql.Holdings(paste0("ReportDate = '", yyyymm.to.day(x), 
-            "'"), "HSecurityId")
-        u <- sql.in("HSecurityId", u)
-        u <- sql.label(sql.tbl(c("SecurityId", "HSecurityId"), 
-            "SecurityHistory", u), "t3")
-        u <- c("inner join", u, "\ton t3.SecurityId = isnull(t1.SecurityId, t2.SecurityId)")
-        u <- c("#OLD t2 on t2.FundId = t1.FundId and t2.SecurityId = t1.SecurityId", 
-            u)
-        u <- c("#NEW t1", "full outer join", u)
-    }
-    else {
-        u <- c("#NEW t1", "full outer join")
-        u <- c(u, "#OLD t2 on t2.FundId = t1.FundId and t2.SecurityId = t1.SecurityId")
-    }
+    u <- sql.1mAllocD.topline.from(x, w)
     w <- ifelse(w, "HSecurityId", "isnull(t1.SecurityId, t2.SecurityId)")
     z <- sql.tbl(z, u, , w, "count(isnull(t1.SecurityId, t2.SecurityId)) > 1")
     z <- paste(sql.unbracket(z), collapse = "\n")
@@ -11877,6 +11829,35 @@ sql.1mAllocD.select <- function (x)
     z
 }
 
+#' sql.1mAllocD.topline.from
+#' 
+#' from statement of final query of 1mAllocD
+#' @param x = the YYYYMM for which you want data (known 26 days later)
+#' @param y = T/F depending on whether you are checking ftp
+#' @keywords sql.1mAllocD.topline.from
+#' @export
+#' @family sql
+
+sql.1mAllocD.topline.from <- function (x, y) 
+{
+    if (y) {
+        z <- sql.Holdings(paste0("ReportDate = '", yyyymm.to.day(x), 
+            "'"), "HSecurityId")
+        z <- sql.in("HSecurityId", z)
+        z <- sql.label(sql.tbl(c("SecurityId", "HSecurityId"), 
+            "SecurityHistory", z), "t3")
+        z <- c("inner join", z, "\ton t3.SecurityId = isnull(t1.SecurityId, t2.SecurityId)")
+        z <- c("#OLD t2 on t2.FundId = t1.FundId and t2.SecurityId = t1.SecurityId", 
+            z)
+        z <- c("#NEW t1", "full outer join", z)
+    }
+    else {
+        z <- c("#NEW t1", "full outer join")
+        z <- c(z, "#OLD t2 on t2.FundId = t1.FundId and t2.SecurityId = t1.SecurityId")
+    }
+    z
+}
+
 #' sql.1mAllocMo
 #' 
 #' Generates the SQL query to get the data for 1mAllocMo
@@ -11891,12 +11872,9 @@ sql.1mAllocD.select <- function (x)
 sql.1mAllocMo <- function (x, y, n, w) 
 {
     y <- sql.arguments(y)
-    if (w) {
+    if (w) 
         z <- c(sql.ReportDate(yyyymm.to.day(x)), "n1.HSecurityId")
-    }
-    else {
-        z <- "n1.SecurityId"
-    }
+    else z <- "n1.SecurityId"
     for (i in y$factor) z <- c(z, sql.1mAllocMo.select(i, any(y$filter == 
         "Num")))
     h <- sql.1mAllocMo.underlying.pre(y$filter, yyyymm.to.day(x), 
@@ -12167,12 +12145,9 @@ sql.1mFloMo <- function (x, y, n, w, h)
 sql.1mFloTrend <- function (x, y, n, w) 
 {
     y <- sql.arguments(y)
-    if (w) {
+    if (w) 
         z <- c(sql.ReportDate(yyyymm.to.day(x)), "n1.HSecurityId")
-    }
-    else {
-        z <- "n1.SecurityId"
-    }
+    else z <- "n1.SecurityId"
     z <- c(z, sapply(vec.to.list(y$factor), sql.1dFloTrend.select))
     x <- sql.1mFloTrend.underlying(y$filter, n, x)
     w <- ifelse(w, "n1.HSecurityId", "n1.SecurityId")
@@ -14754,23 +14729,14 @@ txt.ex.int <- function (x, y = F)
 
 txt.ex.int.cardinal <- function (x) 
 {
-    z <- ifelse(x%/%100 > 0, x, NA)
-    map <- vec.named(c("zero", "ten", "eleven", "twelve", "thirteen", 
+    y <- vec.named(c("zero", "ten", "eleven", "twelve", "thirteen", 
         "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", 
         "nineteen"), c(0, 10:19))
-    z <- ifelse(is.element(x, names(map)), map[as.character(x)], 
-        z)
-    w <- is.na(z)
-    map <- vec.named(c("one", "two", "three", "four", "five", 
-        "six", "seven", "eight", "nine"), 1:9)
-    z <- ifelse(is.element(x%%10, names(map)) & w, map.rname(map, 
-        x%%10), z)
-    w <- w & !is.element(x, 1:9)
-    map <- vec.named(c("twenty", "thirty", "forty", "fifty", 
-        "sixty", "seventy", "eighty", "ninety"), 2:9)
-    z <- ifelse(w & !is.na(z), paste(map.rname(map, (x%/%10)%%10), 
-        z, sep = "-"), z)
-    z <- ifelse(w & is.na(z), map.rname(map, (x%/%10)%%10), z)
+    n <- vec.named(c("one", "two", "three", "four", "five", "six", 
+        "seven", "eight", "nine"), 1:9)
+    w <- vec.named(c("twenty", "thirty", "forty", "fifty", "sixty", 
+        "seventy", "eighty", "ninety"), 2:9)
+    z <- txt.ex.int.underlying(x, y, n, w, w)
     z
 }
 
@@ -14808,26 +14774,17 @@ txt.ex.int.cardinal.wrapper <- function (x)
 
 txt.ex.int.ordinal <- function (x) 
 {
-    z <- ifelse(x%/%100 > 0, x, NA)
-    map <- vec.named(c("tenth", "eleventh", "twelfth", "thirteenth", 
+    y <- vec.named(c("tenth", "eleventh", "twelfth", "thirteenth", 
         "fourteenth", "fifteenth", "sixteenth", "seventeenth", 
         "eighteenth", "nineteenth"), 10:19)
-    z <- ifelse(is.element(x, names(map)), map[as.character(x)], 
-        z)
-    w <- is.na(z)
-    map <- vec.named(c("first", "second", "third", "fourth", 
-        "fifth", "sixth", "seventh", "eighth", "ninth"), 1:9)
-    z <- ifelse(is.element(x%%10, names(map)) & w, map.rname(map, 
-        x%%10), z)
-    w <- w & !is.element(x, 1:9)
-    map <- vec.named(c("twenty", "thirty", "forty", "fifty", 
-        "sixty", "seventy", "eighty", "ninety"), 2:9)
-    z <- ifelse(w & !is.na(z), paste(map.rname(map, (x%/%10)%%10), 
-        z, sep = "-"), z)
-    map <- vec.named(c("twentieth", "thirtieth", "fortieth", 
-        "fiftieth", "sixtieth", "seventieth", "eightieth", "ninetieth"), 
+    n <- vec.named(c("first", "second", "third", "fourth", "fifth", 
+        "sixth", "seventh", "eighth", "ninth"), 1:9)
+    w <- vec.named(c("twenty", "thirty", "forty", "fifty", "sixty", 
+        "seventy", "eighty", "ninety"), 2:9)
+    h <- vec.named(c("twentieth", "thirtieth", "fortieth", "fiftieth", 
+        "sixtieth", "seventieth", "eightieth", "ninetieth"), 
         2:9)
-    z <- ifelse(w & is.na(z), map.rname(map, (x%/%10)%%10), z)
+    z <- txt.ex.int.underlying(x, y, n, w, h)
     z
 }
 
@@ -14852,6 +14809,33 @@ txt.ex.int.ordinal.wrapper <- function (x)
         "thousand and", txt.ex.int.ordinal(x%%100)), z)
     z <- ifelse(is.na(z), paste(txt.ex.int.cardinal(x%/%100), 
         "hundred and", txt.ex.int.ordinal(x%%100)), z)
+    z
+}
+
+#' txt.ex.int.underlying
+#' 
+#' string vector describing <x> in words
+#' @param x = a vector of integers
+#' @param y = odds & ends
+#' @param n = units
+#' @param w = tens
+#' @param h = tens ordinal
+#' @keywords txt.ex.int.underlying
+#' @export
+#' @family txt
+
+txt.ex.int.underlying <- function (x, y, n, w, h) 
+{
+    z <- ifelse(x%/%100 > 0, x, NA)
+    z <- ifelse(is.element(x, names(y)), y[as.character(x)], 
+        z)
+    y <- is.na(z)
+    z <- ifelse(is.element(x%%10, names(n)) & y, map.rname(n, 
+        x%%10), z)
+    y <- y & !is.element(x, 1:9)
+    z <- ifelse(y & !is.na(z), paste(map.rname(w, (x%/%10)%%10), 
+        z, sep = "-"), z)
+    z <- ifelse(y & is.na(z), map.rname(h, (x%/%10)%%10), z)
     z
 }
 
@@ -16102,6 +16086,27 @@ yyyymmdd.to.AllocMo <- function (x, y = 23)
     n <- ifelse(n < y, 2, 1)
     z <- yyyymmdd.to.yyyymm(x)
     z <- yyyymm.lag(z, n)
+    z
+}
+
+#' yyyymmdd.to.AllocMo.unique
+#' 
+#' Checks each day in <x> has same allocation month. Error otherwise
+#' @param x = the date(s) for which you want flows
+#' @param y = calendar day allocations are known the next month
+#' @param n = T/F if month should be converted to day
+#' @keywords yyyymmdd.to.AllocMo.unique
+#' @export
+#' @family yyyymmdd
+
+yyyymmdd.to.AllocMo.unique <- function (x, y, n) 
+{
+    z <- yyyymmdd.to.AllocMo(x, y)
+    if (all(z == z[1])) 
+        z <- z[1]
+    else stop("Bad Allocation Month")
+    if (n) 
+        z <- yyyymm.to.day(z)
     z
 }
 
