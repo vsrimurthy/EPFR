@@ -4,14 +4,12 @@
 \alias{sql.1dFloMo.Sec.flush}
 \title{sql.1dFloMo.Sec.flush}
 \usage{
-sql.1dFloMo.Sec.flush(x, y, n)
+sql.1dFloMo.Sec.flush(x, y)
 }
 \arguments{
-\item{x}{= parameters file}
+\item{x}{= classif object}
 
-\item{y}{= SectorId/IndustryId}
-
-\item{n}{= name of SQL temp table}
+\item{y}{= name of SQL temp table}
 }
 \description{
 SQL to flush single-sector funds

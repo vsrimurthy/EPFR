@@ -6750,8 +6750,10 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
         "#CTRY", "GeographicFocus"))
     z <- c(z, "", sql.Allocations.bulk.EqWtAvg("Allocation", 
         "IndustryId", "#INDY", "GeographicFocus"))
-    z <- c(z, "", sql.1dFloMo.Sec.flush("classif-GIgrp", "IndustryId", 
-        "#INDY"))
+    foo <- mat.read(parameters("classif-GIgrp"))[, c("IndustryId", 
+        "StyleSector")]
+    foo <- foo[!is.na(foo$StyleSector), ]
+    z <- c(z, "", sql.1dFloMo.Sec.flush(foo, "#INDY"))
     for (j in dimnames(foo)[[1]]) {
         v <- c("StyleSector", foo[j, "StyleSector"])
         r <- c("IndustryId", foo[j, "IndustryId"])
@@ -6831,8 +6833,10 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h)
         "#CTRY", h$Group))
     z <- c(z, "", sql.Allocations.bulk.EqWtAvg("Allocation", 
         "SectorId", "#SEC", h$Group))
-    z <- c(z, "", sql.1dFloMo.Sec.flush("classif-GSec", "SectorId", 
-        "#SEC"))
+    foo <- mat.read(parameters("classif-GSec"))[, c("SectorId", 
+        "StyleSector")]
+    foo <- foo[!is.na(foo$StyleSector), ]
+    z <- c(z, "", sql.1dFloMo.Sec.flush(foo, "#SEC"))
     foo <- map.rname(foo, c(dimnames(foo)[[1]], "FinsExREst"))
     foo["FinsExREst", "SectorId"] <- 30
     foo["FinsExREst", "StyleSector"] <- foo["Fins", "StyleSector"]
@@ -11152,22 +11156,18 @@ sql.1dFloMo.Rgn <- function ()
 #' sql.1dFloMo.Sec.flush
 #' 
 #' SQL to flush single-sector funds
-#' @param x = parameters file
-#' @param y = SectorId/IndustryId
-#' @param n = name of SQL temp table
+#' @param x = classif object
+#' @param y = name of SQL temp table
 #' @keywords sql.1dFloMo.Sec.flush
 #' @export
 #' @family sql
 
-sql.1dFloMo.Sec.flush <- function (x, y, n) 
+sql.1dFloMo.Sec.flush <- function (x, y) 
 {
-    z <- mat.read(parameters(x))
-    z <- z[, c(y, "StyleSector")]
-    z <- z[!is.na(z$StyleSector), ]
-    z <- paste0("StyleSector in (", paste(z$StyleSector, collapse = ", "), 
+    z <- paste0("StyleSector in (", paste(x$StyleSector, collapse = ", "), 
         ")")
     z <- sql.in("FundId", sql.tbl("FundId", "#FLO", z))
-    z <- sql.unbracket(sql.tbl("FundId", n, z))
+    z <- sql.unbracket(sql.tbl("FundId", y, z))
     z[1] <- "delete from"
     z <- z[-2][-2]
     z
