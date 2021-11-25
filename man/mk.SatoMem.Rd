@@ -17,15 +17,18 @@ mk.SatoMem(x, y, n)
 Returns a 1/0 membership vector
 }
 \seealso{
-Other mk: \code{\link{mk.1dFloMo.Ctry.rslt}},
+Other mk: \code{\link{mk.1dFloMo.Ctry.data}},
+  \code{\link{mk.1dFloMo.Ctry.rslt}},
   \code{\link{mk.1dFloMo.Ctry}},
   \code{\link{mk.1dFloMo.Indy}},
+  \code{\link{mk.1dFloMo.Sec.rslt}},
   \code{\link{mk.1dFloMo.Sec}}, \code{\link{mk.1dFloMo}},
   \code{\link{mk.1mActPas.Ctry}},
   \code{\link{mk.1mActPas.Sec}},
   \code{\link{mk.1mAllocMo}},
   \code{\link{mk.1mBullish.Ctry}},
   \code{\link{mk.1mBullish.Sec}},
+  \code{\link{mk.1mBullish.rslt}},
   \code{\link{mk.1mFloMo.Ctry}},
   \code{\link{mk.1mPerfTrend}},
   \code{\link{mk.1wFloMo.CtryFlow}},

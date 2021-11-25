@@ -4,10 +4,12 @@
 \alias{sql.1dActWtTrend.underlying.basic}
 \title{sql.1dActWtTrend.underlying.basic}
 \usage{
-sql.1dActWtTrend.underlying.basic(x)
+sql.1dActWtTrend.underlying.basic(x, y)
 }
 \arguments{
 \item{x}{= SQL query}
+
+\item{y}{= month end in YYYYMMDD format}
 }
 \description{
 Query to insert <x> into flow table
@@ -21,6 +23,8 @@ Other sql: \code{\link{sql.1dActWtTrend.select}},
   \code{\link{sql.1dFloMo.CountryId.List}},
   \code{\link{sql.1dFloMo.FI}},
   \code{\link{sql.1dFloMo.Rgn}},
+  \code{\link{sql.1dFloMo.Sec.flush}},
+  \code{\link{sql.1dFloMo.Sec.topline}},
   \code{\link{sql.1dFloMo.filter}},
   \code{\link{sql.1dFloMo.grp}},
   \code{\link{sql.1dFloMo.select.wrapper}},
@@ -36,6 +40,7 @@ Other sql: \code{\link{sql.1dActWtTrend.select}},
   \code{\link{sql.1mActWtTrend.underlying}},
   \code{\link{sql.1mActWtTrend}},
   \code{\link{sql.1mActWt}},
+  \code{\link{sql.1mAllocD.from}},
   \code{\link{sql.1mAllocD.select}},
   \code{\link{sql.1mAllocD.topline.from}},
   \code{\link{sql.1mAllocD}},
@@ -45,6 +50,8 @@ Other sql: \code{\link{sql.1dActWtTrend.select}},
   \code{\link{sql.1mAllocMo}},
   \code{\link{sql.1mAllocSkew.topline.from}},
   \code{\link{sql.1mAllocSkew}},
+  \code{\link{sql.1mBullish.Alloc}},
+  \code{\link{sql.1mBullish.Final}},
   \code{\link{sql.1mChActWt}}, \code{\link{sql.1mFloMo}},
   \code{\link{sql.1mFloTrend.underlying}},
   \code{\link{sql.1mFloTrend}}, \code{\link{sql.1mFundCt}},
@@ -64,6 +71,7 @@ Other sql: \code{\link{sql.1dActWtTrend.select}},
   \code{\link{sql.FundHistory}}, \code{\link{sql.HSIdmap}},
   \code{\link{sql.HerdingLSV}},
   \code{\link{sql.Herfindahl}},
+  \code{\link{sql.Holdings.bulk.wrapper}},
   \code{\link{sql.Holdings.bulk}},
   \code{\link{sql.Holdings}}, \code{\link{sql.ION}},
   \code{\link{sql.MonthlyAlloc}},
