@@ -18,7 +18,7 @@ mk.1mFloMo.Ctry(x, y, n, w, h = "E")
 \item{h}{= vector of filters}
 }
 \description{
-SQL query for daily/weekly CBE flow momentum
+SQL query for monthly CBE flow momentum
 }
 \seealso{
 Other mk: \code{\link{mk.1dFloMo.Ctry.data}},

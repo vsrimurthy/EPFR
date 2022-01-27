@@ -7069,7 +7069,7 @@ mk.1mBullish.Sec <- function (x, y, n)
 
 #' mk.1mFloMo.Ctry
 #' 
-#' SQL query for daily/weekly CBE flow momentum
+#' SQL query for monthly CBE flow momentum
 #' @param x = a YYYYMM month
 #' @param y = item (one of Flow/AssetsStart/AssetsEnd)
 #' @param n = country list (one of Ctry/FX/Sector)
@@ -9570,7 +9570,7 @@ refresh.predictors.append <- function (x, y, n = F, w = F)
         ]), stringsAsFactors = F)
     m <- correl(m[, 1], m[, 2])
     m <- zav(m)
-    if (!n & m < 0.99) 
+    if (!n & m < 0.9) 
         stop("Problem: Correlation between new and old data is", 
             round(100 * m), "!")
     z <- rbind(x, z[!w, ])
