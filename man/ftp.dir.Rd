@@ -4,7 +4,7 @@
 \alias{ftp.dir}
 \title{ftp.dir}
 \usage{
-ftp.dir(x, y, n, w, h = F, u = "ftp")
+ftp.dir(x, y, n, w, h = F, u = "ftp", v = F)
 }
 \arguments{
 \item{x}{= remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
@@ -18,6 +18,8 @@ ftp.dir(x, y, n, w, h = F, u = "ftp")
 \item{h}{= T/F depending on whether you want time stamps}
 
 \item{u}{= protocol (either "ftp" or "sftp")}
+
+\item{v}{= T/F flag for ftp.use.epsv argument of getURL}
 }
 \description{
 logical or YYYYMMDD vector indexed by remote file names

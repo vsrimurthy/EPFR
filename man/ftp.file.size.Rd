@@ -4,7 +4,7 @@
 \alias{ftp.file.size}
 \title{ftp.file.size}
 \usage{
-ftp.file.size(x, y, n, w)
+ftp.file.size(x, y, n, w, h = F)
 }
 \arguments{
 \item{x}{= a file on ftp site}
@@ -14,6 +14,8 @@ ftp.file.size(x, y, n, w)
 \item{n}{= user id}
 
 \item{w}{= password}
+
+\item{h}{= T/F flag for ftp.use.epsv argument of getURL}
 }
 \description{
 returns file size in KB

@@ -4,7 +4,7 @@
 \alias{ftp.put}
 \title{ftp.put}
 \usage{
-ftp.put(x, y, n, w, h, u = "ftp")
+ftp.put(x, y, n, w, h, u = "ftp", v = F)
 }
 \arguments{
 \item{x}{= remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
@@ -18,6 +18,8 @@ ftp.put(x, y, n, w, h, u = "ftp")
 \item{h}{= password (defaults to standard)}
 
 \item{u}{= protocol (either "ftp" or "sftp")}
+
+\item{v}{= T/F flag for ftp.use.epsv argument of getCurlHandle}
 }
 \description{
 puts file <y> to remote site <x>, creating folders as needed

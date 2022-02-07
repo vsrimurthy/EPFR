@@ -208,12 +208,13 @@ email <- function (x, y, n, w = "", h = F, u, v)
 #' @param w = password (defaults to standard)
 #' @param h = T/F depending on whether you want time stamps
 #' @param u = protocol (either "ftp" or "sftp")
+#' @param v = T/F flag for ftp.use.epsv argument of getURL
 #' @keywords ftp.dir
 #' @export
 #' @family ftp
 #' @import RCurl
 
-ftp.dir <- function (x, y, n, w, h = F, u = "ftp") 
+ftp.dir <- function (x, y, n, w, h = F, u = "ftp", v = F) 
 {
     if (missing(y)) 
         y <- ftp.credential("ftp", u)
@@ -222,7 +223,7 @@ ftp.dir <- function (x, y, n, w, h = F, u = "ftp")
     if (missing(w)) 
         w <- ftp.credential("pwd", u)
     y <- getURL(paste0(u, "://", y, x, "/"), userpwd = paste0(n, 
-        ":", w), ftp.use.epsv = F)
+        ":", w), ftp.use.epsv = v)
     u <- ifelse(u == "ftp", "\r\n", "\n")
     y <- txt.parse(y, u)
     if (length(y) > 1) {
@@ -4501,11 +4502,12 @@ ftp.file <- function (x)
 #' @param y = ftp site
 #' @param n = user id
 #' @param w = password
+#' @param h = T/F flag for ftp.use.epsv argument of getURL
 #' @keywords ftp.file.size
 #' @export
 #' @family ftp
 
-ftp.file.size <- function (x, y, n, w) 
+ftp.file.size <- function (x, y, n, w, h = F) 
 {
     if (missing(y)) 
         y <- ftp.credential("ftp")
@@ -4515,7 +4517,7 @@ ftp.file.size <- function (x, y, n, w)
         w <- ftp.credential("pwd")
     month.abbrv <- vec.named(1:12, month.abb)
     y <- getURL(paste0("ftp://", y, ftp.parent(x), "/"), userpwd = paste0(n, 
-        ":", w), ftp.use.epsv = F)
+        ":", w), ftp.use.epsv = h)
     y <- txt.parse(y, "\r\n")
     n <- min(nchar(y)) - 4
     while (any(!is.element(substring(y, n, n + 4), paste0(" ", 
@@ -4625,11 +4627,12 @@ ftp.parent <- function (x)
 #' @param w = user id (defaults to standard)
 #' @param h = password (defaults to standard)
 #' @param u = protocol (either "ftp" or "sftp")
+#' @param v = T/F flag for ftp.use.epsv argument of getCurlHandle
 #' @keywords ftp.put
 #' @export
 #' @family ftp
 
-ftp.put <- function (x, y, n, w, h, u = "ftp") 
+ftp.put <- function (x, y, n, w, h, u = "ftp", v = F) 
 {
     if (missing(n)) 
         n <- ftp.credential("ftp", u)
@@ -4637,7 +4640,7 @@ ftp.put <- function (x, y, n, w, h, u = "ftp")
         w <- ftp.credential("user", u)
     if (missing(h)) 
         h <- ftp.credential("pwd", u)
-    z <- getCurlHandle(ftp.use.epsv = F, userpwd = paste0(w, 
+    z <- getCurlHandle(ftp.use.epsv = v, userpwd = paste0(w, 
         ":", h))
     z <- ftpUpload(y, paste0(u, "://", n, x, "/", ftp.file(y)), 
         curl = z, ftp.create.missing.dirs = T)
