@@ -226,22 +226,23 @@ ftp.dir <- function (x, y, n, w, h = F, u = "ftp", v = F)
         ":", w), ftp.use.epsv = v)
     u <- ifelse(u == "ftp", "\r\n", "\n")
     y <- txt.parse(y, u)
+    n <- ifelse(v, 3, 5)
     if (length(y) > 1) {
-        y <- y[txt.left(y, 1) != "-" | txt.parse(txt.itrim(y), 
-            txt.space(1))[, 5] != 0]
+        y <- y[ftp.is.dir(y, v) | txt.parse(txt.itrim(y), txt.space(1))[, 
+            n] != 0]
     }
     else if (length(y) == 1) {
-        y <- y[txt.left(y, 1) != "-" | txt.parse(txt.itrim(y), 
-            txt.space(1))[5] != 0]
+        y <- y[ftp.is.dir(y, v) | txt.parse(txt.itrim(y), txt.space(1))[n] != 
+            0]
     }
-    if (length(y) > 0) {
+    if (length(y) > 0 & !v) {
         n <- ftp.break(y)
         z <- substring(y, n + 1, nchar(y))
-        y <- substring(y, 1, n - 1)
         z <- data.frame(substring(z, 1, 3), as.numeric(substring(z, 
             5, 6)), substring(z, 8, 12), substring(z, 14, nchar(z)), 
             stringsAsFactors = F)
         names(z) <- c("mm", "dd", "yyyy", "file")
+        y <- substring(y, 1, n - 1)
         if (h) {
             month.abbrv <- vec.named(1:12, month.abb)
             z$mm <- map.rname(month.abbrv, z$mm)
@@ -252,8 +253,15 @@ ftp.dir <- function (x, y, n, w, h = F, u = "ftp", v = F)
                 z$file)
         }
         else {
-            z <- vec.named(txt.left(y, 1) == "-", z$file)
+            z <- vec.named(!ftp.is.dir(y, v), z$file)
         }
+    }
+    else if (length(y) > 0 & v & !h) {
+        z <- substring(y, 40, nchar(y))
+        z <- vec.named(!ftp.is.dir(y, v), z)
+    }
+    else if (length(y) > 0 & v & h) {
+        stop("Can't do this!")
     }
     else {
         z <- NULL
@@ -4576,6 +4584,22 @@ ftp.info <- function (x, y, n, w)
     z <- z[z[, "Type"] == x & z[, "FundLvl"] == y & z[, "filter"] == 
         w, n]
     z
+}
+
+#' ftp.is.dir
+#' 
+#' T/F depending on whether each line of <x> corresponds to a folder or file
+#' @param x = string vector
+#' @param y = T/F flag for ftp.use.epsv argument of getURL
+#' @keywords ftp.is.dir
+#' @export
+#' @family ftp
+
+ftp.is.dir <- function (x, y) 
+{
+    if (y) 
+        txt.has(x, " <DIR> ", T)
+    else txt.left(x, 1) != "-"
 }
 
 #' ftp.kill
