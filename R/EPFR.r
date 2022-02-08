@@ -222,46 +222,17 @@ ftp.dir <- function (x, y, n, w, h = F, u = "ftp", v = F)
         n <- ftp.credential("user", u)
     if (missing(w)) 
         w <- ftp.credential("pwd", u)
-    y <- getURL(paste0(u, "://", y, x, "/"), userpwd = paste0(n, 
+    z <- getURL(paste0(u, "://", y, x, "/"), userpwd = paste0(n, 
         ":", w), ftp.use.epsv = v)
     u <- ifelse(u == "ftp", "\r\n", "\n")
-    y <- txt.parse(y, u)
-    n <- ifelse(v, 3, 5)
-    if (length(y) > 1) {
-        y <- y[ftp.is.dir(y, v) | txt.parse(txt.itrim(y), txt.space(1))[, 
-            n] != 0]
-    }
-    else if (length(y) == 1) {
-        y <- y[ftp.is.dir(y, v) | txt.parse(txt.itrim(y), txt.space(1))[n] != 
-            0]
-    }
-    if (length(y) > 0 & !v) {
-        n <- ftp.break(y)
-        z <- substring(y, n + 1, nchar(y))
-        z <- data.frame(substring(z, 1, 3), as.numeric(substring(z, 
-            5, 6)), substring(z, 8, 12), substring(z, 14, nchar(z)), 
-            stringsAsFactors = F)
-        names(z) <- c("mm", "dd", "yyyy", "file")
-        y <- substring(y, 1, n - 1)
-        if (h) {
-            month.abbrv <- vec.named(1:12, month.abb)
-            z$mm <- map.rname(month.abbrv, z$mm)
-            z$yyyy <- ifelse(txt.has(z$yyyy, ":", T), yyyymm.to.yyyy(yyyymmdd.to.yyyymm(today())), 
-                z$yyyy)
-            z$yyyy <- as.numeric(z$yyyy)
-            z <- vec.named(10000 * z$yyyy + 100 * z$mm + z$dd, 
-                z$file)
-        }
-        else {
-            z <- vec.named(!ftp.is.dir(y, v), z$file)
-        }
-    }
-    else if (length(y) > 0 & v & !h) {
-        z <- substring(y, 40, nchar(y))
-        z <- vec.named(!ftp.is.dir(y, v), z)
-    }
-    else if (length(y) > 0 & v & h) {
-        stop("Can't do this!")
+    z <- txt.parse(z, u)
+    if (v) 
+        z <- ftp.dir.parse.new(z)
+    else z <- ftp.dir.parse.77(z)
+    z <- z[!z[, "is.file"] | z[, "size"] > 0, ]
+    if (dim(z)[1] > 0) {
+        h <- ifelse(h, "yyyymmdd", "is.file")
+        z <- vec.named(z[, h], z[, "file"])
     }
     else {
         z <- NULL
@@ -4442,6 +4413,65 @@ ftp.del <- function (x, y, n, w, h, u = "ftp")
     invisible()
 }
 
+#' ftp.dir.parse.77
+#' 
+#' data frame with ftp information
+#' @param x = string vector (raw output of ftp)
+#' @keywords ftp.dir.parse.77
+#' @export
+#' @family ftp
+
+ftp.dir.parse.77 <- function (x) 
+{
+    n <- ftp.break(x)
+    z <- substring(x, n + 1, nchar(x))
+    z <- data.frame(substring(z, 1, 3), as.numeric(substring(z, 
+        5, 6)), substring(z, 8, 12), substring(z, 14, nchar(z)), 
+        stringsAsFactors = F)
+    names(z) <- c("mm", "dd", "yyyy", "file")
+    y <- substring(x, 1, n - 1)
+    z[, "is.file"] <- txt.left(y, 1) == "-"
+    if (dim(z)[1] == 1) {
+        z[, "size"] <- as.numeric(txt.parse(txt.itrim(y), txt.space(1))[5])/2^10
+    }
+    else {
+        z[, "size"] <- as.numeric(txt.parse(txt.itrim(y), txt.space(1))[, 
+            5])/2^10
+    }
+    month.abbrv <- vec.named(1:12, month.abb)
+    z$mm <- map.rname(month.abbrv, z$mm)
+    z$yyyy <- ifelse(txt.has(z$yyyy, ":", T), yyyymm.to.yyyy(yyyymmdd.to.yyyymm(today())), 
+        z$yyyy)
+    z$yyyy <- as.numeric(z$yyyy)
+    z[, "yyyymmdd"] <- as.character(10000 * z$yyyy + 100 * z$mm + 
+        z$dd)
+    z <- z[, c("size", "is.file", "yyyymmdd", "file")]
+    z
+}
+
+#' ftp.dir.parse.new
+#' 
+#' data frame with ftp information
+#' @param x = string vector (raw output of ftp)
+#' @keywords ftp.dir.parse.new
+#' @export
+#' @family ftp
+
+ftp.dir.parse.new <- function (x) 
+{
+    z <- data.frame(substring(x, 1, 8), substring(x, 18, 39), 
+        substring(x, 40, nchar(x)), stringsAsFactors = F)
+    names(z) <- c("yyyymmdd", "size", "file")
+    z[, "is.file"] <- !txt.has(x, " <DIR> ", T)
+    z[, "size"] <- ifelse(z[, "is.file"], as.numeric(z[, "size"])/2^10, 
+        0)
+    z[, "yyyymmdd"] <- paste0("20", substring(z[, "yyyymmdd"], 
+        7, 8), substring(z[, "yyyymmdd"], 4, 5), substring(z[, 
+        "yyyymmdd"], 1, 2))
+    z <- z[, c("size", "is.file", "yyyymmdd", "file")]
+    z
+}
+
 #' ftp.download
 #' 
 #' replicates <x> in folder <y>
@@ -4503,43 +4533,6 @@ ftp.file <- function (x)
     txt.right(x, nchar(x) - nchar(ftp.parent(x)) - 1)
 }
 
-#' ftp.file.size
-#' 
-#' returns file size in KB
-#' @param x = a file on ftp site
-#' @param y = ftp site
-#' @param n = user id
-#' @param w = password
-#' @param h = T/F flag for ftp.use.epsv argument of getURL
-#' @keywords ftp.file.size
-#' @export
-#' @family ftp
-
-ftp.file.size <- function (x, y, n, w, h = F) 
-{
-    if (missing(y)) 
-        y <- ftp.credential("ftp")
-    if (missing(n)) 
-        n <- ftp.credential("user")
-    if (missing(w)) 
-        w <- ftp.credential("pwd")
-    month.abbrv <- vec.named(1:12, month.abb)
-    y <- getURL(paste0("ftp://", y, ftp.parent(x), "/"), userpwd = paste0(n, 
-        ":", w), ftp.use.epsv = h)
-    y <- txt.parse(y, "\r\n")
-    n <- min(nchar(y)) - 4
-    while (any(!is.element(substring(y, n, n + 4), paste0(" ", 
-        names(month.abbrv), " ")))) n <- n - 1
-    z <- substring(y, n + 1, nchar(y))
-    y <- substring(y, 1, n - 1)
-    y <- y[ftp.file(x) == substring(z, 14, nchar(z))]
-    z <- txt.itrim(y)
-    z <- as.numeric(txt.parse(z, txt.space(1))[5])
-    if (!is.na(z)) 
-        z <- z * 2^-10
-    z
-}
-
 #' ftp.get
 #' 
 #' file <x> from remote site
@@ -4584,22 +4577,6 @@ ftp.info <- function (x, y, n, w)
     z <- z[z[, "Type"] == x & z[, "FundLvl"] == y & z[, "filter"] == 
         w, n]
     z
-}
-
-#' ftp.is.dir
-#' 
-#' T/F depending on whether each line of <x> corresponds to a folder or file
-#' @param x = string vector
-#' @param y = T/F flag for ftp.use.epsv argument of getURL
-#' @keywords ftp.is.dir
-#' @export
-#' @family ftp
-
-ftp.is.dir <- function (x, y) 
-{
-    if (y) 
-        txt.has(x, " <DIR> ", T)
-    else txt.left(x, 1) != "-"
 }
 
 #' ftp.kill
