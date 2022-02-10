@@ -217,11 +217,11 @@ email <- function (x, y, n, w = "", h = F, u, v)
 ftp.dir <- function (x, y, n, w, h = F, u = "ftp", v = F) 
 {
     if (missing(y)) 
-        y <- ftp.credential("ftp", u)
+        y <- ftp.credential("ftp", u, v)
     if (missing(n)) 
-        n <- ftp.credential("user", u)
+        n <- ftp.credential("user", u, v)
     if (missing(w)) 
-        w <- ftp.credential("pwd", u)
+        w <- ftp.credential("pwd", u, v)
     z <- getURL(paste0(u, "://", y, x, "/"), userpwd = paste0(n, 
         ":", w), ftp.use.epsv = v)
     u <- ifelse(u == "ftp", "\r\n", "\n")
@@ -4373,14 +4373,17 @@ ftp.break <- function (x)
 #' relevant ftp credential
 #' @param x = one of ftp/user/pwd
 #' @param y = one of ftp/sftp
+#' @param n = T/F flag for ftp.use.epsv argument of getCurlHandle
 #' @keywords ftp.credential
 #' @export
 #' @family ftp
 
-ftp.credential <- function (x, y = "ftp") 
+ftp.credential <- function (x, y = "ftp", n = F) 
 {
-    as.character(map.rname(vec.read(parameters(paste0(y, "-credential"))), 
-        x))
+    z <- ifelse(n & y == "ftp", "-credential-T", "-credential")
+    z <- as.character(map.rname(vec.read(parameters(paste0(y, 
+        z))), x))
+    z
 }
 
 #' ftp.del
@@ -4636,11 +4639,11 @@ ftp.parent <- function (x)
 ftp.put <- function (x, y, n, w, h, u = "ftp", v = F) 
 {
     if (missing(n)) 
-        n <- ftp.credential("ftp", u)
+        n <- ftp.credential("ftp", u, v)
     if (missing(w)) 
-        w <- ftp.credential("user", u)
+        w <- ftp.credential("user", u, v)
     if (missing(h)) 
-        h <- ftp.credential("pwd", u)
+        h <- ftp.credential("pwd", u, v)
     z <- getCurlHandle(ftp.use.epsv = v, userpwd = paste0(w, 
         ":", h))
     z <- ftpUpload(y, paste0(u, "://", n, x, "/", ftp.file(y)), 

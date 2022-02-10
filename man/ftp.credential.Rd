@@ -4,12 +4,14 @@
 \alias{ftp.credential}
 \title{ftp.credential}
 \usage{
-ftp.credential(x, y = "ftp")
+ftp.credential(x, y = "ftp", n = F)
 }
 \arguments{
 \item{x}{= one of ftp/user/pwd}
 
 \item{y}{= one of ftp/sftp}
+
+\item{n}{= T/F flag for ftp.use.epsv argument of getCurlHandle}
 }
 \description{
 relevant ftp credential
