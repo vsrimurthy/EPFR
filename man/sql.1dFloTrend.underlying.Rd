@@ -4,7 +4,7 @@
 \alias{sql.1dFloTrend.underlying}
 \title{sql.1dFloTrend.underlying}
 \usage{
-sql.1dFloTrend.underlying(x, y, n, w)
+sql.1dFloTrend.underlying(x, y, n, w, h)
 }
 \arguments{
 \item{x}{= a vector of filters}
@@ -14,6 +14,8 @@ sql.1dFloTrend.underlying(x, y, n, w)
 \item{n}{= vector of flow dates in YYYYMMDD (known two days later)}
 
 \item{w}{= the delay in knowing allocations}
+
+\item{h}{= share-class filter (one of All/Inst/Retail)}
 }
 \description{
 Generates the SQL query to get the data for 1dFloTrend

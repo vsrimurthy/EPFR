@@ -10962,19 +10962,7 @@ sql.1dFloMo <- function (x, y, n, w, h, u = "All")
         26)), "#BMKHLD", "#BMKAUM"))
     z <- sql.1dFloMo.select.wrapper(y, w, h, T)
     grp <- sql.1dFloMo.grp(w, h)
-    x <- paste0("'", x, "'")
-    if (length(x) == 1) 
-        x <- paste("=", x)
-    else x <- paste0("in (", paste(x, collapse = ", "), ")")
-    x <- paste("ReportDate", x)
-    if (any(u == c("Inst", "Retail"))) {
-        u <- ifelse(u == "Inst", "Institutional = 1", "Institutional is null or not Institutional = 1")
-        u <- sql.in("ShareClassId", sql.tbl("[Id]", "ShareClasses", 
-            u))
-        x <- sql.and(list(A = x, B = u))
-    }
-    x <- sql.tbl("ReportDate, HFundId, Flow, AssetsStart", "DailyData", 
-        x)
+    x <- sql.DailyFlo(paste0("'", x, "'"), F, , u)
     y <- c(sql.label(sql.1dFloMo.filter(y, h), "t0"), "inner join", 
         "#HLD t1 on t1.FundId = t0.FundId")
     y <- c(y, "inner join", sql.label(x, "t2 on t2.HFundId = t0.HFundId"))
@@ -11341,18 +11329,19 @@ sql.1dFloMoAggr <- function (x, y, n)
 #' @param n = the delay in knowing allocations
 #' @param w = any of StockFlows/China/Japan/CSI300/Energy
 #' @param h = T/F depending on whether you are checking ftp
+#' @param u = share-class filter (one of All/Inst/Retail)
 #' @keywords sql.1dFloTrend
 #' @export
 #' @family sql
 
-sql.1dFloTrend <- function (x, y, n, w, h) 
+sql.1dFloTrend <- function (x, y, n, w, h, u = "All") 
 {
     y <- sql.arguments(y)
     z <- sql.yyyymmdd("ReportDate", , h)
     h <- ifelse(h, "idn.HSecurityId", "idn.SecurityId")
     z <- c(z, h)
     z <- c(z, sapply(vec.to.list(y$factor), sql.1dFloTrend.select))
-    x <- sql.1dFloTrend.underlying(y$filter, w, x, n)
+    x <- sql.1dFloTrend.underlying(y$filter, w, x, n, u)
     h <- paste0(h, ", ReportDate")
     z <- c(paste(x$PRE, collapse = "\n"), paste(sql.unbracket(sql.tbl(z, 
         x$FINAL, , h)), collapse = "\n"))
@@ -11397,13 +11386,14 @@ sql.1dFloTrend.select <- function (x)
 #' @param y = any of All/StockFlows/China/Japan/CSI300/Energy
 #' @param n = vector of flow dates in YYYYMMDD (known two days later)
 #' @param w = the delay in knowing allocations
+#' @param h = share-class filter (one of All/Inst/Retail)
 #' @keywords sql.1dFloTrend.underlying
 #' @export
 #' @family sql
 
-sql.1dFloTrend.underlying <- function (x, y, n, w) 
+sql.1dFloTrend.underlying <- function (x, y, n, w, h) 
 {
-    u <- sql.DailyFlo(paste0("'", n, "'"))
+    u <- sql.DailyFlo(paste0("'", n, "'"), , , h)
     n <- yyyymmdd.to.AllocMo.unique(n, w, F)
     n <- c(n, yyyymm.lag(n))
     n <- yyyymm.to.day(n)
@@ -12897,23 +12887,35 @@ sql.cross.border <- function (x)
 #' 
 #' Generates the SQL query to get the data for daily Flow
 #' @param x = a vector of dates for which you want flows (known one day later)
-#' @param y = the temp table to hold output
+#' @param y = T/F depending on whether to group by HFundId
 #' @param n = T/F depending on whether StockFlows data are being used
+#' @param w = share-class filter (one of All/Inst/Retail)
 #' @keywords sql.DailyFlo
 #' @export
 #' @family sql
 
-sql.DailyFlo <- function (x, y, n = T) 
+sql.DailyFlo <- function (x, y = T, n = T, w = "All") 
 {
     n <- ifelse(n, "ReportDate", "DayEnding")
     if (length(x) == 1) 
         x <- paste("=", x)
     else x <- paste0("in (", paste(x, collapse = ", "), ")")
     x <- paste(n, x)
-    z <- c(n, "HFundId", "Flow = sum(Flow)", "AssetsStart = sum(AssetsStart)")
-    z <- sql.tbl(z, "DailyData", x, paste(c(n, "HFundId"), collapse = ", "))
-    if (!missing(y)) 
-        z <- sql.into(z, y)
+    if (any(w == c("Inst", "Retail"))) {
+        u <- sql.tbl("[Id]", "ShareClasses", "Institutional = 1")
+        u <- sql.in("ShareClassId", u, w == "Inst")
+        x <- sql.and(list(A = x, B = u))
+    }
+    z <- c("Flow", "AssetsStart")
+    if (y) 
+        z <- paste0(z, " = sum(", z, ")")
+    z <- c(n, "HFundId", z)
+    if (y) {
+        z <- sql.tbl(z, "DailyData", x, paste(z[1:2], collapse = ", "))
+    }
+    else {
+        z <- sql.tbl(z, "DailyData", x)
+    }
     z
 }
 

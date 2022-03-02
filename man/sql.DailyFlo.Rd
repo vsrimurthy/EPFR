@@ -4,14 +4,16 @@
 \alias{sql.DailyFlo}
 \title{sql.DailyFlo}
 \usage{
-sql.DailyFlo(x, y, n = T)
+sql.DailyFlo(x, y = T, n = T, w = "All")
 }
 \arguments{
 \item{x}{= a vector of dates for which you want flows (known one day later)}
 
-\item{y}{= the temp table to hold output}
+\item{y}{= T/F depending on whether to group by HFundId}
 
 \item{n}{= T/F depending on whether StockFlows data are being used}
+
+\item{w}{= share-class filter (one of All/Inst/Retail)}
 }
 \description{
 Generates the SQL query to get the data for daily Flow

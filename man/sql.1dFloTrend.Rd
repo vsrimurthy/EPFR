@@ -4,7 +4,7 @@
 \alias{sql.1dFloTrend}
 \title{sql.1dFloTrend}
 \usage{
-sql.1dFloTrend(x, y, n, w, h)
+sql.1dFloTrend(x, y, n, w, h, u = "All")
 }
 \arguments{
 \item{x}{= vector of flow dates in YYYYMMDD (known two days later)}
@@ -16,6 +16,8 @@ sql.1dFloTrend(x, y, n, w, h)
 \item{w}{= any of StockFlows/China/Japan/CSI300/Energy}
 
 \item{h}{= T/F depending on whether you are checking ftp}
+
+\item{u}{= share-class filter (one of All/Inst/Retail)}
 }
 \description{
 Generates the SQL query to get the data for 1dFloTrend
