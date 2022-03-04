@@ -5111,7 +5111,6 @@ html.flow.breakdown <- function (x, y, n = 0)
         z <- paste("This week's", ifelse(u > 0, "inflows", "outflows"), 
             "were driven by sundry small contributions which overwhelmed", 
             ifelse(u > 0, "outflows from", "inflows into"), html.and(x))
-        z <- paste0(z, y, ".")
     }
     else if (m == 0) {
         if (u > 0) {
@@ -5123,7 +5122,6 @@ html.flow.breakdown <- function (x, y, n = 0)
                 ""), "came from")
         }
         z <- paste("This week's", z, html.and(x))
-        z <- paste0(z, y, ".")
     }
     else {
         z <- paste("This week's", ifelse(u > 0, "inflows", "outflows"), 
@@ -5132,8 +5130,8 @@ html.flow.breakdown <- function (x, y, n = 0)
         z <- paste0(z, y, ", but offset by")
         z <- paste(z, ifelse(u > 0, "outflows from", "inflows into"), 
             html.and(x[h + 1:m]))
-        z <- paste0(z, y, ".")
     }
+    z <- paste0(z, y)
     z
 }
 
@@ -5159,12 +5157,12 @@ html.flow.english <- function (x, y, n, w)
     z <- paste0(z, int.format(abs(x["last"])), " million vs an")
     z <- paste(z, ifelse(x["prior"] > 0, "inflow", "outflow"), 
         "of $")
-    z <- paste0(z, int.format(abs(x["prior"])), " million the prior week.")
+    z <- paste0(z, int.format(abs(x["prior"])), " million the prior week")
     if (x["straight"] > 0) {
         u <- paste("This is the", txt.ex.int(x["straight"], T), 
             ifelse(x["straight"] > 4, "straight", "consecutive"))
-        u <- paste(u, "week of", ifelse(x["last"] > 0, "inflows,", 
-            "outflows,"))
+        u <- paste(u, "week of", ifelse(x["last"] > 0, "inflows", 
+            "outflows"))
     }
     else if (x["straight"] == -1) {
         u <- paste("This is the first week of", ifelse(x["last"] > 
