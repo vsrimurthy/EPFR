@@ -4644,10 +4644,20 @@ ftp.put <- function (x, y, n, w, h, u = "ftp", v = F)
         w <- ftp.credential("user", u, v)
     if (missing(h)) 
         h <- ftp.credential("pwd", u, v)
-    z <- getCurlHandle(ftp.use.epsv = v, userpwd = paste0(w, 
-        ":", h))
-    z <- ftpUpload(y, paste0(u, "://", n, x, "/", ftp.file(y)), 
-        curl = z, ftp.create.missing.dirs = T)
+    ctr <- 5
+    z <- NULL
+    while (is.null(z) & ctr > 0) {
+        if (ctr < 5) 
+            cat("Trying to upload to", x, "again ..\n")
+        z <- getCurlHandle(ftp.use.epsv = v, userpwd = paste0(w, 
+            ":", h))
+        z <- tryCatch(ftpUpload(y, paste0(u, "://", n, x, "/", 
+            ftp.file(y)), curl = z, ftp.create.missing.dirs = T), 
+            error = function(e) {
+                NULL
+            })
+        ctr <- ctr - 1
+    }
     invisible()
 }
 
