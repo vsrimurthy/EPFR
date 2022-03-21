@@ -12354,6 +12354,9 @@ sql.1mFundCt <- function (x, y, n, w, h, u = 0)
         else if (j == "HoldSum" & u == 0) {
             z <- c(z, paste(j, "sum(HoldingValue)", sep = " = "))
         }
+        else if (j == "SharesHeld" & u == 0) {
+            z <- c(z, paste(j, "sum(SharesHeld)", sep = " = "))
+        }
         else if (j == "HoldSum" & u > 0) {
             z <- c(z, paste0(j, "Top", toupper(latin.ex.arabic(u)), 
                 " = sum(HoldingValue)"))
