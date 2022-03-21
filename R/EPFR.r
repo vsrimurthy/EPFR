@@ -11849,8 +11849,19 @@ sql.1mAllocD <- function (x, y, n, w, h)
     }
     for (i in y$factor) z <- c(z, sql.1mAllocD.select(i))
     u <- sql.1mAllocD.topline.from(x, w)
-    w <- ifelse(w, "HSecurityId", "isnull(t1.SecurityId, t2.SecurityId)")
-    z <- sql.tbl(z, u, , w, "count(isnull(t1.SecurityId, t2.SecurityId)) > 1")
+    if (w & n == "All") {
+        w <- "HSecurityId"
+        z <- sql.tbl(z, u, , w, "count(isnull(t1.SecurityId, t2.SecurityId)) > 1")
+    }
+    else if (w) {
+        w <- "HSecurityId"
+        z <- sql.tbl(z, u, sql.in("HSecurityId", sql.RDSuniv(n)), 
+            w, "count(isnull(t1.SecurityId, t2.SecurityId)) > 1")
+    }
+    else {
+        w <- "isnull(t1.SecurityId, t2.SecurityId)"
+        z <- sql.tbl(z, u, , w, "count(isnull(t1.SecurityId, t2.SecurityId)) > 1")
+    }
     z <- paste(sql.unbracket(z), collapse = "\n")
     z <- c(v, z)
     z
