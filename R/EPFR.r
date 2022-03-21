@@ -14036,11 +14036,9 @@ sql.RDSuniv <- function (x)
             z))
         z <- sql.tbl("HSecurityId", "Holdings", z, "HSecurityId")
     }
-    else if (x == "Energy") {
-        z <- "(340228, 696775, 561380, 656067, 308571, 420631, 902846, 673356, 911907, 763388,"
-        z <- c(z, "\t98654, 664044, 742638, 401296, 308355, 588468, 612083, 682720, 836332, 143750)")
-        z <- sql.tbl("HSecurityId", "SecurityHistory", sql.in("SecurityId", 
-            z))
+    else if (x == "File") {
+        z <- paste0("(", paste(readLines("C:\\temp\\crap\\ids.txt"), 
+            collapse = ", "), ")")
     }
     else if (x == "China") {
         z <- sql.tbl("HCompanyId", "CompanyHistory", "CountryCode = 'CN'")
