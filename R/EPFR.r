@@ -11015,7 +11015,7 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
     else if (x == "APac") {
         z <- c("AU", "CN", "ID", "IN", "JP", "MY", "PH", "SG", 
             "TW", "NZ", "HK", "PK", "BD", "LK", "VN", "PG", "KH", 
-            "MM", "MN")
+            "MM", "MN", "KR", "TH")
         classif.type <- "Ctry"
     }
     else if (x == "LatAm") {
