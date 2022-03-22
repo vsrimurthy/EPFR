@@ -9,7 +9,7 @@ mk.1wFloMo.CtryFlow(x, y, n, w, h, u = T)
 \arguments{
 \item{x}{= YYYYMMDD}
 
-\item{y}{= a vector of FundHistory filters}
+\item{y}{= a vector of FundHistory filters (first element MUST BE FundType)}
 
 \item{n}{= item(s) (any of Flow/AssetsStart/AssetsEnd)}
 

@@ -7119,7 +7119,7 @@ mk.1mFloMo.Ctry <- function (x, y, n, w, h = "E")
 #' 
 #' SQL query for country-flow percentage for date <x>
 #' @param x = YYYYMMDD
-#' @param y = a vector of FundHistory filters
+#' @param y = a vector of FundHistory filters (first element MUST BE FundType)
 #' @param n = item(s) (any of Flow/AssetsStart/AssetsEnd)
 #' @param w = country list (one of Ctry/LatAm)
 #' @param h = input to or output of sql.connect
@@ -7161,7 +7161,8 @@ mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = T)
         collapse = ", "), ")"))
     u[["B"]] <- "ReportDate = @floDt"
     z <- sql.Allocation(r, "Country", c("Advisor", "GeographicFocus"), 
-        c("CB", y, "UI"), sql.and(u), paste(r[-length(r)], collapse = ", "))
+        c("CB", y[1], "UI"), sql.and(u), paste(r[-length(r)], 
+            collapse = ", "))
     z <- sql.tbl(r[-1], sql.label(z, "t"), , paste(r[-length(r)][-1], 
         collapse = ", "))
     z <- c(sql.declare("@floDt", "datetime", v), sql.unbracket(z))
