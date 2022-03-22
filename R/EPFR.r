@@ -4747,7 +4747,7 @@ ftp.sql.factor <- function (x, y, n, w, h)
     }
     else if (all(x == "FundCtD")) {
         z <- sql.1dFundCt(y, c("FundCt", qa.filter.map(n)), w, 
-            T)
+            T, "GeoId")
     }
     else if (all(x == "FundCtM")) {
         z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c("FundCt", 
@@ -11443,11 +11443,12 @@ sql.1dFloTrend.underlying <- function (x, y, n, w, h)
 #' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
+#' @param h = one or more breakdown filters (e.g. All/GeoId/DomicileId)
 #' @keywords sql.1dFundCt
 #' @export
 #' @family sql
 
-sql.1dFundCt <- function (x, y, n, w) 
+sql.1dFundCt <- function (x, y, n, w, h) 
 {
     mo.end <- yyyymmdd.to.AllocMo.unique(x, 26, T)
     x <- paste0("'", x, "'")
@@ -11467,13 +11468,15 @@ sql.1dFundCt <- function (x, y, n, w)
     if (length(n) == 1) 
         n <- n[[1]]
     else n <- sql.and(n)
-    if (w) {
+    if (all(h == "GeoId")) 
+        z <- "GeoId = GeographicFocusId"
+    else z <- setdiff(h, "All")
+    if (w) 
+        z <- c(z, "HSecurityId")
+    else z <- c("SecurityId", z)
+    if (w) 
         z <- c(sql.yyyymmdd("flo.ReportDate", "ReportDate", w), 
-            "GeoId = GeographicFocusId", "HSecurityId")
-    }
-    else {
-        z <- "SecurityId"
-    }
+            z)
     for (j in y$factor) {
         if (j == "FundCt") {
             z <- c(z, paste(j, "count(distinct flo.HFundId)", 
@@ -11483,15 +11486,16 @@ sql.1dFundCt <- function (x, y, n, w)
             stop("Bad factor", j)
         }
     }
-    h <- c("inner join", "Holdings h on h.FundId = his.FundId")
-    h <- c("DailyData flo", "inner join", "FundHistory his on his.HFundId = flo.HFundId", 
-        h)
+    u <- c("inner join", "Holdings h on h.FundId = his.FundId")
+    u <- c("DailyData flo", "inner join", "FundHistory his on his.HFundId = flo.HFundId", 
+        u)
     if (!w) 
-        h <- c(h, "inner join", "SecurityHistory id on id.HSecurityId = h.HSecurityId")
-    w <- ifelse(w, "flo.ReportDate, HSecurityId, GeographicFocusId", 
-        "SecurityId")
-    z <- sql.tbl(z, h, n, w)
-    z <- paste(sql.unbracket(z), collapse = "\n")
+        u <- c(u, "inner join", "SecurityHistory id on id.HSecurityId = h.HSecurityId")
+    if (w) 
+        w <- c("flo.ReportDate", "HSecurityId")
+    else w <- "SecurityId"
+    w <- paste(c(w, sql.breakdown(h)), collapse = ", ")
+    z <- paste(sql.unbracket(sql.tbl(z, u, n, w)), collapse = "\n")
     z
 }
 

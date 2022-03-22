@@ -4,7 +4,7 @@
 \alias{sql.1dFundCt}
 \title{sql.1dFundCt}
 \usage{
-sql.1dFundCt(x, y, n, w)
+sql.1dFundCt(x, y, n, w, h)
 }
 \arguments{
 \item{x}{= vector of flow dates in YYYYMMDD (known two days later)}
@@ -14,6 +14,8 @@ sql.1dFundCt(x, y, n, w)
 \item{n}{= any of StockFlows/China/Japan/CSI300/Energy}
 
 \item{w}{= T/F depending on whether you are checking ftp}
+
+\item{h}{= one or more breakdown filters (e.g. All/GeoId/DomicileId)}
 }
 \description{
 Generates FundCt, the ownership breadth measure set forth in Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
