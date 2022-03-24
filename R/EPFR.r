@@ -6898,6 +6898,69 @@ mk.1dFloMo.Sec.rslt <- function (x, y, n, w, h)
     z
 }
 
+#' mk.1dFloTrend.Ctry
+#' 
+#' SQL query for daily/weekly FloTrend
+#' @param x = flowdate/YYYYMMDD depending on whether daily/weekly
+#' @param y = factor (one of FloTrend/FloDiff/FloDiff2)
+#' @param n = country list (one of Ctry/FX/Sector)
+#' @param w = input to or output of sql.connect
+#' @param h = T/F depending on whether daily/weekly
+#' @param u = vector of filters
+#' @keywords mk.1dFloTrend.Ctry
+#' @export
+#' @family mk
+
+mk.1dFloTrend.Ctry <- function (x, y, n, w, h, u = "E") 
+{
+    s <- yyyymmdd.to.AllocMo.unique(x, 23, F)
+    n <- sql.1dFloMo.CountryId.List(n, x)
+    v <- sql.1dFloTrend.Alloc(s, "#CTRY", "CountryId", names(n))
+    v <- c(v, "", sql.1dFloTrend.Alloc.purge("#CTRY", "CountryId"))
+    v <- paste(v, collapse = "\n")
+    z <- sql.1dFloTrend.Alloc.from(x, "#CTRY", "CountryId", h, 
+        u)
+    z <- c(v, sql.1dFloTrend.Alloc.final(z, y, "CountryId", h))
+    z <- sql.1dFloTrend.Alloc.data(z, n, w)
+    z
+}
+
+#' mk.1dFloTrend.Sec
+#' 
+#' SQL query for daily/weekly FloTrend
+#' @param x = flowdate/YYYYMMDD depending on whether daily/weekly
+#' @param y = factor (one of FloTrend/FloDiff/FloDiff2)
+#' @param n = input to or output of sql.connect
+#' @param w = T/F depending on whether daily/weekly
+#' @param h = vector of filters
+#' @keywords mk.1dFloTrend.Sec
+#' @export
+#' @family mk
+
+mk.1dFloTrend.Sec <- function (x, y, n, w, h) 
+{
+    s <- yyyymmdd.to.AllocMo.unique(x, 23, F)
+    v <- sql.1dFloTrend.Alloc(s, "#SEC", "SectorId")
+    v <- c(v, "", "insert into", paste0("\t#SEC (FundId, SectorId, Allocation)"), 
+        sql.1dFloTrend.Alloc.fetch(s, "IndustryId", 20, F))
+    v <- c(v, "", "insert into", paste0("\t#SEC (FundId, SectorId, Allocation)"), 
+        sql.1dFloTrend.Alloc.fetch(yyyymm.lag(s), "IndustryId", 
+            20, T))
+    v <- c(v, "", sql.1dFloTrend.Alloc.purge("#SEC", "SectorId"))
+    z <- "Allocation = sum(case when SectorId = 20 then -Allocation else Allocation end)"
+    z <- c("FundId", "SectorId = 30", z)
+    z <- sql.tbl(z, "#SEC", "SectorId in (7, 20)", "FundId")
+    v <- c(v, "", "insert into", paste0("\t#SEC (FundId, SectorId, Allocation)"), 
+        sql.unbracket(z))
+    v <- paste(v, collapse = "\n")
+    z <- sql.1dFloTrend.Alloc.from(x, "#SEC", "SectorId", w, 
+        h)
+    z <- c(v, sql.1dFloTrend.Alloc.final(z, y, "SectorId", w))
+    z <- sql.1dFloTrend.Alloc.data(z, sql.1dFloMo.CountryId.List("Sector"), 
+        n)
+    z
+}
+
 #' mk.1mActPas.Ctry
 #' 
 #' Generates the SQL query to get monthly AIS for countries
@@ -7117,7 +7180,7 @@ mk.1mFloMo.Ctry <- function (x, y, n, w, h = "E")
 
 #' mk.1wFloMo.CtryFlow
 #' 
-#' SQL query for country-flow percentage for date <x>
+#' Country flows using all funds
 #' @param x = YYYYMMDD
 #' @param y = a vector of FundHistory filters (first element MUST BE FundType)
 #' @param n = item(s) (any of Flow/AssetsStart/AssetsEnd)
@@ -7130,17 +7193,16 @@ mk.1mFloMo.Ctry <- function (x, y, n, w, h = "E")
 
 mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = T) 
 {
-    v <- yyyymmdd.to.AllocMo.unique(x, 23, F)
-    v <- yyyymm.to.day(v)
+    s <- yyyymm.to.day(yyyymmdd.to.AllocMo.unique(x, 23, F))
     h <- sql.connect.wrapper(h)
     w <- sql.1dFloMo.CountryId.List(w)
     w <- Ctry.info(w, c("GeoId", "CountryId"))
     rslt <- list(MAP = w)
     rslt[["SCF"]] <- list()
     for (j in x) {
+        z <- paste(w$GeoId[!is.na(w$GeoId)], collapse = ", ")
+        z <- paste0("GeographicFocus in (", z, ")")
         r <- c("GeographicFocus", paste0(n, " = sum(", n, ")"))
-        z <- paste0("GeographicFocus in (", paste(w$GeoId[!is.na(w$GeoId)], 
-            collapse = ", "), ")")
         z <- sql.Flow(r, list(A = "@floDt"), c(y, z, "UI"), "GeographicFocus", 
             !u, "GeographicFocus")
         z <- c(sql.declare("@floDt", "datetime", j), sql.unbracket(z))
@@ -7165,7 +7227,7 @@ mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = T)
             collapse = ", "))
     z <- sql.tbl(r[-1], sql.label(z, "t"), , paste(r[-length(r)][-1], 
         collapse = ", "))
-    z <- c(sql.declare("@floDt", "datetime", v), sql.unbracket(z))
+    z <- c(sql.declare("@floDt", "datetime", s), sql.unbracket(z))
     z <- sql.query.underlying(paste(z, collapse = "\n"), h$conn, 
         F)
     sql.close(h)
@@ -7190,6 +7252,108 @@ mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = T)
     }
     if (length(x) == 1) 
         z <- z[[x]]
+    z
+}
+
+#' mk.1wFloMo.CtryFlow.local
+#' 
+#' Country flows using locally-domiciled funds only
+#' @param x = YYYYMMDD
+#' @param y = a vector of FundHistory filters (first element MUST BE FundType)
+#' @param n = item(s) (any of Flow/AssetsStart/AssetsEnd)
+#' @param w = country list (one of Ctry/LatAm)
+#' @param h = input to or output of sql.connect
+#' @param u = T/F depending on whether weekly or daily data needed
+#' @keywords mk.1wFloMo.CtryFlow.local
+#' @export
+#' @family mk
+
+mk.1wFloMo.CtryFlow.local <- function (x, y, n, w, h, u = T) 
+{
+    s <- yyyymm.to.day(yyyymmdd.to.AllocMo.unique(x, 23, F))
+    h <- sql.connect.wrapper(h)
+    w <- sql.1dFloMo.CountryId.List(w)
+    w <- Ctry.info(w, c("GeoId", "CountryId"))
+    rslt <- list(MAP = w)
+    rslt[["SCF"]] <- list()
+    r <- c("GeographicFocus", paste0(n, " = sum(", n, ")"))
+    for (j in x) {
+        z <- !is.na(w$GeoId)
+        z <- vec.named(w[z, "GeoId"], dimnames(w)[[1]][z])
+        names(z) <- ifelse(names(z) == "CL", "CI", names(z))
+        z <- paste0("(GeographicFocus = ", z, " and Domicile = '", 
+            names(z), "')")
+        z <- c("(", paste0("\t\t", c(sql.and(vec.to.list(z), 
+            "or"), ")")))
+        z <- paste(z, collapse = "\n")
+        z <- sql.Flow(r, list(A = "@floDt"), c(y, z, "UI"), "GeographicFocus", 
+            !u, "GeographicFocus")
+        z <- c(sql.declare("@floDt", "datetime", j), sql.unbracket(z))
+        rslt[["SCF"]][[j]] <- sql.query.underlying(paste(z, collapse = "\n"), 
+            h$conn, F)
+    }
+    rslt[["CBF"]] <- list()
+    v <- c("Domicile", "GeographicFocus")
+    r <- c(v, paste0(n, " = sum(", n, ")"))
+    for (j in x) {
+        z <- sql.Flow(r, list(A = "@floDt"), c(y, "CB", "UI"), 
+            v, !u, paste(v, collapse = ", "))
+        z <- c(sql.declare("@floDt", "datetime", j), sql.unbracket(z))
+        rslt[["CBF"]][[j]] <- sql.query.underlying(paste(z, collapse = "\n"), 
+            h$conn, F)
+    }
+    r <- c("Advisor", "CountryId", "GeographicFocus", "Allocation = avg(Allocation)")
+    u <- list(A = paste0("CountryId in (", paste(w$CountryId[!is.na(w$CountryId)], 
+        collapse = ", "), ")"))
+    u[["B"]] <- "ReportDate = @floDt"
+    z <- sql.Allocation(r, "Country", c("Advisor", "GeographicFocus"), 
+        c("CB", y[1], "UI"), sql.and(u), paste(r[-length(r)], 
+            collapse = ", "))
+    z <- sql.tbl(r[-1], sql.label(z, "t"), , paste(r[-length(r)][-1], 
+        collapse = ", "))
+    z <- c(sql.declare("@floDt", "datetime", s), sql.unbracket(z))
+    rslt[["CBA"]] <- sql.query.underlying(paste(z, collapse = "\n"), 
+        h$conn, F)
+    sql.close(h)
+    v <- vec.named(dimnames(w)[[1]], w[, "CountryId"])
+    rslt[["CBA"]][, "CountryId"] <- map.rname(v, rslt[["CBA"]][, 
+        "CountryId"])
+    rslt[["CBA"]] <- mat.index(rslt[["CBA"]], c("CountryId", 
+        "GeographicFocus"))
+    for (j in names(rslt[["CBF"]])) {
+        v <- rslt[["CBF"]][[j]][, "Domicile"]
+        rslt[["CBF"]][[j]][, "Domicile"] <- ifelse(is.element(v, 
+            "CI"), "CL", v)
+    }
+    for (j in names(rslt[["CBF"]])) {
+        v <- do.call(paste, rslt[["CBF"]][[j]][, c("Domicile", 
+            "GeographicFocus")])
+        v <- zav(as.numeric(map.rname(rslt[["CBA"]], v)))/100
+        for (k in n) rslt[["CBF"]][[j]][, k] <- rslt[["CBF"]][[j]][, 
+            k] * v
+    }
+    for (j in names(rslt[["CBF"]])) {
+        rslt[["CBF"]][[j]][, "ReportDate"] <- rep(j, dim(rslt[["CBF"]][[j]])[1])
+        rslt[["CBF"]][[j]] <- rslt[["CBF"]][[j]][, c("ReportDate", 
+            "Domicile", n)]
+    }
+    rslt[["CBF"]] <- Reduce(rbind, rslt[["CBF"]])
+    v <- !is.na(w[, "GeoId"])
+    w <- vec.named(dimnames(w)[[1]][v], w[v, "GeoId"])
+    for (j in names(rslt[["SCF"]])) {
+        rslt[["SCF"]][[j]][, "Domicile"] <- map.rname(w, rslt[["SCF"]][[j]][, 
+            "GeographicFocus"])
+        rslt[["SCF"]][[j]][, "ReportDate"] <- rep(j, dim(rslt[["SCF"]][[j]])[1])
+        rslt[["SCF"]][[j]] <- rslt[["SCF"]][[j]][, c("ReportDate", 
+            "Domicile", n)]
+    }
+    rslt[["SCF"]] <- Reduce(rbind, rslt[["SCF"]])
+    rslt <- rbind(rslt[["SCF"]], rslt[["CBF"]])
+    z <- aggregate(x = rslt[, n], by = rslt[, c("ReportDate", 
+        "Domicile")], FUN = sum)
+    if (length(n) == 1) 
+        dimnames(z)[[2]] <- ifelse(dimnames(z)[[2]] == "x", n, 
+            dimnames(z)[[2]])
     z
 }
 
@@ -11354,6 +11518,141 @@ sql.1dFloTrend <- function (x, y, n, w, h, u = "All")
     h <- paste0(h, ", ReportDate")
     z <- c(paste(x$PRE, collapse = "\n"), paste(sql.unbracket(sql.tbl(z, 
         x$FINAL, , h)), collapse = "\n"))
+    z
+}
+
+#' sql.1dFloTrend.Alloc
+#' 
+#' SQL query for allocation table for FloTrend
+#' @param x = YYYYMM month
+#' @param y = temp table name (e.g. "#CTRY")
+#' @param n = identifier column (SectorId/CountryId)
+#' @param w = vector of acceptable identifiers
+#' @keywords sql.1dFloTrend.Alloc
+#' @export
+#' @family sql
+
+sql.1dFloTrend.Alloc <- function (x, y, n, w = NULL) 
+{
+    z <- sql.drop(y)
+    z <- c(z, paste0("create table ", y, " (FundId int not null, ", 
+        n, " int not null, Allocation float)"))
+    z <- c(z, "", "insert into", paste0("\t", y, " (FundId, ", 
+        n, ", Allocation)"), sql.1dFloTrend.Alloc.fetch(x, n, 
+        w, F))
+    z <- c(z, "", "insert into", paste0("\t", y, " (FundId, ", 
+        n, ", Allocation)"), sql.1dFloTrend.Alloc.fetch(yyyymm.lag(x), 
+        n, w, T))
+    z
+}
+
+#' sql.1dFloTrend.Alloc.data
+#' 
+#' gets data for FloTrend
+#' @param x = SQL statement
+#' @param y = named vector of country/sector codes indexed by Id
+#' @param n = input to or output of sql.connect
+#' @keywords sql.1dFloTrend.Alloc.data
+#' @export
+#' @family sql
+
+sql.1dFloTrend.Alloc.data <- function (x, y, n) 
+{
+    z <- sql.query(x, n, F)
+    z <- reshape.wide(z)
+    z <- map.rname(t(z), names(y))
+    dimnames(z)[[1]] <- y
+    z
+}
+
+#' sql.1dFloTrend.Alloc.fetch
+#' 
+#' SQL query for allocation table for FloTrend
+#' @param x = YYYYMM month
+#' @param y = identifier column (SectorId/CountryId)
+#' @param n = vector of acceptable identifiers
+#' @param w = T/F depending on whether sign needs to be reversed
+#' @keywords sql.1dFloTrend.Alloc.fetch
+#' @export
+#' @family sql
+
+sql.1dFloTrend.Alloc.fetch <- function (x, y, n, w) 
+{
+    z <- paste0("ReportDate = '", yyyymm.to.day(x), "'")
+    if (!is.null(n)) 
+        z <- sql.and(list(A = z, B = paste0(y, " in (", paste(n, 
+            collapse = ", "), ")")))
+    w <- ifelse(w, "Allocation = -Allocation", "Allocation")
+    z <- sql.Allocation(c("FundId", y, w), txt.left(y, nchar(y) - 
+        2), , , z)
+    z <- sql.unbracket(z)
+    z
+}
+
+#' sql.1dFloTrend.Alloc.final
+#' 
+#' SQL query for daily/weekly FloTrend
+#' @param x = from statement
+#' @param y = factor (one of FloTrend/FloDiff/FloDiff2)
+#' @param n = identifier column (SectorId/CountryId)
+#' @param w = T/F depending on whether daily/weekly
+#' @keywords sql.1dFloTrend.Alloc.final
+#' @export
+#' @family sql
+
+sql.1dFloTrend.Alloc.final <- function (x, y, n, w) 
+{
+    if (y == "FloTrend") {
+        y = paste(y, sql.Trend("Flow * Allocation", ""))
+    }
+    else stop("Can't handle this!")
+    w <- ifelse(w, "DayEnding", "WeekEnding")
+    y <- c(sql.yyyymmdd(w), n, y)
+    z <- sql.tbl(y, x, , paste0(w, ", ", n))
+    z <- paste(sql.unbracket(z), collapse = "\n")
+    z
+}
+
+#' sql.1dFloTrend.Alloc.from
+#' 
+#' SQL query for daily/weekly FloTrend
+#' @param x = flowdate/YYYYMMDD depending on whether daily/weekly
+#' @param y = temp table name (e.g. "#CTRY")
+#' @param n = identifier column (SectorId/CountryId)
+#' @param w = T/F depending on whether daily/weekly
+#' @param h = vector of filters
+#' @keywords sql.1dFloTrend.Alloc.from
+#' @export
+#' @family sql
+
+sql.1dFloTrend.Alloc.from <- function (x, y, n, w, h) 
+{
+    x <- list(A = paste0("'", x, "'"))
+    z <- c(ifelse(w, "DayEnding", "WeekEnding"), "FundId", "Flow")
+    z <- sql.label(sql.Flow(z, x, c("CB", h, "UI"), , w), "t1")
+    r <- c("FundId", n, "Allocation = sum(Allocation)")
+    r <- sql.tbl(r, y, , paste(r[1:2], collapse = ", "))
+    z <- c(z, "inner join", sql.label(r, "t2"), "\ton t2.FundId = t1.FundId")
+    z
+}
+
+#' sql.1dFloTrend.Alloc.purge
+#' 
+#' Ensures two sets of entries
+#' @param x = temp table name (e.g. "#CTRY")
+#' @param y = identifier column (SectorId/CountryId)
+#' @keywords sql.1dFloTrend.Alloc.purge
+#' @export
+#' @family sql
+
+sql.1dFloTrend.Alloc.purge <- function (x, y) 
+{
+    h <- c("FundId", y)
+    z <- sql.tbl(h, x, , paste(h, collapse = ", "), "not count(Allocation) = 2")
+    h <- lapply(split(h, h), function(h) paste0(x, ".", h, " = t.", 
+        h))
+    z <- sql.tbl(c("FundId", y), sql.label(z, "t"), sql.and(h))
+    z <- c(paste("delete from", x, "where exists"), z)
     z
 }
 

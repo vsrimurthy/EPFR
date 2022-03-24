@@ -20,7 +20,7 @@ mk.1wFloMo.CtryFlow(x, y, n, w, h, u = T)
 \item{u}{= T/F depending on whether weekly or daily data needed}
 }
 \description{
-SQL query for country-flow percentage for date <x>
+Country flows using all funds
 }
 \seealso{
 Other mk: \code{\link{mk.1dFloMo.Ctry.data}},
@@ -29,6 +29,8 @@ Other mk: \code{\link{mk.1dFloMo.Ctry.data}},
   \code{\link{mk.1dFloMo.Indy}},
   \code{\link{mk.1dFloMo.Sec.rslt}},
   \code{\link{mk.1dFloMo.Sec}}, \code{\link{mk.1dFloMo}},
+  \code{\link{mk.1dFloTrend.Ctry}},
+  \code{\link{mk.1dFloTrend.Sec}},
   \code{\link{mk.1mActPas.Ctry}},
   \code{\link{mk.1mActPas.Sec}},
   \code{\link{mk.1mAllocMo}},
@@ -37,6 +39,7 @@ Other mk: \code{\link{mk.1dFloMo.Ctry.data}},
   \code{\link{mk.1mBullish.rslt}},
   \code{\link{mk.1mFloMo.Ctry}},
   \code{\link{mk.1mPerfTrend}},
+  \code{\link{mk.1wFloMo.CtryFlow.local}},
   \code{\link{mk.1wFloMo.IndyFlow}},
   \code{\link{mk.ActWt}}, \code{\link{mk.Alpha.daily}},
   \code{\link{mk.Alpha}}, \code{\link{mk.EigenCentrality}},
