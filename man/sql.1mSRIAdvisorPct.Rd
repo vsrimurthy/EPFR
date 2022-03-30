@@ -19,7 +19,10 @@ sql.1mSRIAdvisorPct(x, y, n, w)
 Generates the SQL query to get the data for 1mSRIAdvisorPct
 }
 \seealso{
-Other sql: \code{\link{sql.1dActWtTrend.select}},
+Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
+  \code{\link{sql.1dActWtTrend.Final}},
+  \code{\link{sql.1dActWtTrend.Flow}},
+  \code{\link{sql.1dActWtTrend.select}},
   \code{\link{sql.1dActWtTrend.topline.from}},
   \code{\link{sql.1dActWtTrend.topline}},
   \code{\link{sql.1dActWtTrend.underlying.basic}},
@@ -66,8 +69,10 @@ Other sql: \code{\link{sql.1dActWtTrend.select}},
   \code{\link{sql.1mChActWt}}, \code{\link{sql.1mFloMo}},
   \code{\link{sql.1mFloTrend.underlying}},
   \code{\link{sql.1mFloTrend}}, \code{\link{sql.1mFundCt}},
+  \code{\link{sql.1mHoldAum}},
   \code{\link{sql.1wFlow.Corp}},
   \code{\link{sql.ActWtDiff2}},
+  \code{\link{sql.Allocation.Sec.FinsExREst}},
   \code{\link{sql.Allocation.Sec}},
   \code{\link{sql.Allocations.bulk.EqWtAvg}},
   \code{\link{sql.Allocations.bulk.Single}},

@@ -17,7 +17,9 @@ mk.Alpha.daily(x, y, n)
 makes Alpha
 }
 \seealso{
-Other mk: \code{\link{mk.1dFloMo.Ctry.data}},
+Other mk: \code{\link{mk.1dActWtTrend.Ctry}},
+  \code{\link{mk.1dActWtTrend.Sec}},
+  \code{\link{mk.1dFloMo.Ctry.data}},
   \code{\link{mk.1dFloMo.Ctry.rslt}},
   \code{\link{mk.1dFloMo.Ctry}},
   \code{\link{mk.1dFloMo.Indy}},

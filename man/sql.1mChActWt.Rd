@@ -15,7 +15,10 @@ sql.1mChActWt(x, y)
 Generates the SQL query to get the following active weights: a) EqlChAct = equal weight average change in active weight b) BegChAct = beginning-of-period-asset weighted change in active weight c) EndChAct = end-of-period-asset weighted change in active weight d) BegPosChAct = beginning-of-period-asset weighted change in active weight (positive flows only) e) EndPosChAct = end-of-period-asset weighted change in active weight (positive flows only) f) BegNegChAct = beginning-of-period-asset weighted change in active weight (negative flows only) g) EndNegChAct = end-of-period-asset weighted change in active weight (negative flows only)
 }
 \seealso{
-Other sql: \code{\link{sql.1dActWtTrend.select}},
+Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
+  \code{\link{sql.1dActWtTrend.Final}},
+  \code{\link{sql.1dActWtTrend.Flow}},
+  \code{\link{sql.1dActWtTrend.select}},
   \code{\link{sql.1dActWtTrend.topline.from}},
   \code{\link{sql.1dActWtTrend.topline}},
   \code{\link{sql.1dActWtTrend.underlying.basic}},
@@ -62,9 +65,11 @@ Other sql: \code{\link{sql.1dActWtTrend.select}},
   \code{\link{sql.1mFloMo}},
   \code{\link{sql.1mFloTrend.underlying}},
   \code{\link{sql.1mFloTrend}}, \code{\link{sql.1mFundCt}},
+  \code{\link{sql.1mHoldAum}},
   \code{\link{sql.1mSRIAdvisorPct}},
   \code{\link{sql.1wFlow.Corp}},
   \code{\link{sql.ActWtDiff2}},
+  \code{\link{sql.Allocation.Sec.FinsExREst}},
   \code{\link{sql.Allocation.Sec}},
   \code{\link{sql.Allocations.bulk.EqWtAvg}},
   \code{\link{sql.Allocations.bulk.Single}},
