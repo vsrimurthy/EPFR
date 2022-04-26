@@ -4,7 +4,7 @@
 \alias{sql.DailyFlo}
 \title{sql.DailyFlo}
 \usage{
-sql.DailyFlo(x, y = T, n = T, w = "All")
+sql.DailyFlo(x, y = T, n = T, w = "All", h = F)
 }
 \arguments{
 \item{x}{= a vector of dates for which you want flows (known one day later)}
@@ -14,6 +14,8 @@ sql.DailyFlo(x, y = T, n = T, w = "All")
 \item{n}{= T/F depending on whether StockFlows data are being used}
 
 \item{w}{= share-class filter (one of All/Inst/Retail)}
+
+\item{h}{= T/F depending on whether AssetsEnd is wanted}
 }
 \description{
 Generates the SQL query to get the data for daily Flow
@@ -119,7 +121,9 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.query.underlying}},
   \code{\link{sql.query}}, \code{\link{sql.regr}},
   \code{\link{sql.tbl}}, \code{\link{sql.ui}},
-  \code{\link{sql.unbracket}}, \code{\link{sql.yyyymmdd}},
-  \code{\link{sql.yyyymm}}
+  \code{\link{sql.unbracket}},
+  \code{\link{sql.yield.curve.1dFloMo}},
+  \code{\link{sql.yield.curve}},
+  \code{\link{sql.yyyymmdd}}, \code{\link{sql.yyyymm}}
 }
 \keyword{sql.DailyFlo}

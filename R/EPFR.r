@@ -4870,25 +4870,26 @@ ftp.sql.other <- function (x, y, n)
 #' @param w = user id (defaults to standard)
 #' @param h = password (defaults to standard)
 #' @param u = protocol (either "ftp" or "sftp")
+#' @param v = T/F flag for ftp.use.epsv argument of getCurlHandle
 #' @keywords ftp.upload
 #' @export
 #' @family ftp
 
-ftp.upload <- function (x, y, n, w, h, u = "ftp") 
+ftp.upload <- function (x, y, n, w, h, u = "ftp", v = F) 
 {
     if (missing(n)) 
-        n <- ftp.credential("ftp", u)
+        n <- ftp.credential("ftp", u, v)
     if (missing(w)) 
-        w <- ftp.credential("user", u)
+        w <- ftp.credential("user", u, v)
     if (missing(h)) 
-        h <- ftp.credential("pwd", u)
+        h <- ftp.credential("pwd", u, v)
     z <- dir.all.files(y, "*.*")
-    v <- ftp.parent(z)
-    v <- txt.right(v, nchar(v) - nchar(y))
-    v <- paste0(x, v)
+    s <- ftp.parent(z)
+    s <- txt.right(s, nchar(s) - nchar(y))
+    s <- paste0(x, s)
     for (j in seq_along(z)) {
         cat(ftp.file(z[j]), "")
-        ftp.put(v[j], z[j], n, w, h, u)
+        ftp.put(s[j], z[j], n, w, h, u, v)
         cat(substring(Sys.time(), 12, 16), "\n")
     }
     invisible()
@@ -5513,6 +5514,8 @@ html.signature <- function ()
         1), "</p><p>")
     z <- paste0(z, quant.info(machine.info("Quant"), "Name"), 
         "<br>Quantitative Team, EPFR</p>")
+    z <- paste0(z, "<p><i>", sample(readLines(parameters("letterSayings")), 
+        1), "</i></p>")
     z
 }
 
@@ -11281,7 +11284,7 @@ sql.1dFloMo <- function (x, y, n, w, h, u = "All")
         26)), "#BMKHLD", "#BMKAUM"))
     z <- sql.1dFloMo.select.wrapper(y, w, h, T)
     grp <- sql.1dFloMo.grp(w, h)
-    x <- sql.DailyFlo(paste0("'", x, "'"), F, , u)
+    x <- sql.DailyFlo(paste0("'", x, "'"), F, , u, h = T)
     y <- c(sql.label(sql.1dFloMo.filter(y, h), "t0"), "inner join", 
         "#HLD t1 on t1.FundId = t0.FundId")
     y <- c(y, "inner join", sql.label(x, "t2 on t2.HFundId = t0.HFundId"))
@@ -11289,11 +11292,11 @@ sql.1dFloMo <- function (x, y, n, w, h, u = "All")
     if (!w) 
         y <- c(y, "inner join", "SecurityHistory id on id.HSecurityId = t1.HSecurityId")
     if (n == "All") {
-        z <- sql.tbl(z, y, , grp, "sum(HoldingValue/AssetsEnd) > 0")
+        z <- sql.tbl(z, y, , grp, "sum(HoldingValue/t3.AssetsEnd) > 0")
     }
     else {
         z <- sql.tbl(z, y, sql.in("t1.HSecurityId", sql.RDSuniv(n)), 
-            grp, "sum(HoldingValue/AssetsEnd) > 0")
+            grp, "sum(HoldingValue/t3.AssetsEnd) > 0")
     }
     z <- c(paste(v, collapse = "\n"), paste(sql.unbracket(z), 
         collapse = "\n"))
@@ -11521,23 +11524,26 @@ sql.1dFloMo.Sec.topline <- function (x, y, n, w)
 sql.1dFloMo.select <- function (x) 
 {
     if (is.element(x, paste0("FloMo", c("", "CB", "PMA")))) {
-        z <- paste(x, sql.Mo("Flow", "AssetsStart", "HoldingValue/AssetsEnd", 
+        z <- paste(x, sql.Mo("Flow", "AssetsStart", "HoldingValue/t3.AssetsEnd", 
             T))
     }
     else if (x == "FloDollar") {
-        z <- paste(x, "= sum(Flow * HoldingValue/AssetsEnd)")
+        z <- paste(x, "= sum(Flow * HoldingValue/t3.AssetsEnd)")
     }
     else if (x == "AssetsStartDollar") {
-        z <- paste(x, "= sum(AssetsStart * HoldingValue/AssetsEnd)")
+        z <- paste(x, "= sum(AssetsStart * HoldingValue/t3.AssetsEnd)")
+    }
+    else if (x == "AssetsEndDollar") {
+        z <- paste(x, "= sum(t2.AssetsEnd * HoldingValue/t3.AssetsEnd)")
     }
     else if (x == "Inflow") {
-        z <- paste(x, "= sum(case when Flow > 0 then Flow else 0 end * HoldingValue/AssetsEnd)")
+        z <- paste(x, "= sum(case when Flow > 0 then Flow else 0 end * HoldingValue/t3.AssetsEnd)")
     }
     else if (x == "Outflow") {
-        z <- paste(x, "= sum(case when Flow < 0 then Flow else 0 end * HoldingValue/AssetsEnd)")
+        z <- paste(x, "= sum(case when Flow < 0 then Flow else 0 end * HoldingValue/t3.AssetsEnd)")
     }
     else if (x == "FloDollarGross") {
-        z <- paste(x, "= sum(abs(Flow) * HoldingValue/AssetsEnd)")
+        z <- paste(x, "= sum(abs(Flow) * HoldingValue/t3.AssetsEnd)")
     }
     else stop("Bad Argument")
     z
@@ -13434,11 +13440,12 @@ sql.cross.border <- function (x)
 #' @param y = T/F depending on whether to group by HFundId
 #' @param n = T/F depending on whether StockFlows data are being used
 #' @param w = share-class filter (one of All/Inst/Retail)
+#' @param h = T/F depending on whether AssetsEnd is wanted
 #' @keywords sql.DailyFlo
 #' @export
 #' @family sql
 
-sql.DailyFlo <- function (x, y = T, n = T, w = "All") 
+sql.DailyFlo <- function (x, y = T, n = T, w = "All", h = F) 
 {
     n <- ifelse(n, "ReportDate", "DayEnding")
     if (length(x) == 1) 
@@ -13451,6 +13458,8 @@ sql.DailyFlo <- function (x, y = T, n = T, w = "All")
         x <- sql.and(list(A = x, B = u))
     }
     z <- c("Flow", "AssetsStart")
+    if (h) 
+        z <- c(z, "AssetsEnd")
     if (y) 
         z <- paste0(z, " = sum(", z, ")")
     z <- c(n, "HFundId", z)
@@ -14917,6 +14926,68 @@ sql.unbracket <- function (x)
         stop("Can't unbracket!")
     x[1] <- txt.right(x[1], nchar(x[1]) - 1)
     z <- x[-n]
+    z
+}
+
+#' sql.yield.curve
+#' 
+#' buckets holdings by maturities
+#' @param x = value to match CompanyName field
+#' @param y = value to match SecurityType field
+#' @keywords sql.yield.curve
+#' @export
+#' @family sql
+
+sql.yield.curve <- function (x, y) 
+{
+    z <- list(A = "ReportDate = @date")
+    z[["BondMaturity"]] <- "BondMaturity is not null"
+    z[["Future"]] <- "BondMaturity > @date"
+    z[["CompanyName"]] <- paste0("CompanyName = '", x, "'")
+    z[["SecurityType"]] <- paste0("SecurityType = '", y, "'")
+    v <- c("v >= 0 and v < 730", "v >= 730 and v < 1826", "v >= 1826 and v < 3652", 
+        "v >= 3652")
+    v <- txt.replace(v, "v", "datediff(day, @date, BondMaturity)")
+    names(v) <- c("y0-2", "y2-5", "y5-10", "y10+")
+    v <- sql.case("grp", v, c(names(v), "OTHER"), F)
+    y <- c("FundId", v, "HoldingValue")
+    z <- sql.label(sql.tbl(y, "vwBondMonthlyHoldingsReport_WithoutEmbargo", 
+        sql.and(z)), "t")
+    z <- sql.tbl(c("FundId", "grp", "HoldingValue = sum(HoldingValue)"), 
+        z, , "FundId, grp")
+    z
+}
+
+#' sql.yield.curve.1dFloMo
+#' 
+#' daily FloMo by yield-curve bucket
+#' @param x = value to match CompanyName field
+#' @param y = value to match SecurityType field
+#' @param n = vector of YYYYMMDD
+#' @keywords sql.yield.curve.1dFloMo
+#' @export
+#' @family sql
+
+sql.yield.curve.1dFloMo <- function (x, y, n) 
+{
+    z <- c("Flow", "AssetsStart")
+    z <- paste0(z, " = sum(", z, ")")
+    z <- c("DayEnding", "FundId", z)
+    z <- sql.Flow(z, list(A = paste0("'", n, "'")), , , T, paste(z[1:2], 
+        collapse = ", "))
+    n <- yyyymm.to.day(yyyymmdd.to.AllocMo.unique(flowdate.lag(n, 
+        5), 26, F))
+    n <- sql.declare("@date", "datetime", n)
+    x <- sql.yield.curve(x, y)
+    z <- c(sql.label(z, "t1"), "inner join", sql.label(x, "t2 on t2.FundId = t1.FundId"))
+    x <- c("FundId", "AssetsEnd = sum(AssetsEnd)")
+    y <- c("MonthlyData t1", "inner join")
+    y <- c(y, "FundHistory t2 on t2.HFundId = t1.HFundId")
+    x <- sql.tbl(x, y, "MonthEnding = @date", "FundId", "sum(AssetsEnd) > 0")
+    z <- c(z, "inner join", sql.label(x, "t3 on t3.FundId = t1.FundId"))
+    x <- c(sql.yyyymmdd("DayEnding"), "grp", sql.1dFloMo.select("FloMo"))
+    z <- sql.tbl(x, z, , "DayEnding, grp")
+    z <- paste(c(n, "", sql.unbracket(z)), collapse = "\n")
     z
 }
 
@@ -16653,15 +16724,15 @@ yyyymmdd.ex.int <- function (x)
 
 yyyymmdd.ex.txt <- function (x, y = "/", n = "MDY") 
 {
-    m <- as.numeric(regexpr(" ", x))
+    m <- as.numeric(regexpr(" ", x, fixed = T))
     m <- ifelse(m == -1, 1 + nchar(x), m)
     x <- substring(x, 1, m - 1)
     z <- list()
     z[[txt.left(n, 1)]] <- substring(x, 1, as.numeric(regexpr(y, 
-        x)) - 1)
+        x, fixed = T)) - 1)
     x <- substring(x, 2 + nchar(z[[1]]), nchar(x))
     z[[substring(n, 2, 2)]] <- substring(x, 1, as.numeric(regexpr(y, 
-        x)) - 1)
+        x, fixed = T)) - 1)
     z[[substring(n, 3, 3)]] <- substring(x, 2 + nchar(z[[2]]), 
         nchar(x))
     x <- yyyy.ex.yy(z[["Y"]])

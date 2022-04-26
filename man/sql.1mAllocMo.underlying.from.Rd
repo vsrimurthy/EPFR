@@ -112,7 +112,9 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.query.underlying}},
   \code{\link{sql.query}}, \code{\link{sql.regr}},
   \code{\link{sql.tbl}}, \code{\link{sql.ui}},
-  \code{\link{sql.unbracket}}, \code{\link{sql.yyyymmdd}},
-  \code{\link{sql.yyyymm}}
+  \code{\link{sql.unbracket}},
+  \code{\link{sql.yield.curve.1dFloMo}},
+  \code{\link{sql.yield.curve}},
+  \code{\link{sql.yyyymmdd}}, \code{\link{sql.yyyymm}}
 }
 \keyword{sql.1mAllocMo.underlying.from}
