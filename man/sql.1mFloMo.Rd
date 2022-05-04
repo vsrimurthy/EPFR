@@ -4,7 +4,7 @@
 \alias{sql.1mFloMo}
 \title{sql.1mFloMo}
 \usage{
-sql.1mFloMo(x, y, n, w, h)
+sql.1mFloMo(x, y, n, w, h, u = "All")
 }
 \arguments{
 \item{x}{= the YYYYMM for which you want data}
@@ -16,6 +16,8 @@ sql.1mFloMo(x, y, n, w, h)
 \item{w}{= T/F depending on whether you are checking ftp}
 
 \item{h}{= breakdown filter (e.g. All/GeoId/DomicileId)}
+
+\item{u}{= share-class filter (one of All/Inst/Retail)}
 }
 \description{
 Generates the SQL query to get the data for 1mFloMo for individual stocks
@@ -96,6 +98,7 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.MonthlyAssetsEnd}}, \code{\link{sql.Mo}},
   \code{\link{sql.Overweight}}, \code{\link{sql.RDSuniv}},
   \code{\link{sql.ReportDate}}, \code{\link{sql.SRI}},
+  \code{\link{sql.ShareClass}},
   \code{\link{sql.TopDownAllocs.items}},
   \code{\link{sql.TopDownAllocs.underlying}},
   \code{\link{sql.TopDownAllocs}}, \code{\link{sql.Trend}},

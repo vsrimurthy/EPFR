@@ -12684,20 +12684,23 @@ sql.1mChActWt <- function (x, y)
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
 #' @param h = breakdown filter (e.g. All/GeoId/DomicileId)
+#' @param u = share-class filter (one of All/Inst/Retail)
 #' @keywords sql.1mFloMo
 #' @export
 #' @family sql
 
-sql.1mFloMo <- function (x, y, n, w, h) 
+sql.1mFloMo <- function (x, y, n, w, h, u = "All") 
 {
+    u <- sql.ShareClass("ReportDate = @dy", u)
+    u <- sql.tbl("ReportDate, HFundId, Flow, AssetsStart", "MonthlyData", 
+        u)
     z <- sql.tbl("HFundId, AssetsEnd = sum(AssetsEnd)", "MonthlyData", 
         "ReportDate = @dy", "HFundId", "sum(AssetsEnd) > 0")
-    z <- c(sql.label(z, "t0"), "inner join", sql.label(sql.tbl("ReportDate, HFundId, Flow, AssetsStart", 
-        "MonthlyData", "ReportDate = @dy"), "t1"))
-    z <- c(z, "\ton t1.HFundId = t0.HFundId", "inner join", sql.label(sql.1dFloMo.filter(y, 
-        h), "t3"), "\ton t3.HFundId = t1.HFundId")
+    z <- c(sql.label(z, "t3"), "inner join", sql.label(u, "t1"))
+    z <- c(z, "\ton t1.HFundId = t3.HFundId", "inner join", sql.label(sql.1dFloMo.filter(y, 
+        h), "t0"), "\ton t0.HFundId = t1.HFundId")
     z <- c(z, "inner join", sql.label(sql.Holdings("ReportDate = @dy", 
-        c("HSecurityId", "FundId", "HoldingValue")), "t2 on t3.FundId = t2.FundId"))
+        c("HSecurityId", "FundId", "HoldingValue")), "t2 on t2.FundId = t0.FundId"))
     if (!w) 
         z <- c(z, "inner join", "SecurityHistory id on id.HSecurityId = t2.HSecurityId")
     grp <- sql.1dFloMo.grp(w, h)
@@ -13452,11 +13455,7 @@ sql.DailyFlo <- function (x, y = T, n = T, w = "All", h = F)
         x <- paste("=", x)
     else x <- paste0("in (", paste(x, collapse = ", "), ")")
     x <- paste(n, x)
-    if (any(w == c("Inst", "Retail"))) {
-        u <- sql.tbl("[Id]", "ShareClasses", "Institutional = 1")
-        u <- sql.in("ShareClassId", u, w == "Inst")
-        x <- sql.and(list(A = x, B = u))
-    }
+    x <- sql.ShareClass(x, w)
     z <- c("Flow", "AssetsStart")
     if (h) 
         z <- c(z, "AssetsEnd")
@@ -14647,6 +14646,26 @@ sql.regr <- function (x, y, n)
 sql.ReportDate <- function (x) 
 {
     paste0("ReportDate = '", yyyymmdd.to.txt(x), "'")
+}
+
+#' sql.ShareClass
+#' 
+#' Generates where clause for share-class filter
+#' @param x = date restriction
+#' @param y = share-class filter (one of All/Inst/Retail)
+#' @keywords sql.ShareClass
+#' @export
+#' @family sql
+
+sql.ShareClass <- function (x, y) 
+{
+    if (any(y == c("Inst", "Retail"))) {
+        z <- sql.tbl("[Id]", "ShareClasses", "Institutional = 1")
+        z <- sql.in("ShareClassId", z, y == "Inst")
+        z <- sql.and(list(A = x, B = z))
+    }
+    else z <- x
+    z
 }
 
 #' sql.SRI
