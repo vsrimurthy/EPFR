@@ -1650,6 +1650,9 @@ Ctry.msci <- function (x)
     else if (x == "EM") {
         rein <- "Emerging"
     }
+    else if (x == "Frontier") {
+        rein <- "Frontier"
+    }
     else stop("Bad Index")
     raus <- setdiff(c("Developed", "Emerging", "Frontier", "Standalone"), 
         rein)
@@ -1728,15 +1731,15 @@ Ctry.msci.members <- function (x, y)
 {
     z <- mat.read(parameters("MsciCtry2016"), ",")
     z <- dimnames(z)[[1]][is.element(z[, x], 1)]
-    if (y != "" & txt.left(y, 4) != "2016") {
+    point.in.2016 <- "201603"
+    if (nchar(y) == 8) 
+        point.in.2016 <- "20160331"
+    if (y != "") {
         x <- Ctry.msci(x)
-        point.in.2016 <- "201612"
-        if (nchar(y) == 8) {
+        if (nchar(y) == 8) 
             x$YYYYMM <- yyyymmdd.ex.yyyymm(x$YYYYMM)
-            point.in.2016 <- "20161231"
-        }
     }
-    if (y != "" & txt.left(y, 4) > "2016") {
+    if (y != "" & y > point.in.2016) {
         w <- x$YYYYMM >= point.in.2016
         w <- w & x$YYYYMM <= y
         if (any(w)) {
@@ -1748,7 +1751,7 @@ Ctry.msci.members <- function (x, y)
             }
         }
     }
-    if (y != "" & txt.left(y, 4) < "2016") {
+    if (y != "" & y < point.in.2016) {
         w <- x$YYYYMM <= point.in.2016
         w <- w & x$YYYYMM > y
         if (any(w)) {
@@ -6700,7 +6703,8 @@ mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E", v = F, g = F)
     z <- c(sql.label(z, "t1"), "inner join", sql.label(s, "t2"), 
         "\ton t2.FundId = t1.FundId")
     z <- mk.1dFloMo.Ctry.data(z, y, r, w)
-    z <- mk.1dFloMo.Ctry.rslt(y, z, n)
+    if (length(n) > 1) 
+        z <- mk.1dFloMo.Ctry.rslt(y, z, n)
     z
 }
 
@@ -11325,6 +11329,11 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
             "RO", "RS", "SI", "LK")
         classif.type <- "Ctry"
     }
+    else if (x == "OtherFrontier") {
+        z <- c("BH", "HR", "LB", "MU", "OM", "TN", "TT", "BD", 
+            "CI", "IS")
+        classif.type <- "Ctry"
+    }
     else if (x == "APac") {
         z <- c("AU", "CN", "ID", "IN", "JP", "MY", "PH", "SG", 
             "TW", "NZ", "HK", "PK", "BD", "LK", "VN", "PG", "KH", 
@@ -11360,10 +11369,15 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
         classif.type <- "GIgrp"
         sep <- "\t"
     }
+    else if (nchar(x) == 2) {
+        z <- x
+        classif.type <- "Ctry"
+    }
     h <- parameters(paste("classif", classif.type, sep = "-"))
     h <- mat.read(h, sep)
     h <- map.rname(h, z)
-    if (any(x == c("Ctry", "CountryFlow", "LatAm", "APac", "Aux"))) {
+    if (any(x == c("Ctry", "CountryFlow", "LatAm", "APac", "Aux", 
+        "OtherFrontier"))) {
         z <- vec.named(z, h$CountryId)
     }
     else if (x == "EMDM") {
@@ -11382,6 +11396,9 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
     }
     else if (x == "Industry") {
         z <- vec.named(z, h$IndustryId)
+    }
+    else if (nchar(x) == 2) {
+        z <- vec.named(z, h$CountryId)
     }
     z
 }
