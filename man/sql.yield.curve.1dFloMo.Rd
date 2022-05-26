@@ -4,14 +4,16 @@
 \alias{sql.yield.curve.1dFloMo}
 \title{sql.yield.curve.1dFloMo}
 \usage{
-sql.yield.curve.1dFloMo(x, y, n)
+sql.yield.curve.1dFloMo(x, y, n, w)
 }
 \arguments{
 \item{x}{= value to match CompanyName field}
 
 \item{y}{= value to match SecurityType field}
 
-\item{n}{= vector of YYYYMMDD}
+\item{n}{= value to match BondCurrency field}
+
+\item{w}{= vector of YYYYMMDD}
 }
 \description{
 daily FloMo by yield-curve bucket

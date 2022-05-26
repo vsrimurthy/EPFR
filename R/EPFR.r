@@ -14970,17 +14970,19 @@ sql.unbracket <- function (x)
 #' buckets holdings by maturities
 #' @param x = value to match CompanyName field
 #' @param y = value to match SecurityType field
+#' @param n = value to match BondCurrency field
 #' @keywords sql.yield.curve
 #' @export
 #' @family sql
 
-sql.yield.curve <- function (x, y) 
+sql.yield.curve <- function (x, y, n) 
 {
     z <- list(A = "ReportDate = @date")
     z[["BondMaturity"]] <- "BondMaturity is not null"
     z[["Future"]] <- "BondMaturity > @date"
     z[["CompanyName"]] <- paste0("CompanyName = '", x, "'")
     z[["SecurityType"]] <- paste0("SecurityType = '", y, "'")
+    z[["BondCurrency"]] <- paste0("BondCurrency = '", n, "'")
     v <- c("v >= 0 and v < 730", "v >= 730 and v < 1826", "v >= 1826 and v < 3652", 
         "v >= 3652")
     v <- txt.replace(v, "v", "datediff(day, @date, BondMaturity)")
@@ -14999,22 +15001,23 @@ sql.yield.curve <- function (x, y)
 #' daily FloMo by yield-curve bucket
 #' @param x = value to match CompanyName field
 #' @param y = value to match SecurityType field
-#' @param n = vector of YYYYMMDD
+#' @param n = value to match BondCurrency field
+#' @param w = vector of YYYYMMDD
 #' @keywords sql.yield.curve.1dFloMo
 #' @export
 #' @family sql
 
-sql.yield.curve.1dFloMo <- function (x, y, n) 
+sql.yield.curve.1dFloMo <- function (x, y, n, w) 
 {
     z <- c("Flow", "AssetsStart")
     z <- paste0(z, " = sum(", z, ")")
     z <- c("DayEnding", "FundId", z)
-    z <- sql.Flow(z, list(A = paste0("'", n, "'")), , , T, paste(z[1:2], 
+    z <- sql.Flow(z, list(A = paste0("'", w, "'")), , , T, paste(z[1:2], 
         collapse = ", "))
-    n <- yyyymm.to.day(yyyymmdd.to.AllocMo.unique(flowdate.lag(n, 
+    w <- yyyymm.to.day(yyyymmdd.to.AllocMo.unique(flowdate.lag(w, 
         5), 26, F))
-    n <- sql.declare("@date", "datetime", n)
-    x <- sql.yield.curve(x, y)
+    w <- sql.declare("@date", "datetime", w)
+    x <- sql.yield.curve(x, y, n)
     z <- c(sql.label(z, "t1"), "inner join", sql.label(x, "t2 on t2.FundId = t1.FundId"))
     x <- c("FundId", "AssetsEnd = sum(AssetsEnd)")
     y <- c("MonthlyData t1", "inner join")
@@ -15023,7 +15026,7 @@ sql.yield.curve.1dFloMo <- function (x, y, n)
     z <- c(z, "inner join", sql.label(x, "t3 on t3.FundId = t1.FundId"))
     x <- c(sql.yyyymmdd("DayEnding"), "grp", sql.1dFloMo.select("FloMo"))
     z <- sql.tbl(x, z, , "DayEnding, grp")
-    z <- paste(c(n, "", sql.unbracket(z)), collapse = "\n")
+    z <- paste(c(w, "", sql.unbracket(z)), collapse = "\n")
     z
 }
 

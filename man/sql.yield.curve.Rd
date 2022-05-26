@@ -4,12 +4,14 @@
 \alias{sql.yield.curve}
 \title{sql.yield.curve}
 \usage{
-sql.yield.curve(x, y)
+sql.yield.curve(x, y, n)
 }
 \arguments{
 \item{x}{= value to match CompanyName field}
 
 \item{y}{= value to match SecurityType field}
+
+\item{n}{= value to match BondCurrency field}
 }
 \description{
 buckets holdings by maturities
