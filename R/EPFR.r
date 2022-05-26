@@ -4548,20 +4548,22 @@ ftp.file <- function (x)
 #' @param w = user id (defaults to standard)
 #' @param h = password (defaults to standard)
 #' @param u = protocol (either "ftp" or "sftp")
+#' @param v = T/F flag for ftp.use.epsv argument of getCurlHandle
 #' @keywords ftp.get
 #' @export
 #' @family ftp
 
-ftp.get <- function (x, y, n, w, h, u = "ftp") 
+ftp.get <- function (x, y, n, w, h, u = "ftp", v = F) 
 {
     if (missing(n)) 
-        n <- ftp.credential("ftp", u)
+        n <- ftp.credential("ftp", u, v)
     if (missing(w)) 
-        w <- ftp.credential("user", u)
+        w <- ftp.credential("user", u, v)
     if (missing(h)) 
-        h <- ftp.credential("pwd", u)
-    z <- getBinaryURL(paste0(u, "://", n, x), userpwd = paste0(w, 
+        h <- ftp.credential("pwd", u, v)
+    z <- getCurlHandle(ftp.use.epsv = v, userpwd = paste0(w, 
         ":", h))
+    z <- getBinaryURL(paste0(u, "://", n, x), curl = z)
     writeBin(z, con = paste0(y, "\\", ftp.file(x)))
     invisible()
 }

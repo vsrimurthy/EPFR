@@ -4,7 +4,7 @@
 \alias{ftp.get}
 \title{ftp.get}
 \usage{
-ftp.get(x, y, n, w, h, u = "ftp")
+ftp.get(x, y, n, w, h, u = "ftp", v = F)
 }
 \arguments{
 \item{x}{= remote file on an ftp site (e.g. "/ftpdata/mystuff/foo.txt")}
@@ -18,6 +18,8 @@ ftp.get(x, y, n, w, h, u = "ftp")
 \item{h}{= password (defaults to standard)}
 
 \item{u}{= protocol (either "ftp" or "sftp")}
+
+\item{v}{= T/F flag for ftp.use.epsv argument of getCurlHandle}
 }
 \description{
 file <x> from remote site
