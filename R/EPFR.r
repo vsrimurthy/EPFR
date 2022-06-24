@@ -5056,30 +5056,36 @@ html.and <- function (x)
 #' 
 #' writes outgoing email report for <x>
 #' @param x = a SINGLE flow date in YYYYMMDD format
+#' @param y = T/F depending on whether this is for standard or Asia process
 #' @keywords html.email
 #' @export
 #' @family html
 
-html.email <- function (x) 
+html.email <- function (x, y = T) 
 {
     if (missing(x)) 
         x <- today()
-    y <- c("The QC process certified", "reports were successfully emailed.")
-    y <- c(y, "This morning the following emails did not go out:")
-    y <- c(y, "The QC process was unable to check delivery of the following:")
-    h <- record.track(x, "emails")
+    u <- ifelse(y, "morning", "evening")
+    u <- paste("This", u, "the following emails did not go out:")
+    u <- c("The QC process certified", "reports were successfully emailed.", 
+        u)
+    u <- c(u, "The QC process was unable to check delivery of the following:")
+    h <- record.track(x, "emails", y)
     h <- h[h$yyyymmdd != h$target | h$today, ]
     z <- html.problem.underlying(paste0("<b>", dimnames(h)[[1]], 
-        "</b>"), y, h$yyyymmdd != h$target)
-    y <- c("The QC process certified", "successful uploads.")
-    y <- c(y, "This morning the following ftp uploads did not happen:")
-    y <- c(y, "The QC process was unable to check uploads of the following:")
-    h <- record.track(x, "upload")
+        "</b>"), u, h$yyyymmdd != h$target)
+    u <- ifelse(y, "morning", "evening")
+    u <- paste("This", u, "the following ftp uploads did not happen:")
+    u <- c("The QC process certified", "successful uploads.", 
+        u)
+    u <- c(u, "The QC process was unable to check uploads of the following:")
+    h <- record.track(x, "upload", y)
     h <- h[h$yyyymmdd != h$target | h$today, ]
     z <- c(z, html.problem.underlying(paste0("<b>", dimnames(h)[[1]], 
-        "</b>"), y, h$yyyymmdd != h$target))
+        "</b>"), u, h$yyyymmdd != h$target))
     z <- paste(c("Dear All,", z, html.signature()), collapse = "\n")
-    email("ReportDeliveryList", "Report Delivery", z, , T)
+    y <- ifelse(y, "ReportDeliveryList", "ReportDeliveryAsiaList")
+    email(y, "Report Delivery", z, , T)
     invisible()
 }
 
@@ -6577,6 +6583,24 @@ mat.zScore <- function (x, y, n)
     else {
         z[w, ] <- unlist(x)
     }
+    z
+}
+
+#' maturity.bucket
+#' 
+#' where clauses for SQL case statement
+#' @param x = named numeric vector
+#' @keywords maturity.bucket
+#' @export
+
+maturity.bucket <- function (x) 
+{
+    x <- x[order(x)]
+    x <- vec.named(paste("v >=", x, "and v <", c(x[-1], "?")), 
+        names(x))
+    x[length(x)] <- txt.left(x[length(x)], nchar(x[length(x)]) - 
+        nchar(" and v < ?"))
+    z <- txt.replace(x, "v", "datediff(day, @date, BondMaturity)")
     z
 }
 
@@ -9699,13 +9723,15 @@ record.read <- function (x)
 #' writes report for date <x> and type <y>
 #' @param x = a SINGLE YYYYMMDD date
 #' @param y = file name
+#' @param n = T/F depending on whether this is for standard or Asia process
 #' @keywords record.track
 #' @export
 #' @family record
 
-record.track <- function (x, y) 
+record.track <- function (x, y, n) 
 {
-    z <- mat.read(parameters(paste0("classif-", y)), "\t")
+    z <- paste0(y, ifelse(n, "", "Asia"))
+    z <- mat.read(parameters(paste0("classif-", z)), "\t")
     z <- z[is.element(z[, "day"], c(weekday.to.name(day.to.weekday(x)), 
         "All")), ]
     z$yyyymmdd <- map.rname(record.read(paste0(y, ".txt")), dimnames(z)[[1]])
@@ -9714,12 +9740,12 @@ record.track <- function (x, y)
     z[w, "target"] <- x
     z[w, "today"] <- T
     w <- z[, "entry"] == "flow" & z[, "freq"] == "D"
-    z[w, "target"] <- publish.daily.last(x)
+    z[w, "target"] <- publish.daily.last(flowdate.lag(x, -as.numeric(!n)))
     z[w, "today"] <- T
     w <- z[, "entry"] == "flow" & z[, "freq"] == "W"
-    z[w, "target"] <- publish.weekly.last(x)
-    z[w, "today"] <- publish.weekly.last(x) > publish.weekly.last(flowdate.lag(x, 
-        1))
+    z[w, "target"] <- publish.weekly.last(flowdate.lag(x, -as.numeric(!n)))
+    z[w, "today"] <- publish.weekly.last(flowdate.lag(x, -as.numeric(!n))) > 
+        publish.weekly.last(flowdate.lag(x, 1 - as.numeric(!n)))
     w <- z[, "entry"] == "flow" & z[, "freq"] == "M"
     z[w, "target"] <- publish.monthly.last(x, 16)
     z[w, "today"] <- publish.monthly.last(x, 16) > publish.monthly.last(flowdate.lag(x, 
@@ -14973,11 +14999,13 @@ sql.unbracket <- function (x)
 #' @param x = value to match CompanyName field
 #' @param y = value to match SecurityType field
 #' @param n = value to match BondCurrency field
+#' @param w = type of maturity buckets
+#' @param h = fund identifier
 #' @keywords sql.yield.curve
 #' @export
 #' @family sql
 
-sql.yield.curve <- function (x, y, n) 
+sql.yield.curve <- function (x, y, n, w = "General", h = "FundId") 
 {
     z <- list(A = "ReportDate = @date")
     z[["BondMaturity"]] <- "BondMaturity is not null"
@@ -14985,16 +15013,20 @@ sql.yield.curve <- function (x, y, n)
     z[["CompanyName"]] <- paste0("CompanyName = '", x, "'")
     z[["SecurityType"]] <- paste0("SecurityType = '", y, "'")
     z[["BondCurrency"]] <- paste0("BondCurrency = '", n, "'")
-    v <- c("v >= 0 and v < 730", "v >= 730 and v < 1826", "v >= 1826 and v < 3652", 
-        "v >= 3652")
-    v <- txt.replace(v, "v", "datediff(day, @date, BondMaturity)")
-    names(v) <- c("y0-2", "y2-5", "y5-10", "y10+")
+    if (w == "US") {
+        v <- vec.named(c(0, 500, 2500), c("ST", "IT", "LT"))
+    }
+    else {
+        v <- vec.named(c(0, 730, 1826, 3652), c("y0-2", "y2-5", 
+            "y5-10", "y10+"))
+    }
+    v <- maturity.bucket(v)
     v <- sql.case("grp", v, c(names(v), "OTHER"), F)
-    y <- c("FundId", v, "HoldingValue")
+    y <- c(h, v, "HoldingValue")
     z <- sql.label(sql.tbl(y, "vwBondMonthlyHoldingsReport_WithoutEmbargo", 
         sql.and(z)), "t")
-    z <- sql.tbl(c("FundId", "grp", "HoldingValue = sum(HoldingValue)"), 
-        z, , "FundId, grp")
+    z <- sql.tbl(c(h, "grp", "HoldingValue = sum(HoldingValue)"), 
+        z, , paste0(h, ", grp"))
     z
 }
 

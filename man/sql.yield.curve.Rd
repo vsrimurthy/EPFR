@@ -4,7 +4,7 @@
 \alias{sql.yield.curve}
 \title{sql.yield.curve}
 \usage{
-sql.yield.curve(x, y, n)
+sql.yield.curve(x, y, n, w = "General", h = "FundId")
 }
 \arguments{
 \item{x}{= value to match CompanyName field}
@@ -12,6 +12,10 @@ sql.yield.curve(x, y, n)
 \item{y}{= value to match SecurityType field}
 
 \item{n}{= value to match BondCurrency field}
+
+\item{w}{= type of maturity buckets}
+
+\item{h}{= fund identifier}
 }
 \description{
 buckets holdings by maturities

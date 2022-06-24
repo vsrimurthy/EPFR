@@ -4,10 +4,12 @@
 \alias{html.email}
 \title{html.email}
 \usage{
-html.email(x)
+html.email(x, y = T)
 }
 \arguments{
 \item{x}{= a SINGLE flow date in YYYYMMDD format}
+
+\item{y}{= T/F depending on whether this is for standard or Asia process}
 }
 \description{
 writes outgoing email report for <x>

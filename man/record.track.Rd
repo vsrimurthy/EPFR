@@ -4,12 +4,14 @@
 \alias{record.track}
 \title{record.track}
 \usage{
-record.track(x, y)
+record.track(x, y, n)
 }
 \arguments{
 \item{x}{= a SINGLE YYYYMMDD date}
 
 \item{y}{= file name}
+
+\item{n}{= T/F depending on whether this is for standard or Asia process}
 }
 \description{
 writes report for date <x> and type <y>
