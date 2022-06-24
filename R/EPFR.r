@@ -5083,6 +5083,8 @@ html.email <- function (x, y = T)
     h <- h[h$yyyymmdd != h$target | h$today, ]
     z <- c(z, html.problem.underlying(paste0("<b>", dimnames(h)[[1]], 
         "</b>"), u, h$yyyymmdd != h$target))
+    z <- txt.replace(z, " one reports were ", " one report was ")
+    z <- txt.replace(z, " one successful uploads.", " one successful upload.")
     z <- paste(c("Dear All,", z, html.signature()), collapse = "\n")
     y <- ifelse(y, "ReportDeliveryList", "ReportDeliveryAsiaList")
     email(y, "Report Delivery", z, , T)
