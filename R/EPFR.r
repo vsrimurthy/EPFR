@@ -224,9 +224,8 @@ ftp.dir <- function (x, y, n, w, h = F, u = "ftp", v = F)
         w <- ftp.credential("pwd", u, v)
     z <- getURL(paste0(u, "://", y, x, "/"), userpwd = paste0(n, 
         ":", w), ftp.use.epsv = v)
-    u <- ifelse(u == "ftp", "\r\n", "\n")
-    z <- txt.parse(z, u)
-    if (v) 
+    z <- txt.parse(z, ifelse(u == "ftp", "\r\n", "\n"))
+    if (v & u == "ftp") 
         z <- ftp.dir.parse.new(z)
     else z <- ftp.dir.parse.77(z)
     z <- z[!z[, "is.file"] | z[, "size"] > 0, ]
@@ -13549,6 +13548,23 @@ sql.declare <- function (x, y, n)
     c(paste("declare", x, y), paste0("set ", x, " = '", n, "'"))
 }
 
+#' sql.delete
+#' 
+#' delete from <x> where <y>
+#' @param x = table name
+#' @param y = where clause
+#' @keywords sql.delete
+#' @export
+#' @family sql
+
+sql.delete <- function (x, y) 
+{
+    x <- paste0("\t", x)
+    y <- paste0("\t", y)
+    z <- c("delete from", x, "where", y)
+    z
+}
+
 #' sql.Diff
 #' 
 #' SQL statement for diffusion
@@ -14993,6 +15009,23 @@ sql.unbracket <- function (x)
     x[1] <- txt.right(x[1], nchar(x[1]) - 1)
     z <- x[-n]
     z
+}
+
+#' sql.update
+#' 
+#' update <x> set <y> from <n> where <w>
+#' @param x = table name
+#' @param y = set argument
+#' @param n = from argument
+#' @param w = where clause
+#' @keywords sql.update
+#' @export
+#' @family sql
+
+sql.update <- function (x, y, n, w) 
+{
+    c("update", paste0("\t", x), "set", paste0("\t", y), "from", 
+        paste0("\t", n), "where", paste0("\t", w))
 }
 
 #' sql.yield.curve
