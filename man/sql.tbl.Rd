@@ -4,18 +4,20 @@
 \alias{sql.tbl}
 \title{sql.tbl}
 \usage{
-sql.tbl(x, y, n, w, h)
+sql.tbl(x, y, n, w, h, u)
 }
 \arguments{
 \item{x}{= needed columns}
 
 \item{y}{= table}
 
-\item{n}{= where segment}
+\item{n}{= where clause}
 
-\item{w}{= group by segment}
+\item{w}{= "group by" clause}
 
-\item{h}{= having}
+\item{h}{= having clause}
+
+\item{u}{= order by clause}
 }
 \description{
 Full SQL statement

@@ -1380,6 +1380,54 @@ combinations.to.int <- function (x)
     z
 }
 
+#' common.fund.flow.shock
+#' 
+#' common fund flow shock of Dou, Kogan & Wu (2022)
+#' @param x = ending month in YYYYMM format
+#' @param y = One of "NEWUI" or "NEWQT2"
+#' @param n = number of months
+#' @keywords common.fund.flow.shock
+#' @export
+
+common.fund.flow.shock <- function (x, y, n) 
+{
+    x <- c(yyyymm.lag(x, -1), yyyymm.lag(x, n + 1))
+    x <- yyyymm.to.day(x)
+    x <- paste0("'", x, "'")
+    x <- paste("MonthEnding", c("<", ">"), x)
+    x <- split(x, c("End", "Beg"))
+    x[["Fund"]] <- sql.in("HFundId", sql.FundHistory(c("Act", 
+        "E", "UI"), F))
+    z <- c("Flow", "PortfolioChange", "AssetsStart")
+    z <- paste0(z, " = sum(", z, ")")
+    z <- c("HFundId", sql.yyyymmdd("MonthEnding"), z)
+    z <- sql.tbl(z, "MonthlyData", sql.and(x), "HFundId, MonthEnding")
+    z <- paste(sql.unbracket(z), collapse = "\n")
+    z <- sql.query(z, y, F)
+    z <- z[!is.na(z[, "AssetsStart"]) & z[, "AssetsStart"] > 
+        0, ]
+    for (x in c("Flow", "PortfolioChange")) z[, x] <- 100 * z[, 
+        x]/z[, "AssetsStart"]
+    z <- z[, dimnames(z)[[2]] != "AssetsStart"]
+    z[, "MonthEnding"] <- yyyymmdd.to.yyyymm(z[, "MonthEnding"])
+    x <- z
+    x[, "MonthEnding"] <- yyyymm.lag(x[, "MonthEnding"], -1)
+    dimnames(x)[[2]][3:4] <- paste0(dimnames(x)[[2]][3:4], ".m1")
+    z <- merge(z, x)
+    x <- vec.count(z[, "HFundId"])
+    x <- map.rname(x, z[, "HFundId"])
+    z <- z[is.element(x, n), ]
+    x <- pivot.1d(mean, z[, "MonthEnding"], z[, "Flow"])
+    z <- split(z[, dimnames(z)[[2]] != "HFundId"], z[, "HFundId"])
+    z <- lapply(z, mat.index)
+    z <- lapply(z, function(x) summary(lm(txt.regr(dimnames(x)[[2]]), 
+        x))[["residuals"]])
+    z <- simplify2array(z)
+    z <- svd(z)[["u"]][, 1]
+    z <- sign(correl(z, x)) * z
+    z
+}
+
 #' compound
 #' 
 #' Outputs the compounded return
@@ -7748,6 +7796,31 @@ mk.FloAlphaLt.Ctry <- function (x, y, n)
     z <- unlist(z[yyyymmdd.ex.yyyymm(x), ])
     z <- map.rname(z, n$classif$CCode)
     z <- as.numeric(z)
+    z
+}
+
+#' mk.FloBeta
+#' 
+#' Computes monthly beta versus common fund flow shock
+#' @param x = a single YYYYMM
+#' @param y = a string vector, the elements of which are: 1) connection string (e.g. "NEWUI") 2) number of trailing months of returns (e.g. 36)
+#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
+#' @keywords mk.FloBeta
+#' @export
+#' @family mk
+
+mk.FloBeta <- function (x, y, n) 
+{
+    x <- yyyymm.lag(x, 1)
+    m <- as.numeric(y[2])
+    y <- y[1]
+    w <- common.fund.flow.shock(x, y, m)
+    z <- fetch("Ret", x, m, paste(n$fldr, "data", sep = "\\"), 
+        n$classif)
+    w <- matrix(c(rep(1, m), w), m, 2, F, list(1:m, c("Intercept", 
+        "FloBeta")))
+    z <- run.cs.reg(z, w)
+    z <- as.numeric(z[, "FloBeta"])
     z
 }
 
@@ -14759,14 +14832,15 @@ sql.SRI <- function (x, y)
 #' Full SQL statement
 #' @param x = needed columns
 #' @param y = table
-#' @param n = where segment
-#' @param w = group by segment
-#' @param h = having
+#' @param n = where clause
+#' @param w = "group by" clause
+#' @param h = having clause
+#' @param u = order by clause
 #' @keywords sql.tbl
 #' @export
 #' @family sql
 
-sql.tbl <- function (x, y, n, w, h) 
+sql.tbl <- function (x, y, n, w, h, u) 
 {
     m <- length(x)
     z <- c(txt.left(x[-1], 1) != "\t", F)
@@ -14782,6 +14856,8 @@ sql.tbl <- function (x, y, n, w, h)
         z <- c(z, "group by", paste0("\t", w))
     if (!missing(h)) 
         z <- c(z, "having", paste0("\t", h))
+    if (!missing(u)) 
+        z <- c(z, "order by", paste0("\t", u))
     z <- c(z, ")")
     z
 }
