@@ -17,16 +17,18 @@ Other mat: \code{\link{mat.compound}},
   \code{\link{mat.correl}}, \code{\link{mat.count}},
   \code{\link{mat.daily.to.monthly}},
   \code{\link{mat.daily.to.weekly}},
-  \code{\link{mat.ex.array3d}}, \code{\link{mat.ex.array}},
+  \code{\link{mat.diff}}, \code{\link{mat.ex.array}},
   \code{\link{mat.ex.matrix}}, \code{\link{mat.ex.vec}},
   \code{\link{mat.fake}}, \code{\link{mat.index}},
   \code{\link{mat.lag}}, \code{\link{mat.last.to.first}},
   \code{\link{mat.rank}}, \code{\link{mat.read}},
-  \code{\link{mat.reverse}}, \code{\link{mat.same}},
-  \code{\link{mat.sort}}, \code{\link{mat.subset}},
+  \code{\link{mat.reverse}}, \code{\link{mat.rollsum}},
+  \code{\link{mat.same}}, \code{\link{mat.sort}},
+  \code{\link{mat.subset}},
   \code{\link{mat.to.first.data.row}},
   \code{\link{mat.to.lags}}, \code{\link{mat.to.obs}},
-  \code{\link{mat.to.xlModel}}, \code{\link{mat.write}},
-  \code{\link{mat.zScore}}
+  \code{\link{mat.to.xlModel}},
+  \code{\link{mat.weekly.to.daily}},
+  \code{\link{mat.write}}, \code{\link{mat.zScore}}
 }
 \keyword{mat.to.last.Idx}

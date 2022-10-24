@@ -17,7 +17,6 @@ portfolio.beta.wrapper(x, y, n)
 <n> day beta of columns of <x> with respect to benchmark <y>
 }
 \seealso{
-Other portfolio: \code{\link{portfolio.beta}},
-  \code{\link{portfolio.residual}}
+Other portfolio: \code{\link{portfolio.residual}}
 }
 \keyword{portfolio.beta.wrapper}

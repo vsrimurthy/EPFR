@@ -4,18 +4,16 @@
 \alias{ret.ex.idx}
 \title{ret.ex.idx}
 \usage{
-ret.ex.idx(x, y, n, w, h)
+ret.ex.idx(x, y, n, w)
 }
 \arguments{
 \item{x}{= a file of total return indices indexed so that time runs forward}
 
-\item{y}{= number of periods over which the return is computed}
+\item{y}{= number of rows over which the return is computed}
 
-\item{n}{= if T simple positional lagging is used. If F, yyyymm.lag is invoked.}
+\item{n}{= if T the result is labelled by the beginning of the period, else by the end.}
 
-\item{w}{= if T the result is labelled by the beginning of the period, else by the end.}
-
-\item{h}{= T/F depending on whether returns or spread changes are needed}
+\item{w}{= T/F depending on whether returns or spread changes are needed}
 }
 \description{
 computes return

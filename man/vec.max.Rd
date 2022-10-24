@@ -16,11 +16,11 @@ Returns the piecewise maximum of <x> and <y>
 }
 \seealso{
 Other vec: \code{\link{vec.cat}}, \code{\link{vec.count}},
+  \code{\link{vec.cum}}, \code{\link{vec.diff}},
   \code{\link{vec.ex.filters}}, \code{\link{vec.lag}},
   \code{\link{vec.min}}, \code{\link{vec.named}},
   \code{\link{vec.read}}, \code{\link{vec.same}},
-  \code{\link{vec.swap}}, \code{\link{vec.to.lags}},
-  \code{\link{vec.to.list}}, \code{\link{vec.unique}},
-  \code{\link{vec.write}}
+  \code{\link{vec.swap}}, \code{\link{vec.to.list}},
+  \code{\link{vec.unique}}, \code{\link{vec.write}}
 }
 \keyword{vec.max}

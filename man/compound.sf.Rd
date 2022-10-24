@@ -15,7 +15,8 @@ compound.sf(x, y)
 compounds flows
 }
 \seealso{
-Other compound: \code{\link{compound.flows.initial}},
+Other compound: \code{\link{compound.flows.fast}},
+  \code{\link{compound.flows.initial}},
   \code{\link{compound.flows.underlying}},
   \code{\link{compound.flows}}, \code{\link{compound}}
 }

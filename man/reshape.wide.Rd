@@ -7,9 +7,9 @@
 reshape.wide(x)
 }
 \arguments{
-\item{x}{= a matrix/data-frame with 3 columns corresponding respectively with the rows, columns and entries of the resulting matrix}
+\item{x}{= a matrix/data-frame with last columns corresponding to the entries of the resulting array}
 }
 \description{
-converts <x> to a matrix
+converts <x> to an array
 }
 \keyword{reshape.wide}

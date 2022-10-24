@@ -4,7 +4,7 @@
 \alias{bbk.fwdRet}
 \title{bbk.fwdRet}
 \usage{
-bbk.fwdRet(x, y, n, w, h, u)
+bbk.fwdRet(x, y, n, w)
 }
 \arguments{
 \item{x}{= a matrix/data frame of predictors}
@@ -13,11 +13,7 @@ bbk.fwdRet(x, y, n, w, h, u)
 
 \item{n}{= the number of days in the return window}
 
-\item{w}{= the number of days the predictors are lagged}
-
-\item{h}{= the number of days needed for the predictors to be known}
-
-\item{u}{= T/F depending on whether returns or spread changes are needed}
+\item{w}{= T/F depending on whether returns or spread changes are needed}
 }
 \description{
 returns a matrix/data frame of the same dimensions as <x>

@@ -15,7 +15,8 @@ compound.flows.initial(x, y)
 T/F depending on whether output for a row is to be set to NA
 }
 \seealso{
-Other compound: \code{\link{compound.flows.underlying}},
+Other compound: \code{\link{compound.flows.fast}},
+  \code{\link{compound.flows.underlying}},
   \code{\link{compound.flows}}, \code{\link{compound.sf}},
   \code{\link{compound}}
 }

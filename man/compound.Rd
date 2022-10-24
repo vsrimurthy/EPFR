@@ -13,7 +13,8 @@ compound(x)
 Outputs the compounded return
 }
 \seealso{
-Other compound: \code{\link{compound.flows.initial}},
+Other compound: \code{\link{compound.flows.fast}},
+  \code{\link{compound.flows.initial}},
   \code{\link{compound.flows.underlying}},
   \code{\link{compound.flows}}, \code{\link{compound.sf}}
 }

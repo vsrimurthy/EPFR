@@ -475,10 +475,9 @@ bbk <- function (x, y, floW = 20, retW = 5, nBin = 5, doW = 4, sum.flows = F,
 {
     x <- bbk.data(x, y, floW, sum.flows, lag, delay, doW, retW, 
         idx, prd.size, sprds)
-    z <- bbk.bin.xRet(x$x, x$fwdRet, nBin, T, T)
-    z <- lapply(z, mat.reverse)
-    quantum <- ifelse(is.null(doW), 1, 5)
-    z <- c(z, bbk.summ(z$rets, z$bins, retW, quantum))
+    z <- lapply(bbk.bin.xRet(x$x, x$fwdRet, nBin, T, T), mat.reverse)
+    z <- c(z, bbk.summ(z$rets, z$bins, retW, ifelse(is.null(doW), 
+        1, 5)))
     z
 }
 
@@ -627,10 +626,10 @@ bbk.data <- function (x, y, floW, sum.flows, lag, delay, doW, retW, idx,
         1) != dimnames(y)[[1]])) 
         stop("Missing return dates")
     x <- compound.flows(x, floW, prd.size, sum.flows)
-    x <- mat.lag(x, lag + delay, F, F, F)
+    x <- mat.lag(x, lag + delay, T, F, F)
     if (!is.null(doW)) 
         x <- mat.daily.to.weekly(x, doW)
-    y <- bbk.fwdRet(x, y, retW, 0, 0, !sprds)
+    y <- bbk.fwdRet(x, y, retW, !sprds)
     if (!is.null(idx)) 
         y <- Ctry.msci.index.changes(y, idx)
     z <- list(x = x, fwdRet = y)
@@ -648,18 +647,15 @@ bbk.data <- function (x, y, floW, sum.flows, lag, delay, doW, retW, idx,
 bbk.drawdown <- function (x) 
 {
     n <- length(x)
-    x <- zav(x)
-    if (n == 1) {
-        z <- 1
+    x <- c(0, cumsum(zav(x)))
+    z <- list()
+    for (j in 1:n) {
+        w <- diff(x, j)
+        z[[as.character(j)]] <- c(j, order(w)[1] + j, w[order(w)[1]])
     }
-    else {
-        z <- vec.to.lags(x, n, F)
-        for (i in 2:n) z[, i] <- z[, i] + z[, i - 1]
-        prd.num <- order(apply(z, 2, min, na.rm = T))[1]
-        prd.beg <- order(z[, prd.num])[1]
-        z <- seq(prd.beg, length.out = prd.num)
-        z <- is.element(1:n, z)
-    }
+    z <- t(simplify2array(z))
+    z <- z[order(z[, 3]), ][1, ]
+    z <- is.element(1:n, z[2] - z[1]:1)
     z
 }
 
@@ -685,21 +681,18 @@ bbk.fanChart <- function (x)
 #' @param x = a matrix/data frame of predictors
 #' @param y = a matrix/data frame of total return indices
 #' @param n = the number of days in the return window
-#' @param w = the number of days the predictors are lagged
-#' @param h = the number of days needed for the predictors to be known
-#' @param u = T/F depending on whether returns or spread changes are needed
+#' @param w = T/F depending on whether returns or spread changes are needed
 #' @keywords bbk.fwdRet
 #' @export
 #' @family bbk
 
-bbk.fwdRet <- function (x, y, n, w, h, u) 
+bbk.fwdRet <- function (x, y, n, w) 
 {
     if (dim(x)[2] != dim(y)[2]) 
         stop("Problem 1")
     if (any(dimnames(x)[[2]] != dimnames(y)[[2]])) 
         stop("Problem 2")
-    y <- ret.ex.idx(y, n, F, T, u)
-    y <- mat.lag(y, -h - w, F, F)
+    y <- ret.ex.idx(y, n, T, w)
     z <- map.rname(y, dimnames(x)[[1]])
     z <- excise.zeroes(z)
     z
@@ -998,7 +991,7 @@ britten.jones.data <- function (x, y, n, w = NULL)
     if (n > 1) 
         for (i in 2:n) prd.ret[[paste0("prd", i)]] <- mat.lag(prd.ret[["prd1"]], 
             1 - i, T, T)
-    y <- ret.ex.idx(y, n, T, T, T)
+    y <- ret.ex.idx(y, n, T, T)
     vec <- as.numeric(unlist(y))
     w1 <- !is.na(vec) & abs(vec) < 1e-06
     if (any(w1)) {
@@ -1391,40 +1384,65 @@ combinations.to.int <- function (x)
 
 common.fund.flow.shock <- function (x, y, n) 
 {
-    x <- c(yyyymm.lag(x, -1), yyyymm.lag(x, n + 1))
-    x <- yyyymm.to.day(x)
-    x <- paste0("'", x, "'")
-    x <- paste("MonthEnding", c("<", ">"), x)
-    x <- split(x, c("End", "Beg"))
-    x[["Fund"]] <- sql.in("HFundId", sql.FundHistory(c("Act", 
-        "E", "UI"), F))
+    z <- c(sql.declare("@begPrd", "datetime", yyyymm.to.day(yyyymm.lag(x, 
+        n + 1))), "")
+    x <- c(z, sql.declare("@endPrd", "datetime", yyyymm.to.day(yyyymm.lag(x, 
+        -1))), "")
     z <- c("Flow", "PortfolioChange", "AssetsStart")
-    z <- paste0(z, " = sum(", z, ")")
-    z <- c("HFundId", sql.yyyymmdd("MonthEnding"), z)
-    z <- sql.tbl(z, "MonthlyData", sql.and(x), "HFundId, MonthEnding")
-    z <- paste(sql.unbracket(z), collapse = "\n")
+    z <- c("HFundId", "MonthEnding", paste0(z, " = sum(", z, 
+        ")"))
+    w <- paste("MonthEnding", c("<", ">"), c("@endPrd", "@begPrd"))
+    w <- split(w, c("End", "Beg"))
+    z <- sql.tbl(z, "MonthlyData", sql.and(w), "HFundId, MonthEnding")
+    z <- c(sql.label(z, "t1"), "inner join")
+    z <- c(z, sql.label(sql.FundHistory(c("Act", "E", "UI"), 
+        F, "FundId"), "t2 on t2.HFundId = t1.HFundId"))
+    z <- sql.tbl(c("FundId", sql.yyyymmdd("MonthEnding"), "Flow", 
+        "PortfolioChange", "AssetsStart"), z)
+    z <- paste(c(x, sql.unbracket(z)), collapse = "\n")
     z <- sql.query(z, y, F)
     z <- z[!is.na(z[, "AssetsStart"]) & z[, "AssetsStart"] > 
         0, ]
-    for (x in c("Flow", "PortfolioChange")) z[, x] <- 100 * z[, 
-        x]/z[, "AssetsStart"]
-    z <- z[, dimnames(z)[[2]] != "AssetsStart"]
     z[, "MonthEnding"] <- yyyymmdd.to.yyyymm(z[, "MonthEnding"])
-    x <- z
+    x <- vec.count(z[, "FundId"])
+    x <- map.rname(x, z[, "FundId"])
+    z <- z[is.element(x, n + 1), ]
+    x <- pivot.1d(sum, z[, "MonthEnding"], z[, c("PortfolioChange", 
+        "Flow", "AssetsStart")])
+    x <- as.matrix(x)
+    x <- x[order(dimnames(x)[[1]]), ]
+    y <- (100 * x[, "Flow"]/x[, "AssetsStart"])[-1]
+    x <- 100 * x[, "PortfolioChange"]/x[, "AssetsStart"]
+    for (w in c("Flow", "PortfolioChange")) z[, w] <- 100 * z[, 
+        w]/z[, "AssetsStart"]
+    z[, "PortfolioChange"] <- z[, "PortfolioChange"] - map.rname(x, 
+        z[, "MonthEnding"])
+    x <- z[, dimnames(z)[[2]] != "AssetsStart"]
     x[, "MonthEnding"] <- yyyymm.lag(x[, "MonthEnding"], -1)
     dimnames(x)[[2]][3:4] <- paste0(dimnames(x)[[2]][3:4], ".m1")
-    z <- merge(z, x)
-    x <- vec.count(z[, "HFundId"])
-    x <- map.rname(x, z[, "HFundId"])
-    z <- z[is.element(x, n), ]
-    x <- pivot.1d(mean, z[, "MonthEnding"], z[, "Flow"])
-    z <- split(z[, dimnames(z)[[2]] != "HFundId"], z[, "HFundId"])
+    x <- merge(z, x)
+    z <- x[, dimnames(x)[[2]] != "AssetsStart"]
+    x <- reshape.wide(x[, c("MonthEnding", "FundId", "AssetsStart")])
+    x <- x[order(dimnames(x)[[1]]), order(dimnames(x)[[2]])]
+    x <- as.matrix(x)
+    z <- split(z[, dimnames(z)[[2]] != "FundId"], z[, "FundId"])
     z <- lapply(z, mat.index)
     z <- lapply(z, function(x) summary(lm(txt.regr(dimnames(x)[[2]]), 
         x))[["residuals"]])
     z <- simplify2array(z)
-    z <- svd(z)[["u"]][, 1]
-    z <- sign(correl(z, x)) * z
+    z <- z[dimnames(x)[[1]], dimnames(x)[[2]]]
+    w <- qtl.eq(x)
+    n <- list()
+    for (j in dimnames(z)[[1]]) {
+        r <- data.frame(z[j, ], x[j, ], stringsAsFactors = F)
+        r[, 1] <- r[, 1] * r[, 2]
+        r <- pivot.1d(sum, w[j, ], r)
+        r <- as.matrix(r)[as.character(1:5), ]
+        n[[j]] <- r[, 1]/r[, 2]
+    }
+    n <- simplify2array(n)
+    z <- svd(n)[["v"]][, 1]
+    z <- sign(correl(z, y)) * z
     z
 }
 
@@ -1466,6 +1484,29 @@ compound.flows <- function (x, y, n, w = F)
     else fcn(zav(x))
     z <- compound.flows.underlying(fcn2, x, y, F, n)
     z[compound.flows.initial(x, (y - 1) * n), ] <- NA
+    z
+}
+
+#' compound.flows.fast
+#' 
+#' compounded flows over <n> trailing periods indexed by last day in the flow window
+#' @param x = a matrix/data-frame of percentage flows
+#' @param y = number of trailing rows to compound/sum
+#' @param n = if T, flows get summed. Otherwise they get compounded.
+#' @keywords compound.flows.fast
+#' @export
+#' @family compound
+
+compound.flows.fast <- function (x, y, n = F) 
+{
+    h <- nonneg(mat.to.obs(x))
+    z <- zav(x)
+    if (!n) 
+        z <- log(1 + z/100)
+    z <- mat.rollsum(z, y)
+    if (!n) 
+        z <- 100 * exp(z) - 100
+    z <- z * h
     z
 }
 
@@ -4063,252 +4104,6 @@ flowdate.to.int <- function (x)
     z
 }
 
-#' fop
-#' 
-#' an array of summary statistics of each quantile, indexed by parameter
-#' @param x = a matrix/data frame of predictors
-#' @param y = a matrix/data frame of total return indices
-#' @param delay = the number of days needed for the predictors to be known
-#' @param lags = a numeric vector of predictor lags
-#' @param floW = a numeric vector of trailing flow windows
-#' @param retW = a numeric vector of forward return windows
-#' @param nBins = a numeric vector
-#' @param grp.fcn = a function that maps yyyymmdd dates to groups of interest (e.g. day of the week)
-#' @param convert2df = T/F depending on whether you want the output converted to a data frame
-#' @param reverse.vbl = T/F depending on whether you want the variable reversed
-#' @param prd.size = size of each compounding period in terms of days (days = 1, wks = 5, etc.)
-#' @param first.ret.date = if F grp.fcn is applied to formation dates. Otherwise it is applied to the first day in forward the return window.
-#' @param findOptimalParametersFcn = the function you are using to summarize your results
-#' @param sum.flows = if T, flows get summed. Otherwise they get compounded
-#' @param sprds = T/F depending on whether spread changes, rather than returns, are needed
-#' @keywords fop
-#' @export
-#' @family fop
-
-fop <- function (x, y, delay, lags, floW, retW, nBins, grp.fcn, convert2df, 
-    reverse.vbl, prd.size, first.ret.date, findOptimalParametersFcn, 
-    sum.flows, sprds) 
-{
-    z <- NULL
-    for (i in floW) {
-        cat(txt.hdr(paste("floW", i, sep = " = ")), "\n")
-        x.comp <- compound.flows(x, i, prd.size, sum.flows)
-        if (reverse.vbl) 
-            x.comp <- -x.comp
-        if (nchar(dimnames(x.comp)[[1]][1]) == 6 & nchar(dimnames(y)[[1]][1]) == 
-            8) 
-            x.comp <- yyyymmdd.ex.AllocMo(x.comp)
-        for (h in lags) {
-            cat("lag =", h, "")
-            pctFlo <- x.comp
-            j <- h
-            delay.loc <- delay
-            if (nchar(dimnames(pctFlo)[[1]][1]) == 8 & nchar(dimnames(y)[[1]][1]) == 
-                6) {
-                pctFlo <- mat.lag(pctFlo, j + delay, F, F)
-                pctFlo <- mat.daily.to.monthly(pctFlo, F)
-                delay.loc <- 0
-                j <- 0
-            }
-            vec <- fop.grp.map(grp.fcn, pctFlo, j, delay.loc, 
-                first.ret.date)
-            for (n in retW) {
-                if (n != retW[1]) 
-                  cat("\t")
-                cat("retW =", n, ":")
-                fwdRet <- bbk.fwdRet(pctFlo, y, n, j, delay.loc, 
-                  T)
-                for (k in nBins) {
-                  cat(k, "")
-                  rslt <- findOptimalParametersFcn(pctFlo, fwdRet, 
-                    vec, n, k)
-                  if (is.null(z)) 
-                    z <- array(NA, c(length(floW), length(lags), 
-                      length(retW), length(nBins), dim(rslt)), 
-                      list(floW, lags, retW, nBins, dimnames(rslt)[[1]], 
-                        dimnames(rslt)[[2]], dimnames(rslt)[[3]]))
-                  z[as.character(i), as.character(j), as.character(n), 
-                    as.character(k), dimnames(rslt)[[1]], dimnames(rslt)[[2]], 
-                    dimnames(rslt)[[3]]] <- rslt
-                }
-                cat("\n")
-            }
-            cat("\n")
-        }
-        cat("\n")
-    }
-    if (convert2df) 
-        z <- mat.ex.array(aperm(z, order(1:7 != 5)))
-    z
-}
-
-#' fop.Bin
-#' 
-#' Summarizes bin excess returns by sub-periods of interest (as defined by <vec>)
-#' @param x = a matrix/df with rows indexed by time and columns indexed by bins
-#' @param y = a matrix/data frame of returns of the same dimension as <x>
-#' @param n = a vector corresponding to the rows of <x> that maps each row to a sub-period of interest (e.g. calendat year)
-#' @param w = return horizon in weekdays or months
-#' @param h = number of bins into which you are going to divide your predictors
-#' @keywords fop.Bin
-#' @export
-#' @family fop
-
-fop.Bin <- function (x, y, n, w, h) 
-{
-    fop.Bin.underlying(bbk.bin.rets.summ, x, y, n, w, h, bbk.bin.xRet)
-}
-
-#' fop.Bin.underlying
-#' 
-#' Summarizes bin excess returns by sub-periods of interest (as defined by <vec>)
-#' @param fcn = overall summary function
-#' @param x = a matrix/df with rows indexed by time and columns indexed by bins
-#' @param y = a matrix/data frame of returns of the same dimension as <x>
-#' @param n = a vector corresponding to the rows of <x> that maps each row to a sub-period of interest (e.g. calendat year)
-#' @param w = return horizon in weekdays or months
-#' @param h = number of bins into which you are going to divide your predictors
-#' @param fcn.prd = per period summary function
-#' @keywords fop.Bin.underlying
-#' @export
-#' @family fop
-
-fop.Bin.underlying <- function (fcn, x, y, n, w, h, fcn.prd) 
-{
-    x <- fcn.prd(x, y, h)
-    m <- yyyy.periods.count(dimnames(x)[[1]])
-    z <- bbk.bin.rets.prd.summ(fcn, x, n, m/w)
-    z
-}
-
-#' fop.correl
-#' 
-#' computes IC
-#' @param x = a matrix/df with rows indexed by time and columns indexed by bins
-#' @param y = a matrix/data frame of returns of the same dimension as <x>
-#' @param n = an argument which is not used
-#' @keywords fop.correl
-#' @export
-#' @family fop
-
-fop.correl <- function (x, y, n) 
-{
-    x <- fop.rank.xRet(x, y)
-    y <- fop.rank.xRet(y, x)
-    z <- matrix(mat.correl(x, y), dim(x)[1], 2, F, list(dimnames(x)[[1]], 
-        c("IC", "Crap")))
-    z
-}
-
-#' fop.grp.map
-#' 
-#' maps dates to date groups
-#' @param fcn = a function that maps yyyymmdd dates to groups of interest (e.g. day of the week)
-#' @param x = a matrix/data frame of predictors
-#' @param y = the number of days the predictors are lagged
-#' @param n = the number of days needed for the predictors to be known
-#' @param w = if F <fcn> is applied to formation dates. Otherwise it is applied to the first day in forward the return window.
-#' @keywords fop.grp.map
-#' @export
-#' @family fop
-
-fop.grp.map <- function (fcn, x, y, n, w) 
-{
-    z <- dimnames(x)[[1]]
-    if (w) 
-        z <- yyyymm.lag(z, -n - y - 1)
-    z <- fcn(z)
-    z
-}
-
-#' fop.IC
-#' 
-#' Summarizes bin excess returns by sub-periods of interest (as defined by <vec>)
-#' @param x = a matrix/df with rows indexed by time and columns indexed by bins
-#' @param y = a matrix/data frame of returns of the same dimension as <x>
-#' @param n = a vector corresponding to the rows of <x> that maps each row to a sub-period of interest (e.g. calendar year)
-#' @param w = return horizon in weekdays
-#' @param h = an argument which is not used
-#' @keywords fop.IC
-#' @export
-#' @family fop
-
-fop.IC <- function (x, y, n, w, h) 
-{
-    fop.Bin.underlying(fop.IC.summ, x, y, n, w, h, fop.correl)
-}
-
-#' fop.IC.summ
-#' 
-#' Summarizes IC's
-#' @param x = a vector of IC's
-#' @param y = an argument which is not used
-#' @param n = an argument which is not used
-#' @keywords fop.IC.summ
-#' @export
-#' @family fop
-
-fop.IC.summ <- function (x, y, n) 
-{
-    z <- matrix(NA, 2, dim(x)[2], F, list(c("Mean", "HitRate"), 
-        dimnames(x)[[2]]))
-    z["Mean", ] <- apply(x, 2, mean, na.rm = T)
-    z["HitRate", ] <- apply(sign(x), 2, mean, na.rm = T) * 50
-    z
-}
-
-#' fop.rank.xRet
-#' 
-#' Ranks <x> only when <y> is available
-#' @param x = a matrix/df of predictors, the rows of which are indexed by time
-#' @param y = an isomekic isoplatic matrix/df containing associated forward returns
-#' @keywords fop.rank.xRet
-#' @export
-#' @family fop
-
-fop.rank.xRet <- function (x, y) 
-{
-    z <- bbk.holidays(x, y)
-    z <- mat.rank(z)
-    z
-}
-
-#' fop.wrapper
-#' 
-#' a table of Sharpes, IC's and annualized mean excess returns for: Q1 - a strategy that goes long the top fifth and short the equal-weight universe TxB - a strategy that goes long and short the top and bottom fifth respectively
-#' @param x = a matrix/data frame of predictors, the rows of which are YYYYMM or YYYYMMDD
-#' @param y = a matrix/data frame of total return indices, the rows of which are YYYYMM or YYYYMMDD
-#' @param retW = a numeric vector of forward return windows
-#' @param prd.size = size of each compounding period in terms of days (days = 1, wks = 5, etc.) if <x> is indexed by YYYYMMDD or months if <x> is indexed by YYYYMM
-#' @param sum.flows = if T, flows get summed. Otherwise they get compounded.
-#' @param lag = an integer of predictor lags
-#' @param delay = the number of days needed for the predictors to be known
-#' @param floW = a numeric vector of trailing flow windows
-#' @param nBin = a non-negative integer
-#' @param reverse.vbl = T/F depending on whether you want the variable reversed
-#' @param sprds = T/F depending on whether spread changes, rather than returns, are needed
-#' @keywords fop.wrapper
-#' @export
-#' @family fop
-
-fop.wrapper <- function (x, y, retW, prd.size = 5, sum.flows = F, lag = 0, delay = 2, 
-    floW = 1:20, nBin = 5, reverse.vbl = F, sprds = F) 
-{
-    z <- fop(x, y, delay, lag, floW, retW, 0, yyyymmdd.to.unity, 
-        F, reverse.vbl, prd.size, F, fop.IC, sum.flows, sprds)
-    z <- z[, as.character(lag), , "0", "Mean", "IC", "1"]
-    dimnames(z)[[2]] <- paste("IC", dimnames(z)[[2]])
-    x <- fop(x, y, delay, lag, floW, retW, nBin, yyyymmdd.to.unity, 
-        F, reverse.vbl, prd.size, F, fop.Bin, sum.flows, sprds)
-    x <- x[, as.character(lag), , as.character(nBin), c("Sharpe", 
-        "AnnMn"), c("Q1", "TxB"), "1"]
-    x <- mat.ex.array(x)
-    z <- data.frame(t(x), z, stringsAsFactors = F)
-    z <- z[, txt.expand(c("Q1.Sharpe", "TxB.Sharpe", "IC", "Q1.AnnMn", 
-        "TxB.AnnMn"), retW, ".")]
-    z
-}
-
 #' ftp.all.dir
 #' 
 #' remote-site directory listing of all sub-folders
@@ -6220,6 +6015,20 @@ mat.daily.to.weekly <- function (x, y)
     z
 }
 
+#' mat.diff
+#' 
+#' rolling sum of <n> rows
+#' @param x = a matrix/df
+#' @param y = a non-negative integer
+#' @keywords mat.diff
+#' @export
+#' @family mat
+
+mat.diff <- function (x, y) 
+{
+    fcn.mat.vec(function(x) vec.diff(x, y), x, , T)
+}
+
 #' mat.ex.array
 #' 
 #' a data frame with the first dimension forming the column space
@@ -6230,26 +6039,7 @@ mat.daily.to.weekly <- function (x, y)
 
 mat.ex.array <- function (x) 
 {
-    z <- do.call(paste, rev(expand.grid(dimnames(x)[-1], stringsAsFactors = F)))
-    z <- matrix(as.vector(x), length(z), dim(x)[1], T, list(z, 
-        dimnames(x)[[1]]))
-    z
-}
-
-#' mat.ex.array3d
-#' 
-#' unlists the contents of an array to a data frame
-#' @param x = a three-dimensional numerical array
-#' @param y = a vector of length 3
-#' @keywords mat.ex.array3d
-#' @export
-#' @family mat
-
-mat.ex.array3d <- function (x, y = 1:3) 
-{
-    z <- aperm(x, order(y))
-    z <- t(mat.ex.array(z))
-    z
+    apply(x, 1, function(x) mat.index(array.unlist(x), length(dim(x)):1))
 }
 
 #' mat.ex.matrix
@@ -6412,6 +6202,21 @@ mat.reverse <- function (x)
     x[dim(x)[1]:1, ]
 }
 
+#' mat.rollsum
+#' 
+#' rolling sum of <n> rows
+#' @param x = a matrix/df
+#' @param y = a non-negative integer
+#' @keywords mat.rollsum
+#' @export
+#' @family mat
+
+mat.rollsum <- function (x, y) 
+{
+    fcn.mat.vec(function(x) vec.diff(vec.cum(x), y)[-1], x, , 
+        T)
+}
+
 #' mat.same
 #' 
 #' T/F depending on whether <x> and <y> are identical
@@ -6569,6 +6374,31 @@ mat.to.xlModel <- function (x, y = 2, n = 5, w = F)
     }
     z <- cbind(z, x)
     z <- z[order(dimnames(z)[[1]], decreasing = T), ]
+    z
+}
+
+#' mat.weekly.to.daily
+#' 
+#' daily file having latest weekly data known by each flow date
+#' @param x = a matrix/df of daily data
+#' @keywords mat.weekly.to.daily
+#' @export
+#' @family mat
+
+mat.weekly.to.daily <- function (x) 
+{
+    h <- dimnames(x)[[1]]
+    w <- flowdate.exists(h)
+    while (any(!w)) {
+        h[!w] <- yyyymmdd.lag(h[!w], 1)
+        w <- flowdate.exists(h)
+    }
+    dimnames(x)[[1]] <- h
+    z <- flowdate.seq(min(h), max(h))
+    h <- approx(h, h, z, method = "constant")[["y"]]
+    x <- map.rname(x, h)
+    dimnames(x)[[1]] <- z
+    z <- x
     z
 }
 
@@ -8633,33 +8463,6 @@ plurality.map <- function (x, y)
     z
 }
 
-#' portfolio.beta
-#' 
-#' beta of <x> with respect to <y>
-#' @param x = a numeric vector/matrix/data-frame
-#' @param y = an isomekic numeric vector
-#' @param n = T/F depending on whether all observations required
-#' @keywords portfolio.beta
-#' @export
-#' @family portfolio
-
-portfolio.beta <- function (x, y, n) 
-{
-    if (n) {
-        z <- cov(x, y)/nonneg(cov(y, y))
-    }
-    else {
-        w <- !is.na(x) & !is.na(y)
-        if (sum(w) < 2) {
-            z <- NA
-        }
-        else {
-            z <- cov(x[w], y[w])/nonneg(cov(y[w], y[w]))
-        }
-    }
-    z
-}
-
 #' portfolio.beta.wrapper
 #' 
 #' <n> day beta of columns of <x> with respect to benchmark <y>
@@ -8674,31 +8477,30 @@ portfolio.beta.wrapper <- function (x, y, n)
 {
     y <- map.rname(mat.read(paste(dir.parameters("csv"), "IndexReturns-Daily.csv", 
         sep = "\\")), dimnames(x)[[1]])[, y]
-    y <- 100 * y/c(NA, y[-dim(x)[1]]) - 100
-    z <- mat.ex.matrix(ret.ex.idx(x, 1, F, F, T))
-    y <- vec.to.lags(y, n, T)
-    z <- lapply(z, vec.to.lags, n, T)
-    fcn <- function(x) x - apply(x, 1, mean)
-    y <- fcn(y)
-    z <- lapply(z, fcn)
-    fcn <- function(x) rowSums(x * y)/rowSums(y * y)
-    z <- sapply(z, fcn)
-    dimnames(z)[[1]] <- dimnames(x)[[1]]
+    x[, "Benchmark"] <- y
+    z <- mat.ex.matrix(ret.ex.idx(x, 1, F, T))[-1, ]
+    z <- list(x = z, xy = z * z[, "Benchmark"])
+    z <- lapply(z, function(x) mat.rollsum(x, n))
+    z <- z[["xy"]]/n - z[["x"]] * z[["x"]][, "Benchmark"]/n^2
+    z <- z[, dimnames(z)[[2]] != "Benchmark"]/nonneg(z[, "Benchmark"])
     z
 }
 
 #' portfolio.residual
 #' 
-#' residual of <x> after factoring out <y>
-#' @param x = a numeric vector
-#' @param y = an isomekic numeric vector
+#' residual of <x> after factoring out <y> for each row
+#' @param x = a matrix/df
+#' @param y = a matrix/df of the same dimensions as <x>
 #' @keywords portfolio.residual
 #' @export
 #' @family portfolio
 
 portfolio.residual <- function (x, y) 
 {
-    x - portfolio.beta(x, y, F) * y
+    x <- x - rowMeans(x)
+    y <- y - rowMeans(y)
+    z <- x - y * rowSums(x * y)/nonneg(rowSums(y^2))
+    z
 }
 
 #' position.floPct
@@ -10020,18 +9822,17 @@ renorm <- function (x)
 
 #' reshape.wide
 #' 
-#' converts <x> to a matrix
-#' @param x = a matrix/data-frame with 3 columns corresponding respectively with the rows, columns and entries of the resulting matrix
+#' converts <x> to an array
+#' @param x = a matrix/data-frame with last columns corresponding to the entries of the resulting array
 #' @keywords reshape.wide
 #' @export
 
 reshape.wide <- function (x) 
 {
-    z <- reshape(x, idvar = dimnames(x)[[2]][1], timevar = dimnames(x)[[2]][2], 
-        direction = "wide")
-    z <- mat.index(z)
-    dimnames(z)[[2]] <- substring(dimnames(z)[[2]], nchar(dimnames(x)[[2]][3]) + 
-        2, nchar(dimnames(z)[[2]]))
+    z <- lapply(x[-dim(x)[2]], unique)
+    x <- map.rname(mat.index(x, 2:dim(x)[2] - 1), do.call(paste, 
+        expand.grid(z)))
+    z <- array(x, sapply(z, length), z)
     z
 }
 
@@ -10039,22 +9840,22 @@ reshape.wide <- function (x)
 #' 
 #' computes return
 #' @param x = a file of total return indices indexed so that time runs forward
-#' @param y = number of periods over which the return is computed
-#' @param n = if T simple positional lagging is used. If F, yyyymm.lag is invoked.
-#' @param w = if T the result is labelled by the beginning of the period, else by the end.
-#' @param h = T/F depending on whether returns or spread changes are needed
+#' @param y = number of rows over which the return is computed
+#' @param n = if T the result is labelled by the beginning of the period, else by the end.
+#' @param w = T/F depending on whether returns or spread changes are needed
 #' @keywords ret.ex.idx
 #' @export
 #' @family ret
 
-ret.ex.idx <- function (x, y, n, w, h) 
+ret.ex.idx <- function (x, y, n, w) 
 {
-    z <- mat.lag(x, y, n)
-    if (h) 
-        z <- 100 * x/z - 100
-    else z <- x - z
     if (w) 
-        z <- mat.lag(z, -y, n)
+        x <- log(x)
+    z <- mat.diff(x, y)
+    if (w) 
+        z <- z <- 100 * exp(z) - 100
+    if (n) 
+        z <- mat.lag(z, -y, T)
     z
 }
 
@@ -16347,6 +16148,33 @@ vec.count <- function (x)
     pivot.1d(sum, x, rep(1, length(x)))
 }
 
+#' vec.cum
+#' 
+#' cumulative sum
+#' @param x = a numeric vector
+#' @keywords vec.cum
+#' @export
+#' @family vec
+
+vec.cum <- function (x) 
+{
+    cumsum(c(0, x))
+}
+
+#' vec.diff
+#' 
+#' difference between <x> and itself lagged <y>
+#' @param x = a numeric vector
+#' @param y = an integer
+#' @keywords vec.diff
+#' @export
+#' @family vec
+
+vec.diff <- function (x, y) 
+{
+    c(rep(NA, y), diff(x, y))
+}
+
 #' vec.ex.filters
 #' 
 #' SQL query where clauses associated with filters
@@ -16374,17 +16202,7 @@ vec.ex.filters <- function (x)
 
 vec.lag <- function (x, y) 
 {
-    z <- x
-    v <- length(x)
-    if (y > 0) {
-        z[seq(1 + y, v)] <- x[seq(1, v - y)]
-        z[1:y] <- NA
-    }
-    if (y < 0) {
-        z[seq(1, v + y)] <- x[seq(1 - y, v)]
-        z[seq(v + y + 1, v)] <- NA
-    }
-    z
+    x[nonneg(seq_along(x) - y)]
 }
 
 #' vec.max
@@ -16398,10 +16216,8 @@ vec.lag <- function (x, y)
 
 vec.max <- function (x, y) 
 {
-    fcn <- function(x, y) ifelse(!is.na(x) & !is.na(y) & x < 
-        y, y, x)
-    z <- fcn.mat.vec(fcn, x, y, T)
-    z
+    fcn.mat.vec(function(x, y) ifelse(!is.na(x) & !is.na(y) & 
+        x < y, y, x), x, y, T)
 }
 
 #' vec.min
@@ -16415,10 +16231,8 @@ vec.max <- function (x, y)
 
 vec.min <- function (x, y) 
 {
-    fcn <- function(x, y) ifelse(!is.na(x) & !is.na(y) & x > 
-        y, y, x)
-    z <- fcn.mat.vec(fcn, x, y, T)
-    z
+    fcn.mat.vec(function(x, y) ifelse(!is.na(x) & !is.na(y) & 
+        x > y, y, x), x, y, T)
 }
 
 #' vec.named
@@ -16433,8 +16247,8 @@ vec.min <- function (x, y)
 vec.named <- function (x, y) 
 {
     if (missing(x)) 
-        x <- rep(NA, length(y))
-    z <- x
+        z <- rep(NA, length(y))
+    else z <- x
     names(z) <- y
     z
 }
@@ -16485,34 +16299,8 @@ vec.same <- function (x, y)
 
 vec.swap <- function (x, y, n) 
 {
-    z <- x[y]
-    x[y] <- x[n]
-    x[n] <- z
-    z <- x
-    z
-}
-
-#' vec.to.lags
-#' 
-#' a data frame of <x> together with itself lagged 1, ..., <y> - 1 times
-#' @param x = a numeric vector (time flows forward)
-#' @param y = number of lagged values desired plus one
-#' @param n = T/F depending on whether time flows forwards
-#' @keywords vec.to.lags
-#' @export
-#' @family vec
-
-vec.to.lags <- function (x, y, n = T) 
-{
-    m <- length(x)
-    z <- mat.ex.matrix(matrix(NA, m, y, F, list(1:m, paste0("lag", 
-        1:y - 1))))
-    if (!n) 
-        x <- rev(x)
-    for (i in 1:y) z[i:m, i] <- x[i:m - i + 1]
-    if (!n) 
-        z <- mat.reverse(z)
-    z
+    x[ifelse(seq_along(x) == y, n, ifelse(seq_along(x) == n, 
+        y, seq_along(x)))]
 }
 
 #' vec.to.list

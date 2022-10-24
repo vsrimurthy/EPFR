@@ -7,15 +7,14 @@
 portfolio.residual(x, y)
 }
 \arguments{
-\item{x}{= a numeric vector}
+\item{x}{= a matrix/df}
 
-\item{y}{= an isomekic numeric vector}
+\item{y}{= a matrix/df of the same dimensions as <x>}
 }
 \description{
-residual of <x> after factoring out <y>
+residual of <x> after factoring out <y> for each row
 }
 \seealso{
-Other portfolio: \code{\link{portfolio.beta.wrapper}},
-  \code{\link{portfolio.beta}}
+Other portfolio: \code{\link{portfolio.beta.wrapper}}
 }
 \keyword{portfolio.residual}

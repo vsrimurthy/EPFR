@@ -19,7 +19,8 @@ compound.flows(x, y, n, w = F)
 compounded flows over <n> trailing periods indexed by last day in the flow window
 }
 \seealso{
-Other compound: \code{\link{compound.flows.initial}},
+Other compound: \code{\link{compound.flows.fast}},
+  \code{\link{compound.flows.initial}},
   \code{\link{compound.flows.underlying}},
   \code{\link{compound.sf}}, \code{\link{compound}}
 }
