@@ -4,18 +4,12 @@
 \alias{mat.lag}
 \title{mat.lag}
 \usage{
-mat.lag(x, y, n, w = T, h = T)
+mat.lag(x, y)
 }
 \arguments{
 \item{x}{= a matrix/df indexed by time running FORWARDS}
 
 \item{y}{= number of periods over which to lag}
-
-\item{n}{= if T simple positional lagging is used. If F, yyyymm.lag is invoked.}
-
-\item{w}{= used only when !n. Maps to the original row space of <x>}
-
-\item{h}{= T/F depending on whether you wish to lag by yyyymmdd or flowdate}
 }
 \description{
 Returns data lagged <y> periods with the same row space as <x>
@@ -32,9 +26,8 @@ Other mat: \code{\link{mat.compound}},
   \code{\link{mat.read}}, \code{\link{mat.reverse}},
   \code{\link{mat.rollsum}}, \code{\link{mat.same}},
   \code{\link{mat.sort}}, \code{\link{mat.subset}},
-  \code{\link{mat.to.first.data.row}},
-  \code{\link{mat.to.lags}}, \code{\link{mat.to.last.Idx}},
-  \code{\link{mat.to.obs}}, \code{\link{mat.to.xlModel}},
+  \code{\link{mat.to.last.Idx}}, \code{\link{mat.to.obs}},
+  \code{\link{mat.to.xlModel}},
   \code{\link{mat.weekly.to.daily}},
   \code{\link{mat.write}}, \code{\link{mat.zScore}}
 }

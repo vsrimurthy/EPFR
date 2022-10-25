@@ -4,24 +4,20 @@
 \alias{compound.flows}
 \title{compound.flows}
 \usage{
-compound.flows(x, y, n, w = F)
+compound.flows(x, y, n = F)
 }
 \arguments{
 \item{x}{= a matrix/data-frame of percentage flows}
 
-\item{y}{= flow window in terms of the number of trailing periods to compound}
+\item{y}{= number of trailing rows to compound/sum}
 
-\item{n}{= size of each period in terms of days if the rows of <x> are yyyymmdd or months otherwise}
-
-\item{w}{= if T, flows get summed. Otherwise they get compounded.}
+\item{n}{= if T, flows get summed. Otherwise they get compounded.}
 }
 \description{
 compounded flows over <n> trailing periods indexed by last day in the flow window
 }
 \seealso{
-Other compound: \code{\link{compound.flows.fast}},
-  \code{\link{compound.flows.initial}},
-  \code{\link{compound.flows.underlying}},
-  \code{\link{compound.sf}}, \code{\link{compound}}
+Other compound: \code{\link{compound.sf}},
+  \code{\link{compound}}
 }
 \keyword{compound.flows}

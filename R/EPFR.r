@@ -625,8 +625,8 @@ bbk.data <- function (x, y, floW, sum.flows, lag, delay, doW, retW, idx,
     if (any(yyyymm.lag(dimnames(y)[[1]][dim(y)[1]], dim(y)[1]:1 - 
         1) != dimnames(y)[[1]])) 
         stop("Missing return dates")
-    x <- compound.flows(x, floW, prd.size, sum.flows)
-    x <- mat.lag(x, lag + delay, T, F, F)
+    x <- compound.flows(x, floW, sum.flows)
+    x <- mat.lag(x, lag + delay)
     if (!is.null(doW)) 
         x <- mat.daily.to.weekly(x, doW)
     y <- bbk.fwdRet(x, y, retW, !sprds)
@@ -731,6 +731,46 @@ bbk.holidays <- function (x, y)
 {
     fcn <- function(x, y) ifelse(is.na(y), NA, x)
     z <- fcn.mat.vec(fcn, x, y, T)
+    z
+}
+
+#' bbk.matrix
+#' 
+#' standard model output summary value of <item> for "TxB" for various argument combinations
+#' @param x = predictor indexed by yyyymmdd or yyyymm
+#' @param y = total return index indexed by the same date format as <x>
+#' @param floW = number of <prd.size>'s over which the predictor should be compounded/summed
+#' @param lag = predictor lag in days or months depending on whether <x> is YYYYMMDD or YYYYMM
+#' @param item = data to output in the matrix from bbk summary (e.g. AnnMn, Sharpe)
+#' @param idx = the index within which you are trading
+#' @param retW = return window in days or months depending on whether <x> is YYYYMMDD or YYYYMM
+#' @param delay = delay in knowing data in days or months depending on whether <x> is YYYYMMDD or YYYYMM
+#' @param nBin = number of bins to divide the variable into
+#' @param doW = day of the week you will trade on (5 = Fri)
+#' @param sum.flows = T/F depending on whether <x> should be summed or compounded
+#' @param prd.size = size of each period in days or months depending on whether <x> is YYYYMMDD or YYYYMM
+#' @param sprds = T/F depending on whether spread changes, rather than returns, are needed
+#' @keywords bbk.matrix
+#' @export
+#' @family bbk
+
+bbk.matrix <- function (x, y, floW, lag, item = "AnnMn", idx = NULL, retW = 5, 
+    delay = 2, nBin = 5, doW = 5, sum.flows = F, prd.size = 1, 
+    sprds = F) 
+{
+    z <- x <- as.list(environment())
+    z <- z[!is.element(names(z), c("x", "y", "item"))]
+    z <- z[sapply(z, function(x) length(x) > 1)]
+    x <- x[!is.element(names(x), c(names(z), "item"))]
+    z <- expand.grid(z)
+    z[, item] <- rep(NA, dim(z)[1])
+    for (j in 1:dim(z)[1]) {
+        y <- lapply(z[, -dim(z)[2]], function(x) x[j])
+        cat("\t", paste(paste(names(y), "=", unlist(y)), collapse = ", "), 
+            "..\n")
+        z[j, item] <- do.call(bbk, c(y, x))[["summ"]][item, "TxB"]
+    }
+    z <- reshape.wide(z)
     z
 }
 
@@ -986,11 +1026,11 @@ britten.jones.data <- function (x, y, n, w = NULL)
 {
     if (any(dim(x) != dim(y))) 
         stop("x/y are mismatched!")
-    prd.ret <- 100 * mat.lag(y, -1, T, T)/nonneg(y) - 100
+    prd.ret <- 100 * mat.lag(y, -1)/nonneg(y) - 100
     prd.ret <- list(prd1 = prd.ret)
     if (n > 1) 
         for (i in 2:n) prd.ret[[paste0("prd", i)]] <- mat.lag(prd.ret[["prd1"]], 
-            1 - i, T, T)
+            1 - i)
     y <- ret.ex.idx(y, n, T, T)
     vec <- as.numeric(unlist(y))
     w1 <- !is.na(vec) & abs(vec) < 1e-06
@@ -1467,37 +1507,13 @@ compound <- function (x)
 #' 
 #' compounded flows over <n> trailing periods indexed by last day in the flow window
 #' @param x = a matrix/data-frame of percentage flows
-#' @param y = flow window in terms of the number of trailing periods to compound
-#' @param n = size of each period in terms of days if the rows of <x> are yyyymmdd or months otherwise
-#' @param w = if T, flows get summed. Otherwise they get compounded.
+#' @param y = number of trailing rows to compound/sum
+#' @param n = if T, flows get summed. Otherwise they get compounded.
 #' @keywords compound.flows
 #' @export
 #' @family compound
 
-compound.flows <- function (x, y, n, w = F) 
-{
-    if (w) 
-        fcn <- sum
-    else fcn <- compound
-    fcn2 <- function(x) if (is.na(x[1])) 
-        NA
-    else fcn(zav(x))
-    z <- compound.flows.underlying(fcn2, x, y, F, n)
-    z[compound.flows.initial(x, (y - 1) * n), ] <- NA
-    z
-}
-
-#' compound.flows.fast
-#' 
-#' compounded flows over <n> trailing periods indexed by last day in the flow window
-#' @param x = a matrix/data-frame of percentage flows
-#' @param y = number of trailing rows to compound/sum
-#' @param n = if T, flows get summed. Otherwise they get compounded.
-#' @keywords compound.flows.fast
-#' @export
-#' @family compound
-
-compound.flows.fast <- function (x, y, n = F) 
+compound.flows <- function (x, y, n = F) 
 {
     h <- nonneg(mat.to.obs(x))
     z <- zav(x)
@@ -1507,48 +1523,6 @@ compound.flows.fast <- function (x, y, n = F)
     if (!n) 
         z <- 100 * exp(z) - 100
     z <- z * h
-    z
-}
-
-#' compound.flows.initial
-#' 
-#' T/F depending on whether output for a row is to be set to NA
-#' @param x = a matrix/data-frame of percentage flows
-#' @param y = an integer representing the size of the window needed
-#' @keywords compound.flows.initial
-#' @export
-#' @family compound
-
-compound.flows.initial <- function (x, y) 
-{
-    z <- mat.to.first.data.row(x)
-    z <- dimnames(x)[[1]][z]
-    z <- yyyymm.lag(z, -y)
-    z <- dimnames(x)[[1]] < z
-    z
-}
-
-#' compound.flows.underlying
-#' 
-#' compounded flows over <y> trailing periods indexed by last day in the flow window
-#' @param fcn = function used to compound flows
-#' @param x = a matrix/data-frame of percentage flows
-#' @param y = flow window in terms of the number of trailing periods to compound
-#' @param n = if T simple positional lagging is used. If F, yyyymm.lag is invoked
-#' @param w = size of each period in terms of days if the rows of <x> are yyyymmdd or months otherwise
-#' @keywords compound.flows.underlying
-#' @export
-#' @family compound
-
-compound.flows.underlying <- function (fcn, x, y, n, w) 
-{
-    if (y > 1) {
-        z <- mat.to.lags(x, y, n, w)
-        z <- apply(z, 1:2, fcn)
-    }
-    else {
-        z <- x
-    }
     z
 }
 
@@ -1602,7 +1576,7 @@ correl <- function (x, y, n = T)
 
 correl.PrcMo <- function (x, y, n, w) 
 {
-    x <- compound.flows(x, n, 1, F)
+    x <- compound.flows(x, n, F)
     dimnames(x)[[1]] <- yyyymmdd.lag(dimnames(x)[[1]], -w)
     z <- map.rname(y, yyyymmdd.lag(dimnames(y)[[1]], 175))
     z <- nonneg(z)
@@ -6017,7 +5991,7 @@ mat.daily.to.weekly <- function (x, y)
 
 #' mat.diff
 #' 
-#' rolling sum of <n> rows
+#' difference between <x> and itself lagged <y>
 #' @param x = a matrix/df
 #' @param y = a non-negative integer
 #' @keywords mat.diff
@@ -6135,29 +6109,15 @@ mat.index <- function (x, y = 1, n = T)
 #' Returns data lagged <y> periods with the same row space as <x>
 #' @param x = a matrix/df indexed by time running FORWARDS
 #' @param y = number of periods over which to lag
-#' @param n = if T simple positional lagging is used. If F, yyyymm.lag is invoked.
-#' @param w = used only when !n. Maps to the original row space of <x>
-#' @param h = T/F depending on whether you wish to lag by yyyymmdd or flowdate
 #' @keywords mat.lag
 #' @export
 #' @family mat
 
-mat.lag <- function (x, y, n, w = T, h = T) 
+mat.lag <- function (x, y) 
 {
-    if (n & is.null(dim(x))) {
-        z <- vec.lag(x, y)
-    }
-    else if (n) {
-        z <- fcn.mat.vec(vec.lag, x, y, T)
-    }
-    else {
-        z <- x
-        dimnames(z)[[1]] <- yyyymm.lag(dimnames(x)[[1]], -y, 
-            h)
-        if (w) 
-            z <- map.rname(z, dimnames(x)[[1]])
-    }
-    z
+    if (is.null(dim(x))) 
+        vec.lag(x, y)
+    else fcn.mat.vec(vec.lag, x, y, T)
 }
 
 #' mat.last.to.first
@@ -6274,41 +6234,6 @@ mat.subset <- function (x, y)
     else {
         z <- x[, y]
     }
-    z
-}
-
-#' mat.to.first.data.row
-#' 
-#' the row number of the first row containing data
-#' @param x = a matrix/data-frame
-#' @keywords mat.to.first.data.row
-#' @export
-#' @family mat
-
-mat.to.first.data.row <- function (x) 
-{
-    z <- 1
-    while (all(is.na(unlist(x[z, ])))) z <- z + 1
-    z
-}
-
-#' mat.to.lags
-#' 
-#' a 3D array of <x> together with itself lagged 1, ..., <y> - 1 times
-#' @param x = a matrix/df indexed by time running FORWARDS
-#' @param y = number of lagged values desired plus one
-#' @param n = if T simple positional lagging is used. If F, yyyymm.lag is invoked
-#' @param w = size of each period in terms of YYYYMMDD or YYYYMM depending on the rows of <x>
-#' @keywords mat.to.lags
-#' @export
-#' @family mat
-
-mat.to.lags <- function (x, y, n = T, w = 1) 
-{
-    z <- array(NA, c(dim(x), y), list(dimnames(x)[[1]], dimnames(x)[[2]], 
-        paste0("lag", 1:y - 1)))
-    for (i in 1:y) z[, , i] <- unlist(mat.lag(x, (i - 1) * w, 
-        n))
     z
 }
 
@@ -9855,7 +9780,7 @@ ret.ex.idx <- function (x, y, n, w)
     if (w) 
         z <- z <- 100 * exp(z) - 100
     if (n) 
-        z <- mat.lag(z, -y, T)
+        z <- mat.lag(z, -y)
     z
 }
 
