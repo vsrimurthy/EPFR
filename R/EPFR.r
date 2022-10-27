@@ -15290,6 +15290,14 @@ stratrets.returns <- function (x)
         z <- paste0(fcn.dir(), "\\New Model Concept\\Ctry\\FloMo\\csv\\OfclMsciTotRetIdx.csv")
         z <- mat.read(z)
     }
+    else if (x == "China") {
+        z <- paste0(fcn.dir(), "\\New Model Concept\\ChinaShareClass\\csv\\OfclMsciTotRetIdx.csv")
+        z <- mat.read(z)
+        z <- z[, c("CHINA A", "CHINA B", "CHINA H", "CHINA RED CHIP", 
+            "CHINA P CHIP", "OVERSEAS CHINA (US)", "OVERSEAS CHINA (SG)")]
+        dimnames(z)[[2]] <- c("A Share", "B Share", "H Share", 
+            "Red Chip", "P Chip", "ADR", "S Chip")
+    }
     else if (x == "Commodity") {
         z <- paste0(fcn.dir(), "\\New Model Concept\\Commodity\\FloMo\\csv\\S&P GSCI ER.csv")
         z <- mat.read(z)[, c("SPGSENP", "SPGSGCP", "SPGSSIP", 
