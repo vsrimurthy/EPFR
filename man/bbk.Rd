@@ -4,7 +4,7 @@
 \alias{bbk}
 \title{bbk}
 \usage{
-bbk(x, y, floW = 20, retW = 5, nBin = 5, doW = 4, sum.flows = F,
+bbk(x, y, floW = 1, retW = 5, nBin = 5, doW = NULL, sum.flows = F,
   lag = 0, delay = 2, idx = NULL, prd.size = 1, sprds = F)
 }
 \arguments{

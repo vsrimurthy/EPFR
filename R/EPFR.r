@@ -470,7 +470,7 @@ base.to.int <- function (x, y = 26)
 #' @export
 #' @family bbk
 
-bbk <- function (x, y, floW = 20, retW = 5, nBin = 5, doW = 4, sum.flows = F, 
+bbk <- function (x, y, floW = 1, retW = 5, nBin = 5, doW = NULL, sum.flows = F, 
     lag = 0, delay = 2, idx = NULL, prd.size = 1, sprds = F) 
 {
     x <- bbk.data(x, y, floW, sum.flows, lag, delay, doW, retW, 
@@ -15155,6 +15155,237 @@ strat.list <- function (x)
 strat.path <- function (x, y) 
 {
     paste(strat.dir(y), strat.file(x, y), sep = "\\")
+}
+
+#' stratrets
+#' 
+#' data frame of TxB return spreads
+#' @param x = variable being back-tested (e.g. FloPct/AIS)
+#' @keywords stratrets
+#' @export
+#' @family stratrets
+
+stratrets <- function (x) 
+{
+    z <- mat.read(parameters("classif-strat"), "\t", NULL)
+    z <- vec.to.list(z[is.element(z[, "vbl"], x), "strat"], T)
+    z <- lapply(z, function(y) stratrets.bbk(y, x))
+    z <- array.ex.list(z, T, T)
+    z <- z[order(dimnames(z)[[1]]), ]
+    z <- mat.ex.matrix(mat.lag(z, 1))
+    x <- min(sapply(z, function(x) find.data(!is.na(x), T)))
+    x <- c(x, max(sapply(z, function(x) find.data(!is.na(x), 
+        F))))
+    z <- z[seq(x[1], x[2]), ]
+    z
+}
+
+#' stratrets.bbk
+#' 
+#' named vector of TxB return spreads indexed by BoP
+#' @param x = strategy
+#' @param y = variable being back-tested (e.g. FloPct/AIS)
+#' @keywords stratrets.bbk
+#' @export
+#' @family stratrets
+
+stratrets.bbk <- function (x, y) 
+{
+    cat("\t", x, y, "..\n")
+    x <- stratrets.data(x, y)
+    x[["retW"]] <- ifelse(nchar(dimnames(x[["x"]])[[1]][1]) == 
+        8, 5, 1)
+    z <- do.call(bbk, x)[["rets"]]
+    z <- z[order(dimnames(z)[[1]]), ]
+    z <- as.matrix(z)[, "TxB"]
+    z
+}
+
+#' stratrets.beta
+#' 
+#' beta-adjusted indicator
+#' @param x = indicators
+#' @param y = total return indices
+#' @param n = benchmark (e.g. "ACWorld")
+#' @param w = lookback over which beta is computed
+#' @keywords stratrets.beta
+#' @export
+#' @family stratrets
+
+stratrets.beta <- function (x, y, n, w) 
+{
+    portfolio.residual(x, map.rname(portfolio.beta.wrapper(y, 
+        n, w), dimnames(x)[[1]]))
+}
+
+#' stratrets.data
+#' 
+#' list object containing arguments needed for function <bbk>
+#' @param x = strategy
+#' @param y = variable being back-tested (e.g. FloPct/AIS)
+#' @keywords stratrets.data
+#' @export
+#' @family stratrets
+
+stratrets.data <- function (x, y) 
+{
+    h <- mat.read(parameters("classif-strat"), "\t", NULL)
+    h <- mat.index(h[is.element(h[, "vbl"], y), dimnames(h)[[2]] != 
+        "vbl"], "strat")
+    if (x == "Multi") 
+        z <- c("Rgn", "FI")
+    else z <- x
+    z <- paste0(fcn.dir(), "\\", h[z, "path"])
+    z <- stratrets.indicator(z, h[x, "lkbk"], h[x, "comp"] == 
+        0, h[x, "sec"] == 1, h[x, "delay"])
+    if (!is.na(h[x, "sub"])) 
+        z <- stratrets.subset(z, h[x, "sub"])
+    z <- list(x = z, y = stratrets.returns(h[x, "rets"])[, dimnames(z)[[2]]])
+    if (nchar(dimnames(z[["x"]])[[1]][1]) == 6) 
+        z[["y"]] <- mat.daily.to.monthly(z[["y"]], T)
+    if (!is.na(h[x, "beta"])) 
+        z[["x"]] <- stratrets.beta(z[["x"]], z[["y"]], h[x, "beta"], 
+            h[x, "lkbk"])
+    h <- h[, !is.element(dimnames(h)[[2]], c("path", "lkbk", 
+        "comp", "beta", "sec", "sub", "rets"))]
+    for (j in dimnames(h)[[2]]) if (!is.na(h[x, j])) 
+        z[[j]] <- h[x, j]
+    z
+}
+
+#' stratrets.indicator
+#' 
+#' data frame compounded across <y>
+#' @param x = paths to strategy files
+#' @param y = lookback
+#' @param n = if T, flows get summed. Otherwise they get compounded
+#' @param w = if T, sector-adjustment is performed
+#' @param h = delay in knowing data (only used when <w>)
+#' @keywords stratrets.indicator
+#' @export
+#' @family stratrets
+
+stratrets.indicator <- function (x, y, n, w, h) 
+{
+    z <- compound.flows(multi.asset(x), y, n)
+    if (w) {
+        w <- dimnames(z)[[1]] >= yyyymmdd.lag("20160831", h)
+        z[w, "Fins"] <- z[w, "FinsExREst"]
+        z <- z[, dimnames(z)[[2]] != "FinsExREst"]
+    }
+    z
+}
+
+#' stratrets.returns
+#' 
+#' data frame of daily returns
+#' @param x = return type (e.g. Ctry/FX/SectorUK/Multi)
+#' @keywords stratrets.returns
+#' @export
+#' @family stratrets
+
+stratrets.returns <- function (x) 
+{
+    if (x == "Ctry") {
+        z <- paste0(fcn.dir(), "\\New Model Concept\\Ctry\\FloMo\\csv\\OfclMsciTotRetIdx.csv")
+        z <- mat.read(z)
+    }
+    else if (x == "Commodity") {
+        z <- paste0(fcn.dir(), "\\New Model Concept\\Commodity\\FloMo\\csv\\S&P GSCI ER.csv")
+        z <- mat.read(z)[, c("SPGSENP", "SPGSGCP", "SPGSSIP", 
+            "SPGSAGP")]
+        dimnames(z)[[2]] <- c("Energy", "Gold", "Silver", "AG")
+    }
+    else if (x == "FX") {
+        z <- paste0(fcn.dir(), "\\New Model Concept\\FX\\FloMo\\csv\\ExchRates.csv")
+        z <- 1/mat.read(z)
+        z$CNY <- ifelse(is.na(z$CNH), z$CNY, z$CNH)
+        z$USD <- rep(1, dim(z)[1])
+        z <- z/z[, "XDR"]
+    }
+    else if (x == "Multi") {
+        x <- c("Ctry", "FI")
+        x <- paste0(fcn.dir(), "\\New Model Concept\\", x, "\\FloMo\\csv\\")
+        x <- paste0(x, c("OfclMsciTotRetIdx.csv", "pseudoReturns.csv"))
+        z <- mat.read(x[1])[, c("JP", "GB", "US")]
+        dimnames(z)[[2]] <- c("Japan", "UK", "USA")
+        x <- ret.to.idx(map.rname(mat.read(x[2]), dimnames(z)[[1]]))
+        z <- data.frame(z, x, stringsAsFactors = F)
+        x <- paste(dir.parameters("csv"), "IndexReturns-Daily.csv", 
+            sep = "\\")
+        x <- map.rname(mat.read(x), dimnames(z)[[1]])
+        z <- data.frame(z, x[, c("LatAm", "EurXGB", "PacXJP", 
+            "AsiaXJP")], stringsAsFactors = F)
+        x <- max(sapply(z, function(x) find.data(!is.na(x), T)))
+        x <- x:min(sapply(z, function(x) find.data(!is.na(x), 
+            F)))
+        z <- z[x, ]
+    }
+    else {
+        x <- txt.right(x, nchar(x) - nchar("Sector"))
+        y <- mat.read(parameters("classif-GSec"), "\t")
+        if (any(dimnames(y)[[2]] == x)) {
+            z <- paste0(fcn.dir(), "\\New Model Concept\\Sector\\FloMo\\csv\\OfclMsciTotRetIdx.csv")
+            z <- mat.subset(mat.read(z), y[, x])
+            dimnames(z)[[2]] <- dimnames(y)[[1]]
+        }
+        else {
+            z <- paste0(fcn.dir(), "\\New Model Concept\\Sector", 
+                x, "\\FloMo\\csv\\WeeklyRets.csv")
+            z <- mat.read(z)
+        }
+    }
+    z
+}
+
+#' stratrets.subset
+#' 
+#' subsets to columns used in the back-test
+#' @param x = indicators
+#' @param y = index to subset to
+#' @keywords stratrets.subset
+#' @export
+#' @family stratrets
+
+stratrets.subset <- function (x, y) 
+{
+    if (txt.right(y, 2) == "FX") {
+        y <- txt.left(y, nchar(y) - nchar("FX"))
+        z <- stratrets.subset.Ctry(x, y)
+        z <- unique(Ctry.info(z, "Curr"))
+        if (is.element(y, "EM")) 
+            z <- setdiff(z, c("USD", "EUR"))
+    }
+    else {
+        z <- stratrets.subset.Ctry(x, y)
+    }
+    z <- x[, is.element(dimnames(x)[[2]], z)]
+    z
+}
+
+#' stratrets.subset.Ctry
+#' 
+#' determine which countries to subset to
+#' @param x = indicators
+#' @param y = index to subset to
+#' @keywords stratrets.subset.Ctry
+#' @export
+#' @family stratrets
+
+stratrets.subset.Ctry <- function (x, y) 
+{
+    z <- NULL
+    w <- c("ACWI", "EAFE", "EM", "Frontier")
+    if (is.element(y, w)) {
+        z <- dimnames(x)[[1]][c(1, dim(x)[1])]
+        z <- Ctry.msci.members.rng(y, z[1], z[2])
+    }
+    else {
+        w <- dimnames(mat.read(parameters("MsciCtry2016"), ","))[[2]]
+    }
+    if (length(z) == 0 & is.element(y, w)) 
+        z <- Ctry.msci.members(y, "")
+    z
 }
 
 #' stunden
