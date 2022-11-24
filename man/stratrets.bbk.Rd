@@ -18,6 +18,7 @@ named vector of TxB return spreads indexed by BoP
 Other stratrets: \code{\link{stratrets.beta}},
   \code{\link{stratrets.data}},
   \code{\link{stratrets.indicator}},
+  \code{\link{stratrets.path}},
   \code{\link{stratrets.returns}},
   \code{\link{stratrets.subset.Ctry}},
   \code{\link{stratrets.subset}}, \code{\link{stratrets}}

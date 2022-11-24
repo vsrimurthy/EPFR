@@ -14,7 +14,7 @@ sql.extra.domicile(x, y, n)
 \item{n}{= column in FundHistory corresponding to names of <x>}
 }
 \description{
-where clauses to ensure extra-domicile flow
+where clauses to ensure foreign flow
 }
 \seealso{
 Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
@@ -80,6 +80,7 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.Bullish}}, \code{\link{sql.DailyFlo}},
   \code{\link{sql.Diff}}, \code{\link{sql.Dispersion}},
   \code{\link{sql.FloMo.Funds}}, \code{\link{sql.Flow}},
+  \code{\link{sql.Foreign}},
   \code{\link{sql.FundHistory.macro}},
   \code{\link{sql.FundHistory.sf}},
   \code{\link{sql.FundHistory}}, \code{\link{sql.HSIdmap}},

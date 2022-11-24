@@ -6491,12 +6491,12 @@ mk.1dFloMo <- function (x, y, n)
 #' 
 #' SQL query for daily/weekly CBE flow momentum
 #' @param x = flowdate/YYYYMMDD depending on whether daily/weekly
-#' @param y = item (one of Flow/AssetsStart/AssetsEnd)
+#' @param y = item (Flow/AssetsStart/AssetsEnd/PortfolioChange)
 #' @param n = country list (one of Ctry/FX/Sector)
 #' @param w = input to or output of sql.connect
 #' @param h = T/F depending on whether daily/weekly
 #' @param u = vector of filters
-#' @param v = T/F to use extra-domicile or all allocations
+#' @param v = T/F to use foreign or all allocations
 #' @param g = T/F to use institutional or all share classes
 #' @keywords mk.1dFloMo.Ctry
 #' @export
@@ -6581,6 +6581,104 @@ mk.1dFloMo.Ctry.rslt <- function (x, y, n)
     if (length(names(x)) == 1) 
         z <- x[[1]]
     else z <- simplify2array(x)
+    z
+}
+
+#' mk.1dFloMo.CtrySG
+#' 
+#' SQL query for daily/weekly regional flow momentum
+#' @param x = starting flowdate/YYYYMMDD depending on whether daily/weekly
+#' @param y = item (Flow/AssetsStart/AssetsEnd/PortfolioChange)
+#' @param n = country list (one of Ctry/FX)
+#' @param w = input to or output of sql.connect
+#' @param h = T/F depending on whether daily/weekly
+#' @param u = vector of filters
+#' @param v = T/F to use institutional or all share classes
+#' @keywords mk.1dFloMo.CtrySG
+#' @export
+#' @family mk
+
+mk.1dFloMo.CtrySG <- function (x, y, n, w, h, u = "E", v = F) 
+{
+    if (h) 
+        h <- c("DailyData", "DayEnding")
+    else h <- c("WeeklyData", "WeekEnding")
+    if (n == "Ctry") {
+        z <- as.character(sql.1dFloMo.CountryId.List(n, x))
+        z <- z[!is.na(Ctry.info(z, "GeoId"))]
+        z <- vec.named(z, Ctry.info(z, "GeoId"))
+    }
+    else if (n == "FX") {
+        z <- sql.1dFloMo.CountryId.List(n, x)
+        n <- mat.read(parameters("classif-Ctry"))[, c("CountryId", 
+            "GeoId")]
+        n <- n[is.element(n[, "CountryId"], names(z)) & !is.na(n[, 
+            "GeoId"]), ]
+        z <- z[as.character(n[, "CountryId"])]
+        names(z) <- n[, "GeoId"]
+    }
+    else {
+        stop("Can't handle this ..\n")
+    }
+    z <- split(names(z), z)
+    z <- sapply(z, function(x) if (length(x) == 1) 
+        paste("GeographicFocus =", x)
+    else paste0("GeographicFocus in (", paste(x, collapse = ", "), 
+        ")"))
+    z <- c("HFundId", sql.case("grp", z, c(names(z), "Other"), 
+        F))
+    z <- sql.label(sql.tbl(z, sql.label(sql.FundHistory(u, F, 
+        "GeographicFocus"), "t")), "t1")
+    z <- c(z, "inner join", sql.label(h[1], "t2 on t2.HFundId = t1.HFundId"))
+    y <- c("grp", sql.yyyymmdd(h[2]), paste0(y, " = sum(", y, 
+        ")"))
+    x <- list(A = paste0(h[2], " >= '", x, "'"), B = "not grp = 'Other'")
+    if (v) 
+        x[["C"]] <- sql.in("SCID", sql.tbl("SCID", "ShareClass", 
+            "InstOrRetail = 'Inst'"))
+    z <- sql.tbl(y, z, sql.and(x), paste0(h[2], ", grp"))
+    z <- paste(sql.unbracket(z), collapse = "\n")
+    z <- sql.query(z, w)
+    z
+}
+
+#' mk.1dFloMo.FI
+#' 
+#' SQL query for daily/weekly regional flow momentum
+#' @param x = starting flowdate/YYYYMMDD depending on whether daily/weekly
+#' @param y = item (Flow/AssetsStart/AssetsEnd/PortfolioChange)
+#' @param n = input to or output of sql.connect
+#' @param w = T/F depending on whether daily/weekly
+#' @param h = vector of filters
+#' @param u = T/F to use institutional or all share classes
+#' @keywords mk.1dFloMo.FI
+#' @export
+#' @family mk
+
+mk.1dFloMo.FI <- function (x, y, n, w, h = "All", u = F) 
+{
+    if (w) 
+        w <- c("DailyData", "DayEnding")
+    else w <- c("WeeklyData", "WeekEnding")
+    h <- c("FundType in ('B', 'M')", h)
+    z <- c("FundType = 'M'", "StyleSector = 130", "StyleSector = 134 and GeographicFocus = 77", 
+        "StyleSector = 137 and GeographicFocus = 77", "StyleSector = 141 and GeographicFocus = 77", 
+        "StyleSector = 185 and GeographicFocus = 77", "StyleSector = 125 and Category = '9'", 
+        "Category = '8'", "GeographicFocus = 31", "GeographicFocus = 30")
+    names(z) <- c("CASH", "FLOATS", "USTRIN", "USTRLT", "USTRST", 
+        "USMUNI", "HYIELD", "WESEUR", "GLOBEM", "GLOFIX")
+    z <- sql.case("grp", z, c(names(z), "Other"), F)
+    z <- sql.label(sql.FundHistory(h, F, z), "t1")
+    z <- c(z, "inner join", sql.label(w[1], "t2 on t2.HFundId = t1.HFundId"))
+    y <- c("grp", sql.yyyymmdd(w[2]), paste0(y, " = sum(", y, 
+        ")"))
+    x <- list(A = paste0(w[2], " >= '", x, "'"), B = "not grp = 'Other'")
+    if (u) 
+        x[["C"]] <- sql.in("SCID", sql.tbl("SCID", "ShareClass", 
+            "InstOrRetail = 'Inst'"))
+    z <- sql.tbl(y, z, sql.and(x), paste0(w[2], ", grp"))
+    z <- paste(sql.unbracket(z), collapse = "\n")
+    z <- sql.query(z, n)
     z
 }
 
@@ -6679,21 +6777,62 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
     z
 }
 
+#' mk.1dFloMo.Rgn
+#' 
+#' SQL query for daily/weekly regional flow momentum
+#' @param x = starting flowdate/YYYYMMDD depending on whether daily/weekly
+#' @param y = item (Flow/AssetsStart/AssetsEnd/PortfolioChange)
+#' @param n = input to or output of sql.connect
+#' @param w = T/F depending on whether daily/weekly
+#' @param h = vector of filters
+#' @param u = T/F to use institutional or all share classes
+#' @keywords mk.1dFloMo.Rgn
+#' @export
+#' @family mk
+
+mk.1dFloMo.Rgn <- function (x, y, n, w, h = "E", u = F) 
+{
+    if (w) 
+        w <- c("DailyData", "DayEnding")
+    else w <- c("WeeklyData", "WeekEnding")
+    z <- paste("GeographicFocus =", c(4, 24, 43, 46, 76, 77))
+    names(z) <- c("AsiaXJP", "EurXGB", "Japan", "LatAm", "UK", 
+        "USA")
+    z["PacXJP"] <- "GeographicFocus in (55, 6, 80, 35, 66)"
+    z <- c("HFundId", sql.case("grp", z, c(names(z), "Other"), 
+        F))
+    z <- sql.label(sql.tbl(z, sql.label(sql.FundHistory(h, F, 
+        "GeographicFocus"), "t")), "t1")
+    z <- c(z, "inner join", sql.label(w[1], "t2 on t2.HFundId = t1.HFundId"))
+    y <- c("grp", sql.yyyymmdd(w[2]), paste0(y, " = sum(", y, 
+        ")"))
+    x <- list(A = paste0(w[2], " >= '", x, "'"), B = "not grp = 'Other'")
+    if (u) 
+        x[["C"]] <- sql.in("SCID", sql.tbl("SCID", "ShareClass", 
+            "InstOrRetail = 'Inst'"))
+    z <- sql.tbl(y, z, sql.and(x), paste0(w[2], ", grp"))
+    z <- paste(sql.unbracket(z), collapse = "\n")
+    z <- sql.query(z, n)
+    z
+}
+
 #' mk.1dFloMo.Sec
 #' 
 #' SQL query for daily/weekly CBE flow momentum
 #' @param x = flowdate/YYYYMMDD depending on whether daily/weekly
-#' @param y = item (one of Flow/AssetsStart/AssetsEnd)
+#' @param y = item (Flow/AssetsStart/AssetsEnd/PortfolioChange)
 #' @param n = input to or output of sql.connect
 #' @param w = T/F depending on whether daily/weekly
 #' @param h = a list object with the following elements: Region - one of US/UK/JP/EM/Eurozone/All (full global) Filter - a vector of filters Group - allocation bulking group (e.g. GeographicFocus/BenchIndex)
+#' @param u = T/F to use foreign or all allocations
+#' @param v = T/F to use institutional or all share classes
 #' @keywords mk.1dFloMo.Sec
 #' @export
 #' @family mk
 
-mk.1dFloMo.Sec <- function (x, y, n, w, h) 
+mk.1dFloMo.Sec <- function (x, y, n, w, h, u = F, v = F) 
 {
-    u <- yyyymmdd.to.AllocMo.unique(x, 23, F)
+    g <- yyyymmdd.to.AllocMo.unique(x, 23, F)
     s <- sql.1dFloMo.CountryId.List("Sector", x)
     r <- vec.ex.filters("sector")
     if (any(h$Region == names(r))) {
@@ -6707,39 +6846,51 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h)
         stop("Can't handle yet!")
     }
     h$Region <- vec.named(Ctry.info(h$Region, "CountryId"), h$Region)
-    v <- list(A = paste0("CountryId in (", paste(h$Region, collapse = ", "), 
+    r <- list(A = paste0("CountryId in (", paste(h$Region, collapse = ", "), 
         ")"))
-    v[["B"]] <- paste0("ReportDate = '", yyyymm.to.day(u), "'")
+    r[["B"]] <- paste0("ReportDate = '", yyyymm.to.day(g), "'")
     z <- c("FundId", h$Group, "Universe = sum(Allocation)")
-    z <- sql.Allocation(z, "Country", h$Group, "E", sql.and(v), 
+    z <- sql.Allocation(z, "Country", h$Group, "E", sql.and(r), 
         paste(z[-length(z)], collapse = ", "))
     z <- c("insert into", paste0("\t#CTRY (FundId, ", h$Group, 
         ", Universe)"), sql.unbracket(z))
     z <- c(sql.index("#CTRY", "FundId"), z)
     z <- c(paste0("create table #CTRY (FundId int not null, ", 
         h$Group, " int, Universe float)"), z)
-    v <- paste0("ReportDate = '", yyyymm.to.day(u), "'")
-    v <- sql.Allocation.Sec(v, h$Group)
-    v <- c(sql.index("#SEC", "FundId, SectorId"), v)
-    v <- c(paste0("create table #SEC (FundId int not null, SectorId int not null, ", 
-        h$Group, " int, Allocation float)"), v)
-    z <- c(z, "", v)
-    v <- c(h$Group, "StyleSector")
+    g <- paste0("ReportDate = '", yyyymm.to.day(g), "'")
+    g <- sql.Allocation.Sec(g, h$Group)
+    g <- c(sql.index("#SEC", "FundId, SectorId"), g)
+    g <- c(paste0("create table #SEC (FundId int not null, SectorId int not null, ", 
+        h$Group, " int, Allocation float)"), g)
+    z <- c(z, "", g)
+    if (v) {
+        x <- list(A = paste0("'", x, "'"))
+        x[["B"]] <- sql.in("SCID", sql.tbl("SCID", "ShareClass", 
+            "InstOrRetail = 'Inst'"))
+    }
+    else x <- list(A = paste0("'", x, "'"))
+    if (u) {
+        u <- paste(names(h$Region), collapse = "', '")
+        u <- paste0("Domicile not in ('", u, "')")
+        u <- c(h$Filter, u)
+    }
+    else u <- h$Filter
+    g <- c(h$Group, "StyleSector")
     r <- c(ifelse(w, "DayEnding", "WeekEnding"), "FundId")
-    v <- c(r, paste0(v, " = max(", v, ")"), paste0(y, " = sum(", 
+    g <- c(r, paste0(g, " = max(", g, ")"), paste0(y, " = sum(", 
         y, ")"))
-    v <- sql.Flow(v, list(A = paste0("'", x, "'")), h$Filter, 
-        c(h$Group, "StyleSector"), w, paste(r, collapse = ", "))
-    v <- c("insert into", paste0("\t#FLO (", paste(c(r, h$Group, 
-        "StyleSector", y), collapse = ", "), ")"), sql.unbracket(v))
-    v <- c(sql.index("#FLO", paste(r, collapse = ", ")), v)
-    v <- c(paste0("create table #FLO (", r[1], " datetime not null, FundId int not null, ", 
+    g <- sql.Flow(g, x, u, c(h$Group, "StyleSector"), w, paste(r, 
+        collapse = ", "))
+    g <- c("insert into", paste0("\t#FLO (", paste(c(r, h$Group, 
+        "StyleSector", y), collapse = ", "), ")"), sql.unbracket(g))
+    g <- c(sql.index("#FLO", paste(r, collapse = ", ")), g)
+    g <- c(paste0("create table #FLO (", r[1], " datetime not null, FundId int not null, ", 
         h$Group, " int, StyleSector int, ", paste(paste(y, "float"), 
-            collapse = ", "), ")"), v)
-    z <- c(z, "", v)
-    v <- paste(Ctry.info(names(h$Region), "GeoId"), collapse = ", ")
+            collapse = ", "), ")"), g)
+    z <- c(z, "", g)
+    g <- paste(Ctry.info(names(h$Region), "GeoId"), collapse = ", ")
     z <- c(z, "", sql.Allocations.bulk.Single("Universe", NULL, 
-        "#CTRY", h$Group, c("GeographicFocus", v)))
+        "#CTRY", h$Group, c("GeographicFocus", g)))
     z <- c(z, "", sql.Allocations.bulk.EqWtAvg("Universe", NULL, 
         "#CTRY", h$Group))
     z <- c(z, "", sql.Allocations.bulk.EqWtAvg("Allocation", 
@@ -6754,15 +6905,15 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h)
     foo["Fins", "StyleSector"] <- paste(foo[c("Fins", "REst"), 
         "StyleSector"], collapse = ", ")
     for (j in dimnames(foo)[[1]]) {
-        v <- c("StyleSector", foo[j, "StyleSector"])
+        g <- c("StyleSector", foo[j, "StyleSector"])
         r <- c("SectorId", foo[j, "SectorId"])
         z <- c(z, "", sql.Allocations.bulk.Single("Allocation", 
-            r, "#SEC", h$Group, v))
+            r, "#SEC", h$Group, g))
     }
     z <- paste(c(sql.drop(c("#FLO", "#CTRY", "#SEC")), "", z), 
         collapse = "\n")
-    v <- sql.1dFloMo.Sec.topline("SectorId", y, "#SEC", w)
-    z <- sql.query(c(z, v), n, F)
+    g <- sql.1dFloMo.Sec.topline("SectorId", y, "#SEC", w)
+    z <- sql.query(c(z, g), n, F)
     z <- mk.1dFloMo.Sec.rslt(y, z, s, w, "SectorId")
     z
 }
@@ -13486,7 +13637,7 @@ sql.exists <- function (x, y = T)
 
 #' sql.extra.domicile
 #' 
-#' where clauses to ensure extra-domicile flow
+#' where clauses to ensure foreign flow
 #' @param x = flowdate/YYYYMMDD depending on whether daily/weekly
 #' @param y = column in classif-Ctry corresponding to names of <x>
 #' @param n = column in FundHistory corresponding to names of <x>
@@ -13601,6 +13752,29 @@ sql.Flow <- function (x, y, n = "All", w = NULL, h = T, u, v)
     z
 }
 
+#' sql.Foreign
+#' 
+#' list object of foreign-fund restrictions
+#' @keywords sql.Foreign
+#' @export
+#' @family sql
+
+sql.Foreign <- function () 
+{
+    x <- mat.read(parameters("classif-Ctry"))[, c("GeoId", "DomicileId")]
+    x <- x[apply(x, 1, function(x) sum(!is.na(x))) == 2, ]
+    x[, "DomicileId"] <- paste0("Domicile = '", x[, "DomicileId"], 
+        "'")
+    x[, "DomicileId"] <- paste("Domicile is not NULL and", x[, 
+        "DomicileId"])
+    x[, "GeoId"] <- paste("GeographicFocus =", x[, "GeoId"])
+    x[, "GeoId"] <- paste("GeographicFocus is not NULL and", 
+        x[, "GeoId"])
+    z <- split(paste0("not (", x[, "DomicileId"], " and ", x[, 
+        "GeoId"], ")"), dimnames(x)[[1]])
+    z
+}
+
 #' sql.FundHistory
 #' 
 #' SQL query to restrict to Global and Regional equity funds
@@ -13613,14 +13787,13 @@ sql.Flow <- function (x, y, n = "All", w = NULL, h = T, u, v)
 
 sql.FundHistory <- function (x, y, n) 
 {
-    if (any(x == "All") & length(x) > 1) 
-        x <- setdiff(x, "All")
     if (any(x[1] == c("Pseudo", "Up"))) 
         x <- ifelse(y, "All", "E")
+    x <- setdiff(x, c("Aggregate", "All"))
     if (missing(n)) 
         n <- "HFundId"
     else n <- c("HFundId", n)
-    if (x[1] == "All") {
+    if (length(x) == 0) {
         z <- sql.tbl(n, "FundHistory")
     }
     else {
@@ -13654,6 +13827,9 @@ sql.FundHistory.macro <- function (x)
         }
         else if (y == "UI") {
             z[[char.ex.int(length(z) + 65)]] <- sql.ui()
+        }
+        else if (y == "Foreign") {
+            z <- c(z, sql.Foreign())
         }
         else {
             z[[char.ex.int(length(z) + 65)]] <- y
@@ -15233,7 +15409,7 @@ stratrets.data <- function (x, y)
     h <- mat.index(h[is.element(h[, "vbl"], y), dimnames(h)[[2]] != 
         "vbl"], "strat")
     if (x == "Multi") 
-        z <- c("Rgn", "FI")
+        z <- c("Rgn-Act", "FI")
     else z <- x
     z <- paste0(fcn.dir(), "\\", h[z, "path"])
     z <- stratrets.indicator(z, h[x, "lkbk"], h[x, "comp"] == 
@@ -15272,6 +15448,61 @@ stratrets.indicator <- function (x, y, n, w, h)
         w <- dimnames(z)[[1]] >= yyyymmdd.lag("20160831", h)
         z[w, "Fins"] <- z[w, "FinsExREst"]
         z <- z[, dimnames(z)[[2]] != "FinsExREst"]
+    }
+    z
+}
+
+#' stratrets.path
+#' 
+#' path to strategy indicators
+#' @param x = return type (e.g. Ctry/FX/SectorUK/Multi)
+#' @param y = FundType (e.g. E/B)
+#' @param n = filter (e.g. Aggregate, Act, SRI. etc.)
+#' @param w = item (e.g. Flow/AssetsStart/Result)
+#' @param h = CB/SG/CBSG
+#' @keywords stratrets.path
+#' @export
+#' @family stratrets
+
+stratrets.path <- function (x, y, n, w, h) 
+{
+    z <- NULL
+    if (x == "FX" & y == "E" & n == "Aggregate" & w == "Flow" & 
+        h == "CB") {
+        z <- strat.path("FX$", "daily")
+    }
+    else if (x == "FX" & y == "E" & n == "Aggregate" & w == "Result" & 
+        h == "CB") {
+        z <- strat.path("FX", "daily")
+    }
+    else if (x == "Ctry" & y == "E" & n == "Aggregate" & w == 
+        "Result" & h == "CB") {
+        z <- strat.path("FloPctCtry", "daily")
+    }
+    else if (y == "E" & n == "Act" & w == "Result" & h == "CB") {
+        if (is.element(x, paste0("Sector", c("EM", "JP", "US", 
+            "UK", "Eurozone")))) {
+            z <- txt.replace(x, "Sector", "FloPctSector-")
+            z <- strat.path(z, "daily")
+        }
+    }
+    if (is.null(z)) {
+        if (y == "E") 
+            y <- NULL
+        else y <- paste0("-FundType", y)
+        if (n == "Aggregate") 
+            n <- NULL
+        else n <- paste0("-", n)
+        if (w == "Result") 
+            w <- NULL
+        else w <- paste0("-", w)
+        if (h == "CB") 
+            h <- NULL
+        else h <- paste0("-", h)
+    }
+    if (is.null(z)) {
+        z <- paste0(fcn.dir(), "\\New Model Concept\\", x, "\\FloMo\\csv")
+        z <- paste0(z, "\\oneDayFloMo", h, y, n, w, ".csv")
     }
     z
 }

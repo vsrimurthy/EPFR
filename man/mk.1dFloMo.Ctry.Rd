@@ -9,7 +9,7 @@ mk.1dFloMo.Ctry(x, y, n, w, h, u = "E", v = F, g = F)
 \arguments{
 \item{x}{= flowdate/YYYYMMDD depending on whether daily/weekly}
 
-\item{y}{= item (one of Flow/AssetsStart/AssetsEnd)}
+\item{y}{= item (Flow/AssetsStart/AssetsEnd/PortfolioChange)}
 
 \item{n}{= country list (one of Ctry/FX/Sector)}
 
@@ -19,7 +19,7 @@ mk.1dFloMo.Ctry(x, y, n, w, h, u = "E", v = F, g = F)
 
 \item{u}{= vector of filters}
 
-\item{v}{= T/F to use extra-domicile or all allocations}
+\item{v}{= T/F to use foreign or all allocations}
 
 \item{g}{= T/F to use institutional or all share classes}
 }
@@ -31,7 +31,10 @@ Other mk: \code{\link{mk.1dActWtTrend.Ctry}},
   \code{\link{mk.1dActWtTrend.Sec}},
   \code{\link{mk.1dFloMo.Ctry.data}},
   \code{\link{mk.1dFloMo.Ctry.rslt}},
+  \code{\link{mk.1dFloMo.CtrySG}},
+  \code{\link{mk.1dFloMo.FI}},
   \code{\link{mk.1dFloMo.Indy}},
+  \code{\link{mk.1dFloMo.Rgn}},
   \code{\link{mk.1dFloMo.Sec.rslt}},
   \code{\link{mk.1dFloMo.Sec}}, \code{\link{mk.1dFloMo}},
   \code{\link{mk.1dFloTrend.Ctry}},

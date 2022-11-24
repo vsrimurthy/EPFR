@@ -4,18 +4,22 @@
 \alias{mk.1dFloMo.Sec}
 \title{mk.1dFloMo.Sec}
 \usage{
-mk.1dFloMo.Sec(x, y, n, w, h)
+mk.1dFloMo.Sec(x, y, n, w, h, u = F, v = F)
 }
 \arguments{
 \item{x}{= flowdate/YYYYMMDD depending on whether daily/weekly}
 
-\item{y}{= item (one of Flow/AssetsStart/AssetsEnd)}
+\item{y}{= item (Flow/AssetsStart/AssetsEnd/PortfolioChange)}
 
 \item{n}{= input to or output of sql.connect}
 
 \item{w}{= T/F depending on whether daily/weekly}
 
 \item{h}{= a list object with the following elements: Region - one of US/UK/JP/EM/Eurozone/All (full global) Filter - a vector of filters Group - allocation bulking group (e.g. GeographicFocus/BenchIndex)}
+
+\item{u}{= T/F to use foreign or all allocations}
+
+\item{v}{= T/F to use institutional or all share classes}
 }
 \description{
 SQL query for daily/weekly CBE flow momentum
@@ -25,8 +29,11 @@ Other mk: \code{\link{mk.1dActWtTrend.Ctry}},
   \code{\link{mk.1dActWtTrend.Sec}},
   \code{\link{mk.1dFloMo.Ctry.data}},
   \code{\link{mk.1dFloMo.Ctry.rslt}},
+  \code{\link{mk.1dFloMo.CtrySG}},
   \code{\link{mk.1dFloMo.Ctry}},
+  \code{\link{mk.1dFloMo.FI}},
   \code{\link{mk.1dFloMo.Indy}},
+  \code{\link{mk.1dFloMo.Rgn}},
   \code{\link{mk.1dFloMo.Sec.rslt}},
   \code{\link{mk.1dFloMo}},
   \code{\link{mk.1dFloTrend.Ctry}},
