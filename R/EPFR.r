@@ -3248,6 +3248,27 @@ fcn.list <- function (x = "*")
     z
 }
 
+#' fcn.lite
+#' 
+#' functions in alphabetical order ex RODBC/RDCOMClient
+#' @keywords fcn.lite
+#' @export
+#' @family fcn
+
+fcn.lite <- function () 
+{
+    x <- fcn.list()
+    x <- setdiff(x, fcn.all.super("COMCreate"))
+    x <- setdiff(x, fcn.all.super("odbcDriverConnect"))
+    x <- vec.to.list(x, T)
+    fcn <- function(x) paste(x, "<-", fcn.to.txt(x, T, F))
+    x <- sapply(x, fcn)
+    y <- fcn.path()
+    y <- paste0(txt.left(y, nchar(y) - nchar(".r")), "-lite.r")
+    cat(x, file = y, sep = "\n")
+    invisible()
+}
+
 #' fcn.mat.col
 #' 
 #' applies <fcn> to the columns of <x> pairwise
