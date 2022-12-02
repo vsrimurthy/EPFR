@@ -12449,8 +12449,13 @@ sql.1mAllocMo <- function (x, y, n, w)
     }
     else {
         y <- c(y, "inner join", "SecurityHistory id on id.HSecurityId = n1.HSecurityId")
-        z <- sql.tbl(z, y, sql.in("n1.HSecurityId", sql.RDSuniv(n)), 
-            "n1.SecurityId")
+        if (n == "All") {
+            z <- sql.tbl(z, y, , "n1.SecurityId")
+        }
+        else {
+            z <- sql.tbl(z, y, sql.in("n1.HSecurityId", sql.RDSuniv(n)), 
+                "n1.SecurityId")
+        }
     }
     z <- paste(sql.unbracket(z), collapse = "\n")
     z <- c(paste(h, collapse = "\n"), z)
