@@ -2953,7 +2953,10 @@ fcn.dir <- function ()
     z <- "C:\\temp\\Automation"
     if (Sys.info()[["nodename"]] == "OpsServerDev") 
         z <- "C:\\Users\\vik\\Documents"
-    z <- readLines(paste0(z, "\\root.txt"))
+    z <- paste0(z, "\\root.txt")
+    if (file.exists(z)) 
+        z <- readLines(z)
+    else z <- "<EXTERNAL>"
     z
 }
 
@@ -3460,7 +3463,7 @@ fcn.order <- function ()
 
 fcn.path <- function () 
 {
-    paste(fcn.dir(), "functionsVKS.r", sep = "\\")
+    parameters.ex.file(fcn.dir(), "functionsVKS.r")
 }
 
 #' fcn.roxygenize
@@ -7634,8 +7637,7 @@ mk.beta <- function (x, y, n)
 {
     m <- as.numeric(y[2])
     univ <- y[1]
-    w <- paste(dir.parameters("csv"), "IndexReturns-Monthly.csv", 
-        sep = "\\")
+    w <- parameters.ex.file(dir.parameters("csv"), "IndexReturns-Monthly.csv")
     w <- mat.read(w, ",")
     z <- fetch("Ret", x, m, paste(n$fldr, "data", sep = "\\"), 
         n$classif)
@@ -8429,7 +8431,27 @@ optimal <- function (x, y, n, w)
 
 parameters <- function (x) 
 {
-    paste0(dir.parameters("parameters"), "\\", x, ".txt")
+    parameters.ex.file(dir.parameters("parameters"), paste0(x, 
+        ".txt"))
+}
+
+#' parameters.ex.file
+#' 
+#' path to function source file
+#' @param x = folder paths
+#' @param y = file names of the same length as <x>
+#' @keywords parameters.ex.file
+#' @export
+
+parameters.ex.file <- function (x, y) 
+{
+    w <- txt.left(x, nchar("<EXTERNAL>")) == "<EXTERNAL>"
+    x <- ifelse(w, "C:\\EPFR", x)
+    z <- paste0(x, "\\", y)
+    w <- file.exists(z)
+    if (any(!w)) 
+        err.raise(z[!w], T, "WARNING: The following files do not exist")
+    z
 }
 
 #' permutations
@@ -8572,8 +8594,8 @@ plurality.map <- function (x, y)
 
 portfolio.beta.wrapper <- function (x, y, n) 
 {
-    y <- map.rname(mat.read(paste(dir.parameters("csv"), "IndexReturns-Daily.csv", 
-        sep = "\\")), dimnames(x)[[1]])[, y]
+    y <- map.rname(mat.read(parameters.ex.file(dir.parameters("csv"), 
+        "IndexReturns-Daily.csv")), dimnames(x)[[1]])[, y]
     x[, "Benchmark"] <- y
     z <- mat.ex.matrix(ret.ex.idx(x, 1, F, T))[-1, ]
     z <- list(x = z, xy = z * z[, "Benchmark"])
@@ -9254,31 +9276,28 @@ qa.index <- function (x, y, n)
 #' @param n = ftp site (defaults to standard)
 #' @param w = user id (defaults to standard)
 #' @param h = password (defaults to standard)
+#' @param u = protocol (either "ftp" or "sftp")
+#' @param v = T/F flag for ftp.use.epsv argument of getCurlHandle
 #' @keywords qa.mat.read
 #' @export
 #' @family qa
 
-qa.mat.read <- function (x, y, n, w, h) 
+qa.mat.read <- function (x, y, n, w, h, u = "ftp", v = F) 
 {
-    local <- txt.left(x, 1) != "/"
-    if (!local) {
-        if (missing(n)) 
-            n <- ftp.credential("ftp")
-        if (missing(w)) 
-            w <- ftp.credential("user")
-        if (missing(h)) 
-            h <- ftp.credential("pwd")
-        ftp.get(x, y, n, w, h)
-        x <- txt.right(x, nchar(x) - nchar(dirname(x)) - 1)
-        x <- paste(y, x, sep = "\\")
-    }
+    if (missing(n)) 
+        n <- ftp.credential("ftp", u, v)
+    if (missing(w)) 
+        w <- ftp.credential("user", u, v)
+    if (missing(h)) 
+        h <- ftp.credential("pwd", u, v)
+    ftp.get(x, y, n, w, h, u, v)
+    x <- txt.right(x, nchar(x) - nchar(dirname(x)) - 1)
+    x <- paste(y, x, sep = "\\")
     z <- NULL
     if (file.exists(x)) {
         z <- mat.read(x, "\t", NULL)
-        if (!local) {
-            Sys.sleep(1)
-            file.kill(x)
-        }
+        Sys.sleep(1)
+        file.kill(x)
         dimnames(z)[[2]][1] <- "ReportDate"
         z[, "ReportDate"] <- yyyymmdd.ex.txt(z[, "ReportDate"])
     }
@@ -9663,7 +9682,7 @@ record.exists <- function (x, y, n)
 
 record.kill <- function (x, y) 
 {
-    n <- paste(dir.parameters("parameters"), y, sep = "\\")
+    n <- parameters.ex.file(dir.parameters("parameters"), y)
     if (file.exists(n)) {
         z <- vec.read(n)
         if (any(names(z) == x)) {
@@ -9684,7 +9703,7 @@ record.kill <- function (x, y)
 
 record.read <- function (x) 
 {
-    z <- paste(dir.parameters("parameters"), x, sep = "\\")
+    z <- parameters.ex.file(dir.parameters("parameters"), x)
     if (file.exists(z)) 
         z <- vec.read(z)
     else z <- NULL
@@ -9746,7 +9765,7 @@ record.track <- function (x, y, n)
 
 record.write <- function (x, y, n) 
 {
-    n <- paste(dir.parameters("parameters"), n, sep = "\\")
+    n <- parameters.ex.file(dir.parameters("parameters"), n)
     if (file.exists(n)) {
         z <- vec.read(n)
         if (any(names(z) == x)) {
@@ -10082,8 +10101,8 @@ rpt.email <- function (x, y, n, w, h, u, v)
                 publish.weekly.last(), "...\n")
     }
     if (proceed) {
-        out.files <- paste0(dir.publications(x), "\\", v, "-", 
-            flo.dt, y)
+        out.files <- parameters.ex.file(dir.publications(x), 
+            paste0(v, "-", flo.dt, y))
         proceed <- file.exists(out.files)
         if (any(!proceed)) {
             err.raise(out.files[!proceed], T, "Aborting: The following files do not exist")
@@ -15275,7 +15294,7 @@ straight <- function (x)
 
 strat.dir <- function (x) 
 {
-    paste(dir.parameters("data"), x, sep = "\\")
+    parameters.ex.file(dir.parameters("data"), x)
 }
 
 #' strat.email
@@ -15437,7 +15456,7 @@ stratrets.data <- function (x, y)
     if (x == "Multi") 
         z <- c("Rgn-Act", "FI")
     else z <- x
-    z <- paste0(fcn.dir(), "\\", h[z, "path"])
+    z <- parameters.ex.file(fcn.dir(), h[z, "path"])
     z <- stratrets.indicator(z, h[x, "lkbk"], h[x, "comp"] == 
         0, h[x, "sec"] == 1, h[x, "delay"])
     if (!is.na(h[x, "sub"])) 
@@ -15528,7 +15547,8 @@ stratrets.path <- function (x, y, n, w, h)
     }
     if (is.null(z)) {
         z <- paste0(fcn.dir(), "\\New Model Concept\\", x, "\\FloMo\\csv")
-        z <- paste0(z, "\\oneDayFloMo", h, y, n, w, ".csv")
+        z <- parameters.ex.file(z, paste0("oneDayFloMo", h, y, 
+            n, w, ".csv"))
     }
     z
 }
@@ -15544,11 +15564,13 @@ stratrets.path <- function (x, y, n, w, h)
 stratrets.returns <- function (x) 
 {
     if (x == "Ctry") {
-        z <- paste0(fcn.dir(), "\\New Model Concept\\Ctry\\FloMo\\csv\\OfclMsciTotRetIdx.csv")
+        z <- paste0(fcn.dir(), "\\New Model Concept\\Ctry\\FloMo\\csv")
+        z <- parameters.ex.file(z, "OfclMsciTotRetIdx.csv")
         z <- mat.read(z)
     }
     else if (x == "China") {
-        z <- paste0(fcn.dir(), "\\New Model Concept\\ChinaShareClass\\csv\\OfclMsciTotRetIdx.csv")
+        z <- paste0(fcn.dir(), "\\New Model Concept\\ChinaShareClass\\csv")
+        z <- parameters.ex.file(z, "OfclMsciTotRetIdx.csv")
         z <- mat.read(z)
         z <- z[, c("CHINA A", "CHINA B", "CHINA H", "CHINA RED CHIP", 
             "CHINA P CHIP", "OVERSEAS CHINA (US)", "OVERSEAS CHINA (SG)")]
@@ -15556,13 +15578,15 @@ stratrets.returns <- function (x)
             "Red Chip", "P Chip", "ADR", "S Chip")
     }
     else if (x == "Commodity") {
-        z <- paste0(fcn.dir(), "\\New Model Concept\\Commodity\\FloMo\\csv\\S&P GSCI ER.csv")
+        z <- paste0(fcn.dir(), "\\New Model Concept\\Commodity\\FloMo\\csv")
+        z <- parameters.ex.file(z, "S&P GSCI ER.csv")
         z <- mat.read(z)[, c("SPGSENP", "SPGSGCP", "SPGSSIP", 
             "SPGSAGP")]
         dimnames(z)[[2]] <- c("Energy", "Gold", "Silver", "AG")
     }
     else if (x == "FX") {
-        z <- paste0(fcn.dir(), "\\New Model Concept\\FX\\FloMo\\csv\\ExchRates.csv")
+        z <- paste0(fcn.dir(), "\\New Model Concept\\FX\\FloMo\\csv")
+        z <- parameters.ex.file(z, "ExchRates.csv")
         z <- 1/mat.read(z)
         z$CNY <- ifelse(is.na(z$CNH), z$CNY, z$CNH)
         z$USD <- rep(1, dim(z)[1])
@@ -15570,14 +15594,14 @@ stratrets.returns <- function (x)
     }
     else if (x == "Multi") {
         x <- c("Ctry", "FI")
-        x <- paste0(fcn.dir(), "\\New Model Concept\\", x, "\\FloMo\\csv\\")
-        x <- paste0(x, c("OfclMsciTotRetIdx.csv", "pseudoReturns.csv"))
+        x <- paste0(fcn.dir(), "\\New Model Concept\\", x, "\\FloMo\\csv")
+        x <- parameters.ex.file(x, c("OfclMsciTotRetIdx.csv", 
+            "pseudoReturns.csv"))
         z <- mat.read(x[1])[, c("JP", "GB", "US")]
         dimnames(z)[[2]] <- c("Japan", "UK", "USA")
         x <- ret.to.idx(map.rname(mat.read(x[2]), dimnames(z)[[1]]))
         z <- data.frame(z, x, stringsAsFactors = F)
-        x <- paste(dir.parameters("csv"), "IndexReturns-Daily.csv", 
-            sep = "\\")
+        x <- parameters.ex.file(dir.parameters("csv"), "IndexReturns-Daily.csv")
         x <- map.rname(mat.read(x), dimnames(z)[[1]])
         z <- data.frame(z, x[, c("LatAm", "EurXGB", "PacXJP", 
             "AsiaXJP")], stringsAsFactors = F)
@@ -15590,13 +15614,15 @@ stratrets.returns <- function (x)
         x <- txt.right(x, nchar(x) - nchar("Sector"))
         y <- mat.read(parameters("classif-GSec"), "\t")
         if (any(dimnames(y)[[2]] == x)) {
-            z <- paste0(fcn.dir(), "\\New Model Concept\\Sector\\FloMo\\csv\\OfclMsciTotRetIdx.csv")
+            z <- paste0(fcn.dir(), "\\New Model Concept\\Sector\\FloMo\\csv")
+            z <- parameters.ex.file(z, "OfclMsciTotRetIdx.csv")
             z <- mat.subset(mat.read(z), y[, x])
             dimnames(z)[[2]] <- dimnames(y)[[1]]
         }
         else {
             z <- paste0(fcn.dir(), "\\New Model Concept\\Sector", 
-                x, "\\FloMo\\csv\\WeeklyRets.csv")
+                x, "\\FloMo\\csv")
+            z <- parameters.ex.file(z, "WeeklyRets.csv")
             z <- mat.read(z)
         }
     }
@@ -16466,7 +16492,7 @@ txt.words <- function (x = "All")
         else if (x == 2) {
             z <- "EnglishWords-2syllables.txt"
         }
-        z <- paste(dir.parameters("data"), z, sep = "\\")
+        z <- parameters.ex.file(dir.parameters("data"), z)
     }
     else {
         z <- x

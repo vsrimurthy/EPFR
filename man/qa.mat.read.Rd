@@ -4,7 +4,7 @@
 \alias{qa.mat.read}
 \title{qa.mat.read}
 \usage{
-qa.mat.read(x, y, n, w, h)
+qa.mat.read(x, y, n, w, h, u = "ftp", v = F)
 }
 \arguments{
 \item{x}{= remote file on an ftp site (e.g. "/ftpdata/mystuff/foo.txt")}
@@ -16,6 +16,10 @@ qa.mat.read(x, y, n, w, h)
 \item{w}{= user id (defaults to standard)}
 
 \item{h}{= password (defaults to standard)}
+
+\item{u}{= protocol (either "ftp" or "sftp")}
+
+\item{v}{= T/F flag for ftp.use.epsv argument of getCurlHandle}
 }
 \description{
 contents of <x> as a data frame
