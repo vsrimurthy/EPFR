@@ -7,7 +7,7 @@
 stratrets.path(x, y, n, w, h)
 }
 \arguments{
-\item{x}{= return type (e.g. Ctry/FX/SectorUK/Multi)}
+\item{x}{= indicator type (e.g. Ctry/FX/SectorUK/Rgn/FI)}
 
 \item{y}{= FundType (e.g. E/B)}
 

@@ -15500,7 +15500,7 @@ stratrets.indicator <- function (x, y, n, w, h)
 #' stratrets.path
 #' 
 #' path to strategy indicators
-#' @param x = return type (e.g. Ctry/FX/SectorUK/Multi)
+#' @param x = indicator type (e.g. Ctry/FX/SectorUK/Rgn/FI)
 #' @param y = FundType (e.g. E/B)
 #' @param n = filter (e.g. Aggregate, Act, SRI. etc.)
 #' @param w = item (e.g. Flow/AssetsStart/Result)
@@ -15515,6 +15515,14 @@ stratrets.path <- function (x, y, n, w, h)
     if (x == "FX" & y == "E" & n == "Aggregate" & w == "Flow" & 
         h == "CB") {
         z <- strat.path("FX$", "daily")
+    }
+    else if (x == "Rgn" & y == "E" & n == "Act" & w == "Result" & 
+        h == "SG") {
+        z <- strat.path("MultiAsset-Rgn", "daily")
+    }
+    else if (x == "FI" & y == "B" & n == "Aggregate" & w == "Result" & 
+        h == "SG") {
+        z <- strat.path("MultiAsset-FI", "daily")
     }
     else if (x == "FX" & y == "E" & n == "Aggregate" & w == "Result" & 
         h == "CB") {
@@ -15532,18 +15540,10 @@ stratrets.path <- function (x, y, n, w, h)
         }
     }
     if (is.null(z)) {
-        if (y == "E") 
-            y <- NULL
-        else y <- paste0("-FundType", y)
-        if (n == "Aggregate") 
-            n <- NULL
-        else n <- paste0("-", n)
-        if (w == "Result") 
-            w <- NULL
-        else w <- paste0("-", w)
-        if (h == "CB") 
-            h <- NULL
-        else h <- paste0("-", h)
+        y <- paste0("-FundType", y)
+        n <- paste0("-", n)
+        w <- paste0("-", w)
+        h <- paste0("-", h)
     }
     if (is.null(z)) {
         z <- paste0(fcn.dir(), "\\New Model Concept\\", x, "\\FloMo\\csv")
