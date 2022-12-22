@@ -15,7 +15,7 @@ stratrets.path(x, y, n, w, h)
 
 \item{w}{= item (e.g. Flow/AssetsStart/Result)}
 
-\item{h}{= CB/SG/CBSG}
+\item{h}{= variant (e.g. CB/SG/CBSG)}
 }
 \description{
 path to strategy indicators

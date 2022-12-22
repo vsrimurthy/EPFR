@@ -15504,7 +15504,7 @@ stratrets.indicator <- function (x, y, n, w, h)
 #' @param y = FundType (e.g. E/B)
 #' @param n = filter (e.g. Aggregate, Act, SRI. etc.)
 #' @param w = item (e.g. Flow/AssetsStart/Result)
-#' @param h = CB/SG/CBSG
+#' @param h = variant (e.g. CB/SG/CBSG)
 #' @keywords stratrets.path
 #' @export
 #' @family stratrets
@@ -15531,6 +15531,10 @@ stratrets.path <- function (x, y, n, w, h)
     else if (x == "Ctry" & y == "E" & n == "Aggregate" & w == 
         "Result" & h == "CB") {
         z <- strat.path("FloPctCtry", "daily")
+    }
+    else if (x == "Ctry" & y == "B" & n == "Aggregate" & w == 
+        "Result" & h == "CB") {
+        z <- strat.path("FloPctCtry-B", "daily")
     }
     else if (y == "E" & n == "Act" & w == "Result" & h == "CB") {
         if (is.element(x, paste0("Sector", c("EM", "JP", "US", 
