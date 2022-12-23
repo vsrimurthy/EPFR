@@ -6887,6 +6887,12 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h, u = F, v = F)
     g <- c(paste0("create table #SEC (FundId int not null, SectorId int not null, ", 
         h$Group, " int, Allocation float)"), g)
     z <- c(z, "", g)
+    g <- mat.read(parameters("classif-GeoId"), "\t")
+    g <- paste(dimnames(g)[[1]][is.element(g[, "xBord"], 1)], 
+        collapse = ", ")
+    g <- paste0("GeographicFocus not in (", g, ")")
+    g <- sql.delete("#CTRY", g)
+    z <- c(z, "", g)
     if (v) {
         x <- list(A = paste0("'", x, "'"))
         x[["B"]] <- sql.in("SCID", sql.tbl("SCID", "ShareClass", 
