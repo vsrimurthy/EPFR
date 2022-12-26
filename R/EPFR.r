@@ -15394,11 +15394,12 @@ strat.path <- function (x, y)
 
 stratrets <- function (x) 
 {
-    z <- mat.read(parameters("classif-strat"), "\t", NULL)
-    z <- vec.to.list(z[is.element(z[, "vbl"], x), "strat"], T)
+    y <- mat.read(parameters("classif-strat"), "\t", NULL)
+    y <- y[is.element(y[, "vbl"], x), ]
+    z <- vec.to.list(y[, "strat"], T)
     z <- lapply(z, function(y) stratrets.bbk(y, x))
     z <- array.ex.list(z, T, T)
-    z <- z[order(dimnames(z)[[1]]), ]
+    z <- z[order(dimnames(z)[[1]]), y[, "strat"]]
     z <- mat.ex.matrix(mat.lag(z, 1))
     x <- min(sapply(z, function(x) find.data(!is.na(x), T)))
     x <- c(x, max(sapply(z, function(x) find.data(!is.na(x), 
@@ -15459,8 +15460,11 @@ stratrets.data <- function (x, y)
     h <- mat.read(parameters("classif-strat"), "\t", NULL)
     h <- mat.index(h[is.element(h[, "vbl"], y), dimnames(h)[[2]] != 
         "vbl"], "strat")
-    if (x == "Multi") 
-        z <- c("Rgn-Act", "FI")
+    if (is.na(h[x, "path"])) {
+        z <- mat.read(parameters("classif-strat-multi"), "\t", 
+            NULL)
+        z <- z[is.element(z[, "strat"], x), "pieces"]
+    }
     else z <- x
     z <- parameters.ex.file(fcn.dir(), h[z, "path"])
     z <- stratrets.indicator(z, h[x, "lkbk"], h[x, "comp"] == 
