@@ -6783,6 +6783,9 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
         "#CTRY", "GeographicFocus"))
     z <- c(z, "", sql.Allocations.bulk.EqWtAvg("Allocation", 
         "IndustryId", "#INDY", "GeographicFocus"))
+    foo <- mat.read(parameters("classif-GIgrp"))[, c("IndustryId", 
+        "StyleSector")]
+    foo <- foo[!is.na(foo$StyleSector), ]
     for (j in dimnames(foo)[[1]]) {
         v <- c("StyleSector", foo[j, "StyleSector"])
         r <- c("IndustryId", foo[j, "IndustryId"])
@@ -6921,6 +6924,9 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h, u = F, v = F)
         "#CTRY", h$Group))
     z <- c(z, "", sql.Allocations.bulk.EqWtAvg("Allocation", 
         "SectorId", "#SEC", h$Group))
+    foo <- mat.read(parameters("classif-GSec"))[, c("SectorId", 
+        "StyleSector")]
+    foo <- foo[!is.na(foo$StyleSector), ]
     foo <- map.rname(foo, c(dimnames(foo)[[1]], "FinsExREst"))
     foo["FinsExREst", "SectorId"] <- 30
     foo["FinsExREst", "StyleSector"] <- foo["Fins", "StyleSector"]
