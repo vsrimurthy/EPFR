@@ -6783,10 +6783,6 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
         "#CTRY", "GeographicFocus"))
     z <- c(z, "", sql.Allocations.bulk.EqWtAvg("Allocation", 
         "IndustryId", "#INDY", "GeographicFocus"))
-    foo <- mat.read(parameters("classif-GIgrp"))[, c("IndustryId", 
-        "StyleSector")]
-    foo <- foo[!is.na(foo$StyleSector), ]
-    z <- c(z, "", sql.1dFloMo.Sec.flush(foo, "#INDY"))
     for (j in dimnames(foo)[[1]]) {
         v <- c("StyleSector", foo[j, "StyleSector"])
         r <- c("IndustryId", foo[j, "IndustryId"])
@@ -6925,10 +6921,6 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h, u = F, v = F)
         "#CTRY", h$Group))
     z <- c(z, "", sql.Allocations.bulk.EqWtAvg("Allocation", 
         "SectorId", "#SEC", h$Group))
-    foo <- mat.read(parameters("classif-GSec"))[, c("SectorId", 
-        "StyleSector")]
-    foo <- foo[!is.na(foo$StyleSector), ]
-    z <- c(z, "", sql.1dFloMo.Sec.flush(foo, "#SEC"))
     foo <- map.rname(foo, c(dimnames(foo)[[1]], "FinsExREst"))
     foo["FinsExREst", "SectorId"] <- 30
     foo["FinsExREst", "StyleSector"] <- foo["Fins", "StyleSector"]
@@ -11512,26 +11504,6 @@ sql.1dFloMo.Rgn <- function ()
     z
 }
 
-#' sql.1dFloMo.Sec.flush
-#' 
-#' SQL to flush single-sector funds
-#' @param x = classif object
-#' @param y = name of SQL temp table
-#' @keywords sql.1dFloMo.Sec.flush
-#' @export
-#' @family sql
-
-sql.1dFloMo.Sec.flush <- function (x, y) 
-{
-    z <- paste0("StyleSector in (", paste(x$StyleSector, collapse = ", "), 
-        ")")
-    z <- sql.in("FundId", sql.tbl("FundId", "#FLO", z))
-    z <- sql.unbracket(sql.tbl("FundId", y, z))
-    z[1] <- "delete from"
-    z <- z[-2][-2]
-    z
-}
-
 #' sql.1dFloMo.Sec.topline
 #' 
 #' top line SQL statement for daily/weekly CBE flow momentum
@@ -13202,10 +13174,12 @@ sql.Allocations.bulk.Single <- function (x, y, n, w, h)
     else {
         h <- paste0(h[1], " in (", h[2], ")")
     }
-    z <- sql.tbl(z, "#FLO", h, "FundId")
+    z <- sql.unbracket(sql.tbl(z, "#FLO", h, "FundId"))
     z <- c(paste0("\t", n, " (", paste(c("FundId", w, r, x), 
-        collapse = ", "), ")"), sql.unbracket(z))
+        collapse = ", "), ")"), z)
     z <- c("insert into", z)
+    z <- c(sql.delete(n, sql.in("FundId", sql.tbl("FundId", "#FLO", 
+        h))), "", z)
     z
 }
 
