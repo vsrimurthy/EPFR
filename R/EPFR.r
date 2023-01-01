@@ -8620,9 +8620,11 @@ portfolio.beta.wrapper <- function (x, y, n)
 
 portfolio.residual <- function (x, y) 
 {
-    x <- x - rowMeans(x)
-    y <- y - rowMeans(y)
-    z <- x - y * rowSums(x * y)/nonneg(rowSums(y^2))
+    y <- y * nonneg(mat.to.obs(x))
+    x <- x - rowMeans(x, na.rm = T)
+    y <- y - rowMeans(y, na.rm = T)
+    z <- x - y * rowSums(x * y, na.rm = T)/nonneg(rowSums(y^2, 
+        na.rm = T))
     z
 }
 
