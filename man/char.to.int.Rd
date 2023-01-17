@@ -7,7 +7,7 @@
 char.to.int(x)
 }
 \arguments{
-\item{x}{= a string of single characters}
+\item{x}{= a character vector}
 }
 \description{
 ascii values

@@ -1206,7 +1206,7 @@ char.seq <- function (x, y, n = 1)
 #' char.to.int
 #' 
 #' ascii values
-#' @param x = a string of single characters
+#' @param x = a character vector
 #' @keywords char.to.int
 #' @export
 #' @family char
@@ -15382,7 +15382,13 @@ stratrets <- function (x)
     z <- lapply(z, function(y) stratrets.bbk(y, x))
     z <- array.ex.list(z, T, T)
     z <- z[order(dimnames(z)[[1]]), y[, "strat"]]
-    z <- mat.ex.matrix(mat.lag(z, 1))
+    if (nchar(dimnames(z)[[1]][1]) == 6) {
+        dimnames(z)[[1]] <- yyyymm.lag(dimnames(z)[[1]], -1)
+    }
+    else {
+        dimnames(z)[[1]] <- day.lag(dimnames(z)[[1]], -7)
+    }
+    z <- mat.ex.matrix(z)
     x <- min(sapply(z, function(x) find.data(!is.na(x), T)))
     x <- c(x, max(sapply(z, function(x) find.data(!is.na(x), 
         F))))
