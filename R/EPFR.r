@@ -5886,7 +5886,7 @@ machine.info <- function (x)
 
 map.classif <- function (x, y, n) 
 {
-    z <- vec.to.list(intersect(c(n, paste0(n, 1:5)), dimnames(y)[[2]]))
+    z <- vec.to.list(intersect(c(n, paste0(n, 1:50)), dimnames(y)[[2]]))
     fcn <- function(i) as.numeric(map.rname(x, y[, i]))
     z <- avail(sapply(z, fcn))
     z
