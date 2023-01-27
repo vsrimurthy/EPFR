@@ -2569,29 +2569,11 @@ farben <- function (x, y)
     }
     h <- h[, c("R", "G", "B")]
     h <- mat.ex.matrix(t(h))
-    if (x == 9) {
-        z <- c("H", "B", "A", "D", "C", "T", "S", "R", "Q")
-    }
-    else if (x == "V") {
-        z <- c("H", "D", "T", "S", "Q")
-    }
-    else if (x == 5) {
-        z <- c("Q", "N", "H", "F", "M")
-    }
-    else if (x == 4) {
-        z <- c("Q", "N", "B", "K")
-    }
-    else if (x == 3) {
-        z <- c("Q", "N", "H")
-    }
-    else if (x == 2) {
-        z <- c("Q", "H")
-    }
-    else if (x == 1) {
-        z <- "Q"
+    if (x > dim(h)[2]) {
+        stop("farben: Can't handle this!")
     }
     else {
-        stop("farben: Can't handle this!")
+        z <- dimnames(h)[[2]][1:x]
     }
     if (length(z) == 1) 
         z <- list(One = h[, z])
