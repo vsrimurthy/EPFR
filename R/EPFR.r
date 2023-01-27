@@ -8946,41 +8946,10 @@ publish.weekly.last <- function (x)
 
 qa.columns <- function (x) 
 {
-    if (any(x == c("M", "W", "D"))) {
-        z <- c("ReportDate", "FundId", "Flow", "AssetsStart", 
-            "AssetsEnd", "ForexChange", "PortfolioChange")
-    }
-    else if (x == "S") {
-        z <- mat.read(parameters("classif-GSec"))$AllocTable[1:10]
-        z <- c("ReportDate", "FundId", z)
-    }
-    else if (x == "I") {
-        z <- mat.read(parameters("classif-GIgrp"))$AllocTable
-        z <- c("ReportDate", "FundId", z)
-    }
-    else if (x == "C") {
-        z <- mat.read(parameters("classif-ctry"), ",")
-        z <- z$AllocTable[is.element(z$OnFTP, 1)]
-        z <- c("ReportDate", "FundId", z)
-    }
-    else if (any(x == c("StockM", "StockD"))) {
-        z <- c("ReportDate", "HSecurityId", "GeoId", "CalculatedStockFlow")
-    }
-    else if (any(x == c("FundCtM", "FundCtD"))) {
-        z <- c("ReportDate", "HSecurityId", "GeoId", "FundCt")
-    }
-    else if (any(x == c("IOND", "IONM"))) {
-        z <- c("ReportDate", "HSecurityId", "Inflow", "Outflow")
-    }
-    else if (any(x == c("FwtdEx0", "FwtdIn0", "SwtdEx0", "SwtdIn0"))) {
-        z <- c("ReportDate", "HSecurityId", "GeoId", "AverageAllocation")
-    }
-    else if (x == "AllocD") {
-        z <- c("ReportDate", "SecurityId", "AllocDA", "AllocDInc", 
-            "AllocDDec", "AllocDAdd", "AllocDRem")
-    }
-    else if (x == "HoldSum") {
-        z <- c("ReportDate", "HSecurityId", "GeoId", x)
+    z <- mat.read(parameters("classif-qaColumns"), "\t", NULL, 
+        F)
+    if (is.element(x, z[, 1])) {
+        z <- z[is.element(z[, 1], x), 2]
     }
     else {
         z <- c("ReportDate", "HSecurityId", x)
