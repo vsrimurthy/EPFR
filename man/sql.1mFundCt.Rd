@@ -4,7 +4,7 @@
 \alias{sql.1mFundCt}
 \title{sql.1mFundCt}
 \usage{
-sql.1mFundCt(x, y, n, w, h, u = 0)
+sql.1mFundCt(x, y, n, w, h, u = 0, v = "All")
 }
 \arguments{
 \item{x}{= the YYYYMM for which you want data (known 26 days later)}
@@ -18,6 +18,8 @@ sql.1mFundCt(x, y, n, w, h, u = 0)
 \item{h}{= breakdown filter (e.g. All/GeoId/DomicileId)}
 
 \item{u}{= when non-zero only the biggest <u> funds for each security matter}
+
+\item{v}{= share-class filter (one of All/Inst/Retail)}
 }
 \description{
 Generates FundCt, the ownership breadth measure set forth in Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
@@ -90,7 +92,6 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.FundHistory.sf}},
   \code{\link{sql.FundHistory}}, \code{\link{sql.HSIdmap}},
   \code{\link{sql.HerdingLSV}},
-  \code{\link{sql.Herfindahl}},
   \code{\link{sql.Holdings.bulk.wrapper}},
   \code{\link{sql.Holdings.bulk}},
   \code{\link{sql.Holdings}}, \code{\link{sql.ION}},

@@ -4,7 +4,7 @@
 \alias{sql.1mAllocSkew}
 \title{sql.1mAllocSkew}
 \usage{
-sql.1mAllocSkew(x, y, n, w)
+sql.1mAllocSkew(x, y, n, w, h = "All")
 }
 \arguments{
 \item{x}{= the YYYYMM for which you want data (known 26 days later)}
@@ -14,6 +14,8 @@ sql.1mAllocSkew(x, y, n, w)
 \item{n}{= any of StockFlows/China/Japan/CSI300/Energy}
 
 \item{w}{= T/F depending on whether you are checking ftp}
+
+\item{h}{= share-class filter (one of All/Inst/Retail)}
 }
 \description{
 Generates the SQL query to get the data for 1mAllocTrend
@@ -85,7 +87,6 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.FundHistory.sf}},
   \code{\link{sql.FundHistory}}, \code{\link{sql.HSIdmap}},
   \code{\link{sql.HerdingLSV}},
-  \code{\link{sql.Herfindahl}},
   \code{\link{sql.Holdings.bulk.wrapper}},
   \code{\link{sql.Holdings.bulk}},
   \code{\link{sql.Holdings}}, \code{\link{sql.ION}},

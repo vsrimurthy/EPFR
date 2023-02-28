@@ -4,7 +4,7 @@
 \alias{sql.MonthlyAssetsEnd}
 \title{sql.MonthlyAssetsEnd}
 \usage{
-sql.MonthlyAssetsEnd(x, y = F, n = F)
+sql.MonthlyAssetsEnd(x, y = F, n = F, w = "All")
 }
 \arguments{
 \item{x}{= YYYYMMDD for which you want flows (known one day later)}
@@ -12,6 +12,8 @@ sql.MonthlyAssetsEnd(x, y = F, n = F)
 \item{y}{= T/F variable depending on whether you want AssetsStart/AssetsEnd or just AssetsEnd}
 
 \item{n}{= T/F depending on whether data are indexed by FundId}
+
+\item{w}{= share-class filter (one of All/Inst/Retail)}
 }
 \description{
 Generates the SQL query to get the data for monthly Assets End
@@ -84,7 +86,6 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.FundHistory.sf}},
   \code{\link{sql.FundHistory}}, \code{\link{sql.HSIdmap}},
   \code{\link{sql.HerdingLSV}},
-  \code{\link{sql.Herfindahl}},
   \code{\link{sql.Holdings.bulk.wrapper}},
   \code{\link{sql.Holdings.bulk}},
   \code{\link{sql.Holdings}}, \code{\link{sql.ION}},

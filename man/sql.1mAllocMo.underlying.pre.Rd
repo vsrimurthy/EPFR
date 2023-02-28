@@ -4,7 +4,7 @@
 \alias{sql.1mAllocMo.underlying.pre}
 \title{sql.1mAllocMo.underlying.pre}
 \usage{
-sql.1mAllocMo.underlying.pre(x, y, n)
+sql.1mAllocMo.underlying.pre(x, y, n, w)
 }
 \arguments{
 \item{x}{= filter list}
@@ -12,6 +12,8 @@ sql.1mAllocMo.underlying.pre(x, y, n)
 \item{y}{= date for new holdings in YYYYMMDD}
 
 \item{n}{= date for old holdings in YYYYMMDD}
+
+\item{w}{= share-class filter (one of All/Inst/Retail)}
 }
 \description{
 FROM and WHERE for 1mAllocMo
@@ -83,7 +85,6 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.FundHistory.sf}},
   \code{\link{sql.FundHistory}}, \code{\link{sql.HSIdmap}},
   \code{\link{sql.HerdingLSV}},
-  \code{\link{sql.Herfindahl}},
   \code{\link{sql.Holdings.bulk.wrapper}},
   \code{\link{sql.Holdings.bulk}},
   \code{\link{sql.Holdings}}, \code{\link{sql.ION}},

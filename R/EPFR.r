@@ -87,7 +87,7 @@ mk.1mPerfTrend <- function (x, y, n, w = F)
         sf <- ifelse(w, "n1.HSecurityId", "n1.SecurityId")
         sf <- c(sf, "his.FundId", "WtCol = n1.HoldingValue/AssetsEnd - o1.HoldingValue/AssetsStart")
         u <- sql.1mAllocMo.underlying.pre(y$filter, yyyymm.to.day(x), 
-            yyyymm.to.day(yyyymm.lag(x)))
+            yyyymm.to.day(yyyymm.lag(x)), "All")
         h <- sql.1mAllocMo.underlying.from(y$filter)
         if (!w) 
             h <- c(h, "inner join", "SecurityHistory id on id.HSecurityId = n1.HSecurityId")
@@ -4601,7 +4601,7 @@ ftp.sql.factor <- function (x, y, n, w, h)
             w, T)
     }
     else if (all(is.element(x, c("FundCt", "Herfindahl")))) {
-        z <- sql.Herfindahl(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
+        z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
             w, T, h)
     }
     else if (all(x == "StockM")) {
@@ -7108,8 +7108,8 @@ mk.1mAllocMo <- function (x, y, n)
     else if (y[1] == "Dispersion") {
         z <- sql.Dispersion(x, y, n$DB, F)
     }
-    else if (any(y[1] == c("Herfindahl", "HerfindahlEq", "FundCt"))) {
-        z <- sql.Herfindahl(x, y, n$DB, F, "All")
+    else if (any(y[1] == c("Herfindahl", "FundCt"))) {
+        z <- sql.1mFundCt(x, y, n$DB, F, "All")
     }
     else if (y[1] == "HoldSum") {
         z <- sql.1mFundCt(x, y, n$DB, F, "All")
@@ -12383,11 +12383,12 @@ sql.1mAllocD.topline.from <- function (x, y)
 #' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
+#' @param h = share-class filter (one of All/Inst/Retail)
 #' @keywords sql.1mAllocMo
 #' @export
 #' @family sql
 
-sql.1mAllocMo <- function (x, y, n, w) 
+sql.1mAllocMo <- function (x, y, n, w, h = "All") 
 {
     y <- sql.arguments(y)
     if (w) 
@@ -12396,7 +12397,7 @@ sql.1mAllocMo <- function (x, y, n, w)
     for (i in y$factor) z <- c(z, sql.1mAllocMo.select(i, any(y$filter == 
         "Num")))
     h <- sql.1mAllocMo.underlying.pre(y$filter, yyyymm.to.day(x), 
-        yyyymm.to.day(yyyymm.lag(x)))
+        yyyymm.to.day(yyyymm.lag(x)), h)
     y <- sql.1mAllocMo.underlying.from(y$filter)
     if (w) {
         if (n == "All") {
@@ -12484,14 +12485,15 @@ sql.1mAllocMo.underlying.from <- function (x)
 #' @param x = filter list
 #' @param y = date for new holdings in YYYYMMDD
 #' @param n = date for old holdings in YYYYMMDD
+#' @param w = share-class filter (one of All/Inst/Retail)
 #' @keywords sql.1mAllocMo.underlying.pre
 #' @export
 #' @family sql
 
-sql.1mAllocMo.underlying.pre <- function (x, y, n) 
+sql.1mAllocMo.underlying.pre <- function (x, y, n, w) 
 {
-    z <- sql.into(sql.MonthlyAssetsEnd(paste0("'", y, "'"), T), 
-        "#MOFLOW")
+    z <- sql.into(sql.MonthlyAssetsEnd(paste0("'", y, "'"), T, 
+        F, w), "#MOFLOW")
     if (any(x == "Up")) 
         z <- c(z, "\tand", "\t\tsum(AssetsEnd - AssetsStart - Flow) > 0")
     z <- c(z, "", sql.into(sql.MonthlyAlloc(paste0("'", y, "'")), 
@@ -12514,18 +12516,20 @@ sql.1mAllocMo.underlying.pre <- function (x, y, n)
 #' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
+#' @param h = share-class filter (one of All/Inst/Retail)
 #' @keywords sql.1mAllocSkew
 #' @export
 #' @family sql
 
-sql.1mAllocSkew <- function (x, y, n, w) 
+sql.1mAllocSkew <- function (x, y, n, w, h = "All") 
 {
     y <- sql.arguments(y)
     x <- yyyymm.to.day(x)
     cols <- c("HFundId", "FundId", "HSecurityId", "HoldingValue")
-    z <- sql.into(sql.tbl("HFundId, PortVal = sum(AssetsEnd)", 
-        "MonthlyData", paste0("ReportDate = '", x, "'"), "HFundId", 
-        "sum(AssetsEnd) > 0"), "#AUM")
+    z <- sql.ShareClass(paste0("ReportDate = '", x, "'"), h)
+    z <- sql.tbl("HFundId, PortVal = sum(AssetsEnd)", "MonthlyData", 
+        z, "HFundId", "sum(AssetsEnd) > 0")
+    z <- sql.into(z, "#AUM")
     z <- c(sql.drop(c("#AUM", "#HLD")), "", z, "")
     h <- paste0("ReportDate = '", x, "'")
     if (n != "All") 
@@ -12783,15 +12787,17 @@ sql.1mFloTrend.underlying <- function (x, y, n)
 #' @param w = T/F depending on whether you are checking ftp
 #' @param h = breakdown filter (e.g. All/GeoId/DomicileId)
 #' @param u = when non-zero only the biggest <u> funds for each security matter
+#' @param v = share-class filter (one of All/Inst/Retail)
 #' @keywords sql.1mFundCt
 #' @export
 #' @family sql
 
-sql.1mFundCt <- function (x, y, n, w, h, u = 0) 
+sql.1mFundCt <- function (x, y, n, w, h, u = 0, v = "All") 
 {
     y <- sql.arguments(y)
     r <- yyyymm.to.day(x)
     x <- sql.declare("@dy", "datetime", r)
+    v <- sql.ShareClass("ReportDate = @dy", v)
     if (n != "All") 
         n <- list(A = sql.in("h.HSecurityId", sql.RDSuniv(n)))
     else n <- list()
@@ -12799,7 +12805,7 @@ sql.1mFundCt <- function (x, y, n, w, h, u = 0)
     for (k in setdiff(y$filter, "All")) n[[char.ex.int(length(n) + 
         65)]] <- sql.FundHistory.sf(k)
     n[[char.ex.int(length(n) + 65)]] <- sql.in("his.HFundId", 
-        sql.tbl("HFundId", "MonthlyData", "ReportDate = @dy"))
+        sql.tbl("HFundId", "MonthlyData", v))
     n <- sql.and(n)
     if (h == "GeoId") 
         z <- "GeoId = GeographicFocusId"
@@ -12810,6 +12816,10 @@ sql.1mFundCt <- function (x, y, n, w, h, u = 0)
     for (j in y$factor) {
         if (j == "FundCt") {
             z <- c(z, paste(j, "count(HoldingValue)", sep = " = "))
+        }
+        else if (j == "Herfindahl") {
+            z <- c(z, paste(j, "1 - sum(square(HoldingValue))/square(sum(HoldingValue))", 
+                sep = " = "))
         }
         else if (j == "HoldSum" & u == 0) {
             z <- c(z, paste(j, "sum(HoldingValue)", sep = " = "))
@@ -13898,69 +13908,6 @@ sql.HerdingLSV <- function (x, y)
     z
 }
 
-#' sql.Herfindahl
-#' 
-#' Generates Herfindahl dispersion and FundCt, the ownership breadth measure set forth in Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
-#' @param x = the YYYYMM for which you want data (known 26 days later)
-#' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
-#' @param n = any of StockFlows/China/Japan/CSI300/Energy
-#' @param w = T/F depending on whether you are checking ftp
-#' @param h = breakdown filter (e.g. All/GeoId/DomicileId)
-#' @keywords sql.Herfindahl
-#' @export
-#' @family sql
-
-sql.Herfindahl <- function (x, y, n, w, h) 
-{
-    y <- sql.arguments(y)
-    z <- yyyymm.to.day(x)
-    x <- sql.declare("@mo", "datetime", z)
-    if (n != "All") 
-        n <- list(A = sql.in("h.HSecurityId", sql.RDSuniv(n)))
-    else n <- list()
-    n[["B"]] <- "ReportDate = @mo"
-    if (any(y$filter != "All")) 
-        n[["C"]] <- sql.in("h.HFundId", sql.FundHistory(y$filter, 
-            T))
-    if (length(n) == 1) 
-        n <- n[[1]]
-    else n <- sql.and(n)
-    if (h == "GeoId") 
-        r <- "GeoId = GeographicFocusId"
-    else r <- sql.breakdown(h)
-    if (w) 
-        z <- c(sql.ReportDate(z), r, "HSecurityId")
-    else z <- "SecurityId"
-    for (j in y$factor) {
-        if (j == "Herfindahl") {
-            z <- c(z, paste(j, "1 - sum(square(HoldingValue))/square(sum(HoldingValue))", 
-                sep = " = "))
-        }
-        else if (j == "HerfindahlEq") {
-            z <- c(z, paste(j, "1 - sum(square(HoldingValue/AssetsEnd))/square(sum(HoldingValue/AssetsEnd))", 
-                sep = " = "))
-        }
-        else if (j == "FundCt") {
-            z <- c(z, paste(j, "count(h.HFundId)", sep = " = "))
-        }
-        else {
-            stop("Bad factor", j)
-        }
-    }
-    r <- "Holdings h"
-    if (!is.null(sql.breakdown(h))) 
-        r <- c(r, "inner join", "FundHistory t on t.HFundId = h.HFundId")
-    if (!w) 
-        r <- c(r, "inner join", "SecurityHistory id on id.HSecurityId = h.HSecurityId")
-    if (any(y$factor == "HerfindahlEq")) {
-        r <- c(r, "inner join", sql.label(sql.MonthlyAssetsEnd("@mo"), 
-            "t on t.HFundId = h.HFundId"))
-    }
-    z <- sql.tbl(z, r, n, sql.1dFloMo.grp(w, h), "sum(HoldingValue) > 0")
-    z <- paste(c(x, sql.unbracket(z)), collapse = "\n")
-    z
-}
-
 #' sql.Holdings
 #' 
 #' query to access stock-holdings data
@@ -14462,11 +14409,12 @@ sql.MonthlyAlloc <- function (x, y = "All")
 #' @param x = YYYYMMDD for which you want flows (known one day later)
 #' @param y = T/F variable depending on whether you want AssetsStart/AssetsEnd or just AssetsEnd
 #' @param n = T/F depending on whether data are indexed by FundId
+#' @param w = share-class filter (one of All/Inst/Retail)
 #' @keywords sql.MonthlyAssetsEnd
 #' @export
 #' @family sql
 
-sql.MonthlyAssetsEnd <- function (x, y = F, n = F) 
+sql.MonthlyAssetsEnd <- function (x, y = F, n = F, w = "All") 
 {
     z <- ifelse(n, "FundId", "HFundId")
     z <- c(z, "AssetsEnd = sum(AssetsEnd)")
@@ -14475,13 +14423,13 @@ sql.MonthlyAssetsEnd <- function (x, y = F, n = F)
         z <- c(z, "AssetsStart = sum(AssetsStart)")
         h <- sql.and(list(A = h, B = "sum(AssetsStart) > 0"))
     }
+    x <- sql.ShareClass(paste("ReportDate =", x), w)
     if (n) {
         z <- sql.tbl(z, "MonthlyData t1 inner join FundHistory t2 on t2.HFundId = t1.HFundId", 
-            paste("ReportDate =", x), "FundId", h)
+            x, "FundId", h)
     }
     else {
-        z <- sql.tbl(z, "MonthlyData", paste("ReportDate =", 
-            x), "HFundId", h)
+        z <- sql.tbl(z, "MonthlyData", x, "HFundId", h)
     }
     z
 }
