@@ -11005,14 +11005,16 @@ smear.Q1 <- function (x)
 #' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
+#' @param h = share-class filter (one of All/Inst/Retail)
 #' @keywords sql.1dActWtTrend
 #' @export
 #' @family sql
 
-sql.1dActWtTrend <- function (x, y, n, w) 
+sql.1dActWtTrend <- function (x, y, n, w, h = "All") 
 {
     y <- sql.arguments(y)
-    z <- sql.1dActWtTrend.underlying(x, y$filter, sql.RDSuniv(n))
+    z <- sql.1dActWtTrend.underlying(x, y$filter, sql.RDSuniv(n), 
+        h)
     z <- c(z, sql.1dActWtTrend.topline(y$factor, w, T))
     z
 }
@@ -11188,11 +11190,12 @@ sql.1dActWtTrend.topline.from <- function ()
 #' @param x = vector of flow dates in YYYYMMDD (known two days later)
 #' @param y = the type of fund used in the computation
 #' @param n = "" or the SQL query to subset to securities desired
+#' @param w = share-class filter (one of All/Inst/Retail)
 #' @keywords sql.1dActWtTrend.underlying
 #' @export
 #' @family sql
 
-sql.1dActWtTrend.underlying <- function (x, y, n) 
+sql.1dActWtTrend.underlying <- function (x, y, n, w) 
 {
     mo.end <- yyyymmdd.to.AllocMo.unique(x, 26, T)
     x <- paste0("'", x, "'")
@@ -11200,6 +11203,7 @@ sql.1dActWtTrend.underlying <- function (x, y, n)
         x <- paste("=", x)
     else x <- paste0("in (", paste(x, collapse = ", "), ")")
     x <- paste("ReportDate", x)
+    x <- sql.ShareClass(x, w)
     z <- c("DailyData t1", "inner join", sql.label(sql.FundHistory(y, 
         T, c("FundId", "GeographicFocusId")), "t2"), "on t2.HFundId = t1.HFundId")
     z <- sql.tbl("ReportDate, FundId, GeographicFocusId = max(GeographicFocusId), Flow = sum(Flow), AssetsStart = sum(AssetsStart)", 
@@ -12983,7 +12987,7 @@ sql.ActWtDiff2 <- function (x)
     z <- sql.tbl("HSecurityId", "Holdings", z, "HSecurityId")
     w[["C"]] <- sql.in("HSecurityId", z)
     w <- sql.tbl("HSecurityId", "Holdings", sql.and(w), "HSecurityId")
-    z <- sql.1dActWtTrend.underlying(x, "All", w)
+    z <- sql.1dActWtTrend.underlying(x, "All", w, "All")
     z <- c(z, sql.1dActWtTrend.topline("ActWtDiff2", F))
     z
 }

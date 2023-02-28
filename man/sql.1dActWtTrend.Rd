@@ -4,7 +4,7 @@
 \alias{sql.1dActWtTrend}
 \title{sql.1dActWtTrend}
 \usage{
-sql.1dActWtTrend(x, y, n, w)
+sql.1dActWtTrend(x, y, n, w, h = "All")
 }
 \arguments{
 \item{x}{= vector of flow dates in YYYYMMDD (known two days later)}
@@ -14,6 +14,8 @@ sql.1dActWtTrend(x, y, n, w)
 \item{n}{= any of StockFlows/China/Japan/CSI300/Energy}
 
 \item{w}{= T/F depending on whether you are checking ftp}
+
+\item{h}{= share-class filter (one of All/Inst/Retail)}
 }
 \description{
 the SQL query to get 1dActWtTrend

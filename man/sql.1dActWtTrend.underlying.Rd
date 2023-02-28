@@ -4,7 +4,7 @@
 \alias{sql.1dActWtTrend.underlying}
 \title{sql.1dActWtTrend.underlying}
 \usage{
-sql.1dActWtTrend.underlying(x, y, n)
+sql.1dActWtTrend.underlying(x, y, n, w)
 }
 \arguments{
 \item{x}{= vector of flow dates in YYYYMMDD (known two days later)}
@@ -12,6 +12,8 @@ sql.1dActWtTrend.underlying(x, y, n)
 \item{y}{= the type of fund used in the computation}
 
 \item{n}{= "" or the SQL query to subset to securities desired}
+
+\item{w}{= share-class filter (one of All/Inst/Retail)}
 }
 \description{
 the SQL query to get the data for 1dActWtTrend
