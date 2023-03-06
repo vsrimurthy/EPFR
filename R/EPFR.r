@@ -4910,7 +4910,7 @@ html.email <- function (x, y = T)
     z <- txt.replace(z, " one successful uploads.", " one successful upload.")
     z <- paste(c("Dear All,", z, html.signature()), collapse = "\n")
     y <- ifelse(y, "ReportDeliveryList", "ReportDeliveryAsiaList")
-    email(y, "Report Delivery", z, , T)
+    email(recipient.read(y), "Report Delivery", z, , T)
     invisible()
 }
 
