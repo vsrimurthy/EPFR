@@ -12679,21 +12679,21 @@ sql.1mChActWt <- function (x, y)
 sql.1mFloMo <- function (x, y, n, w, h, u = "All") 
 {
     u <- sql.ShareClass("ReportDate = @dy", u)
-    u <- sql.tbl("ReportDate, HFundId, Flow, AssetsStart", "MonthlyData", 
-        u)
+    u <- sql.tbl("ReportDate, HFundId, Flow, AssetsStart, AssetsEnd", 
+        "MonthlyData", u)
     z <- sql.tbl("HFundId, AssetsEnd = sum(AssetsEnd)", "MonthlyData", 
         "ReportDate = @dy", "HFundId", "sum(AssetsEnd) > 0")
-    z <- c(sql.label(z, "t3"), "inner join", sql.label(u, "t1"))
-    z <- c(z, "\ton t1.HFundId = t3.HFundId", "inner join", sql.label(sql.1dFloMo.filter(y, 
-        h), "t0"), "\ton t0.HFundId = t1.HFundId")
+    z <- c(sql.label(z, "t3"), "inner join", sql.label(u, "t2"))
+    z <- c(z, "\ton t2.HFundId = t3.HFundId", "inner join", sql.label(sql.1dFloMo.filter(y, 
+        h), "t0"), "\ton t0.HFundId = t2.HFundId")
     z <- c(z, "inner join", sql.label(sql.Holdings("ReportDate = @dy", 
-        c("HSecurityId", "FundId", "HoldingValue")), "t2 on t2.FundId = t0.FundId"))
+        c("HSecurityId", "FundId", "HoldingValue")), "t1 on t1.FundId = t0.FundId"))
     if (!w) 
-        z <- c(z, "inner join", "SecurityHistory id on id.HSecurityId = t2.HSecurityId")
+        z <- c(z, "inner join", "SecurityHistory id on id.HSecurityId = t1.HSecurityId")
     grp <- sql.1dFloMo.grp(w, h)
     y <- sql.1dFloMo.select.wrapper(y, w, h)
     if (n == "All") {
-        z <- sql.tbl(y, z, , grp, "sum(HoldingValue/AssetsEnd) > 0")
+        z <- sql.tbl(y, z, , grp, "sum(HoldingValue/t3.AssetsEnd) > 0")
     }
     else {
         z <- sql.tbl(y, z, sql.in("t2.HSecurityId", sql.RDSuniv(n)), 
