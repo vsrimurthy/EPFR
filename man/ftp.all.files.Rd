@@ -4,7 +4,7 @@
 \alias{ftp.all.files}
 \title{ftp.all.files}
 \usage{
-ftp.all.files(x, y, n, w, h = "ftp")
+ftp.all.files(x, y, n, w, h = "ftp", u = F)
 }
 \arguments{
 \item{x}{= remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
@@ -16,6 +16,8 @@ ftp.all.files(x, y, n, w, h = "ftp")
 \item{w}{= password (defaults to standard)}
 
 \item{h}{= protocol (either "ftp" or "sftp")}
+
+\item{u}{= T/F flag for ftp.use.epsv argument of getCurlHandle}
 }
 \description{
 remote-site directory listing of files (incl. sub-folders)

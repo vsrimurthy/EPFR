@@ -4092,19 +4092,21 @@ flowdate.to.int <- function (x)
 #' @param y = ftp site (defaults to standard)
 #' @param n = user id (defaults to standard)
 #' @param w = password (defaults to standard)
+#' @param h = protocol (either "ftp" or "sftp")
+#' @param u = T/F flag for ftp.use.epsv argument of getCurlHandle
 #' @keywords ftp.all.dir
 #' @export
 #' @family ftp
 
-ftp.all.dir <- function (x, y, n, w) 
+ftp.all.dir <- function (x, y, n, w, h = "ftp", u = F) 
 {
     if (missing(y)) 
-        y <- ftp.credential("ftp")
+        y <- ftp.credential("ftp", h, u)
     if (missing(n)) 
-        n <- ftp.credential("user")
+        n <- ftp.credential("user", h, u)
     if (missing(w)) 
-        w <- ftp.credential("pwd")
-    z <- ftp.all.files.underlying(x, y, n, w, F)
+        w <- ftp.credential("pwd", h, u)
+    z <- ftp.all.files.underlying(x, y, n, w, F, h, u)
     z <- txt.right(z, nchar(z) - nchar(x) - 1)
     z
 }
@@ -4117,19 +4119,20 @@ ftp.all.dir <- function (x, y, n, w)
 #' @param n = user id (defaults to standard)
 #' @param w = password (defaults to standard)
 #' @param h = protocol (either "ftp" or "sftp")
+#' @param u = T/F flag for ftp.use.epsv argument of getCurlHandle
 #' @keywords ftp.all.files
 #' @export
 #' @family ftp
 
-ftp.all.files <- function (x, y, n, w, h = "ftp") 
+ftp.all.files <- function (x, y, n, w, h = "ftp", u = F) 
 {
     if (missing(y)) 
-        y <- ftp.credential("ftp", h)
+        y <- ftp.credential("ftp", h, u)
     if (missing(n)) 
-        n <- ftp.credential("user", h)
+        n <- ftp.credential("user", h, u)
     if (missing(w)) 
-        w <- ftp.credential("pwd", h)
-    z <- ftp.all.files.underlying(x, y, n, w, T, h)
+        w <- ftp.credential("pwd", h, u)
+    z <- ftp.all.files.underlying(x, y, n, w, T, h, u)
     if (x == "/") 
         x <- ""
     z <- txt.right(z, nchar(z) - nchar(x) - 1)
@@ -4145,16 +4148,17 @@ ftp.all.files <- function (x, y, n, w, h = "ftp")
 #' @param w = password
 #' @param h = T/F depending on whether you want files or folders
 #' @param u = protocol (either "ftp" or "sftp")
+#' @param v = T/F flag for ftp.use.epsv argument of getCurlHandle
 #' @keywords ftp.all.files.underlying
 #' @export
 #' @family ftp
 
-ftp.all.files.underlying <- function (x, y, n, w, h, u = "ftp") 
+ftp.all.files.underlying <- function (x, y, n, w, h, u = "ftp", v = F) 
 {
     z <- NULL
     while (length(x) > 0) {
         cat(x[1], "...\n")
-        m <- ftp.dir(x[1], y, n, w, F, u)
+        m <- ftp.dir(x[1], y, n, w, F, u, v)
         if (!is.null(m)) {
             j <- names(m)
             if (x[1] != "/" & x[1] != "") 
@@ -4310,27 +4314,28 @@ ftp.dir.parse.new <- function (x)
 #' @param w = user id
 #' @param h = password
 #' @param u = protocol (either "ftp" or "sftp")
+#' @param v = T/F flag for ftp.use.epsv argument of getCurlHandle
 #' @keywords ftp.download
 #' @export
 #' @family ftp
 
-ftp.download <- function (x, y, n, w, h, u = "ftp") 
+ftp.download <- function (x, y, n, w, h, u = "ftp", v = F) 
 {
     if (missing(n)) 
-        n <- ftp.credential("ftp", u)
+        n <- ftp.credential("ftp", u, v)
     if (missing(w)) 
-        w <- ftp.credential("user", u)
+        w <- ftp.credential("user", u, v)
     if (missing(h)) 
-        h <- ftp.credential("pwd", u)
-    z <- ftp.all.files(x, n, w, h, u)
+        h <- ftp.credential("pwd", u, v)
+    z <- ftp.all.files(x, n, w, h, u, v)
     y <- paste(y, dir.parent(z), sep = "\\")
     y <- ifelse(txt.right(y, 1) == "\\", txt.left(y, nchar(y) - 
         1), y)
-    dir.ensure(paste(unique(y), "foo.txt", sep = "\\"))
-    z <- paste(x, z, sep = "/")
+    dir.ensure(paste0(unique(y), "\\foo.txt"))
+    z <- paste0(x, "/", z)
     for (j in seq_along(z)) {
         cat(txt.right(z[j], nchar(z[j]) - nchar(x)), "...\n")
-        ftp.get(z[j], y[j], n, w, h, u)
+        ftp.get(z[j], y[j], n, w, h, u, v)
     }
     invisible()
 }

@@ -4,7 +4,7 @@
 \alias{ftp.download}
 \title{ftp.download}
 \usage{
-ftp.download(x, y, n, w, h, u = "ftp")
+ftp.download(x, y, n, w, h, u = "ftp", v = F)
 }
 \arguments{
 \item{x}{= remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
@@ -18,6 +18,8 @@ ftp.download(x, y, n, w, h, u = "ftp")
 \item{h}{= password}
 
 \item{u}{= protocol (either "ftp" or "sftp")}
+
+\item{v}{= T/F flag for ftp.use.epsv argument of getCurlHandle}
 }
 \description{
 replicates <x> in folder <y>

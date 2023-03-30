@@ -4,7 +4,7 @@
 \alias{ftp.all.files.underlying}
 \title{ftp.all.files.underlying}
 \usage{
-ftp.all.files.underlying(x, y, n, w, h, u = "ftp")
+ftp.all.files.underlying(x, y, n, w, h, u = "ftp", v = F)
 }
 \arguments{
 \item{x}{= remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
@@ -18,6 +18,8 @@ ftp.all.files.underlying(x, y, n, w, h, u = "ftp")
 \item{h}{= T/F depending on whether you want files or folders}
 
 \item{u}{= protocol (either "ftp" or "sftp")}
+
+\item{v}{= T/F flag for ftp.use.epsv argument of getCurlHandle}
 }
 \description{
 remote-site directory listing of files or folders
