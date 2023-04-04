@@ -7096,42 +7096,57 @@ mk.1mActPas.Sec <- function (x, y, n)
 mk.1mAllocMo <- function (x, y, n) 
 {
     x <- yyyymm.lag(x, 1)
+    w <- is.element(y, c("Inst", "Retail"))
+    if (any(w)) {
+        w <- y[w][1]
+        y <- setdiff(y, w)
+    }
+    else w <- "All"
     if (y[1] == "AllocSkew") {
-        z <- sql.1mAllocSkew(x, y, n$DB, F)
+        z <- sql.1mAllocSkew(x, y, n$DB, F, w)
     }
     else if (y[1] == "ActWtIncrPct") {
+        if (w != "All") 
+            stop("Bad share-class!")
         z <- sql.1mActWtIncrPct(x, y, n$DB, F)
     }
     else if (y[1] == "SRIAdvisorPct") {
+        if (w != "All") 
+            stop("Bad share-class!")
         z <- sql.1mSRIAdvisorPct(x, y, n$DB, F)
     }
     else if (y[1] == "FloDollar") {
-        z <- sql.1mFloMo(x, y, n$DB, F, "All")
+        z <- sql.1mFloMo(x, y, n$DB, F, "All", w)
     }
     else if (y[1] == "Bullish") {
+        if (w != "All") 
+            stop("Bad share-class!")
         z <- sql.Bullish(x, y, n$DB, F)
     }
     else if (y[1] == "Dispersion") {
+        if (w != "All") 
+            stop("Bad share-class!")
         z <- sql.Dispersion(x, y, n$DB, F)
     }
-    else if (any(y[1] == c("Herfindahl", "FundCt"))) {
-        z <- sql.1mFundCt(x, y, n$DB, F, "All")
-    }
-    else if (y[1] == "HoldSum") {
-        z <- sql.1mFundCt(x, y, n$DB, F, "All")
+    else if (any(y[1] == c("Herfindahl", "FundCt", "HoldSum"))) {
+        z <- sql.1mFundCt(x, y, n$DB, F, "All", 0, w)
     }
     else if (any(y[1] == c("AllocDInc", "AllocDDec", "AllocDAdd", 
         "AllocDRem"))) {
+        if (w != "All") 
+            stop("Bad share-class!")
         z <- sql.1mAllocD(x, y, n$DB, F, F)
     }
     else if (any(y[1] == c("FwtdEx0", "FwtdIn0", "SwtdEx0", "SwtdIn0"))) {
+        if (w != "All") 
+            stop("Bad share-class!")
         z <- sql.TopDownAllocs(x, y, n$DB, F, "All")
     }
     else if (any(y[1] == paste0("Alloc", c("Mo", "Trend", "Diff")))) {
-        z <- sql.1mAllocMo(x, y, n$DB, F)
+        z <- sql.1mAllocMo(x, y, n$DB, F, w)
     }
     else {
-        z <- sql.1mFloMo(x, y, n$DB, F, "All")
+        z <- sql.1mFloMo(x, y, n$DB, F, "All", w)
     }
     z <- sql.map.classif(z, n$conn, n$classif)
     z
