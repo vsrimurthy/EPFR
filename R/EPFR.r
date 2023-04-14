@@ -12717,7 +12717,7 @@ sql.1mFloMo <- function (x, y, n, w, h, u = "All")
     }
     else {
         z <- sql.tbl(y, z, sql.in("t1.HSecurityId", sql.RDSuniv(n)), 
-            grp, "sum(HoldingValue/AssetsEnd) > 0")
+            grp, "sum(HoldingValue/t3.AssetsEnd) > 0")
     }
     z <- paste(c(sql.declare("@dy", "datetime", yyyymm.to.day(x)), 
         sql.unbracket(z)), collapse = "\n")
