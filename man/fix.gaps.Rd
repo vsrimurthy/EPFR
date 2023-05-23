@@ -7,7 +7,7 @@
 fix.gaps(x)
 }
 \arguments{
-\item{x}{= a vector}
+\item{x}{= a numeric or character vector}
 }
 \description{
 replaces NA's by previous value

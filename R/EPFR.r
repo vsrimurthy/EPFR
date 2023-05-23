@@ -3914,21 +3914,15 @@ find.whitespace.trail <- function (x)
 #' fix.gaps
 #' 
 #' replaces NA's by previous value
-#' @param x = a vector
+#' @param x = a numeric or character vector
 #' @keywords fix.gaps
 #' @export
 
 fix.gaps <- function (x) 
 {
-    if (is.na(x[1])) 
-        stop("Problem")
-    z <- x
-    n <- length(z)
-    w <- is.na(z[-1])
-    while (any(w)) {
-        z[-1] <- ifelse(w, z[-n], z[-1])
-        w <- is.na(z[-1])
-    }
+    z <- which(!is.na(x))
+    z <- approx(z, z, seq_along(x), method = "constant", rule = 1:2)[["y"]]
+    z <- x[z]
     z
 }
 
