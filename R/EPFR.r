@@ -6311,25 +6311,22 @@ mat.to.xlModel <- function (x, y = 2, n = 5, w = F)
 #' mat.weekly.to.daily
 #' 
 #' daily file having latest weekly data known by each flow date
-#' @param x = a matrix/df of daily data
+#' @param x = a matrix/df of weekly data
 #' @keywords mat.weekly.to.daily
 #' @export
 #' @family mat
 
 mat.weekly.to.daily <- function (x) 
 {
-    h <- dimnames(x)[[1]]
-    w <- flowdate.exists(h)
-    while (any(!w)) {
-        h[!w] <- yyyymmdd.lag(h[!w], 1)
-        w <- flowdate.exists(h)
-    }
-    dimnames(x)[[1]] <- h
-    z <- flowdate.seq(min(h), max(h))
-    h <- approx(h, h, z, method = "constant")[["y"]]
-    x <- map.rname(x, h)
-    dimnames(x)[[1]] <- z
-    z <- x
+    w <- flowdate.exists(dimnames(x)[[1]])
+    if (any(!w)) 
+        dimnames(x)[[1]][!w] <- yyyymmdd.lag(dimnames(x)[[1]][!w], 
+            1)
+    y <- flowdate.seq(min(dimnames(x)[[1]]), max(dimnames(x)[[1]]))
+    z <- fix.gaps(ifelse(is.element(y, dimnames(x)[[1]]), y, 
+        NA))
+    z <- map.rname(x, z)
+    dimnames(z)[[1]] <- y
     z
 }
 

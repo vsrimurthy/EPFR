@@ -7,7 +7,7 @@
 mat.weekly.to.daily(x)
 }
 \arguments{
-\item{x}{= a matrix/df of daily data}
+\item{x}{= a matrix/df of weekly data}
 }
 \description{
 daily file having latest weekly data known by each flow date
