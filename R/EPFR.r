@@ -3973,19 +3973,17 @@ flowdate.ex.int <- function (x)
 {
     z <- c(0, x)
     z <- y <- seq(min(z), max(z))
-    w <- !flowdate.exists(yyyymmdd.ex.int(z))
+    w <- !flowdate.exists(yyyymmdd.ex.int(z)) & z <= 0
     while (any(w)) {
-        if (any(w & z <= 0)) {
-            for (h in sort(z[w & z <= 0], decreasing = T)) {
-                z <- ifelse(z <= h, z - 1, z)
-            }
-        }
-        if (any(w & z > 0)) {
-            for (h in z[w & z > 0]) {
-                z <- ifelse(z >= h, z + 1, z)
-            }
-        }
-        w <- !flowdate.exists(yyyymmdd.ex.int(z))
+        z <- c(z[1] - sum(w):1, z[!w])
+        w <- c(!flowdate.exists(yyyymmdd.ex.int(z[1] - sum(w):1)), 
+            rep(F, sum(!w)))
+    }
+    w <- !flowdate.exists(yyyymmdd.ex.int(z)) & z > 0
+    while (any(w)) {
+        z <- c(z[!w], z[length(z)] + 1:sum(w))
+        w <- c(rep(F, sum(!w)), !flowdate.exists(yyyymmdd.ex.int(z[length(z)] + 
+            1:sum(w))))
     }
     if (length(z) > 1) 
         z <- approx(y, z, x)$y
