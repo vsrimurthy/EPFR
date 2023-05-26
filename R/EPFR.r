@@ -3985,9 +3985,7 @@ flowdate.ex.int <- function (x)
         w <- c(rep(F, sum(!w)), !flowdate.exists(yyyymmdd.ex.int(z[length(z)] + 
             1:sum(w))))
     }
-    if (length(z) > 1) 
-        z <- approx(y, z, x)$y
-    z <- yyyymmdd.ex.int(z)
+    z <- yyyymmdd.ex.int(z[x - y[1] + 1])
     z
 }
 
