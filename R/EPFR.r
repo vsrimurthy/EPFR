@@ -4523,12 +4523,14 @@ ftp.record <- function (x, y)
 
 ftp.rmdir <- function (x, y, n, w, h) 
 {
+    u <- "ftp"
+    v <- u == "ftp"
     if (missing(n)) 
-        n <- ftp.credential("ftp")
+        n <- ftp.credential("ftp", u, v)
     if (missing(w)) 
-        w <- ftp.credential("user")
+        w <- ftp.credential("user", u, v)
     if (missing(h)) 
-        h <- ftp.credential("pwd")
+        h <- ftp.credential("pwd", u, v)
     z <- tryCatch(curlPerform(url = paste0("ftp://", n, x, "/", 
         y, "/"), quote = paste0("RMD ", x, "/", y, "/"), userpwd = paste0(w, 
         ":", h)), error = function(e) {
