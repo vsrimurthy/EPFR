@@ -4,7 +4,7 @@
 \alias{ftp.put}
 \title{ftp.put}
 \usage{
-ftp.put(x, y, n, w, h, u = "ftp", v = F)
+ftp.put(x, y, n, w, h, u = "ftp", v)
 }
 \arguments{
 \item{x}{= remote folder on an ftp site (e.g. "/ftpdata/mystuff")}

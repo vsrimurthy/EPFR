@@ -214,8 +214,10 @@ email <- function (x, y, n, w = "", h = F, u, v)
 #' @family ftp
 #' @import RCurl
 
-ftp.dir <- function (x, y, n, w, h = F, u = "ftp", v = F) 
+ftp.dir <- function (x, y, n, w, h = F, u = "ftp", v) 
 {
+    if (missing(v)) 
+        v <- u == "ftp"
     if (missing(y)) 
         y <- ftp.credential("ftp", u, v)
     if (missing(n)) 
@@ -4143,8 +4145,10 @@ ftp.all.files <- function (x, y, n, w, h = "ftp", u = F)
 #' @export
 #' @family ftp
 
-ftp.all.files.underlying <- function (x, y, n, w, h, u = "ftp", v = F) 
+ftp.all.files.underlying <- function (x, y, n, w, h, u = "ftp", v) 
 {
+    if (missing(v)) 
+        v <- u == "ftp"
     z <- NULL
     while (length(x) > 0) {
         cat(x[1], "...\n")
@@ -4221,12 +4225,13 @@ ftp.credential <- function (x, y = "ftp", n = F)
 
 ftp.del <- function (x, y, n, w, h, u = "ftp") 
 {
+    v <- u == "ftp"
     if (missing(n)) 
-        n <- ftp.credential("ftp", u)
+        n <- ftp.credential("ftp", u, v)
     if (missing(w)) 
-        w <- ftp.credential("user", u)
+        w <- ftp.credential("user", u, v)
     if (missing(h)) 
-        h <- ftp.credential("pwd", u)
+        h <- ftp.credential("pwd", u, v)
     z <- paste0(u, "://", n, x, "/", y)
     u <- ifelse(u == "ftp", "DELE", "RM")
     z <- tryCatch(curlPerform(url = z, quote = paste0(u, " ", 
@@ -4309,8 +4314,10 @@ ftp.dir.parse.new <- function (x)
 #' @export
 #' @family ftp
 
-ftp.download <- function (x, y, n, w, h, u = "ftp", v = F) 
+ftp.download <- function (x, y, n, w, h, u = "ftp", v) 
 {
+    if (missing(v)) 
+        v <- u == "ftp"
     if (missing(n)) 
         n <- ftp.credential("ftp", u, v)
     if (missing(w)) 
@@ -4371,8 +4378,10 @@ ftp.file <- function (x)
 #' @export
 #' @family ftp
 
-ftp.get <- function (x, y, n, w, h, u = "ftp", v = F) 
+ftp.get <- function (x, y, n, w, h, u = "ftp", v) 
 {
+    if (missing(v)) 
+        v <- u == "ftp"
     if (missing(n)) 
         n <- ftp.credential("ftp", u, v)
     if (missing(w)) 
@@ -4459,8 +4468,10 @@ ftp.parent <- function (x)
 #' @export
 #' @family ftp
 
-ftp.put <- function (x, y, n, w, h, u = "ftp", v = F) 
+ftp.put <- function (x, y, n, w, h, u = "ftp", v) 
 {
+    if (missing(v)) 
+        v <- u == "ftp"
     if (missing(n)) 
         n <- ftp.credential("ftp", u, v)
     if (missing(w)) 
@@ -4698,8 +4709,10 @@ ftp.sql.other <- function (x, y, n)
 #' @export
 #' @family ftp
 
-ftp.upload <- function (x, y, n, w, h, u = "ftp", v = F) 
+ftp.upload <- function (x, y, n, w, h, u = "ftp", v) 
 {
+    if (missing(v)) 
+        v <- u == "ftp"
     if (missing(n)) 
         n <- ftp.credential("ftp", u, v)
     if (missing(w)) 

@@ -4,7 +4,7 @@
 \alias{ftp.get}
 \title{ftp.get}
 \usage{
-ftp.get(x, y, n, w, h, u = "ftp", v = F)
+ftp.get(x, y, n, w, h, u = "ftp", v)
 }
 \arguments{
 \item{x}{= remote file on an ftp site (e.g. "/ftpdata/mystuff/foo.txt")}

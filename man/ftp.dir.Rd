@@ -4,7 +4,7 @@
 \alias{ftp.dir}
 \title{ftp.dir}
 \usage{
-ftp.dir(x, y, n, w, h = F, u = "ftp", v = F)
+ftp.dir(x, y, n, w, h = F, u = "ftp", v)
 }
 \arguments{
 \item{x}{= remote folder on an ftp site (e.g. "/ftpdata/mystuff")}

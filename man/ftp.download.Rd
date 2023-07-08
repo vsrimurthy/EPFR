@@ -4,7 +4,7 @@
 \alias{ftp.download}
 \title{ftp.download}
 \usage{
-ftp.download(x, y, n, w, h, u = "ftp", v = F)
+ftp.download(x, y, n, w, h, u = "ftp", v)
 }
 \arguments{
 \item{x}{= remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
