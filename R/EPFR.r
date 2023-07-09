@@ -4090,8 +4090,10 @@ flowdate.to.int <- function (x)
 #' @export
 #' @family ftp
 
-ftp.all.dir <- function (x, y, n, w, h = "ftp", u = F) 
+ftp.all.dir <- function (x, y, n, w, h = "ftp", u) 
 {
+    if (missing(u)) 
+        u <- h == "ftp"
     if (missing(y)) 
         y <- ftp.credential("ftp", h, u)
     if (missing(n)) 
@@ -4116,8 +4118,10 @@ ftp.all.dir <- function (x, y, n, w, h = "ftp", u = F)
 #' @export
 #' @family ftp
 
-ftp.all.files <- function (x, y, n, w, h = "ftp", u = F) 
+ftp.all.files <- function (x, y, n, w, h = "ftp", u) 
 {
+    if (missing(u)) 
+        u <- h == "ftp"
     if (missing(y)) 
         y <- ftp.credential("ftp", h, u)
     if (missing(n)) 
@@ -4511,29 +4515,28 @@ ftp.record <- function (x, y)
 
 #' ftp.rmdir
 #' 
-#' removes directory <y> under <x>
+#' removes directory <x> (e.g. "mystuff")
 #' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
-#' @param y = folder to be deleted (e.g. "hoo")
-#' @param n = ftp site (defaults to standard)
-#' @param w = user id (defaults to standard)
-#' @param h = password (defaults to standard)
+#' @param y = ftp site (defaults to standard)
+#' @param n = user id (defaults to standard)
+#' @param w = password (defaults to standard)
 #' @keywords ftp.rmdir
 #' @export
 #' @family ftp
 
-ftp.rmdir <- function (x, y, n, w, h) 
+ftp.rmdir <- function (x, y, n, w) 
 {
     u <- "ftp"
     v <- u == "ftp"
+    if (missing(y)) 
+        y <- ftp.credential("ftp", u, v)
     if (missing(n)) 
-        n <- ftp.credential("ftp", u, v)
+        n <- ftp.credential("user", u, v)
     if (missing(w)) 
-        w <- ftp.credential("user", u, v)
-    if (missing(h)) 
-        h <- ftp.credential("pwd", u, v)
-    z <- tryCatch(curlPerform(url = paste0("ftp://", n, x, "/", 
-        y, "/"), quote = paste0("RMD ", x, "/", y, "/"), userpwd = paste0(w, 
-        ":", h)), error = function(e) {
+        w <- ftp.credential("pwd", u, v)
+    z <- tryCatch(curlPerform(url = paste0("ftp://", y, x, "/"), 
+        quote = paste0("RMD ", x, "/"), userpwd = paste0(n, ":", 
+            w)), error = function(e) {
         NULL
     })
     invisible()

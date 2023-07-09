@@ -4,21 +4,19 @@
 \alias{ftp.rmdir}
 \title{ftp.rmdir}
 \usage{
-ftp.rmdir(x, y, n, w, h)
+ftp.rmdir(x, y, n, w)
 }
 \arguments{
 \item{x}{= remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
 
-\item{y}{= folder to be deleted (e.g. "hoo")}
+\item{y}{= ftp site (defaults to standard)}
 
-\item{n}{= ftp site (defaults to standard)}
+\item{n}{= user id (defaults to standard)}
 
-\item{w}{= user id (defaults to standard)}
-
-\item{h}{= password (defaults to standard)}
+\item{w}{= password (defaults to standard)}
 }
 \description{
-removes directory <y> under <x>
+removes directory <x> (e.g. "mystuff")
 }
 \seealso{
 Other ftp: \code{\link{ftp.all.dir}},

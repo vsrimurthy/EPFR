@@ -4,7 +4,7 @@
 \alias{ftp.all.files}
 \title{ftp.all.files}
 \usage{
-ftp.all.files(x, y, n, w, h = "ftp", u = F)
+ftp.all.files(x, y, n, w, h = "ftp", u)
 }
 \arguments{
 \item{x}{= remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
