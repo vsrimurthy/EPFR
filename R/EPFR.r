@@ -4090,17 +4090,11 @@ flowdate.to.int <- function (x)
 #' @export
 #' @family ftp
 
-ftp.all.dir <- function (x, y, n, w, h = "ftp", u) 
+ftp.all.dir <- function (x, y, n, w, h, u) 
 {
-    if (missing(u)) 
-        u <- h == "ftp"
-    if (missing(y)) 
-        y <- ftp.credential("ftp", h, u)
-    if (missing(n)) 
-        n <- ftp.credential("user", h, u)
-    if (missing(w)) 
-        w <- ftp.credential("pwd", h, u)
-    z <- ftp.all.files.underlying(x, y, n, w, F, h, u)
+    z <- as.list(match.call())[-1]
+    z[["v"]] <- F
+    z <- do.call(ftp.all.files.underlying, z)
     z <- txt.right(z, nchar(z) - nchar(x) - 1)
     z
 }
@@ -4118,17 +4112,11 @@ ftp.all.dir <- function (x, y, n, w, h = "ftp", u)
 #' @export
 #' @family ftp
 
-ftp.all.files <- function (x, y, n, w, h = "ftp", u) 
+ftp.all.files <- function (x, y, n, w, h, u) 
 {
-    if (missing(u)) 
-        u <- h == "ftp"
-    if (missing(y)) 
-        y <- ftp.credential("ftp", h, u)
-    if (missing(n)) 
-        n <- ftp.credential("user", h, u)
-    if (missing(w)) 
-        w <- ftp.credential("pwd", h, u)
-    z <- ftp.all.files.underlying(x, y, n, w, T, h, u)
+    z <- as.list(match.call())[-1]
+    z[["v"]] <- T
+    z <- do.call(ftp.all.files.underlying, z)
     if (x == "/") 
         x <- ""
     z <- txt.right(z, nchar(z) - nchar(x) - 1)
@@ -4142,28 +4130,34 @@ ftp.all.files <- function (x, y, n, w, h = "ftp", u)
 #' @param y = ftp site
 #' @param n = user id
 #' @param w = password
-#' @param h = T/F depending on whether you want files or folders
-#' @param u = protocol (either "ftp" or "sftp")
-#' @param v = T/F flag for ftp.use.epsv argument of getCurlHandle
+#' @param h = protocol (either "ftp" or "sftp")
+#' @param u = T/F flag for ftp.use.epsv argument of getCurlHandle
+#' @param v = T/F depending on whether you want files or folders
 #' @keywords ftp.all.files.underlying
 #' @export
 #' @family ftp
 
-ftp.all.files.underlying <- function (x, y, n, w, h, u = "ftp", v) 
+ftp.all.files.underlying <- function (x, y, n, w, h = "ftp", u, v) 
 {
-    if (missing(v)) 
-        v <- u == "ftp"
+    if (missing(u)) 
+        u <- h == "ftp"
+    if (missing(y)) 
+        y <- ftp.credential("ftp", h, u)
+    if (missing(n)) 
+        n <- ftp.credential("user", h, u)
+    if (missing(w)) 
+        w <- ftp.credential("pwd", h, u)
     z <- NULL
     while (length(x) > 0) {
-        cat(x[1], "...\n")
-        m <- ftp.dir(x[1], y, n, w, F, u, v)
+        cat(x[1], "..\n")
+        m <- ftp.dir(x[1], y, n, w, F, h, u)
         if (!is.null(m)) {
             j <- names(m)
             if (x[1] != "/" & x[1] != "") 
                 j <- paste(x[1], j, sep = "/")
             else j <- paste0("/", j)
-            if (any(m == h)) 
-                z <- c(z, j[m == h])
+            if (any(m == v)) 
+                z <- c(z, j[m == v])
             if (any(!m)) 
                 x <- c(x, j[!m])
         }
@@ -9265,17 +9259,11 @@ qa.index <- function (x, y, n)
 #' @export
 #' @family qa
 
-qa.mat.read <- function (x, y, n, w, h, u = "ftp", v = F) 
+qa.mat.read <- function (x, y, n, w, h, u, v) 
 {
-    if (missing(n)) 
-        n <- ftp.credential("ftp", u, v)
-    if (missing(w)) 
-        w <- ftp.credential("user", u, v)
-    if (missing(h)) 
-        h <- ftp.credential("pwd", u, v)
-    ftp.get(x, y, n, w, h, u, v)
-    x <- txt.right(x, nchar(x) - nchar(dirname(x)) - 1)
-    x <- paste(y, x, sep = "\\")
+    z <- as.list(match.call())[-1]
+    do.call(ftp.get, z)
+    x <- paste0(y, "\\", ftp.file(x))
     z <- NULL
     if (file.exists(x)) {
         z <- mat.read(x, "\t", NULL)

@@ -4,7 +4,7 @@
 \alias{qa.mat.read}
 \title{qa.mat.read}
 \usage{
-qa.mat.read(x, y, n, w, h, u = "ftp", v = F)
+qa.mat.read(x, y, n, w, h, u, v)
 }
 \arguments{
 \item{x}{= remote file on an ftp site (e.g. "/ftpdata/mystuff/foo.txt")}
