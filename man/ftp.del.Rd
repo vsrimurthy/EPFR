@@ -7,9 +7,9 @@
 ftp.del(x, y, n, w, h, u = "ftp")
 }
 \arguments{
-\item{x}{= remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
+\item{x}{= remote folder/file (e.g. "/ftpdata" or "/ftpdata/foo.txt")}
 
-\item{y}{= a SINGLE remote file (e.g. "foo.txt")}
+\item{y}{= a SINGLE file (e.g. "foo.txt") or missing if <x> is a file}
 
 \item{n}{= ftp site (defaults to standard)}
 
@@ -20,7 +20,7 @@ ftp.del(x, y, n, w, h, u = "ftp")
 \item{u}{= protocol (either "ftp" or "sftp")}
 }
 \description{
-deletes file <y> on remote site <x>
+deletes file <x> or file <y> on remote folder <x>
 }
 \seealso{
 Other ftp: \code{\link{ftp.all.dir}},

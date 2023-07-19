@@ -226,14 +226,19 @@ ftp.dir <- function (x, y, n, w, h = F, u = "ftp", v)
         w <- ftp.credential("pwd", u, v)
     z <- getURL(paste0(u, "://", y, x, "/"), userpwd = paste0(n, 
         ":", w), ftp.use.epsv = v)
-    z <- txt.parse(z, ifelse(u == "ftp", "\r\n", "\n"))
-    if (v & u == "ftp") 
-        z <- ftp.dir.parse.new(z)
-    else z <- ftp.dir.parse.77(z)
-    z <- z[!z[, "is.file"] | z[, "size"] > 0, ]
-    if (dim(z)[1] > 0) {
-        h <- ifelse(h, "yyyymmdd", "is.file")
-        z <- vec.named(z[, h], z[, "file"])
+    if (z != "") {
+        z <- txt.parse(z, ifelse(u == "ftp", "\r\n", "\n"))
+        if (v & u == "ftp") 
+            z <- ftp.dir.parse.new(z)
+        else z <- ftp.dir.parse.77(z)
+        z <- z[!z[, "is.file"] | z[, "size"] > 0, ]
+        if (dim(z)[1] > 0) {
+            h <- ifelse(h, "yyyymmdd", "is.file")
+            z <- vec.named(z[, h], z[, "file"])
+        }
+        else {
+            z <- NULL
+        }
     }
     else {
         z <- NULL
@@ -4210,9 +4215,9 @@ ftp.credential <- function (x, y = "ftp", n = F)
 
 #' ftp.del
 #' 
-#' deletes file <y> on remote site <x>
-#' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
-#' @param y = a SINGLE remote file (e.g. "foo.txt")
+#' deletes file <x> or file <y> on remote folder <x>
+#' @param x = remote folder/file (e.g. "/ftpdata" or "/ftpdata/foo.txt")
+#' @param y = a SINGLE file (e.g. "foo.txt") or missing if <x> is a file
 #' @param n = ftp site (defaults to standard)
 #' @param w = user id (defaults to standard)
 #' @param h = password (defaults to standard)
@@ -4230,10 +4235,12 @@ ftp.del <- function (x, y, n, w, h, u = "ftp")
         w <- ftp.credential("user", u, v)
     if (missing(h)) 
         h <- ftp.credential("pwd", u, v)
-    z <- paste0(u, "://", n, x, "/", y)
+    if (!missing(y)) 
+        x <- paste0(x, "/", y)
+    z <- paste0(u, "://", n, x)
     u <- ifelse(u == "ftp", "DELE", "RM")
-    z <- tryCatch(curlPerform(url = z, quote = paste0(u, " ", 
-        x, "/", y), userpwd = paste0(w, ":", h)), error = function(e) {
+    z <- tryCatch(curlPerform(url = z, quote = paste(u, x), userpwd = paste0(w, 
+        ":", h)), error = function(e) {
         NULL
     })
     invisible()
