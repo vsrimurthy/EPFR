@@ -3982,15 +3982,15 @@ flowdate.ex.int <- function (x)
     z <- y <- seq(min(z), max(z))
     w <- !flowdate.exists(yyyymmdd.ex.int(z)) & z <= 0
     while (any(w)) {
-        z <- c(z[1] - sum(w):1, z[!w])
-        w <- c(!flowdate.exists(yyyymmdd.ex.int(z[1] - sum(w):1)), 
-            rep(F, sum(!w)))
+        h <- z[1] - sum(w):1
+        z <- c(h, z[!w])
+        w <- c(!flowdate.exists(yyyymmdd.ex.int(h)), rep(F, sum(!w)))
     }
     w <- !flowdate.exists(yyyymmdd.ex.int(z)) & z > 0
     while (any(w)) {
-        z <- c(z[!w], z[length(z)] + 1:sum(w))
-        w <- c(rep(F, sum(!w)), !flowdate.exists(yyyymmdd.ex.int(z[length(z)] + 
-            1:sum(w))))
+        h <- z[length(z)] + 1:sum(w)
+        z <- c(z[!w], h)
+        w <- c(rep(F, sum(!w)), !flowdate.exists(yyyymmdd.ex.int(h)))
     }
     z <- yyyymmdd.ex.int(z[x - y[1] + 1])
     z
