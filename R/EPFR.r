@@ -14843,8 +14843,7 @@ sql.TopDownAllocs.underlying <- function (x, y, n, w, h)
         r <- c(r, "inner join", "SecurityHistory id on id.HSecurityId = t1.HSecurityId")
     u <- ifelse(w, "HSecurityId", "SecurityId")
     if (h != "All") 
-        u <- paste(c(paste("t2.", sql.breakdown(h), sep = ""), 
-            u), collapse = ", ")
+        u <- paste(c(paste0("t2.", sql.breakdown(h)), u), collapse = ", ")
     if (h == "GeoId") {
         z <- "GeoId = t2.GeographicFocusId"
     }
