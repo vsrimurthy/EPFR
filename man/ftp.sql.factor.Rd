@@ -7,7 +7,7 @@
 ftp.sql.factor(x, y, n, w, h)
 }
 \arguments{
-\item{x}{= vector of M/W/D depending on whether flows are monthly/weekly/daily}
+\item{x}{= factor}
 
 \item{y}{= flow date in YYYYMMDD format}
 

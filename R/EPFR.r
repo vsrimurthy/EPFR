@@ -4546,7 +4546,7 @@ ftp.rmdir <- function (x, y, n, w)
 #' ftp.sql.factor
 #' 
 #' SQL code to validate <x> flows at the <y> level
-#' @param x = vector of M/W/D depending on whether flows are monthly/weekly/daily
+#' @param x = factor
 #' @param y = flow date in YYYYMMDD format
 #' @param n = fund filter (e.g. Aggregate/Active/Passive/ETF/Mutual)
 #' @param w = stock filter (e.g. All/China/Japan)
@@ -4559,7 +4559,8 @@ ftp.sql.factor <- function (x, y, n, w, h)
 {
     if (missing(h)) {
         if (any(x == c("StockM", "StockD", "FwtdEx0", "FwtdIn0", 
-            "SwtdEx0", "SwtdIn0", "FundCtM", "HoldSum", "FundCt"))) {
+            "SwtdEx0", "SwtdIn0", "FundCtM", "HoldSum", "SharesHeld", 
+            "FundCt"))) {
             h <- "GeoId"
         }
         else {
@@ -4597,9 +4598,9 @@ ftp.sql.factor <- function (x, y, n, w, h)
         z <- sql.1mHoldAum(yyyymmdd.to.yyyymm(y), c("HoldAum", 
             qa.filter.map(n)), w, T, h)
     }
-    else if (all(x == "HoldSum")) {
-        z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c("HoldSum", 
-            qa.filter.map(n)), w, T, h)
+    else if (all(is.element(x, c("HoldSum", "SharesHeld")))) {
+        z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
+            w, T, h)
     }
     else if (all(x == "HoldSumTopV")) {
         z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c("HoldSum", 
