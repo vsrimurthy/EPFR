@@ -216,19 +216,12 @@ email <- function (x, y, n, w = "", h = F, u, v)
 
 ftp.dir <- function (x, y, n, w, h = F, u = "ftp", v) 
 {
-    if (missing(v)) 
-        v <- u == "ftp"
-    if (missing(y)) 
-        y <- ftp.credential("ftp", u, v)
-    if (missing(n)) 
-        n <- ftp.credential("user", u, v)
-    if (missing(w)) 
-        w <- ftp.credential("pwd", u, v)
-    z <- getURL(paste0(u, "://", y, x, "/"), userpwd = paste0(n, 
-        ":", w), ftp.use.epsv = v)
+    w <- ftp.missing(as.list(environment()), "ynwuv")
+    z <- paste0(w[["ftp"]], x, "/")
+    z <- getURL(z, userpwd = w[["userpwd"]], ftp.use.epsv = w[["epsv"]])
     if (z != "") {
         z <- txt.parse(z, ifelse(u == "ftp", "\r\n", "\n"))
-        if (v & u == "ftp") 
+        if (w[["epsv"]] & u == "ftp") 
             z <- ftp.dir.parse.new(z)
         else z <- ftp.dir.parse.77(z)
         z <- z[!z[, "is.file"] | z[, "size"] > 0, ]
@@ -4097,7 +4090,8 @@ flowdate.to.int <- function (x)
 
 ftp.all.dir <- function (x, y, n, w, h, u) 
 {
-    z <- as.list(match.call())[-1]
+    z <- as.list(environment())
+    z <- z[!sapply(z, is.symbol)]
     z[["v"]] <- F
     z <- do.call(ftp.all.files.underlying, z)
     z <- txt.right(z, nchar(z) - nchar(x) - 1)
@@ -4119,7 +4113,8 @@ ftp.all.dir <- function (x, y, n, w, h, u)
 
 ftp.all.files <- function (x, y, n, w, h, u) 
 {
-    z <- as.list(match.call())[-1]
+    z <- as.list(environment())
+    z <- z[!sapply(z, is.symbol)]
     z[["v"]] <- T
     z <- do.call(ftp.all.files.underlying, z)
     if (x == "/") 
@@ -4144,6 +4139,7 @@ ftp.all.files <- function (x, y, n, w, h, u)
 
 ftp.all.files.underlying <- function (x, y, n, w, h = "ftp", u, v) 
 {
+    browser()
     if (missing(u)) 
         u <- h == "ftp"
     if (missing(y)) 
@@ -4228,21 +4224,15 @@ ftp.credential <- function (x, y = "ftp", n = F)
 
 ftp.del <- function (x, y, n, w, h, u = "ftp") 
 {
-    v <- u == "ftp"
-    if (missing(n)) 
-        n <- ftp.credential("ftp", u, v)
-    if (missing(w)) 
-        w <- ftp.credential("user", u, v)
-    if (missing(h)) 
-        h <- ftp.credential("pwd", u, v)
     if (!missing(y)) 
         x <- paste0(x, "/", y)
-    z <- paste0(u, "://", n, x)
-    u <- ifelse(u == "ftp", "DELE", "RM")
-    z <- tryCatch(curlPerform(url = z, quote = paste(u, x), userpwd = paste0(w, 
-        ":", h)), error = function(e) {
-        NULL
-    })
+    w <- ftp.missing(as.list(environment()), "nwhuv")
+    z <- paste0(w[["ftp"]], x)
+    u <- ifelse(w[["protocol"]] == "ftp", "DELE", "RM")
+    tryCatch(curlPerform(url = z, quote = paste(u, x), userpwd = w[["userpwd"]]), 
+        error = function(e) {
+            NULL
+        })
     invisible()
 }
 
@@ -4385,17 +4375,9 @@ ftp.file <- function (x)
 
 ftp.get <- function (x, y, n, w, h, u = "ftp", v) 
 {
-    if (missing(v)) 
-        v <- u == "ftp"
-    if (missing(n)) 
-        n <- ftp.credential("ftp", u, v)
-    if (missing(w)) 
-        w <- ftp.credential("user", u, v)
-    if (missing(h)) 
-        h <- ftp.credential("pwd", u, v)
-    z <- getCurlHandle(ftp.use.epsv = v, userpwd = paste0(w, 
-        ":", h))
-    z <- getBinaryURL(paste0(u, "://", n, x), curl = z)
+    w <- ftp.missing(as.list(environment()), "nwhuv")
+    z <- getCurlHandle(ftp.use.epsv = w[["epsv"]], userpwd = w[["userpwd"]])
+    z <- getBinaryURL(paste0(w[["ftp"]], x), curl = z)
     writeBin(z, con = paste0(y, "\\", ftp.file(x)))
     invisible()
 }
@@ -4444,6 +4426,38 @@ ftp.list <- function ()
     record.read("upload.txt")
 }
 
+#' ftp.missing
+#' 
+#' supplies missing arguments
+#' @param x = arguments from higher function
+#' @param y = argument names
+#' @keywords ftp.missing
+#' @export
+#' @family ftp
+
+ftp.missing <- function (x, y) 
+{
+    y <- strsplit(y, "")[[1]]
+    x <- x[!sapply(x, is.symbol)]
+    w <- x[[y[4]]]
+    if (all(names(x) != y[5])) 
+        h <- x[[y[4]]] == "ftp"
+    else h <- x[[y[5]]]
+    z <- list(protocol = w, epsv = h)
+    if (all(names(x) != y[1])) 
+        z[["ftp"]] <- ftp.credential("ftp", w, h)
+    else z[["ftp"]] <- x[[y[1]]]
+    if (all(names(x) != y[2])) 
+        z[["userpwd"]] <- ftp.credential("user", w, h)
+    else z[["userpwd"]] <- x[[y[2]]]
+    if (all(names(x) != y[3])) 
+        h <- ftp.credential("pwd", w, h)
+    else h <- x[[y[3]]]
+    z[["userpwd"]] <- paste0(z[["userpwd"]], ":", h)
+    z[["ftp"]] <- paste0(z[["protocol"]], "://", z[["ftp"]])
+    z
+}
+
 #' ftp.parent
 #' 
 #' returns paths to the parent directory
@@ -4475,22 +4489,14 @@ ftp.parent <- function (x)
 
 ftp.put <- function (x, y, n, w, h, u = "ftp", v) 
 {
-    if (missing(v)) 
-        v <- u == "ftp"
-    if (missing(n)) 
-        n <- ftp.credential("ftp", u, v)
-    if (missing(w)) 
-        w <- ftp.credential("user", u, v)
-    if (missing(h)) 
-        h <- ftp.credential("pwd", u, v)
+    w <- ftp.missing(as.list(environment()), "nwhuv")
     ctr <- 5
     z <- NULL
     while (is.null(z) & ctr > 0) {
         if (ctr < 5) 
             cat("Trying to upload to", x, "again ..\n")
-        z <- getCurlHandle(ftp.use.epsv = v, userpwd = paste0(w, 
-            ":", h))
-        z <- tryCatch(ftpUpload(y, paste0(u, "://", n, x, "/", 
+        z <- getCurlHandle(ftp.use.epsv = w[["epsv"]], userpwd = w[["userpwd"]])
+        z <- tryCatch(ftpUpload(y, paste0(w[["ftp"]], x, "/", 
             ftp.file(y)), curl = z, ftp.create.missing.dirs = T), 
             error = function(e) {
                 NULL
@@ -4521,23 +4527,17 @@ ftp.record <- function (x, y)
 #' @param y = ftp site (defaults to standard)
 #' @param n = user id (defaults to standard)
 #' @param w = password (defaults to standard)
+#' @param h = protocol (either "ftp" or "sftp")
 #' @keywords ftp.rmdir
 #' @export
 #' @family ftp
 
-ftp.rmdir <- function (x, y, n, w) 
+ftp.rmdir <- function (x, y, n, w, h = "ftp") 
 {
-    u <- "ftp"
-    v <- u == "ftp"
-    if (missing(y)) 
-        y <- ftp.credential("ftp", u, v)
-    if (missing(n)) 
-        n <- ftp.credential("user", u, v)
-    if (missing(w)) 
-        w <- ftp.credential("pwd", u, v)
-    z <- tryCatch(curlPerform(url = paste0("ftp://", y, x, "/"), 
-        quote = paste0("RMD ", x, "/"), userpwd = paste0(n, ":", 
-            w)), error = function(e) {
+    w <- ftp.missing(as.list(environment()), "ynwhu")
+    z <- paste0(w[["ftp"]], x, "/")
+    tryCatch(curlPerform(url = z, quote = paste0("RMD ", x, "/"), 
+        userpwd = w[["userpwd"]]), error = function(e) {
         NULL
     })
     invisible()
@@ -4718,21 +4718,17 @@ ftp.sql.other <- function (x, y, n)
 
 ftp.upload <- function (x, y, n, w, h, u = "ftp", v) 
 {
-    if (missing(v)) 
-        v <- u == "ftp"
-    if (missing(n)) 
-        n <- ftp.credential("ftp", u, v)
-    if (missing(w)) 
-        w <- ftp.credential("user", u, v)
-    if (missing(h)) 
-        h <- ftp.credential("pwd", u, v)
+    w <- as.list(environment())
+    w <- w[!sapply(w, is.symbol)]
     z <- dir.all.files(y, "*.*")
     s <- ftp.parent(z)
     s <- txt.right(s, nchar(s) - nchar(y))
     s <- paste0(x, s)
     for (j in seq_along(z)) {
         cat(ftp.file(z[j]), "")
-        ftp.put(s[j], z[j], n, w, h, u, v)
+        w[["x"]] <- s[j]
+        w[["y"]] <- z[j]
+        do.call(ftp.put, w)
         cat(substring(Sys.time(), 12, 16), "\n")
     }
     invisible()
@@ -9269,7 +9265,8 @@ qa.index <- function (x, y, n)
 
 qa.mat.read <- function (x, y, n, w, h, u, v) 
 {
-    z <- as.list(match.call())[-1]
+    z <- as.list(environment())
+    z <- z[!sapply(z, is.symbol)]
     do.call(ftp.get, z)
     x <- paste0(y, "\\", ftp.file(x))
     z <- NULL
