@@ -11,11 +11,11 @@ ftp.download(x, y, n, w, h, u = "ftp", v)
 
 \item{y}{= local folder (e.g. "C:\\\\temp\\\\mystuff")}
 
-\item{n}{= ftp site}
+\item{n}{= ftp site (defaults to standard)}
 
-\item{w}{= user id}
+\item{w}{= user id (defaults to standard)}
 
-\item{h}{= password}
+\item{h}{= password (defaults to standard)}
 
 \item{u}{= protocol (either "ftp" or "sftp")}
 
@@ -34,6 +34,7 @@ Other ftp: \code{\link{ftp.all.dir}},
   \code{\link{ftp.exists}}, \code{\link{ftp.file}},
   \code{\link{ftp.get}}, \code{\link{ftp.info}},
   \code{\link{ftp.kill}}, \code{\link{ftp.list}},
+  \code{\link{ftp.missing.underlying}},
   \code{\link{ftp.missing}}, \code{\link{ftp.parent}},
   \code{\link{ftp.put}}, \code{\link{ftp.record}},
   \code{\link{ftp.rmdir}}, \code{\link{ftp.sql.factor}},

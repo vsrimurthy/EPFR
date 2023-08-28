@@ -2975,7 +2975,8 @@ fcn.direct.sub <- function (x)
 
 fcn.direct.super <- function (x) 
 {
-    fcn.has(paste0(x, "("))
+    union(fcn.has(paste0(x, "(")), fcn.has(paste0("do.call(", 
+        x, ",")))
 }
 
 #' fcn.expressions.count
@@ -4127,9 +4128,9 @@ ftp.all.files <- function (x, y, n, w, h, u)
 #' 
 #' remote-site directory listing of files or folders
 #' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
-#' @param y = ftp site
-#' @param n = user id
-#' @param w = password
+#' @param y = ftp site (defaults to standard)
+#' @param n = user id (defaults to standard)
+#' @param w = password (defaults to standard)
 #' @param h = protocol (either "ftp" or "sftp")
 #' @param u = T/F flag for ftp.use.epsv argument of getCurlHandle
 #' @param v = T/F depending on whether you want files or folders
@@ -4139,19 +4140,15 @@ ftp.all.files <- function (x, y, n, w, h, u)
 
 ftp.all.files.underlying <- function (x, y, n, w, h = "ftp", u, v) 
 {
-    browser()
-    if (missing(u)) 
-        u <- h == "ftp"
-    if (missing(y)) 
-        y <- ftp.credential("ftp", h, u)
-    if (missing(n)) 
-        n <- ftp.credential("user", h, u)
-    if (missing(w)) 
-        w <- ftp.credential("pwd", h, u)
+    w <- as.list(environment())
+    w <- w[!sapply(w, is.symbol)]
+    w <- list.rename(w, c("y", "n", "w", "h", "u"), c("y", "n", 
+        "w", "u", "v"))
+    w[["h"]] <- F
     z <- NULL
     while (length(x) > 0) {
         cat(x[1], "..\n")
-        m <- ftp.dir(x[1], y, n, w, F, h, u)
+        m <- do.call(ftp.dir, c(list(x = x[1]), w))
         if (!is.null(m)) {
             j <- names(m)
             if (x[1] != "/" & x[1] != "") 
@@ -4300,9 +4297,9 @@ ftp.dir.parse.new <- function (x)
 #' replicates <x> in folder <y>
 #' @param x = remote folder on an ftp site (e.g. "/ftpdata/mystuff")
 #' @param y = local folder (e.g. "C:\\\\temp\\\\mystuff")
-#' @param n = ftp site
-#' @param w = user id
-#' @param h = password
+#' @param n = ftp site (defaults to standard)
+#' @param w = user id (defaults to standard)
+#' @param h = password (defaults to standard)
 #' @param u = protocol (either "ftp" or "sftp")
 #' @param v = T/F flag for ftp.use.epsv argument of getCurlHandle
 #' @keywords ftp.download
@@ -4311,23 +4308,20 @@ ftp.dir.parse.new <- function (x)
 
 ftp.download <- function (x, y, n, w, h, u = "ftp", v) 
 {
-    if (missing(v)) 
-        v <- u == "ftp"
-    if (missing(n)) 
-        n <- ftp.credential("ftp", u, v)
-    if (missing(w)) 
-        w <- ftp.credential("user", u, v)
-    if (missing(h)) 
-        h <- ftp.credential("pwd", u, v)
-    z <- ftp.all.files(x, n, w, h, u, v)
-    y <- paste(y, dir.parent(z), sep = "\\")
+    w <- as.list(environment())
+    w <- w[!sapply(w, is.symbol)]
+    z <- list.rename(w, c("x", "n", "w", "h", "u", "v"), c("x", 
+        "y", "n", "w", "h", "u"))
+    z <- do.call(ftp.all.files, z)
+    w <- w[!is.element(names(w), c("x", "y"))]
+    y <- paste0(y, "\\", dir.parent(z))
     y <- ifelse(txt.right(y, 1) == "\\", txt.left(y, nchar(y) - 
         1), y)
     dir.ensure(paste0(unique(y), "\\foo.txt"))
     z <- paste0(x, "/", z)
     for (j in seq_along(z)) {
-        cat(txt.right(z[j], nchar(z[j]) - nchar(x)), "...\n")
-        ftp.get(z[j], y[j], n, w, h, u, v)
+        cat(txt.right(z[j], nchar(z[j]) - nchar(x)), "..\n")
+        do.call(ftp.get, c(list(x = z[j], y = y[j]), w))
     }
     invisible()
 }
@@ -4439,22 +4433,36 @@ ftp.missing <- function (x, y)
 {
     y <- strsplit(y, "")[[1]]
     x <- x[!sapply(x, is.symbol)]
-    w <- x[[y[4]]]
-    if (all(names(x) != y[5])) 
-        h <- x[[y[4]]] == "ftp"
-    else h <- x[[y[5]]]
-    z <- list(protocol = w, epsv = h)
-    if (all(names(x) != y[1])) 
-        z[["ftp"]] <- ftp.credential("ftp", w, h)
-    else z[["ftp"]] <- x[[y[1]]]
-    if (all(names(x) != y[2])) 
-        z[["userpwd"]] <- ftp.credential("user", w, h)
-    else z[["userpwd"]] <- x[[y[2]]]
-    if (all(names(x) != y[3])) 
-        h <- ftp.credential("pwd", w, h)
-    else h <- x[[y[3]]]
-    z[["userpwd"]] <- paste0(z[["userpwd"]], ":", h)
-    z[["ftp"]] <- paste0(z[["protocol"]], "://", z[["ftp"]])
+    x <- list.rename(x, y, c("x", "y", "n", "w", "h"))
+    z <- do.call(ftp.missing.underlying, x)
+    z
+}
+
+#' ftp.missing.underlying
+#' 
+#' logical or YYYYMMDD vector indexed by remote file names
+#' @param x = ftp site (defaults to standard)
+#' @param y = user id (defaults to standard)
+#' @param n = password (defaults to standard)
+#' @param w = protocol (either "ftp" or "sftp")
+#' @param h = T/F flag for ftp.use.epsv argument of getURL
+#' @keywords ftp.missing.underlying
+#' @export
+#' @family ftp
+#' @@importFrom RCurl getURL
+
+ftp.missing.underlying <- function (x, y, n, w, h) 
+{
+    if (missing(h)) 
+        h <- w == "ftp"
+    if (missing(x)) 
+        x <- ftp.credential("ftp", w, h)
+    if (missing(y)) 
+        y <- ftp.credential("user", w, h)
+    if (missing(n)) 
+        n <- ftp.credential("pwd", w, h)
+    z <- list(ftp = paste0(w, "://", x), userpwd = paste0(y, 
+        ":", n), protocol = w, epsv = h)
     z
 }
 
@@ -5715,6 +5723,24 @@ latin.to.arabic.underlying <- function ()
         1)
     names(z) <- c("m", "cm", "d", "cd", "c", "xc", "l", "xl", 
         "x", "ix", "v", "iv", "i")
+    z
+}
+
+#' list.rename
+#' 
+#' renamed list
+#' @param x = list
+#' @param y = old names
+#' @param n = new names
+#' @keywords list.rename
+#' @export
+
+list.rename <- function (x, y, n) 
+{
+    z <- x[is.element(names(x), y)]
+    x <- vec.named(n, y)
+    x <- x[names(z)]
+    names(z) <- x
     z
 }
 

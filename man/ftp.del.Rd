@@ -32,10 +32,11 @@ Other ftp: \code{\link{ftp.all.dir}},
   \code{\link{ftp.download}}, \code{\link{ftp.exists}},
   \code{\link{ftp.file}}, \code{\link{ftp.get}},
   \code{\link{ftp.info}}, \code{\link{ftp.kill}},
-  \code{\link{ftp.list}}, \code{\link{ftp.missing}},
-  \code{\link{ftp.parent}}, \code{\link{ftp.put}},
-  \code{\link{ftp.record}}, \code{\link{ftp.rmdir}},
-  \code{\link{ftp.sql.factor}},
+  \code{\link{ftp.list}},
+  \code{\link{ftp.missing.underlying}},
+  \code{\link{ftp.missing}}, \code{\link{ftp.parent}},
+  \code{\link{ftp.put}}, \code{\link{ftp.record}},
+  \code{\link{ftp.rmdir}}, \code{\link{ftp.sql.factor}},
   \code{\link{ftp.sql.other}}, \code{\link{ftp.upload}}
 }
 \keyword{ftp.del}
