@@ -9938,12 +9938,32 @@ renorm <- function (x)
     z
 }
 
+#' reshape.long
+#' 
+#' <x> in long format
+#' @param x = a data-frame (can't be a matrix)
+#' @param y = column names to be compressed
+#' @param n = name of the new column created for identifiers
+#' @param w = name of the new column created for values
+#' @keywords reshape.long
+#' @export
+#' @family reshape
+
+reshape.long <- function (x, y, n = "id", w = "val") 
+{
+    z <- reshape(x, direction = "long", varying = list(y), v.names = w, 
+        idvar = setdiff(names(x), y), timevar = n, times = y)
+    rownames(z) <- NULL
+    z
+}
+
 #' reshape.wide
 #' 
 #' converts <x> to an array
 #' @param x = a matrix/data-frame with last columns corresponding to the entries of the resulting array
 #' @keywords reshape.wide
 #' @export
+#' @family reshape
 
 reshape.wide <- function (x) 
 {
