@@ -5726,6 +5726,24 @@ latin.to.arabic.underlying <- function ()
     z
 }
 
+#' list.bind
+#' 
+#' rbinds elements of <x> with added column <y>
+#' @param x = a list of dataframes
+#' @param y = column name to store names of <x>
+#' @keywords list.bind
+#' @export
+#' @family list
+
+list.bind <- function (x, y = "yyyymmdd") 
+{
+    z <- sapply(x, function(x) dim(x)[1])
+    x <- Reduce(rbind, x)
+    x[, y] <- rep(names(z), z)
+    z <- x
+    z
+}
+
 #' list.rename
 #' 
 #' renamed list
@@ -5734,6 +5752,7 @@ latin.to.arabic.underlying <- function ()
 #' @param n = new names
 #' @keywords list.rename
 #' @export
+#' @family list
 
 list.rename <- function (x, y, n) 
 {
