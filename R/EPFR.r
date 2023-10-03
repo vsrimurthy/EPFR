@@ -5726,24 +5726,6 @@ latin.to.arabic.underlying <- function ()
     z
 }
 
-#' list.bind
-#' 
-#' rbinds elements of <x> with added column <y>
-#' @param x = a list of dataframes
-#' @param y = column name to store names of <x>
-#' @keywords list.bind
-#' @export
-#' @family list
-
-list.bind <- function (x, y = "yyyymmdd") 
-{
-    z <- sapply(x, function(x) dim(x)[1])
-    x <- Reduce(rbind, x)
-    x[, y] <- rep(names(z), z)
-    z <- x
-    z
-}
-
 #' list.rename
 #' 
 #' renamed list
@@ -5752,7 +5734,6 @@ list.bind <- function (x, y = "yyyymmdd")
 #' @param n = new names
 #' @keywords list.rename
 #' @export
-#' @family list
 
 list.rename <- function (x, y, n) 
 {
@@ -6077,6 +6058,24 @@ mat.diff <- function (x, y)
 mat.ex.array <- function (x) 
 {
     apply(x, 1, function(x) mat.index(array.unlist(x), length(dim(x)):1))
+}
+
+#' mat.ex.list
+#' 
+#' rbinds elements of <x> with added column <y>
+#' @param x = a list of dataframes
+#' @param y = column name to store names of <x>
+#' @keywords mat.ex.list
+#' @export
+#' @family mat
+
+mat.ex.list <- function (x, y = "yyyymmdd") 
+{
+    z <- sapply(x, function(x) dim(x)[1])
+    x <- Reduce(rbind, x)
+    x[, y] <- rep(names(z), z)
+    z <- x
+    z
 }
 
 #' mat.ex.matrix

@@ -16,7 +16,4 @@ list.rename(x, y, n)
 \description{
 renamed list
 }
-\seealso{
-Other list: \code{\link{list.bind}}
-}
 \keyword{list.rename}
