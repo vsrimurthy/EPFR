@@ -6542,6 +6542,13 @@ mk.1dFloMo <- function (x, y, n)
         z <- sql.1dION(x, y, 26, n$DB)
     }
     else stop("Bad Argument")
+    z <- txt.replace(z, "[Index] = 0", "isnull(Idx, 'N') = 'N'")
+    z <- txt.replace(z, "[Index] = 1", "not isnull(Idx, 'N') = 'N'")
+    z <- txt.replace(z, "ETFTypeId is not null", "ETF = 'Y'")
+    z <- txt.replace(z, "ETFTypeId is null", "not ETF = 'Y'")
+    z <- txt.replace(z, "GeographicFocusId", "GeographicFocus")
+    z <- txt.replace(z, "StyleSectorId", "StyleSector")
+    z <- txt.replace(z, "SRI = 1", "SRI_yn = 'Y'")
     z <- sql.map.classif(z, n$conn, n$classif)
     z
 }
@@ -7195,6 +7202,13 @@ mk.1mAllocMo <- function (x, y, n)
     else {
         z <- sql.1mFloMo(x, y, n$DB, F, "All", w)
     }
+    z <- txt.replace(z, "[Index] = 0", "isnull(Idx, 'N') = 'N'")
+    z <- txt.replace(z, "[Index] = 1", "not isnull(Idx, 'N') = 'N'")
+    z <- txt.replace(z, "ETFTypeId is not null", "ETF = 'Y'")
+    z <- txt.replace(z, "ETFTypeId is null", "not ETF = 'Y'")
+    z <- txt.replace(z, "GeographicFocusId", "GeographicFocus")
+    z <- txt.replace(z, "StyleSectorId", "StyleSector")
+    z <- txt.replace(z, "SRI = 1", "SRI_yn = 'Y'")
     z <- sql.map.classif(z, n$conn, n$classif)
     z
 }
