@@ -6550,6 +6550,10 @@ mk.1dFloMo <- function (x, y, n)
     z <- txt.replace(z, "StyleSectorId", "StyleSector")
     z <- txt.replace(z, "SRI = 1", "SRI_yn = 'Y'")
     z <- txt.replace(z, "SRI = 0", "SRI_yn = 'N'")
+    z <- txt.replace(z, "ShareClasses", "ShareClass")
+    z <- txt.replace(z, "Institutional = 1", "InstOrRetail = 'Inst'")
+    z <- txt.replace(z, "\t[Id]\n", "\tSCID\n")
+    z <- txt.replace(z, "ShareClassId", "SCID")
     z <- sql.map.classif(z, n$conn, n$classif)
     z
 }
@@ -7211,6 +7215,10 @@ mk.1mAllocMo <- function (x, y, n)
     z <- txt.replace(z, "StyleSectorId", "StyleSector")
     z <- txt.replace(z, "SRI = 1", "SRI_yn = 'Y'")
     z <- txt.replace(z, "SRI = 0", "SRI_yn = 'N'")
+    z <- txt.replace(z, "ShareClasses", "ShareClass")
+    z <- txt.replace(z, "Institutional = 1", "InstOrRetail = 'Inst'")
+    z <- txt.replace(z, "\t[Id]\n", "\tSCID\n")
+    z <- txt.replace(z, "ShareClassId", "SCID")
     z <- sql.map.classif(z, n$conn, n$classif)
     z
 }
