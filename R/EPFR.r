@@ -873,18 +873,16 @@ bear <- function (x)
 
 best.linear.strategy.blend <- function (x, y) 
 {
-    w <- !is.na(x) & !is.na(y)
-    x <- x[w]
-    y <- y[w]
-    mx <- mean(x)
-    my <- mean(y)
-    sx <- sd(x)
-    sy <- sd(y)
-    gm <- correl(x, y)
-    V <- c(sx^2, rep(sx * sy * gm, 2), sy^2)
+    x <- list(x = x, y = y)
+    w <- Reduce("&", lapply(x, function(x) !is.na(x)))
+    x <- lapply(x, function(x) x[w])
+    avg <- sapply(x, mean)
+    std <- sapply(x, sd)
+    gm <- Reduce(correl, x)
+    V <- c(std["x"]^2, rep(std["x"] * std["y"] * gm, 2), std["y"]^2)
     V <- matrix(V, 2, 2)
     V <- solve(V)
-    z <- V %*% c(mx, my)
+    z <- V %*% avg
     z <- renorm(z[, 1])
     z
 }
