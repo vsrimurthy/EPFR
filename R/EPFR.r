@@ -9763,8 +9763,8 @@ record.track <- function (x, y, n)
 {
     z <- paste0(y, ifelse(n, "", "Asia"))
     z <- mat.read(parameters(paste0("classif-", z)), "\t")
-    z <- z[is.element(z[, "day"], c(txt.left(weekdays(day.to.date(x)), 
-        3), "All")), ]
+    z <- z[is.element(z[, "day"], c(format(day.to.date(x), "%a"), 
+        "All")), ]
     z$yyyymmdd <- map.rname(record.read(paste0(y, ".txt")), dimnames(z)[[1]])
     z$today <- z$target <- rep(NA, dim(z)[1])
     w <- z[, "entry"] == "date" & z[, "freq"] == "D"
