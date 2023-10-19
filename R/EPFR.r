@@ -1975,17 +1975,14 @@ day.to.week <- function (x, y)
 #' day.to.weekday
 #' 
 #' Converts to 0 = Sun, 1 = Mon, ..., 6 = Sat
-#' @param x = a vector of calendar dates
+#' @param x = a vector of yyyymmdd
 #' @keywords day.to.weekday
 #' @export
 #' @family day
 
 day.to.weekday <- function (x) 
 {
-    z <- day.to.int(x)
-    z <- z + 1
-    z <- as.character(z%%7)
-    z
+    as.character(as.POSIXlt(day.to.date(x))$wday)
 }
 
 #' decimal.format
@@ -9766,8 +9763,8 @@ record.track <- function (x, y, n)
 {
     z <- paste0(y, ifelse(n, "", "Asia"))
     z <- mat.read(parameters(paste0("classif-", z)), "\t")
-    z <- z[is.element(z[, "day"], c(weekday.to.name(day.to.weekday(x)), 
-        "All")), ]
+    z <- z[is.element(z[, "day"], c(txt.left(weekdays(day.to.date(x)), 
+        3), "All")), ]
     z$yyyymmdd <- map.rname(record.read(paste0(y, ".txt")), dimnames(z)[[1]])
     z$today <- z$target <- rep(NA, dim(z)[1])
     w <- z[, "entry"] == "date" & z[, "freq"] == "D"
