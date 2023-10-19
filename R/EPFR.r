@@ -8646,17 +8646,17 @@ pivot.1d <- function (fcn, x, y)
 
 plurality.map <- function (x, y) 
 {
-    w <- !is.na(x) & !is.na(y)
-    x <- x[w]
-    y <- y[w]
-    z <- vec.count(paste(x, y))
-    z <- data.frame(txt.parse(names(z), " "), z)
-    names(z) <- c("x", "map", "obs")
-    z <- z[order(-z$obs), ]
-    z <- z[!duplicated(z$x), ]
-    z <- mat.index(z, "x")
-    z$pct <- 100 * z$obs/map.rname(vec.count(x), dimnames(z)[[1]])
-    z <- z[order(-z$pct), ]
+    x <- list(x = x, y = y, obs = rep(1, length(x)), pct = rep(1, 
+        length(x)))
+    w <- Reduce("&", lapply(x, function(x) !is.na(x)))
+    x <- lapply(x, function(x) x[w])
+    z <- aggregate(obs ~ x + y, data = x, sum)
+    x <- aggregate(pct ~ x, data = x, sum)
+    z <- z[order(z[, "obs"], decreasing = T), ]
+    z <- z[!duplicated(z[, "x"]), ]
+    z <- merge(z, x)
+    z[, "pct"] <- 100 * z[, "obs"]/z[, "pct"]
+    z <- z[order(z[, "pct"], decreasing = T), ]
     z
 }
 
