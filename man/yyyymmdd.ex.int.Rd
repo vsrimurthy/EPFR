@@ -10,7 +10,7 @@ yyyymmdd.ex.int(x)
 \item{x}{= an integer or vector of integers}
 }
 \description{
-the <x>th weekday after Monday, January 1, 2018
+the <x>th weekday after Thursday, January 1, 1970
 }
 \seealso{
 Other yyyymmdd: \code{\link{yyyymmdd.bulk}},

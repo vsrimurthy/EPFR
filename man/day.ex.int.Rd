@@ -10,7 +10,7 @@ day.ex.int(x)
 \item{x}{= an integer or vector of integers}
 }
 \description{
-the <x>th day after Monday, January 1, 2018
+the <x>th day after Thursday, January 1, 1970
 }
 \seealso{
 Other day: \code{\link{day.ex.date}},

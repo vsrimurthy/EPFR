@@ -10,7 +10,7 @@ yyyymmdd.to.int(x)
 \item{x}{= a vector of weekdays in YYYYMMDD format}
 }
 \description{
-number of weekdays after Monday, January 1, 2018
+number of weekdays after Thursday, January 1, 1970
 }
 \seealso{
 Other yyyymmdd: \code{\link{yyyymmdd.bulk}},

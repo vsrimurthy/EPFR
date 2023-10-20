@@ -10,7 +10,7 @@ flowdate.ex.int(x)
 \item{x}{= an integer or vector of integers}
 }
 \description{
-the <x>th daily flow-publication date after Friday, December 29, 2017
+the <x>th daily flow-publication date after Thursday, January 1, 1970
 }
 \seealso{
 Other flowdate: \code{\link{flowdate.diff}},

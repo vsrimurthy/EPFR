@@ -1888,7 +1888,7 @@ day.ex.date <- function (x)
 
 #' day.ex.int
 #' 
-#' the <x>th day after Monday, January 1, 2018
+#' the <x>th day after Thursday, January 1, 1970
 #' @param x = an integer or vector of integers
 #' @keywords day.ex.int
 #' @export
@@ -1896,7 +1896,7 @@ day.ex.date <- function (x)
 
 day.ex.int <- function (x) 
 {
-    format(as.Date(x, origin = "2018-01-01"), "%Y%m%d")
+    format(as.Date(x, origin = "1970-01-01"), "%Y%m%d")
 }
 
 #' day.lag
@@ -1943,7 +1943,7 @@ day.to.date <- function (x)
 
 #' day.to.int
 #' 
-#' number of days after Monday, January 1, 2018
+#' number of days after Thursday, January 1, 1970
 #' @param x = a vector of calendar dates
 #' @keywords day.to.int
 #' @export
@@ -1951,7 +1951,7 @@ day.to.date <- function (x)
 
 day.to.int <- function (x) 
 {
-    as.numeric(day.to.date(x) - as.Date("2018-01-01"))
+    unclass(day.to.date(x))
 }
 
 #' day.to.week
@@ -3959,7 +3959,7 @@ flowdate.ex.AllocMo <- function (x, y = 23)
 
 #' flowdate.ex.int
 #' 
-#' the <x>th daily flow-publication date after Friday, December 29, 2017
+#' the <x>th daily flow-publication date after Thursday, January 1, 1970
 #' @param x = an integer or vector of integers
 #' @keywords flowdate.ex.int
 #' @export
@@ -4050,7 +4050,7 @@ flowdate.seq <- function (x, y, n = 1)
 
 #' flowdate.to.int
 #' 
-#' number of daily flow-publication dates after Friday, December 29, 2017
+#' number of daily flow-publication dates after Thursday, January 1, 1970
 #' @param x = a vector of flow dates in YYYYMMDD format
 #' @keywords flowdate.to.int
 #' @export
@@ -4058,13 +4058,13 @@ flowdate.seq <- function (x, y, n = 1)
 
 flowdate.to.int <- function (x) 
 {
-    z <- unique(c("2018", yyyymm.to.yyyy(yyyymmdd.to.yyyymm(x))))
+    z <- unique(c("1970", yyyymm.to.yyyy(yyyymmdd.to.yyyymm(x))))
     z <- as.numeric(z)[order(z)]
     z <- seq(z[1], z[length(z)])
     z <- txt.expand(z, c("0101", "1225"), "")
     z <- z[yyyymmdd.exists(z)]
     z <- vec.named(seq_along(z), z)
-    z <- z - z["20180101"]
+    z <- z - z["19700101"]
     x <- yyyymmdd.to.int(x)
     y <- floor(approx(yyyymmdd.to.int(names(z)), z, x, rule = 1:2)$y)
     z <- x - ifelse(is.na(y), z[1] - 1, y)
@@ -17126,7 +17126,7 @@ yyyymmdd.ex.day <- function (x)
 
 #' yyyymmdd.ex.int
 #' 
-#' the <x>th weekday after Monday, January 1, 2018
+#' the <x>th weekday after Thursday, January 1, 1970
 #' @param x = an integer or vector of integers
 #' @keywords yyyymmdd.ex.int
 #' @export
@@ -17134,7 +17134,7 @@ yyyymmdd.ex.day <- function (x)
 
 yyyymmdd.ex.int <- function (x) 
 {
-    day.ex.int(x + 2 * (x%/%5))
+    day.ex.int(x + 2 * (x + 3)%/%5)
 }
 
 #' yyyymmdd.ex.txt
@@ -17300,7 +17300,7 @@ yyyymmdd.to.CalYrDyOfWk <- function (x)
 
 #' yyyymmdd.to.int
 #' 
-#' number of weekdays after Monday, January 1, 2018
+#' number of weekdays after Thursday, January 1, 1970
 #' @param x = a vector of weekdays in YYYYMMDD format
 #' @keywords yyyymmdd.to.int
 #' @export
@@ -17308,8 +17308,8 @@ yyyymmdd.to.CalYrDyOfWk <- function (x)
 
 yyyymmdd.to.int <- function (x) 
 {
-    z <- day.to.int(x)
-    z <- z - 2 * (z%/%7)
+    z <- day.to.int(x) + 3
+    z <- z - 2 * (z%/%7) - 3
     z
 }
 

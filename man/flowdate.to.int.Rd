@@ -10,7 +10,7 @@ flowdate.to.int(x)
 \item{x}{= a vector of flow dates in YYYYMMDD format}
 }
 \description{
-number of daily flow-publication dates after Friday, December 29, 2017
+number of daily flow-publication dates after Thursday, January 1, 1970
 }
 \seealso{
 Other flowdate: \code{\link{flowdate.diff}},

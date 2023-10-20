@@ -10,7 +10,7 @@ day.to.int(x)
 \item{x}{= a vector of calendar dates}
 }
 \description{
-number of days after Monday, January 1, 2018
+number of days after Thursday, January 1, 1970
 }
 \seealso{
 Other day: \code{\link{day.ex.date}},
