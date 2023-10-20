@@ -1966,9 +1966,7 @@ day.to.int <- function (x)
 day.to.week <- function (x, y) 
 {
     x <- day.to.int(x)
-    z <- (x + 1)%%7
-    z <- ifelse(z <= y, y - z, 7 + y - z)
-    z <- day.ex.int(x + z)
+    z <- day.ex.int(x + (y + 3 - x%%7)%%7)
     z
 }
 
@@ -17119,7 +17117,7 @@ yyyymmdd.ex.AllocMo <- function (x)
 yyyymmdd.ex.day <- function (x) 
 {
     z <- day.to.int(x)
-    z <- z - vec.max(z%%7 - 4, 0)
+    z <- z - ifelse(is.element(z%%7, 2:3), z%%7 - 1, 0)
     z <- day.ex.int(z)
     z
 }
