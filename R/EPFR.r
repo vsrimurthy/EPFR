@@ -4789,14 +4789,12 @@ fwd.probs <- function (x, y, floW, sum.flows, lag, delay, doW, retW, idx,
 
 fwd.probs.wrapper <- function (x, y, floW, sum.flows, lags, delay, doW, hz, idx, prd.size) 
 {
-    z <- list()
-    for (retW in hz) {
-        z[[as.character(retW)]] <- list()
-        for (lag in lags) z[[as.character(retW)]][[as.character(lag)]] <- fwd.probs(x, 
-            y, floW, sum.flows, lag, delay, doW, retW, idx, prd.size)
-        z[[as.character(retW)]] <- simplify2array(z[[as.character(retW)]])
+    fcn2 <- function(retW) {
+        fcn <- function(lag) fwd.probs(x, y, floW, sum.flows, 
+            lag, delay, doW, retW, idx, prd.size)
+        simplify2array(lapply(vec.to.list(lags, T), fcn))
     }
-    z <- simplify2array(z)
+    z <- simplify2array(lapply(vec.to.list(hz, T), fcn2))
     z
 }
 
