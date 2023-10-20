@@ -2946,15 +2946,8 @@ fcn.dir <- function ()
 
 fcn.direct.sub <- function (x) 
 {
-    x <- fcn.to.txt(x)
-    z <- fcn.list()
-    fcn <- function(z) {
-        txt.has(x, paste0(z, "("), T)
-    }
-    w <- sapply(vec.to.list(z), fcn)
-    if (any(w)) 
-        z <- z[w]
-    else z <- NULL
+    z <- all.vars(parse(text = deparse(get(x))), functions = T)
+    z <- intersect(fcn.list(), z)
     z
 }
 
@@ -2968,8 +2961,11 @@ fcn.direct.sub <- function (x)
 
 fcn.direct.super <- function (x) 
 {
-    union(fcn.has(paste0(x, "(")), fcn.has(paste0("do.call(", 
-        x, ",")))
+    z <- vec.to.list(fcn.list(), T)
+    z <- lapply(z, fcn.direct.sub)
+    z <- sapply(z, function(y) any(is.element(y, x)))
+    z <- names(z)[z]
+    z
 }
 
 #' fcn.expressions.count
