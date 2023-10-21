@@ -4,30 +4,28 @@
 \alias{bbk.data}
 \title{bbk.data}
 \usage{
-bbk.data(x, y, floW, sum.flows, lag, delay, doW, retW, idx, prd.size, sprds)
+bbk.data(x, y, n, w, h, u, v, g, r, s)
 }
 \arguments{
 \item{x}{= predictor indexed by yyyymmdd or yyyymm}
 
 \item{y}{= total return index indexed by the same date format as <x>}
 
-\item{floW}{= number of <prd.size>'s over which the predictor should be compounded/summed}
+\item{n}{= number of <prd.size>'s over which the predictor should be compounded/summed}
 
-\item{sum.flows}{= T/F depending on whether <x> should be summed or compounded}
+\item{w}{= T/F depending on whether <x> should be summed or compounded}
 
-\item{lag}{= predictor lag in days or months depending on whether <x> is YYYYMMDD or YYYYMM}
+\item{h}{= predictor lag in days or months depending on whether <x> is YYYYMMDD or YYYYMM}
 
-\item{delay}{= delay in knowing data in days or months depending on whether <x> is YYYYMMDD or YYYYMM}
+\item{u}{= delay in knowing data in days or months depending on whether <x> is YYYYMMDD or YYYYMM}
 
-\item{doW}{= day of the week you will trade on (5 = Fri)}
+\item{v}{= day of the week you will trade on (5 = Fri)}
 
-\item{retW}{= return window in days or months depending on whether <x> is YYYYMMDD or YYYYMM}
+\item{g}{= return window in days or months depending on whether <x> is YYYYMMDD or YYYYMM}
 
-\item{idx}{= the index within which you are trading}
+\item{r}{= the index within which you are trading}
 
-\item{prd.size}{= size of each period in days or months depending on whether <x> is YYYYMMDD or YYYYMM}
-
-\item{sprds}{= T/F depending on whether spread changes, rather than returns, are needed}
+\item{s}{= T/F depending on whether spread changes, rather than returns, are needed}
 }
 \description{
 fetches data required to compute standard model output

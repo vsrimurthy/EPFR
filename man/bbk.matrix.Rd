@@ -5,8 +5,7 @@
 \title{bbk.matrix}
 \usage{
 bbk.matrix(x, y, floW, lag, item = "AnnMn", idx = NULL, retW = 5,
-  delay = 2, nBin = 5, doW = 5, sum.flows = F, prd.size = 1,
-  sprds = F)
+  delay = 2, nBin = 5, doW = 5, sum.flows = F, sprds = F)
 }
 \arguments{
 \item{x}{= predictor indexed by yyyymmdd or yyyymm}
@@ -30,8 +29,6 @@ bbk.matrix(x, y, floW, lag, item = "AnnMn", idx = NULL, retW = 5,
 \item{doW}{= day of the week you will trade on (5 = Fri)}
 
 \item{sum.flows}{= T/F depending on whether <x> should be summed or compounded}
-
-\item{prd.size}{= size of each period in days or months depending on whether <x> is YYYYMMDD or YYYYMM}
 
 \item{sprds}{= T/F depending on whether spread changes, rather than returns, are needed}
 }

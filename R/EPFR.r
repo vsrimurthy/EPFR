@@ -464,17 +464,16 @@ base.to.int <- function (x, y = 26)
 #' @param lag = predictor lag in days or months depending on whether <x> is YYYYMMDD or YYYYMM
 #' @param delay = delay in knowing data in days or months depending on whether <x> is YYYYMMDD or YYYYMM
 #' @param idx = the index within which you are trading
-#' @param prd.size = size of each period in days or months depending on whether <x> is YYYYMMDD or YYYYMM
 #' @param sprds = T/F depending on whether spread changes, rather than returns, are needed
 #' @keywords bbk
 #' @export
 #' @family bbk
 
 bbk <- function (x, y, floW = 1, retW = 5, nBin = 5, doW = NULL, sum.flows = F, 
-    lag = 0, delay = 2, idx = NULL, prd.size = 1, sprds = F) 
+    lag = 0, delay = 2, idx = NULL, sprds = F) 
 {
     x <- bbk.data(x, y, floW, sum.flows, lag, delay, doW, retW, 
-        idx, prd.size, sprds)
+        idx, sprds)
     z <- lapply(bbk.bin.xRet(x$x, x$fwdRet, nBin, T, T), mat.reverse)
     z <- c(z, bbk.summ(z$rets, z$bins, retW, ifelse(is.null(doW), 
         1, 5)))
@@ -598,21 +597,19 @@ bbk.bin.xRet <- function (x, y, n = 5, w = F, h = F)
 #' fetches data required to compute standard model output
 #' @param x = predictor indexed by yyyymmdd or yyyymm
 #' @param y = total return index indexed by the same date format as <x>
-#' @param floW = number of <prd.size>'s over which the predictor should be compounded/summed
-#' @param sum.flows = T/F depending on whether <x> should be summed or compounded
-#' @param lag = predictor lag in days or months depending on whether <x> is YYYYMMDD or YYYYMM
-#' @param delay = delay in knowing data in days or months depending on whether <x> is YYYYMMDD or YYYYMM
-#' @param doW = day of the week you will trade on (5 = Fri)
-#' @param retW = return window in days or months depending on whether <x> is YYYYMMDD or YYYYMM
-#' @param idx = the index within which you are trading
-#' @param prd.size = size of each period in days or months depending on whether <x> is YYYYMMDD or YYYYMM
-#' @param sprds = T/F depending on whether spread changes, rather than returns, are needed
+#' @param n = number of <prd.size>'s over which the predictor should be compounded/summed
+#' @param w = T/F depending on whether <x> should be summed or compounded
+#' @param h = predictor lag in days or months depending on whether <x> is YYYYMMDD or YYYYMM
+#' @param u = delay in knowing data in days or months depending on whether <x> is YYYYMMDD or YYYYMM
+#' @param v = day of the week you will trade on (5 = Fri)
+#' @param g = return window in days or months depending on whether <x> is YYYYMMDD or YYYYMM
+#' @param r = the index within which you are trading
+#' @param s = T/F depending on whether spread changes, rather than returns, are needed
 #' @keywords bbk.data
 #' @export
 #' @family bbk
 
-bbk.data <- function (x, y, floW, sum.flows, lag, delay, doW, retW, idx, 
-    prd.size, sprds) 
+bbk.data <- function (x, y, n, w, h, u, v, g, r, s) 
 {
     x <- x[!is.na(avail(x)), ]
     if (!ascending(dimnames(x)[[1]])) 
@@ -625,14 +622,14 @@ bbk.data <- function (x, y, floW, sum.flows, lag, delay, doW, retW, idx,
     if (any(yyyymm.lag(dimnames(y)[[1]][dim(y)[1]], dim(y)[1]:1 - 
         1) != dimnames(y)[[1]])) 
         stop("Missing return dates")
-    if (floW > 1) 
-        x <- compound.flows(x, floW, sum.flows)
-    x <- mat.lag(x, lag + delay)
-    if (!is.null(doW)) 
-        x <- mat.daily.to.weekly(x, doW)
-    y <- bbk.fwdRet(x, y, retW, !sprds)
-    if (!is.null(idx)) 
-        y <- Ctry.msci.index.changes(y, idx)
+    if (n > 1) 
+        x <- compound.flows(x, n, w)
+    x <- mat.lag(x, h + u)
+    if (!is.null(v)) 
+        x <- mat.daily.to.weekly(x, v)
+    y <- bbk.fwdRet(x, y, g, !s)
+    if (!is.null(r)) 
+        y <- Ctry.msci.index.changes(y, r)
     z <- list(x = x, fwdRet = y)
     z
 }
@@ -749,15 +746,13 @@ bbk.holidays <- function (x, y)
 #' @param nBin = number of bins to divide the variable into
 #' @param doW = day of the week you will trade on (5 = Fri)
 #' @param sum.flows = T/F depending on whether <x> should be summed or compounded
-#' @param prd.size = size of each period in days or months depending on whether <x> is YYYYMMDD or YYYYMM
 #' @param sprds = T/F depending on whether spread changes, rather than returns, are needed
 #' @keywords bbk.matrix
 #' @export
 #' @family bbk
 
 bbk.matrix <- function (x, y, floW, lag, item = "AnnMn", idx = NULL, retW = 5, 
-    delay = 2, nBin = 5, doW = 5, sum.flows = F, prd.size = 1, 
-    sprds = F) 
+    delay = 2, nBin = 5, doW = 5, sum.flows = F, sprds = F) 
 {
     z <- x <- as.list(environment())
     z <- z[!is.element(names(z), c("x", "y", "item"))]
@@ -4736,23 +4731,20 @@ ftp.upload <- function (x, y, n, w, h, u = "ftp", v)
 #' probability that forward return is positive given predictor is positive
 #' @param x = predictor indexed by yyyymmdd or yyyymm
 #' @param y = total return index indexed by yyyymmdd or yyyymm
-#' @param floW = flow window in days
-#' @param sum.flows = T/F depending on whether the predictor is to be summed or compounded
-#' @param lag = number of periods to lag the predictor
-#' @param delay = delay in knowing data
-#' @param doW = day of the week you will trade on (5 = Fri, NULL for monthlies)
-#' @param retW = size of forward return horizon
-#' @param idx = the index within which you trade
-#' @param prd.size = size of each period in terms of days if the rows of <x> are yyyymmdd or months otherwise
+#' @param n = flow window in days
+#' @param w = T/F depending on whether the predictor is to be summed or compounded
+#' @param h = number of periods to lag the predictor
+#' @param u = delay in knowing data
+#' @param v = day of the week you will trade on (5 = Fri, NULL for monthlies)
+#' @param g = size of forward return horizon
+#' @param r = the index within which you trade
 #' @keywords fwd.probs
 #' @export
 #' @family fwd
 
-fwd.probs <- function (x, y, floW, sum.flows, lag, delay, doW, retW, idx, 
-    prd.size) 
+fwd.probs <- function (x, y, n, w, h, u, v, g, r) 
 {
-    x <- bbk.data(x, y, floW, sum.flows, lag, delay, doW, retW, 
-        idx, prd.size, F)
+    x <- bbk.data(x, y, n, w, h, u, v, g, r, F)
     y <- x$fwdRet
     x <- x$x
     z <- c("All", "Pos", "Exc", "Last")
@@ -4775,26 +4767,25 @@ fwd.probs <- function (x, y, floW, sum.flows, lag, delay, doW, retW, idx,
 #' probability that forward return is positive given predictor is positive
 #' @param x = predictor indexed by yyyymmdd or yyyymm
 #' @param y = total return index indexed by yyyymmdd or yyyymm
-#' @param floW = flow window in days
-#' @param sum.flows = T/F depending on whether the predictor is to be summed or compounded
-#' @param lags = number of periods to lag the predictor
-#' @param delay = delay in knowing data
-#' @param doW = day of the week you will trade on (5 = Fri, NULL for monthlies)
-#' @param hz = a vector of forward return windows
-#' @param idx = the index within which you trade
-#' @param prd.size = size of each period in terms of days if the rows of <x> are yyyymmdd or months otherwise
+#' @param n = flow window in days
+#' @param w = T/F depending on whether the predictor is to be summed or compounded
+#' @param h = number of periods to lag the predictor
+#' @param u = delay in knowing data
+#' @param v = day of the week you will trade on (5 = Fri, NULL for monthlies)
+#' @param g = a vector of forward return windows
+#' @param r = the index within which you trade
 #' @keywords fwd.probs.wrapper
 #' @export
 #' @family fwd
 
-fwd.probs.wrapper <- function (x, y, floW, sum.flows, lags, delay, doW, hz, idx, prd.size) 
+fwd.probs.wrapper <- function (x, y, n, w, h, u, v, g, r) 
 {
-    fcn2 <- function(retW) {
-        fcn <- function(lag) fwd.probs(x, y, floW, sum.flows, 
-            lag, delay, doW, retW, idx, prd.size)
-        simplify2array(lapply(vec.to.list(lags, T), fcn))
+    fcn2 <- function(g) {
+        fcn <- function(h) fwd.probs(x, y, n, w, h, u, v, g, 
+            r)
+        simplify2array(lapply(vec.to.list(h, T), fcn))
     }
-    z <- simplify2array(lapply(vec.to.list(hz, T), fcn2))
+    z <- simplify2array(lapply(vec.to.list(g, T), fcn2))
     z
 }
 

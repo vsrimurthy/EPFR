@@ -5,7 +5,7 @@
 \title{bbk}
 \usage{
 bbk(x, y, floW = 1, retW = 5, nBin = 5, doW = NULL, sum.flows = F,
-  lag = 0, delay = 2, idx = NULL, prd.size = 1, sprds = F)
+  lag = 0, delay = 2, idx = NULL, sprds = F)
 }
 \arguments{
 \item{x}{= predictor indexed by yyyymmdd or yyyymm}
@@ -27,8 +27,6 @@ bbk(x, y, floW = 1, retW = 5, nBin = 5, doW = NULL, sum.flows = F,
 \item{delay}{= delay in knowing data in days or months depending on whether <x> is YYYYMMDD or YYYYMM}
 
 \item{idx}{= the index within which you are trading}
-
-\item{prd.size}{= size of each period in days or months depending on whether <x> is YYYYMMDD or YYYYMM}
 
 \item{sprds}{= T/F depending on whether spread changes, rather than returns, are needed}
 }
