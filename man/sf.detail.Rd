@@ -4,31 +4,30 @@
 \alias{sf.detail}
 \title{sf.detail}
 \usage{
-sf.detail(fcn, prdBeg, prdEnd, univ, grp.nm, ret.nm, trail, fldr, nBins = 5,
-  classif, weighting.factor = NULL)
+sf.detail(fcn, x, y, n, w, h, u, v, g = 5, r, s = NULL)
 }
 \arguments{
 \item{fcn}{= function that fetches data for the appropriate period and parameter}
 
-\item{prdBeg}{= first-return date in YYYYMM}
+\item{x}{= first-return date in YYYYMM}
 
-\item{prdEnd}{= first-return date in YYYYMM after <prdBeg>}
+\item{y}{= first-return date in YYYYMM after <prdBeg>}
 
-\item{univ}{= membership (e.g. "EafeMem" or c("GemMem", 1))}
+\item{n}{= membership (e.g. "EafeMem" or c("GemMem", 1))}
 
-\item{grp.nm}{= group within which binning is to be performed}
+\item{w}{= group within which binning is to be performed}
 
-\item{ret.nm}{= return variable}
+\item{h}{= return variable}
 
-\item{trail}{= variable parameter}
+\item{u}{= variable parameter}
 
-\item{fldr}{= data folder}
+\item{v}{= data folder}
 
-\item{nBins}{= number of bins or numeric vector with last element T/F for dependent/independent}
+\item{g}{= number of bins or numeric vector with last element T/F for dependent/independent}
 
-\item{classif}{= classif file}
+\item{r}{= classif file}
 
-\item{weighting.factor}{= factor you want to use for Cap-weighted back-tests (defaults to NULL)}
+\item{s}{= factor you want to use for Cap-weighted back-tests (defaults to NULL)}
 }
 \description{
 runs a stock-flows simulation

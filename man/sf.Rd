@@ -4,33 +4,32 @@
 \alias{sf}
 \title{sf}
 \usage{
-sf(fcn, prdBeg, prdEnd, univ, grp.nm, ret.nm, trails, fldr, nBins = 5,
-  geom.comp = F, retHz = 1, classif)
+sf(fcn, x, y, n, w, h, u, v, g = 5, r = F, s = 1, b)
 }
 \arguments{
 \item{fcn}{= function that fetches data for the appropriate period and parameter}
 
-\item{prdBeg}{= first-return date in YYYYMM}
+\item{x}{= first-return date in YYYYMM}
 
-\item{prdEnd}{= first-return date in YYYYMM after <prdBeg>}
+\item{y}{= first-return date in YYYYMM after <prdBeg>}
 
-\item{univ}{= membership (e.g. "EafeMem" or c("GemMem", 1))}
+\item{n}{= membership (e.g. "EafeMem" or c("GemMem", 1))}
 
-\item{grp.nm}{= group within which binning is to be performed}
+\item{w}{= group within which binning is to be performed}
 
-\item{ret.nm}{= return variable}
+\item{h}{= return variable}
 
-\item{trails}{= variable parameter}
+\item{u}{= variable parameter}
 
-\item{fldr}{= data folder}
+\item{v}{= data folder}
 
-\item{nBins}{= number of bins}
+\item{g}{= number of bins}
 
-\item{geom.comp}{= T/F depending on whether you want bin excess returns summarized geometrically or arithmetically}
+\item{r}{= T/F depending on whether you want bin excess returns summarized geometrically or arithmetically}
 
-\item{retHz}{= forward return horizon in months}
+\item{s}{= forward return horizon in months}
 
-\item{classif}{= classif file}
+\item{b}{= classif file}
 }
 \description{
 runs a stock-flows simulation

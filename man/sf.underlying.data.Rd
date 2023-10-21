@@ -4,31 +4,30 @@
 \alias{sf.underlying.data}
 \title{sf.underlying.data}
 \usage{
-sf.underlying.data(fcn, univ, ret.nm, ret.prd, trail, grp, nBins, fldr, retHz,
-  classif, weighting.factor)
+sf.underlying.data(fcn, x, y, n, w, h, u, v, g, r, s)
 }
 \arguments{
 \item{fcn}{= function that fetches data for the appropriate period and parameter}
 
-\item{univ}{= membership (e.g. "EafeMem" or c("GemMem", 1))}
+\item{x}{= membership (e.g. "EafeMem" or c("GemMem", 1))}
 
-\item{ret.nm}{= return variable}
+\item{y}{= return variable}
 
-\item{ret.prd}{= the period for which you want returns}
+\item{n}{= the period for which you want returns}
 
-\item{trail}{= variable parameter}
+\item{w}{= variable parameter}
 
-\item{grp}{= group within which binning is to be performed}
+\item{h}{= group within which binning is to be performed}
 
-\item{nBins}{= number of bins or numeric vector with last element T/F for dependent/independent}
+\item{u}{= number of bins or numeric vector with last element T/F for dependent/independent}
 
-\item{fldr}{= data folder}
+\item{v}{= data folder}
 
-\item{retHz}{= forward return horizon in months}
+\item{g}{= forward return horizon in months}
 
-\item{classif}{= classif file}
+\item{r}{= classif file}
 
-\item{weighting.factor}{= factor you want to use for Cap-weighted back-tests}
+\item{s}{= factor you want to use for Cap-weighted back-tests}
 }
 \description{
 Gets data needed to back-test a single period

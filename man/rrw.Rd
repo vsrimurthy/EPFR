@@ -4,27 +4,26 @@
 \alias{rrw}
 \title{rrw}
 \usage{
-rrw(prdBeg, prdEnd, vbls, univ, grp.nm, ret.nm, fldr, orth.factor = NULL,
-  classif)
+rrw(x, y, n, w, h, u, v, g = NULL, r)
 }
 \arguments{
-\item{prdBeg}{= a first-return date in yyyymm format representing the first month of the backtest}
+\item{x}{= a first-return date in yyyymm format representing the first month of the backtest}
 
-\item{prdEnd}{= a first-return date in yyyymm format representing the last month of the backtest}
+\item{y}{= a first-return date in yyyymm format representing the last month of the backtest}
 
-\item{vbls}{= vector of variables against which return is to be regressed}
+\item{n}{= vector of variables against which return is to be regressed}
 
-\item{univ}{= universe (e.g. "R1Mem", or c("EafeMem", 1, "CountryCode", "JP"))}
+\item{w}{= universe (e.g. "R1Mem", or c("EafeMem", 1, "CountryCode", "JP"))}
 
-\item{grp.nm}{= neutrality group (e.g. "GSec")}
+\item{h}{= neutrality group (e.g. "GSec")}
 
-\item{ret.nm}{= return variable (e.g. "Ret")}
+\item{u}{= return variable (e.g. "Ret")}
 
-\item{fldr}{= stock-flows folder}
+\item{v}{= stock-flows folder}
 
-\item{orth.factor}{= factor to orthogonalize all variables to (e.g. "PrcMo")}
+\item{g}{= factor to orthogonalize all variables to (e.g. "PrcMo")}
 
-\item{classif}{= classif file}
+\item{r}{= classif file}
 }
 \description{
 regression results

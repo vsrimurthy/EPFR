@@ -4,35 +4,35 @@
 \alias{sf.single.bsim}
 \title{sf.single.bsim}
 \usage{
-sf.single.bsim(fcn, prdBeg, prdEnd, univ, grp.nm, ret.nm, fldr, trail,
-  uRet = F, nBins = 5, retHz = 1, classif, weighting.factor = NULL)
+sf.single.bsim(fcn, x, y, n, w, h, u, v, g = F, r = 5, s = 1, b,
+  p = NULL)
 }
 \arguments{
 \item{fcn}{= function that fetches data for the appropriate period and parameter}
 
-\item{prdBeg}{= first-return date in YYYYMM}
+\item{x}{= first-return date in YYYYMM}
 
-\item{prdEnd}{= first-return date in YYYYMM after <prdBeg>}
+\item{y}{= first-return date in YYYYMM after <prdBeg>}
 
-\item{univ}{= membership (e.g. "EafeMem" or c("GemMem", 1))}
+\item{n}{= membership (e.g. "EafeMem" or c("GemMem", 1))}
 
-\item{grp.nm}{= group within which binning is to be performed}
+\item{w}{= group within which binning is to be performed}
 
-\item{ret.nm}{= return variable}
+\item{h}{= return variable}
 
-\item{fldr}{= data folder}
+\item{u}{= data folder}
 
-\item{trail}{= variable parameter}
+\item{v}{= variable parameter}
 
-\item{uRet}{= T/F depending on whether the equal-weight universe return is desired}
+\item{g}{= T/F depending on whether the equal-weight universe return is desired}
 
-\item{nBins}{= number of bins or numeric vector with last element T/F for dependent/independent}
+\item{r}{= number of bins or numeric vector with last element T/F for dependent/independent}
 
-\item{retHz}{= forward return horizon in months}
+\item{s}{= forward return horizon in months}
 
-\item{classif}{= classif file}
+\item{b}{= classif file}
 
-\item{weighting.factor}{= factor you want to use for Cap-weighted back-tests (defaults to NULL)}
+\item{p}{= factor you want to use for Cap-weighted back-tests (defaults to NULL)}
 }
 \description{
 runs a single quintile simulation

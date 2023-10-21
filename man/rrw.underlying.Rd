@@ -4,24 +4,24 @@
 \alias{rrw.underlying}
 \title{rrw.underlying}
 \usage{
-rrw.underlying(prd, vbls, univ, grp.nm, ret.nm, fldr, orth.factor, classif)
+rrw.underlying(x, y, n, w, h, u, v, g)
 }
 \arguments{
-\item{prd}{= a first-return date in yyyymm format representing the return period of interest}
+\item{x}{= a first-return date in yyyymm format representing the return period of interest}
 
-\item{vbls}{= vector of variables against which return is to be regressed}
+\item{y}{= vector of variables against which return is to be regressed}
 
-\item{univ}{= universe (e.g. "R1Mem", or c("EafeMem", 1, "CountryCode", "JP"))}
+\item{n}{= universe (e.g. "R1Mem", or c("EafeMem", 1, "CountryCode", "JP"))}
 
-\item{grp.nm}{= neutrality group (e.g. "GSec")}
+\item{w}{= neutrality group (e.g. "GSec")}
 
-\item{ret.nm}{= return variable (e.g. "Ret")}
+\item{h}{= return variable (e.g. "Ret")}
 
-\item{fldr}{= parent directory containing derived/data}
+\item{u}{= parent directory containing derived/data}
 
-\item{orth.factor}{= factor to orthogonalize all variables to (e.g. "PrcMo")}
+\item{v}{= factor to orthogonalize all variables to (e.g. "PrcMo")}
 
-\item{classif}{= classif file}
+\item{g}{= classif file}
 }
 \description{
 Runs regressions

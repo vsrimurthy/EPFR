@@ -10242,39 +10242,37 @@ rquaternion <- function (x)
 #' rrw
 #' 
 #' regression results
-#' @param prdBeg = a first-return date in yyyymm format representing the first month of the backtest
-#' @param prdEnd = a first-return date in yyyymm format representing the last month of the backtest
-#' @param vbls = vector of variables against which return is to be regressed
-#' @param univ = universe (e.g. "R1Mem", or c("EafeMem", 1, "CountryCode", "JP"))
-#' @param grp.nm = neutrality group (e.g. "GSec")
-#' @param ret.nm = return variable (e.g. "Ret")
-#' @param fldr = stock-flows folder
-#' @param orth.factor = factor to orthogonalize all variables to (e.g. "PrcMo")
-#' @param classif = classif file
+#' @param x = a first-return date in yyyymm format representing the first month of the backtest
+#' @param y = a first-return date in yyyymm format representing the last month of the backtest
+#' @param n = vector of variables against which return is to be regressed
+#' @param w = universe (e.g. "R1Mem", or c("EafeMem", 1, "CountryCode", "JP"))
+#' @param h = neutrality group (e.g. "GSec")
+#' @param u = return variable (e.g. "Ret")
+#' @param v = stock-flows folder
+#' @param g = factor to orthogonalize all variables to (e.g. "PrcMo")
+#' @param r = classif file
 #' @keywords rrw
 #' @export
 #' @family rrw
 
-rrw <- function (prdBeg, prdEnd, vbls, univ, grp.nm, ret.nm, fldr, orth.factor = NULL, 
-    classif) 
+rrw <- function (x, y, n, w, h, u, v, g = NULL, r) 
 {
-    dts <- yyyymm.seq(prdBeg, prdEnd)
-    df <- NULL
+    dts <- yyyymm.seq(x, y)
+    z <- NULL
     for (i in dts) {
         if (txt.right(i, 2) == "01") 
             cat("\n", i, "")
         else cat(txt.right(i, 2), "")
-        x <- rrw.underlying(i, vbls, univ, grp.nm, ret.nm, fldr, 
-            orth.factor, classif)
-        x <- mat.subset(x, c("ret", vbls))
+        x <- rrw.underlying(i, n, w, h, u, v, g, r)
+        x <- mat.subset(x, c("ret", n))
         dimnames(x)[[1]] <- paste(i, dimnames(x)[[1]])
-        if (is.null(df)) 
-            df <- x
-        else df <- rbind(df, x)
+        if (is.null(z)) 
+            z <- x
+        else z <- rbind(z, x)
     }
     cat("\n")
-    z <- list(value = map.rname(rrw.factors(df), vbls), corr = correl(df), 
-        data = df)
+    z <- list(value = map.rname(rrw.factors(z), n), corr = correl(z), 
+        data = z)
     z
 }
 
@@ -10305,43 +10303,42 @@ rrw.factors <- function (x)
 #' rrw.underlying
 #' 
 #' Runs regressions
-#' @param prd = a first-return date in yyyymm format representing the return period of interest
-#' @param vbls = vector of variables against which return is to be regressed
-#' @param univ = universe (e.g. "R1Mem", or c("EafeMem", 1, "CountryCode", "JP"))
-#' @param grp.nm = neutrality group (e.g. "GSec")
-#' @param ret.nm = return variable (e.g. "Ret")
-#' @param fldr = parent directory containing derived/data
-#' @param orth.factor = factor to orthogonalize all variables to (e.g. "PrcMo")
-#' @param classif = classif file
+#' @param x = a first-return date in yyyymm format representing the return period of interest
+#' @param y = vector of variables against which return is to be regressed
+#' @param n = universe (e.g. "R1Mem", or c("EafeMem", 1, "CountryCode", "JP"))
+#' @param w = neutrality group (e.g. "GSec")
+#' @param h = return variable (e.g. "Ret")
+#' @param u = parent directory containing derived/data
+#' @param v = factor to orthogonalize all variables to (e.g. "PrcMo")
+#' @param g = classif file
 #' @keywords rrw.underlying
 #' @export
 #' @family rrw
 
-rrw.underlying <- function (prd, vbls, univ, grp.nm, ret.nm, fldr, orth.factor, 
-    classif) 
+rrw.underlying <- function (x, y, n, w, h, u, v, g) 
 {
-    z <- fetch(c(vbls, orth.factor), yyyymm.lag(prd, 1), 1, paste0(fldr, 
-        "\\derived"), classif)
-    grp <- classif[, grp.nm]
-    mem <- sf.subset(univ, prd, fldr, classif)
+    z <- fetch(c(y, v), yyyymm.lag(x), 1, paste0(u, "\\derived"), 
+        g)
+    grp <- g[, w]
+    mem <- sf.subset(n, x, u, g)
     z <- mat.ex.matrix(mat.zScore(z, mem, grp))
     z$grp <- grp
     z$mem <- mem
-    z$ret <- fetch(ret.nm, prd, 1, paste0(fldr, "\\data"), classif)
+    z$ret <- fetch(h, x, 1, paste0(u, "\\data"), g)
     z <- mat.last.to.first(z)
     z <- z[is.element(z$mem, 1) & !is.na(z$grp) & !is.na(z$ret), 
         ]
-    if (!is.null(orth.factor)) {
-        z[, orth.factor] <- zav(z[, orth.factor])
-        for (j in vbls) {
-            w <- !is.na(z[, j])
-            z[w, j] <- as.numeric(summary(lm(txt.regr(c(j, orth.factor)), 
-                z[w, ]))$residuals)
+    if (!is.null(v)) {
+        z[, v] <- zav(z[, v])
+        for (j in y) {
+            n <- !is.na(z[, j])
+            z[n, j] <- as.numeric(summary(lm(txt.regr(c(j, v)), 
+                z[n, ]))$residuals)
             z[, j] <- mat.zScore(z[, j], z$mem, z$grp)
         }
     }
-    w <- apply(mat.to.obs(z[, c(vbls, "ret")]), 1, max) > 0
-    z <- mat.ex.matrix(zav(z[w, ]))
+    n <- apply(mat.to.obs(z[, c(y, "ret")]), 1, max) > 0
+    z <- mat.ex.matrix(zav(z[n, ]))
     z$ret <- z$ret - mean(z$ret)
     z
 }
@@ -10421,42 +10418,40 @@ separating.hyperplane <- function (x, y)
 #' 
 #' runs a stock-flows simulation
 #' @param fcn = function that fetches data for the appropriate period and parameter
-#' @param prdBeg = first-return date in YYYYMM
-#' @param prdEnd = first-return date in YYYYMM after <prdBeg>
-#' @param univ = membership (e.g. "EafeMem" or c("GemMem", 1))
-#' @param grp.nm = group within which binning is to be performed
-#' @param ret.nm = return variable
-#' @param trails = variable parameter
-#' @param fldr = data folder
-#' @param nBins = number of bins
-#' @param geom.comp = T/F depending on whether you want bin excess returns summarized geometrically or arithmetically
-#' @param retHz = forward return horizon in months
-#' @param classif = classif file
+#' @param x = first-return date in YYYYMM
+#' @param y = first-return date in YYYYMM after <prdBeg>
+#' @param n = membership (e.g. "EafeMem" or c("GemMem", 1))
+#' @param w = group within which binning is to be performed
+#' @param h = return variable
+#' @param u = variable parameter
+#' @param v = data folder
+#' @param g = number of bins
+#' @param r = T/F depending on whether you want bin excess returns summarized geometrically or arithmetically
+#' @param s = forward return horizon in months
+#' @param b = classif file
 #' @keywords sf
 #' @export
 #' @family sf
 
-sf <- function (fcn, prdBeg, prdEnd, univ, grp.nm, ret.nm, trails, 
-    fldr, nBins = 5, geom.comp = F, retHz = 1, classif) 
+sf <- function (fcn, x, y, n, w, h, u, v, g = 5, r = F, s = 1, b) 
 {
-    n.trail <- length(trails)
-    summ.fcn <- ifelse(geom.comp, "bbk.bin.rets.geom.summ", "bbk.bin.rets.summ")
+    n.trail <- length(u)
+    summ.fcn <- ifelse(r, "bbk.bin.rets.geom.summ", "bbk.bin.rets.summ")
     summ.fcn <- get(summ.fcn)
     fcn.loc <- function(x) {
-        summ.fcn(x, 12/retHz)
+        summ.fcn(x, 12/s)
     }
     z <- list()
     for (j in 1:n.trail) {
-        cat(trails[j], "")
+        cat(u[j], "")
         if (j%%10 == 0) 
             cat("\n")
-        x <- sf.single.bsim(fcn, prdBeg, prdEnd, univ, grp.nm, 
-            ret.nm, fldr, trails[j], T, nBins, retHz, classif)$returns
-        x <- t(map.rname(t(x), c(dimnames(x)[[2]], "TxB")))
-        x[, "TxB"] <- x[, "Q1"] - x[, paste0("Q", nBins)]
-        x <- mat.ex.matrix(x)
-        z[[as.character(trails[j])]] <- summ.multi(fcn.loc, x, 
-            retHz)
+        r <- sf.single.bsim(fcn, x, y, n, w, h, v, u[j], T, g, 
+            s, b)$returns
+        r <- t(map.rname(t(r), c(dimnames(r)[[2]], "TxB")))
+        r[, "TxB"] <- r[, "Q1"] - r[, paste0("Q", g)]
+        r <- mat.ex.matrix(r)
+        z[[as.character(u[j])]] <- summ.multi(fcn.loc, r, s)
     }
     z <- simplify2array(z)
     cat("\n")
@@ -10486,29 +10481,28 @@ sf.bin.nms <- function (x, y)
 #' 
 #' runs a stock-flows simulation
 #' @param fcn = function that fetches data for the appropriate period and parameter
-#' @param prdBeg = first-return date in YYYYMM
-#' @param prdEnd = first-return date in YYYYMM after <prdBeg>
-#' @param univ = membership (e.g. "EafeMem" or c("GemMem", 1))
-#' @param grp.nm = group within which binning is to be performed
-#' @param ret.nm = return variable
-#' @param trail = variable parameter
-#' @param fldr = data folder
-#' @param nBins = number of bins or numeric vector with last element T/F for dependent/independent
-#' @param classif = classif file
-#' @param weighting.factor = factor you want to use for Cap-weighted back-tests (defaults to NULL)
+#' @param x = first-return date in YYYYMM
+#' @param y = first-return date in YYYYMM after <prdBeg>
+#' @param n = membership (e.g. "EafeMem" or c("GemMem", 1))
+#' @param w = group within which binning is to be performed
+#' @param h = return variable
+#' @param u = variable parameter
+#' @param v = data folder
+#' @param g = number of bins or numeric vector with last element T/F for dependent/independent
+#' @param r = classif file
+#' @param s = factor you want to use for Cap-weighted back-tests (defaults to NULL)
 #' @keywords sf.detail
 #' @export
 #' @family sf
 
-sf.detail <- function (fcn, prdBeg, prdEnd, univ, grp.nm, ret.nm, trail, fldr, 
-    nBins = 5, classif, weighting.factor = NULL) 
+sf.detail <- function (fcn, x, y, n, w, h, u, v, g = 5, r, s = NULL) 
 {
-    x <- sf.single.bsim(fcn, prdBeg, prdEnd, univ, grp.nm, ret.nm, 
-        fldr, trail, T, nBins, 1, classif, weighting.factor)
+    x <- sf.single.bsim(fcn, x, y, n, w, h, v, u, T, g, 1, r, 
+        s)
     x <- lapply(x, mat.ex.matrix)
-    if (length(nBins) == 1) 
+    if (length(g) == 1) 
         x$returns$TxB <- x$returns$Q1 - x$returns[, paste0("Q", 
-            nBins)]
+            g)]
     z <- bbk.bin.rets.summ(x$returns, 12)
     z.ann <- t(bbk.bin.rets.prd.summ(bbk.bin.rets.summ, x$returns, 
         txt.left(dimnames(x$returns)[[1]], 4), 12)["AnnMn", , 
@@ -10521,46 +10515,42 @@ sf.detail <- function (fcn, prdBeg, prdEnd, univ, grp.nm, ret.nm, trail, fldr,
 #' 
 #' runs a single quintile simulation
 #' @param fcn = function that fetches data for the appropriate period and parameter
-#' @param prdBeg = first-return date in YYYYMM
-#' @param prdEnd = first-return date in YYYYMM after <prdBeg>
-#' @param univ = membership (e.g. "EafeMem" or c("GemMem", 1))
-#' @param grp.nm = group within which binning is to be performed
-#' @param ret.nm = return variable
-#' @param fldr = data folder
-#' @param trail = variable parameter
-#' @param uRet = T/F depending on whether the equal-weight universe return is desired
-#' @param nBins = number of bins or numeric vector with last element T/F for dependent/independent
-#' @param retHz = forward return horizon in months
-#' @param classif = classif file
-#' @param weighting.factor = factor you want to use for Cap-weighted back-tests (defaults to NULL)
+#' @param x = first-return date in YYYYMM
+#' @param y = first-return date in YYYYMM after <prdBeg>
+#' @param n = membership (e.g. "EafeMem" or c("GemMem", 1))
+#' @param w = group within which binning is to be performed
+#' @param h = return variable
+#' @param u = data folder
+#' @param v = variable parameter
+#' @param g = T/F depending on whether the equal-weight universe return is desired
+#' @param r = number of bins or numeric vector with last element T/F for dependent/independent
+#' @param s = forward return horizon in months
+#' @param b = classif file
+#' @param p = factor you want to use for Cap-weighted back-tests (defaults to NULL)
 #' @keywords sf.single.bsim
 #' @export
 #' @family sf
 
-sf.single.bsim <- function (fcn, prdBeg, prdEnd, univ, grp.nm, ret.nm, fldr, trail, 
-    uRet = F, nBins = 5, retHz = 1, classif, weighting.factor = NULL) 
+sf.single.bsim <- function (fcn, x, y, n, w, h, u, v, g = F, r = 5, s = 1, b, p = NULL) 
 {
-    grp <- classif[, grp.nm]
-    z <- list()
-    for (i in yyyymm.seq(prdBeg, prdEnd)) {
-        z[[i]] <- sf.underlying.data(fcn, univ, ret.nm, i, trail, 
-            grp, nBins, fldr, retHz, classif, weighting.factor)
-    }
+    w <- b[, w]
+    z <- vec.to.list(yyyymm.seq(x, y), T)
+    z <- lapply(z, function(x) sf.underlying.data(fcn, n, h, 
+        x, v, w, r, u, s, b, p))
     fcn <- function(x) {
         z <- ifelse(is.na(x[, "ret"]), 0, x[, "mem"])
         x <- x[, "bin"]
         pivot.1d(sum, x[z > 0], z[z > 0])
     }
     h <- array.ex.list(lapply(z, fcn), T)
-    if (length(nBins) == 1) 
-        h <- map.rname(h, sf.bin.nms(nBins, uRet))
+    if (length(r) == 1) 
+        h <- map.rname(h, sf.bin.nms(r, g))
     h <- t(h)
-    z <- lapply(z, function(x) sf.underlying.summ(x, uRet))
+    z <- lapply(z, function(x) sf.underlying.summ(x, g))
     z <- array.ex.list(z, T)
-    if (length(nBins) == 1) 
-        z <- map.rname(z, sf.bin.nms(nBins, uRet))
-    z <- t(z)
-    z <- list(returns = z, counts = h)
+    if (length(r) == 1) 
+        z <- map.rname(z, sf.bin.nms(r, g))
+    z <- list(returns = t(z), counts = h)
     z
 }
 
@@ -10596,46 +10586,43 @@ sf.subset <- function (x, y, n, w)
 #' 
 #' Gets data needed to back-test a single period
 #' @param fcn = function that fetches data for the appropriate period and parameter
-#' @param univ = membership (e.g. "EafeMem" or c("GemMem", 1))
-#' @param ret.nm = return variable
-#' @param ret.prd = the period for which you want returns
-#' @param trail = variable parameter
-#' @param grp = group within which binning is to be performed
-#' @param nBins = number of bins or numeric vector with last element T/F for dependent/independent
-#' @param fldr = data folder
-#' @param retHz = forward return horizon in months
-#' @param classif = classif file
-#' @param weighting.factor = factor you want to use for Cap-weighted back-tests
+#' @param x = membership (e.g. "EafeMem" or c("GemMem", 1))
+#' @param y = return variable
+#' @param n = the period for which you want returns
+#' @param w = variable parameter
+#' @param h = group within which binning is to be performed
+#' @param u = number of bins or numeric vector with last element T/F for dependent/independent
+#' @param v = data folder
+#' @param g = forward return horizon in months
+#' @param r = classif file
+#' @param s = factor you want to use for Cap-weighted back-tests
 #' @keywords sf.underlying.data
 #' @export
 #' @family sf
 
-sf.underlying.data <- function (fcn, univ, ret.nm, ret.prd, trail, grp, nBins, fldr, 
-    retHz, classif, weighting.factor) 
+sf.underlying.data <- function (fcn, x, y, n, w, h, u, v, g, r, s) 
 {
-    mem <- sf.subset(univ, ret.prd, fldr, classif)
-    vbl <- fcn(ret.prd, trail, fldr, classif)
-    if (retHz == 1) {
-        ret <- fetch(ret.nm, ret.prd, 1, paste(fldr, "data", 
-            sep = "\\"), classif)
+    mem <- sf.subset(x, n, v, r)
+    vbl <- fcn(n, w, v, r)
+    if (g == 1) {
+        ret <- fetch(y, n, 1, paste0(v, "\\data"), r)
     }
     else {
-        ret <- fetch(ret.nm, yyyymm.lag(ret.prd, 1 - retHz), 
-            retHz, paste(fldr, "data", sep = "\\"), classif)
+        ret <- fetch(y, yyyymm.lag(n, 1 - g), g, paste0(v, "\\data"), 
+            r)
         ret <- mat.compound(ret)
     }
     bin <- ifelse(is.na(ret), 0, mem)
-    if (!is.null(weighting.factor)) {
-        weighting.factor <- fetch(weighting.factor, yyyymm.lag(ret.prd, 
-            1), 1, paste(fldr, "derived", sep = "\\"), classif)
-        bin <- weighting.factor <- vec.max(zav(weighting.factor) * 
-            bin, bin)
+    if (!is.null(s)) {
+        s <- fetch(s, yyyymm.lag(n), 1, paste0(v, "\\derived"), 
+            r)
+        bin <- s <- vec.max(zav(s) * bin, bin)
     }
-    bin <- sf.underlying.data.bin(vbl, nBins, bin, grp)
-    z <- data.frame(bin, ret, mem, grp, row.names = dimnames(classif)[[1]], 
+    bin <- sf.underlying.data.bin(vbl, u, bin, h)
+    z <- data.frame(bin, ret, mem, h, row.names = dimnames(r)[[1]], 
         stringsAsFactors = F)
-    if (!is.null(weighting.factor)) 
-        z$wgt <- weighting.factor
+    if (!is.null(s)) 
+        z$wgt <- s
     z
 }
 
