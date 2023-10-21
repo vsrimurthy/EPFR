@@ -4,22 +4,22 @@
 \alias{load.dy.vbl.1obj}
 \title{load.dy.vbl.1obj}
 \usage{
-load.dy.vbl.1obj(beg, end, mk.fcn, optional.args, vbl.name, mo, env)
+load.dy.vbl.1obj(fcn, x, y, n, w, h, u)
 }
 \arguments{
-\item{beg}{= a single YYYYMMDD}
+\item{fcn}{= a function}
 
-\item{end}{= a single YYYYMMDD}
+\item{x}{= a single YYYYMMDD}
 
-\item{mk.fcn}{= a function}
+\item{y}{= a single YYYYMMDD}
 
-\item{optional.args}{= passed down to <mk.fcn>}
+\item{n}{= passed down to <mk.fcn>}
 
-\item{vbl.name}{= name under which the variable is to be stored}
+\item{w}{= name under which the variable is to be stored}
 
-\item{mo}{= the YYYYMM for which the object is to be made}
+\item{h}{= the YYYYMM for which the object is to be made}
 
-\item{env}{= stock-flows environment}
+\item{u}{= stock-flows environment}
 }
 \description{
 Loads a daily variable

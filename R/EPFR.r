@@ -5747,30 +5747,29 @@ load.dy.vbl <- function (beg, end, mk.fcn, optional.args, vbl.name, out.fldr,
 #' load.dy.vbl.1obj
 #' 
 #' Loads a daily variable
-#' @param beg = a single YYYYMMDD
-#' @param end = a single YYYYMMDD
-#' @param mk.fcn = a function
-#' @param optional.args = passed down to <mk.fcn>
-#' @param vbl.name = name under which the variable is to be stored
-#' @param mo = the YYYYMM for which the object is to be made
-#' @param env = stock-flows environment
+#' @param fcn = a function
+#' @param x = a single YYYYMMDD
+#' @param y = a single YYYYMMDD
+#' @param n = passed down to <mk.fcn>
+#' @param w = name under which the variable is to be stored
+#' @param h = the YYYYMM for which the object is to be made
+#' @param u = stock-flows environment
 #' @keywords load.dy.vbl.1obj
 #' @export
 #' @family load
 
-load.dy.vbl.1obj <- function (beg, end, mk.fcn, optional.args, vbl.name, mo, env) 
+load.dy.vbl.1obj <- function (fcn, x, y, n, w, h, u) 
 {
-    z <- flowdate.ex.yyyymm(mo, F)
-    z <- paste(vbl.name, txt.right(z, 2), sep = ".")
-    z <- matrix(NA, dim(env$classif)[1], length(z), F, list(dimnames(env$classif)[[1]], 
+    z <- flowdate.ex.yyyymm(h, F)
+    z <- paste(w, txt.right(z, 2), sep = ".")
+    z <- matrix(NA, dim(u$classif)[1], length(z), F, list(dimnames(u$classif)[[1]], 
         z))
     dd <- txt.right(dimnames(z)[[2]], 2)
-    dd <- dd[as.numeric(paste0(mo, dd)) >= as.numeric(beg)]
-    dd <- dd[as.numeric(paste0(mo, dd)) <= as.numeric(end)]
+    dd <- dd[as.numeric(paste0(h, dd)) >= as.numeric(x)]
+    dd <- dd[as.numeric(paste0(h, dd)) <= as.numeric(y)]
     for (i in dd) {
         cat(i, "")
-        z[, paste(vbl.name, i, sep = ".")] <- mk.fcn(paste0(mo, 
-            i), optional.args, env)
+        z[, paste(w, i, sep = ".")] <- fcn(paste0(h, i), n, u)
     }
     z <- mat.ex.matrix(z)
     z
@@ -5797,7 +5796,7 @@ load.dy.vbl.underlying <- function (beg, end, mk.fcn, optional.args, vbl.name, o
 {
     for (mo in yyyymm.seq(fcn.conv(beg), fcn.conv(end))) {
         cat(mo, ":")
-        z <- fcn.load(beg, end, mk.fcn, optional.args, vbl.name, 
+        z <- fcn.load(mk.fcn, beg, end, optional.args, vbl.name, 
             mo, env)
         saveRDS(z, file = paste(out.fldr, paste(vbl.name, mo, 
             "r", sep = "."), sep = "\\"), ascii = T)
@@ -5831,29 +5830,29 @@ load.mo.vbl <- function (beg, end, mk.fcn, optional.args, vbl.name, out.fldr,
 #' load.mo.vbl.1obj
 #' 
 #' Loads a monthly variable
-#' @param beg = a single YYYYMM
-#' @param end = a single YYYYMM
-#' @param mk.fcn = a function
-#' @param optional.args = passed down to <mk.fcn>
-#' @param vbl.name = name under which the variable is to be stored
-#' @param yyyy = the period for which the object is to be made
-#' @param env = stock-flows environment
+#' @param fcn = a function
+#' @param x = a single YYYYMM
+#' @param y = a single YYYYMM
+#' @param n = passed down to <mk.fcn>
+#' @param w = name under which the variable is to be stored
+#' @param h = the period for which the object is to be made
+#' @param u = stock-flows environment
 #' @keywords load.mo.vbl.1obj
 #' @export
 #' @family load
 
-load.mo.vbl.1obj <- function (beg, end, mk.fcn, optional.args, vbl.name, yyyy, env) 
+load.mo.vbl.1obj <- function (fcn, x, y, n, w, h, u) 
 {
-    z <- paste(vbl.name, 1:12, sep = ".")
-    z <- matrix(NA, dim(env$classif)[1], length(z), F, list(dimnames(env$classif)[[1]], 
+    z <- paste(w, 1:12, sep = ".")
+    z <- matrix(NA, dim(u$classif)[1], length(z), F, list(dimnames(u$classif)[[1]], 
         z))
     mm <- 1:12
-    mm <- mm[100 * yyyy + mm >= beg]
-    mm <- mm[100 * yyyy + mm <= end]
+    mm <- mm[100 * h + mm >= x]
+    mm <- mm[100 * h + mm <= y]
     for (i in mm) {
         cat(i, "")
-        z[, paste(vbl.name, i, sep = ".")] <- mk.fcn(as.character(100 * 
-            yyyy + i), optional.args, env)
+        z[, paste(w, i, sep = ".")] <- fcn(as.character(100 * 
+            h + i), n, u)
     }
     z <- mat.ex.matrix(z)
     z
@@ -6517,9 +6516,9 @@ mk.1dFloMo <- function (x, y, n)
         z <- sql.1dFloMoAggr(x, y, n$DB)
     }
     else if (any(y[1] == c("ION$", "ION%"))) {
-        z <- sql.1dION(x, y, 26, n$DB)
+        z <- sql.1dION(x, y, 26, n$DB, F)
     }
-    else stop("Bad Argument")
+    else stop(paste("Bad Argument", y[1]))
     z <- txt.replace(z, "[Index] = 0", "isnull(Idx, 'N') = 'N'")
     z <- txt.replace(z, "[Index] = 1", "not isnull(Idx, 'N') = 'N'")
     z <- txt.replace(z, "ETFTypeId is not null", "ETF = 'Y'")
