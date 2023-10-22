@@ -4,22 +4,22 @@
 \alias{load.dy.vbl}
 \title{load.dy.vbl}
 \usage{
-load.dy.vbl(beg, end, mk.fcn, optional.args, vbl.name, out.fldr, env)
+load.dy.vbl(fcn, x, y, n, w, h, u)
 }
 \arguments{
-\item{beg}{= a single YYYYMMDD}
+\item{fcn}{= a function}
 
-\item{end}{= a single YYYYMMDD}
+\item{x}{= a single YYYYMMDD}
 
-\item{mk.fcn}{= a function}
+\item{y}{= a single YYYYMMDD}
 
-\item{optional.args}{= passed down to <mk.fcn>}
+\item{n}{= passed down to <fcn>}
 
-\item{vbl.name}{= name under which the variable is to be stored}
+\item{w}{= name under which the variable is to be stored}
 
-\item{out.fldr}{= R-object folder}
+\item{h}{= R-object folder}
 
-\item{env}{= stock-flows environment}
+\item{u}{= stock-flows environment}
 }
 \description{
 Loads a daily variable

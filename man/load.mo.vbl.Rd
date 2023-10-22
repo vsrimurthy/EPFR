@@ -4,22 +4,22 @@
 \alias{load.mo.vbl}
 \title{load.mo.vbl}
 \usage{
-load.mo.vbl(beg, end, mk.fcn, optional.args, vbl.name, out.fldr, env)
+load.mo.vbl(fcn, x, y, n, w, h, u)
 }
 \arguments{
-\item{beg}{= a single YYYYMM}
+\item{fcn}{= a function}
 
-\item{end}{= a single YYYYMM}
+\item{x}{= a single YYYYMM}
 
-\item{mk.fcn}{= a function}
+\item{y}{= a single YYYYMM}
 
-\item{optional.args}{= passed down to <mk.fcn>}
+\item{n}{= passed down to <fcn>}
 
-\item{vbl.name}{= name under which the variable is to be stored}
+\item{w}{= name under which the variable is to be stored}
 
-\item{out.fldr}{= R-object folder}
+\item{h}{= R-object folder}
 
-\item{env}{= stock-flows environment}
+\item{u}{= stock-flows environment}
 }
 \description{
 Loads a monthly variable

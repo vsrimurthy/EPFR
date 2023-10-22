@@ -2696,7 +2696,7 @@ fcn.canonical <- function (x)
             z$canonical <- F
         }
     }
-    canon <- c("fcn", "x", "y", "n", "w", "h", "u")
+    canon <- c("fcn", "x", "y", "n", "w", "h", "u", "v", "g")
     if (z$canonical) {
         if (length(z$args) < length(canon)) {
             n <- length(z$args)
@@ -5725,22 +5725,21 @@ list.rename <- function (x, y, n)
 #' load.dy.vbl
 #' 
 #' Loads a daily variable
-#' @param beg = a single YYYYMMDD
-#' @param end = a single YYYYMMDD
-#' @param mk.fcn = a function
-#' @param optional.args = passed down to <mk.fcn>
-#' @param vbl.name = name under which the variable is to be stored
-#' @param out.fldr = R-object folder
-#' @param env = stock-flows environment
+#' @param fcn = a function
+#' @param x = a single YYYYMMDD
+#' @param y = a single YYYYMMDD
+#' @param n = passed down to <fcn>
+#' @param w = name under which the variable is to be stored
+#' @param h = R-object folder
+#' @param u = stock-flows environment
 #' @keywords load.dy.vbl
 #' @export
 #' @family load
 
-load.dy.vbl <- function (beg, end, mk.fcn, optional.args, vbl.name, out.fldr, 
-    env) 
+load.dy.vbl <- function (fcn, x, y, n, w, h, u) 
 {
-    load.dy.vbl.underlying(beg, end, mk.fcn, optional.args, vbl.name, 
-        out.fldr, env, yyyymmdd.to.yyyymm, load.dy.vbl.1obj)
+    load.dy.vbl.underlying(x, y, fcn, n, w, h, u, yyyymmdd.to.yyyymm, 
+        load.dy.vbl.1obj)
     invisible()
 }
 
@@ -5808,22 +5807,21 @@ load.dy.vbl.underlying <- function (beg, end, mk.fcn, optional.args, vbl.name, o
 #' load.mo.vbl
 #' 
 #' Loads a monthly variable
-#' @param beg = a single YYYYMM
-#' @param end = a single YYYYMM
-#' @param mk.fcn = a function
-#' @param optional.args = passed down to <mk.fcn>
-#' @param vbl.name = name under which the variable is to be stored
-#' @param out.fldr = R-object folder
-#' @param env = stock-flows environment
+#' @param fcn = a function
+#' @param x = a single YYYYMM
+#' @param y = a single YYYYMM
+#' @param n = passed down to <fcn>
+#' @param w = name under which the variable is to be stored
+#' @param h = R-object folder
+#' @param u = stock-flows environment
 #' @keywords load.mo.vbl
 #' @export
 #' @family load
 
-load.mo.vbl <- function (beg, end, mk.fcn, optional.args, vbl.name, out.fldr, 
-    env) 
+load.mo.vbl <- function (fcn, x, y, n, w, h, u) 
 {
-    load.dy.vbl.underlying(beg, end, mk.fcn, optional.args, vbl.name, 
-        out.fldr, env, yyyymm.to.yyyy, load.mo.vbl.1obj)
+    load.dy.vbl.underlying(x, y, fcn, n, w, h, u, yyyymm.to.yyyy, 
+        load.mo.vbl.1obj)
     invisible()
 }
 
