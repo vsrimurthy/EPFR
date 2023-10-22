@@ -2696,7 +2696,8 @@ fcn.canonical <- function (x)
             z$canonical <- F
         }
     }
-    canon <- c("fcn", "x", "y", "n", "w", "h", "u", "v", "g")
+    canon <- c("fcn", "x", "y", "n", "w", "h", "u", "v", "g", 
+        "r", "s")
     if (z$canonical) {
         if (length(z$args) < length(canon)) {
             n <- length(z$args)
@@ -5738,8 +5739,7 @@ list.rename <- function (x, y, n)
 
 load.dy.vbl <- function (fcn, x, y, n, w, h, u) 
 {
-    load.dy.vbl.underlying(x, y, fcn, n, w, h, u, yyyymmdd.to.yyyymm, 
-        load.dy.vbl.1obj)
+    load.vbl.underlying(fcn, x, y, n, w, h, u, T)
     invisible()
 }
 
@@ -5774,36 +5774,6 @@ load.dy.vbl.1obj <- function (fcn, x, y, n, w, h, u)
     z
 }
 
-#' load.dy.vbl.underlying
-#' 
-#' Loads a variable
-#' @param beg = a single YYYYMMDD
-#' @param end = a single YYYYMMDD
-#' @param mk.fcn = a function
-#' @param optional.args = passed down to <mk.fcn>
-#' @param vbl.name = name under which the variable is to be stored
-#' @param out.fldr = R-object folder
-#' @param env = stock-flows environment
-#' @param fcn.conv = conversion from period of columns to period of objects
-#' @param fcn.load = function to load one object
-#' @keywords load.dy.vbl.underlying
-#' @export
-#' @family load
-
-load.dy.vbl.underlying <- function (beg, end, mk.fcn, optional.args, vbl.name, out.fldr, 
-    env, fcn.conv, fcn.load) 
-{
-    for (mo in yyyymm.seq(fcn.conv(beg), fcn.conv(end))) {
-        cat(mo, ":")
-        z <- fcn.load(mk.fcn, beg, end, optional.args, vbl.name, 
-            mo, env)
-        saveRDS(z, file = paste(out.fldr, paste(vbl.name, mo, 
-            "r", sep = "."), sep = "\\"), ascii = T)
-        cat("\n")
-    }
-    invisible()
-}
-
 #' load.mo.vbl
 #' 
 #' Loads a monthly variable
@@ -5820,8 +5790,7 @@ load.dy.vbl.underlying <- function (beg, end, mk.fcn, optional.args, vbl.name, o
 
 load.mo.vbl <- function (fcn, x, y, n, w, h, u) 
 {
-    load.dy.vbl.underlying(x, y, fcn, n, w, h, u, yyyymm.to.yyyy, 
-        load.mo.vbl.1obj)
+    load.vbl.underlying(fcn, x, y, n, w, h, u, F)
     invisible()
 }
 
@@ -5854,6 +5823,41 @@ load.mo.vbl.1obj <- function (fcn, x, y, n, w, h, u)
     }
     z <- mat.ex.matrix(z)
     z
+}
+
+#' load.vbl.underlying
+#' 
+#' Loads a variable
+#' @param fcn = a function
+#' @param x = a single YYYYMMDD
+#' @param y = a single YYYYMMDD
+#' @param n = passed down to <fcn>
+#' @param w = name under which the variable is to be stored
+#' @param h = R-object folder
+#' @param u = stock-flows environment
+#' @param v = T/F depending on daily/monthly
+#' @keywords load.vbl.underlying
+#' @export
+#' @family load
+
+load.vbl.underlying <- function (fcn, x, y, n, w, h, u, v) 
+{
+    if (v) {
+        fcn.conv <- yyyymmdd.to.yyyymm
+        fcn.load <- load.dy.vbl.1obj
+    }
+    else {
+        fcn.conv <- yyyymm.to.yyyy
+        fcn.load <- load.mo.vbl.1obj
+    }
+    for (v in yyyymm.seq(fcn.conv(x), fcn.conv(y))) {
+        cat(v, ":")
+        z <- fcn.load(fcn, x, y, n, w, v, u)
+        saveRDS(z, file = paste(h, paste(w, v, "r", sep = "."), 
+            sep = "\\"), ascii = T)
+        cat("\n")
+    }
+    invisible()
 }
 
 #' machine.info

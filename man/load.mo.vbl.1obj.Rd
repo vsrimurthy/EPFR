@@ -26,7 +26,7 @@ Loads a monthly variable
 }
 \seealso{
 Other load: \code{\link{load.dy.vbl.1obj}},
-  \code{\link{load.dy.vbl.underlying}},
-  \code{\link{load.dy.vbl}}, \code{\link{load.mo.vbl}}
+  \code{\link{load.dy.vbl}}, \code{\link{load.mo.vbl}},
+  \code{\link{load.vbl.underlying}}
 }
 \keyword{load.mo.vbl.1obj}
