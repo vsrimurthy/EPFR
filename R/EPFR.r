@@ -6521,18 +6521,7 @@ mk.1dFloMo <- function (x, y, n)
         z <- sql.1dION(x, y, 26, n$DB, F)
     }
     else stop(paste("Bad Argument", y[1]))
-    z <- txt.replace(z, "[Index] = 0", "isnull(Idx, 'N') = 'N'")
-    z <- txt.replace(z, "[Index] = 1", "not isnull(Idx, 'N') = 'N'")
-    z <- txt.replace(z, "ETFTypeId is not null", "ETF = 'Y'")
-    z <- txt.replace(z, "ETFTypeId is null", "not ETF = 'Y'")
-    z <- txt.replace(z, "GeographicFocusId", "GeographicFocus")
-    z <- txt.replace(z, "StyleSectorId", "StyleSector")
-    z <- txt.replace(z, "SRI = 1", "SRI_yn = 'Y'")
-    z <- txt.replace(z, "SRI = 0", "SRI_yn = 'N'")
-    z <- txt.replace(z, "ShareClasses", "ShareClass")
-    z <- txt.replace(z, "Institutional = 1", "InstOrRetail = 'Inst'")
-    z <- txt.replace(z, "\t[Id]\n", "\tSCID\n")
-    z <- txt.replace(z, "ShareClassId", "SCID")
+    z <- sql.4.to.5(z)
     z <- sql.map.classif(z, n$conn, n$classif)
     z
 }
@@ -7143,18 +7132,7 @@ mk.1mAllocMo <- function (x, y, n)
     else {
         z <- sql.1mFloMo(x, y, n$DB, F, "All", w)
     }
-    z <- txt.replace(z, "[Index] = 0", "isnull(Idx, 'N') = 'N'")
-    z <- txt.replace(z, "[Index] = 1", "not isnull(Idx, 'N') = 'N'")
-    z <- txt.replace(z, "ETFTypeId is not null", "ETF = 'Y'")
-    z <- txt.replace(z, "ETFTypeId is null", "not ETF = 'Y'")
-    z <- txt.replace(z, "GeographicFocusId", "GeographicFocus")
-    z <- txt.replace(z, "StyleSectorId", "StyleSector")
-    z <- txt.replace(z, "SRI = 1", "SRI_yn = 'Y'")
-    z <- txt.replace(z, "SRI = 0", "SRI_yn = 'N'")
-    z <- txt.replace(z, "ShareClasses", "ShareClass")
-    z <- txt.replace(z, "Institutional = 1", "InstOrRetail = 'Inst'")
-    z <- txt.replace(z, "\t[Id]\n", "\tSCID\n")
-    z <- txt.replace(z, "ShareClassId", "SCID")
+    z <- sql.4.to.5(z)
     z <- sql.map.classif(z, n$conn, n$classif)
     z
 }
@@ -7303,18 +7281,8 @@ mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = T)
         rslt[["CBF"]][[j]] <- sql.query.underlying(paste(z, collapse = "\n"), 
             h$conn, F)
     }
-    r <- c("Advisor", "CountryId", "GeographicFocus", "Allocation = avg(Allocation)")
-    u <- list(A = paste0("CountryId in (", paste(w$CountryId[!is.na(w$CountryId)], 
-        collapse = ", "), ")"))
-    u[["B"]] <- "ReportDate = @floDt"
-    z <- sql.Allocation(r, "Country", c("Advisor", "GeographicFocus"), 
-        c("CB", y[1], "UI"), sql.and(u), paste(r[-length(r)], 
-            collapse = ", "))
-    z <- sql.tbl(r[-1], sql.label(z, "t"), , paste(r[-length(r)][-1], 
-        collapse = ", "))
-    z <- c(sql.declare("@floDt", "datetime", s), sql.unbracket(z))
-    z <- sql.query.underlying(paste(z, collapse = "\n"), h$conn, 
-        F)
+    z <- sql.CtryFlow.Alloc(w$CountryId, y[1], s)
+    z <- sql.query.underlying(z, h$conn, F)
     sql.close(h)
     rslt[["CBA"]] <- reshape.wide(z)
     fcn <- function(x) {
@@ -7387,18 +7355,8 @@ mk.1wFloMo.CtryFlow.local <- function (x, y, n, w, h, u = T)
         rslt[["CBF"]][[j]] <- sql.query.underlying(paste(z, collapse = "\n"), 
             h$conn, F)
     }
-    r <- c("Advisor", "CountryId", "GeographicFocus", "Allocation = avg(Allocation)")
-    u <- list(A = paste0("CountryId in (", paste(w$CountryId[!is.na(w$CountryId)], 
-        collapse = ", "), ")"))
-    u[["B"]] <- "ReportDate = @floDt"
-    z <- sql.Allocation(r, "Country", c("Advisor", "GeographicFocus"), 
-        c("CB", y[1], "UI"), sql.and(u), paste(r[-length(r)], 
-            collapse = ", "))
-    z <- sql.tbl(r[-1], sql.label(z, "t"), , paste(r[-length(r)][-1], 
-        collapse = ", "))
-    z <- c(sql.declare("@floDt", "datetime", s), sql.unbracket(z))
-    rslt[["CBA"]] <- sql.query.underlying(paste(z, collapse = "\n"), 
-        h$conn, F)
+    z <- sql.CtryFlow.Alloc(w$CountryId, y[1], s)
+    rslt[["CBA"]] <- sql.query.underlying(z, h$conn, F)
     sql.close(h)
     v <- vec.named(dimnames(w)[[1]], w[, "CountryId"])
     rslt[["CBA"]][, "CountryId"] <- map.rname(v, rslt[["CBA"]][, 
@@ -13035,6 +12993,31 @@ sql.1wFlow.Corp <- function (x)
     z
 }
 
+#' sql.4.to.5
+#' 
+#' converts SQL from 4 to 5
+#' @param x = a SQL string
+#' @keywords sql.4.to.5
+#' @export
+#' @family sql
+
+sql.4.to.5 <- function (x) 
+{
+    z <- txt.replace(x, "[Index] = 0", "isnull(Idx, 'N') = 'N'")
+    z <- txt.replace(z, "[Index] = 1", "not isnull(Idx, 'N') = 'N'")
+    z <- txt.replace(z, "ETFTypeId is not null", "ETF = 'Y'")
+    z <- txt.replace(z, "ETFTypeId is null", "not ETF = 'Y'")
+    z <- txt.replace(z, "GeographicFocusId", "GeographicFocus")
+    z <- txt.replace(z, "StyleSectorId", "StyleSector")
+    z <- txt.replace(z, "SRI = 1", "SRI_yn = 'Y'")
+    z <- txt.replace(z, "SRI = 0", "SRI_yn = 'N'")
+    z <- txt.replace(z, "ShareClasses", "ShareClass")
+    z <- txt.replace(z, "Institutional = 1", "InstOrRetail = 'Inst'")
+    z <- txt.replace(z, "\t[Id]\n", "\tSCID\n")
+    z <- txt.replace(z, "ShareClassId", "SCID")
+    z
+}
+
 #' sql.ActWtDiff2
 #' 
 #' ActWtDiff2 on R1 Materials for positioning
@@ -13489,6 +13472,32 @@ sql.cross.border <- function (x)
     else x <- "GeographicFocus"
     z <- paste(x, "=", paste(dimnames(y)[[1]], y[, "Name"], sep = "--"))
     z <- split(z, y[, "Abbrv"])
+    z
+}
+
+#' sql.CtryFlow.Alloc
+#' 
+#' SQL query for allocations needed in country flows
+#' @param x = YYYYMMDD
+#' @param y = FundType
+#' @param n = allocation month, in YYYYMMMDD format
+#' @keywords sql.CtryFlow.Alloc
+#' @export
+#' @family sql
+
+sql.CtryFlow.Alloc <- function (x, y, n) 
+{
+    r <- c("Advisor", "CountryId", "GeographicFocus", "Allocation = avg(Allocation)")
+    u <- list(A = paste0("CountryId in (", paste(x[!is.na(x)], 
+        collapse = ", "), ")"))
+    u[["B"]] <- "ReportDate = @floDt"
+    z <- sql.Allocation(r, "Country", c("Advisor", "GeographicFocus"), 
+        c("CB", y[1], "UI"), sql.and(u), paste(r[-length(r)], 
+            collapse = ", "))
+    z <- sql.tbl(r[-1], sql.label(z, "t"), , paste(r[-length(r)][-1], 
+        collapse = ", "))
+    z <- c(sql.declare("@floDt", "datetime", n), sql.unbracket(z))
+    z <- paste(z, collapse = "\n")
     z
 }
 
