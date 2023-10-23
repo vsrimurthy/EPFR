@@ -6650,9 +6650,6 @@ mk.1dFloMo.Ctry.rslt <- function (x, y, n)
 
 mk.1dFloMo.CtrySG <- function (x, y, n, w, h, u = "E", v = F) 
 {
-    if (h) 
-        h <- c("DailyData", "DayEnding")
-    else h <- c("WeeklyData", "WeekEnding")
     if (n == "Ctry") {
         z <- as.character(sql.1dFloMo.CountryId.List(n, x))
         z <- z[!is.na(Ctry.info(z, "GeoId"))]
@@ -6675,19 +6672,7 @@ mk.1dFloMo.CtrySG <- function (x, y, n, w, h, u = "E", v = F)
         paste("GeographicFocus =", x)
     else paste0("GeographicFocus in (", paste(x, collapse = ", "), 
         ")"))
-    z <- c("HFundId", sql.case("grp", z, c(names(z), "Other"), 
-        F))
-    z <- sql.label(sql.tbl(z, sql.label(sql.FundHistory(u, F, 
-        "GeographicFocus"), "t")), "t1")
-    z <- c(z, "inner join", sql.label(h[1], "t2 on t2.HFundId = t1.HFundId"))
-    y <- c("grp", sql.yyyymmdd(h[2]), paste0(y, " = sum(", y, 
-        ")"))
-    x <- list(A = paste0(h[2], " >= '", x, "'"), B = "not grp = 'Other'")
-    if (v) 
-        x[["C"]] <- sql.in("SCID", sql.tbl("SCID", "ShareClass", 
-            "InstOrRetail = 'Inst'"))
-    z <- sql.tbl(y, z, sql.and(x), paste0(h[2], ", grp"))
-    z <- paste(sql.unbracket(z), collapse = "\n")
+    z <- sql.1dFloMo.CtrySG(x, y, z, h, u, v)
     z <- sql.query(z, w)
     z
 }
@@ -6707,9 +6692,6 @@ mk.1dFloMo.CtrySG <- function (x, y, n, w, h, u = "E", v = F)
 
 mk.1dFloMo.FI <- function (x, y, n, w, h = "All", u = F) 
 {
-    if (w) 
-        w <- c("DailyData", "DayEnding")
-    else w <- c("WeeklyData", "WeekEnding")
     h <- c("FundType in ('B', 'M')", h)
     z <- c("FundType = 'M'", "StyleSector = 130", "StyleSector = 134 and GeographicFocus = 77", 
         "StyleSector = 137 and GeographicFocus = 77", "StyleSector = 141 and GeographicFocus = 77", 
@@ -6717,17 +6699,7 @@ mk.1dFloMo.FI <- function (x, y, n, w, h = "All", u = F)
         "Category = '8'", "GeographicFocus = 31", "GeographicFocus = 30")
     names(z) <- c("CASH", "FLOATS", "USTRIN", "USTRLT", "USTRST", 
         "USMUNI", "HYIELD", "WESEUR", "GLOBEM", "GLOFIX")
-    z <- sql.case("grp", z, c(names(z), "Other"), F)
-    z <- sql.label(sql.FundHistory(h, F, z), "t1")
-    z <- c(z, "inner join", sql.label(w[1], "t2 on t2.HFundId = t1.HFundId"))
-    y <- c("grp", sql.yyyymmdd(w[2]), paste0(y, " = sum(", y, 
-        ")"))
-    x <- list(A = paste0(w[2], " >= '", x, "'"), B = "not grp = 'Other'")
-    if (u) 
-        x[["C"]] <- sql.in("SCID", sql.tbl("SCID", "ShareClass", 
-            "InstOrRetail = 'Inst'"))
-    z <- sql.tbl(y, z, sql.and(x), paste0(w[2], ", grp"))
-    z <- paste(sql.unbracket(z), collapse = "\n")
+    z <- sql.1dFloMo.CtrySG(x, y, z, w, h, u)
     z <- sql.query(z, n)
     z
 }
@@ -6841,26 +6813,11 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
 
 mk.1dFloMo.Rgn <- function (x, y, n, w, h = "E", u = F) 
 {
-    if (w) 
-        w <- c("DailyData", "DayEnding")
-    else w <- c("WeeklyData", "WeekEnding")
     z <- paste("GeographicFocus =", c(4, 24, 43, 46, 76, 77))
     names(z) <- c("AsiaXJP", "EurXGB", "Japan", "LatAm", "UK", 
         "USA")
     z["PacXJP"] <- "GeographicFocus in (55, 6, 80, 35, 66)"
-    z <- c("HFundId", sql.case("grp", z, c(names(z), "Other"), 
-        F))
-    z <- sql.label(sql.tbl(z, sql.label(sql.FundHistory(h, F, 
-        "GeographicFocus"), "t")), "t1")
-    z <- c(z, "inner join", sql.label(w[1], "t2 on t2.HFundId = t1.HFundId"))
-    y <- c("grp", sql.yyyymmdd(w[2]), paste0(y, " = sum(", y, 
-        ")"))
-    x <- list(A = paste0(w[2], " >= '", x, "'"), B = "not grp = 'Other'")
-    if (u) 
-        x[["C"]] <- sql.in("SCID", sql.tbl("SCID", "ShareClass", 
-            "InstOrRetail = 'Inst'"))
-    z <- sql.tbl(y, z, sql.and(x), paste0(w[2], ", grp"))
-    z <- paste(sql.unbracket(z), collapse = "\n")
+    z <- sql.1dFloMo.CtrySG(x, y, z, w, h, u)
     z <- sql.query(z, n)
     z
 }
@@ -11453,6 +11410,38 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
     else if (nchar(x) == 2) {
         z <- vec.named(z, h$CountryId)
     }
+    z
+}
+
+#' sql.1dFloMo.CtrySG
+#' 
+#' SQL query for daily/weekly flow momentum by group
+#' @param x = starting flowdate/YYYYMMDD depending on whether daily/weekly
+#' @param y = item (Flow/AssetsStart/AssetsEnd/PortfolioChange)
+#' @param n = named vector of group definitions
+#' @param w = T/F depending on whether daily/weekly
+#' @param h = vector of filters
+#' @param u = T/F to use institutional or all share classes
+#' @keywords sql.1dFloMo.CtrySG
+#' @export
+#' @family sql
+
+sql.1dFloMo.CtrySG <- function (x, y, n, w, h, u) 
+{
+    if (w) 
+        w <- c("DailyData", "DayEnding")
+    else w <- c("WeeklyData", "WeekEnding")
+    z <- sql.case("grp", n, c(names(n), "Other"), F)
+    z <- sql.label(sql.FundHistory(h, F, z), "t1")
+    z <- c(z, "inner join", sql.label(w[1], "t2 on t2.HFundId = t1.HFundId"))
+    y <- c("grp", sql.yyyymmdd(w[2]), paste0(y, " = sum(", y, 
+        ")"))
+    x <- list(A = paste0(w[2], " >= '", x, "'"), B = "not grp = 'Other'")
+    if (u) 
+        x[["C"]] <- sql.in("SCID", sql.tbl("SCID", "ShareClass", 
+            "InstOrRetail = 'Inst'"))
+    z <- sql.tbl(y, z, sql.and(x), paste0(w[2], ", grp"))
+    z <- paste(sql.unbracket(z), collapse = "\n")
     z
 }
 
