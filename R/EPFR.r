@@ -6368,7 +6368,7 @@ mat.weekly.to.daily <- function (x)
 #' mat.write
 #' 
 #' Writes <x> as a <n>-separated file to <y>
-#' @param x = any matrix/df
+#' @param x = any matrix/df or vector
 #' @param y = file intended to receive the output
 #' @param n = the separator
 #' @param w = T/F depending on whether to write row names
@@ -6380,7 +6380,14 @@ mat.write <- function (x, y, n = ",", w = T)
 {
     if (missing(y)) 
         y <- paste(machine.info("temp"), "write.csv", sep = "\\")
-    if (w) {
+    if (is.null(dim(x))) {
+        write.table(x, y, sep = n, quote = F, col.names = F, 
+            row.names = w)
+    }
+    else if (dim(x)[1] == 0) {
+        cat("No records. Write to", y, "failed ..\n")
+    }
+    else if (w) {
         write.table(x, y, sep = n, quote = F, col.names = NA)
     }
     else {
@@ -9625,7 +9632,7 @@ record.kill <- function (x, y)
         z <- vec.read(n)
         if (any(names(z) == x)) {
             z <- z[!is.element(names(z), x)]
-            vec.write(z, n)
+            mat.write(z, n)
         }
     }
     invisible()
@@ -9712,7 +9719,7 @@ record.write <- function (x, y, n)
         else {
             z[x] <- y
         }
-        vec.write(z, n)
+        mat.write(z, n)
     }
     invisible()
 }
@@ -16756,21 +16763,6 @@ vec.unique <- function (x)
     z <- z[!duplicated(z)]
     z <- z[order(z)]
     z
-}
-
-#' vec.write
-#' 
-#' writes <x> to <y>
-#' @param x = a named vector
-#' @param y = path to a vector
-#' @keywords vec.write
-#' @export
-#' @family vec
-
-vec.write <- function (x, y) 
-{
-    write.table(matrix(c(names(x), x), length(x), 2), y, row.names = F, 
-        col.names = F, quote = F, sep = ",")
 }
 
 #' versionR
