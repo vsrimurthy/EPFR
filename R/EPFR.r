@@ -4484,8 +4484,8 @@ ftp.put <- function (x, y, n, w, h, u = "ftp", v)
 {
     w <- ftp.missing(as.list(environment()), "nwhuv")
     ctr <- 5
-    z <- NULL
-    while (is.null(z) & ctr > 0) {
+    z <- F
+    while (!z & ctr > 0) {
         if (ctr < 5) 
             cat("Trying to upload to", x, "again ..\n")
         z <- getCurlHandle(ftp.use.epsv = w[["epsv"]], userpwd = w[["userpwd"]])
@@ -4496,7 +4496,7 @@ ftp.put <- function (x, y, n, w, h, u = "ftp", v)
             })
         ctr <- ctr - 1
     }
-    invisible()
+    z
 }
 
 #' ftp.record
@@ -4721,7 +4721,7 @@ ftp.upload <- function (x, y, n, w, h, u = "ftp", v)
         cat(ftp.file(z[j]), "")
         w[["x"]] <- s[j]
         w[["y"]] <- z[j]
-        do.call(ftp.put, w)
+        x <- do.call(ftp.put, w)
         cat(substring(Sys.time(), 12, 16), "\n")
     }
     invisible()
