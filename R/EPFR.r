@@ -220,10 +220,10 @@ ftp.dir <- function (x, y, n, w, h = F, u = "ftp", v)
     z <- paste0(w[["ftp"]], x, "/")
     z <- getURL(z, userpwd = w[["userpwd"]], ftp.use.epsv = w[["epsv"]])
     if (z != "") {
-        z <- txt.parse(z, ifelse(u == "ftp", "\r\n", "\n"))
-        if (w[["epsv"]] & u == "ftp") 
-            z <- ftp.dir.parse.new(z)
-        else z <- ftp.dir.parse.77(z)
+        z <- txt.parse(z, "\n")
+        if (u == "ftp") 
+            z <- ftp.dir.parse.ftp(z)
+        else z <- ftp.dir.parse.sftp(z)
         z <- z[!z[, "is.file"] | z[, "size"] > 0, ]
         if (dim(z)[1] > 0) {
             h <- ifelse(h, "yyyymmdd", "is.file")
@@ -4218,20 +4218,43 @@ ftp.del <- function (x, y, n, w, h, u = "ftp")
     invisible()
 }
 
-#' ftp.dir.parse.77
+#' ftp.dir.parse.ftp
 #' 
 #' data frame with ftp information
 #' @param x = string vector (raw output of ftp)
-#' @keywords ftp.dir.parse.77
+#' @keywords ftp.dir.parse.ftp
 #' @export
 #' @family ftp
 
-ftp.dir.parse.77 <- function (x) 
+ftp.dir.parse.ftp <- function (x) 
+{
+    z <- data.frame(substring(x, 1, 8), substring(x, 18, 39), 
+        substring(x, 40, nchar(x)), stringsAsFactors = F)
+    names(z) <- c("yyyymmdd", "size", "file")
+    z[, "is.file"] <- !txt.has(x, " <DIR> ", T)
+    z[, "size"] <- ifelse(z[, "is.file"], z[, "size"], 0)
+    z[, "size"] <- as.numeric(z[, "size"])/2^10
+    z[, "yyyymmdd"] <- paste0("20", substring(z[, "yyyymmdd"], 
+        7, 8), substring(z[, "yyyymmdd"], 4, 5), substring(z[, 
+        "yyyymmdd"], 1, 2))
+    z <- z[, c("size", "is.file", "yyyymmdd", "file")]
+    z
+}
+
+#' ftp.dir.parse.sftp
+#' 
+#' data frame with ftp information
+#' @param x = string vector (raw output of ftp)
+#' @keywords ftp.dir.parse.sftp
+#' @export
+#' @family ftp
+
+ftp.dir.parse.sftp <- function (x) 
 {
     n <- ftp.break(x)
     z <- substring(x, n + 1, nchar(x))
     z <- data.frame(substring(z, 1, 3), as.numeric(substring(z, 
-        5, 6)), substring(z, 8, 12), substring(z, 14, nchar(z)), 
+        5, 6)), substring(z, 7, 12), substring(z, 13, nchar(z)), 
         stringsAsFactors = F)
     names(z) <- c("mm", "dd", "yyyy", "file")
     y <- substring(x, 1, n - 1)
@@ -4251,29 +4274,7 @@ ftp.dir.parse.77 <- function (x)
     z[, "yyyymmdd"] <- as.character(10000 * z$yyyy + 100 * z$mm + 
         z$dd)
     z <- z[, c("size", "is.file", "yyyymmdd", "file")]
-    z
-}
-
-#' ftp.dir.parse.new
-#' 
-#' data frame with ftp information
-#' @param x = string vector (raw output of ftp)
-#' @keywords ftp.dir.parse.new
-#' @export
-#' @family ftp
-
-ftp.dir.parse.new <- function (x) 
-{
-    z <- data.frame(substring(x, 1, 8), substring(x, 18, 39), 
-        substring(x, 40, nchar(x)), stringsAsFactors = F)
-    names(z) <- c("yyyymmdd", "size", "file")
-    z[, "is.file"] <- !txt.has(x, " <DIR> ", T)
-    z[, "size"] <- ifelse(z[, "is.file"], z[, "size"], 0)
-    z[, "size"] <- as.numeric(z[, "size"])/2^10
-    z[, "yyyymmdd"] <- paste0("20", substring(z[, "yyyymmdd"], 
-        7, 8), substring(z[, "yyyymmdd"], 4, 5), substring(z[, 
-        "yyyymmdd"], 1, 2))
-    z <- z[, c("size", "is.file", "yyyymmdd", "file")]
+    z[, "file"] <- txt.trim(z[, "file"])
     z
 }
 
