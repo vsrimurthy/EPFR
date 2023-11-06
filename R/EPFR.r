@@ -220,7 +220,7 @@ ftp.dir <- function (x, y, n, w, h = F, u = "ftp", v)
     z <- paste0(w[["ftp"]], x, "/")
     z <- getURL(z, userpwd = w[["userpwd"]], ftp.use.epsv = w[["epsv"]])
     if (z != "") {
-        z <- txt.parse(z, "\n")
+        z <- txt.parse(z, ifelse(u == "ftp", "\r\n", "\n"))
         if (u == "ftp") 
             z <- ftp.dir.parse.ftp(z)
         else z <- ftp.dir.parse.sftp(z)
