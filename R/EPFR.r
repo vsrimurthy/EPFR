@@ -10640,6 +10640,262 @@ sf.vec.to.array <- function (x, y, n)
     z
 }
 
+#' sfpd.ActWtTrend
+#' 
+#' <h> factor
+#' @param x = flows file
+#' @param y = holdings file
+#' @param n = fund history file
+#' @param w = desired flow date to be reported
+#' @param h = one of ActWtTrend/ActWtDiff/ActWtDiff2
+#' @keywords sfpd.ActWtTrend
+#' @export
+#' @family sfpd
+
+sfpd.ActWtTrend <- function (x, y, n, w, h) 
+{
+    x <- aggregate(x["Flow"], by = x["HFundId"], FUN = sum)
+    x <- merge(x, n)
+    x <- x[, c("FundId", "Flow", "GeographicFocus")]
+    y <- merge(x, y)
+    x <- aggregate(y[, c("HoldingValue", "PortVal")], by = y[c("HSecurityId", 
+        "GeographicFocus")], FUN = sum)
+    x[, "FundWtdExcl0"] <- 100 * x[, "HoldingValue"]/nonneg(x[, 
+        "PortVal"])
+    x <- x[, !is.element(dimnames(x)[[2]], c("HoldingValue", 
+        "PortVal"))]
+    y <- merge(y, x)
+    y <- y[, !is.element(dimnames(y)[[2]], "GeographicFocus")]
+    y <- sfpd.Wt(y)
+    y[, "Wt"] <- y[, "Wt"] - y[, "FundWtdExcl0"]
+    y <- y[!is.na(y[, "Wt"]), ]
+    if (h == "ActWtDiff") 
+        y[, "Wt"] <- sign(y[, "Wt"])
+    if (h == "ActWtDiff2") 
+        y[, "Flow"] <- sign(y[, "Flow"])
+    y[, "Num"] <- y[, "Flow"] * y[, "Wt"]
+    y[, "Den"] <- abs(y[, "Num"])
+    y <- aggregate(y[, c("Num", "Den")], by = y["HSecurityId"], 
+        FUN = sum)
+    y[, h] <- y[, "Num"]/nonneg(y[, "Den"])
+    y[, "ReportDate"] <- yyyymmdd.to.txt(w)
+    z <- y[, c("ReportDate", "HSecurityId", h)]
+    z <- z[!is.na(z[, h]), ]
+    z
+}
+
+#' sfpd.filter
+#' 
+#' T/F depending on whether records of <x> pass filter <y>
+#' @param x = fund history file
+#' @param y = filter (one of All/Act/Pas/Etf/Mutual)
+#' @keywords sfpd.filter
+#' @export
+#' @family sfpd
+
+sfpd.filter <- function (x, y) 
+{
+    if (y == "All") {
+        z <- rep(T, dim(x)[1])
+    }
+    else if (y == "Act") {
+        z <- !is.element(x[, "Idx"], "Y")
+    }
+    else if (y == "Pas") {
+        z <- is.element(x[, "Idx"], "Y")
+    }
+    else if (y == "Etf") {
+        z <- is.element(x[, "ETF"], "Y")
+    }
+    else if (y == "Mutual") {
+        z <- !is.element(x[, "ETF"], "Y")
+    }
+    else {
+        stop("Unknown filter!")
+    }
+    z
+}
+
+#' sfpd.FloDollar
+#' 
+#' FloMo factor
+#' @param x = flows file
+#' @param y = holdings file
+#' @param n = fund history file
+#' @param w = desired flow date to be reported
+#' @keywords sfpd.FloDollar
+#' @export
+#' @family sfpd
+
+sfpd.FloDollar <- function (x, y, n, w) 
+{
+    y <- sfpd.FloMo.underlying(x, y, n, "Flow", "GeographicFocus")
+    y[, "ReportDate"] <- yyyymmdd.to.txt(w)
+    z <- y[, c("ReportDate", "GeographicFocus", "HSecurityId", 
+        "Flow")]
+    dimnames(z)[[2]] <- c("ReportDate", "GeoId", "HSecurityId", 
+        "CalculatedStockFlow")
+    z
+}
+
+#' sfpd.FloMo
+#' 
+#' FloMo factor
+#' @param x = flows file
+#' @param y = holdings file
+#' @param n = fund history file
+#' @param w = desired flow date to be reported
+#' @keywords sfpd.FloMo
+#' @export
+#' @family sfpd
+
+sfpd.FloMo <- function (x, y, n, w) 
+{
+    y <- sfpd.FloMo.underlying(x, y, n, c("Flow", "AssetsStart"))
+    y[, "FloMo"] <- 100 * y[, "Flow"]/nonneg(y[, "AssetsStart"])
+    y[, "ReportDate"] <- yyyymmdd.to.txt(w)
+    z <- y[, c("ReportDate", "HSecurityId", "FloMo")]
+    z
+}
+
+#' sfpd.FloMo.underlying
+#' 
+#' FloMo factor
+#' @param x = flows file
+#' @param y = holdings file
+#' @param n = fund history file
+#' @param w = items (e.g. c("Flow", "AssetsStart"))
+#' @param h = optional items from fund history
+#' @keywords sfpd.FloMo.underlying
+#' @export
+#' @family sfpd
+
+sfpd.FloMo.underlying <- function (x, y, n, w, h = NULL) 
+{
+    y <- sfpd.Wt(y)
+    y <- y[!is.na(y[, "Wt"]), ]
+    x <- merge(x, n)[, c("FundId", h, w)]
+    y <- merge(x, y)
+    for (j in w) y[, j] <- y[, j] * y[, "Wt"]/100
+    z <- aggregate(y[w], by = y[c("HSecurityId", h)], FUN = sum)
+    z
+}
+
+#' sfpd.FloTrend
+#' 
+#' <h> factor
+#' @param x = flows file
+#' @param y = holdings file
+#' @param n = fund history file
+#' @param w = desired flow date to be reported
+#' @param h = one of FloTrend/FloDiff/FloDiff2
+#' @param u = holdings file from prior month
+#' @param v = security history file
+#' @keywords sfpd.FloTrend
+#' @export
+#' @family sfpd
+
+sfpd.FloTrend <- function (x, y, n, w, h, u, v) 
+{
+    x <- aggregate(x["Flow"], by = x["HFundId"], FUN = sum)
+    x <- merge(x, n)[, c("FundId", "Flow")]
+    y <- merge(sfpd.Wt(y), v)
+    u <- merge(sfpd.Wt(u), v)
+    y <- y[is.element(y[, "SecurityId"], u[, "SecurityId"]), 
+        ]
+    u <- u[is.element(u[, "SecurityId"], y[, "SecurityId"]), 
+        ]
+    y <- y[is.element(y[, "FundId"], u[, "FundId"]), ]
+    u <- u[is.element(u[, "FundId"], y[, "FundId"]), ]
+    u <- u[, c("FundId", "SecurityId", "Wt")]
+    dimnames(u)[[2]] <- c("FundId", "SecurityId", "OldWt")
+    y <- merge(y, u, all = T)
+    y[, "Wt"] <- zav(y[, "Wt"])
+    y[, "OldWt"] <- zav(y[, "OldWt"])
+    u <- y[!is.na(y[, "HSecurityId"]), ]
+    u <- u[!duplicated(u[, "SecurityId"]), ]
+    u <- mat.index(u[, c("SecurityId", "HSecurityId")])
+    u <- map.rname(u, y[, "SecurityId"])
+    y[, "HSecurityId"] <- ifelse(is.na(y[, "HSecurityId"]), u, 
+        y[, "HSecurityId"])
+    y[, "Wt"] <- y[, "Wt"] - y[, "OldWt"]
+    y <- merge(y, x)
+    if (h == "FloDiff") 
+        y[, "Wt"] <- sign(y[, "Wt"])
+    if (h == "FloDiff2") 
+        y[, "Flow"] <- sign(y[, "Flow"])
+    y[, "Num"] <- y[, "Flow"] * y[, "Wt"]
+    y[, "Den"] <- abs(y[, "Num"])
+    y <- aggregate(y[, c("Num", "Den")], by = y["HSecurityId"], 
+        FUN = sum)
+    y[, h] <- y[, "Num"]/nonneg(y[, "Den"])
+    y[, "ReportDate"] <- yyyymmdd.to.txt(w)
+    z <- y[, c("ReportDate", "HSecurityId", h)]
+    z <- z[!is.na(z[, h]), ]
+    z
+}
+
+#' sfpd.Holdings
+#' 
+#' Generates the SQL query to get weights for individual stocks
+#' @param x = a single YYYYMM
+#' @param y = input to or output of sql.connect (e.g. "SF2022")
+#' @keywords sfpd.Holdings
+#' @export
+#' @family sfpd
+
+sfpd.Holdings <- function (x, y) 
+{
+    z <- c("Holdings t1", "inner join", "FundHistory t2 on t2.FundId = t1.FundId")
+    z <- c(z, "inner join", sql.label(sql.MonthlyAssetsEnd("@mo"), 
+        "t3"), "\ton t3.HFundId = t2.HFundId")
+    n <- c("HSecurityId", "t1.FundId", "HoldingValue", "PortVal = AssetsEnd")
+    z <- sql.unbracket(sql.tbl(n, z, "ReportDate = @mo"))
+    z <- paste(c(sql.declare("@mo", "datetime", yyyymm.to.day(x)), 
+        "", z), collapse = "\n")
+    y <- sql.connect.wrapper(y)
+    z <- sql.query.underlying(z, y$conn, T)
+    sql.close(y)
+    z
+}
+
+#' sfpd.ION
+#' 
+#' Inflow/Outflow factors
+#' @param x = flows file
+#' @param y = holdings file
+#' @param n = fund history file
+#' @param w = desired flow date to be reported
+#' @keywords sfpd.ION
+#' @export
+#' @family sfpd
+
+sfpd.ION <- function (x, y, n, w) 
+{
+    x[, "Inflow"] <- vec.max(x[, "Flow"], 0)
+    x[, "Outflow"] <- vec.min(x[, "Flow"], 0)
+    y <- sfpd.FloMo.underlying(x, y, n, c("Inflow", "Outflow"))
+    y[, "ReportDate"] <- yyyymmdd.to.txt(w)
+    z <- y[, c("ReportDate", "HSecurityId", "Inflow", "Outflow")]
+    z
+}
+
+#' sfpd.Wt
+#' 
+#' computes weight
+#' @param x = holdings file
+#' @keywords sfpd.Wt
+#' @export
+#' @family sfpd
+
+sfpd.Wt <- function (x) 
+{
+    x[, "Wt"] <- 100 * x[, "HoldingValue"]/nonneg(x[, "PortVal"])
+    z <- x[, !is.element(dimnames(x)[[2]], c("HoldingValue", 
+        "PortVal"))]
+    z
+}
+
 #' shell.wrapper
 #' 
 #' result of command <x>
