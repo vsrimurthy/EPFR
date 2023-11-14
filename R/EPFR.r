@@ -10835,6 +10835,25 @@ sfpd.FloTrend <- function (x, y, n, w, h, u, v)
     z
 }
 
+#' sfpd.Flow
+#' 
+#' subsets <x> to latest information known before time <n>
+#' @param x = premium daily file
+#' @param y = flow date
+#' @param n = cutoff time (New York) (e.g. "07:00:00")
+#' @keywords sfpd.Flow
+#' @export
+#' @family sfpd
+
+sfpd.Flow <- function (x, y, n) 
+{
+    y <- paste(day.to.date(flowdate.lag(y, -1)), n)
+    z <- x[order(x[, "PublishDate"], decreasing = T), ]
+    z <- z[z[, "PublishDate"] < y, ]
+    z <- z[!duplicated(z[, "SCID"]), ]
+    z
+}
+
 #' sfpd.Holdings
 #' 
 #' Generates the SQL query to get weights for individual stocks

@@ -24,7 +24,8 @@ sfpd.ActWtTrend(x, y, n, w, h)
 Other sfpd: \code{\link{sfpd.FloDollar}},
   \code{\link{sfpd.FloMo.underlying}},
   \code{\link{sfpd.FloMo}}, \code{\link{sfpd.FloTrend}},
-  \code{\link{sfpd.Holdings}}, \code{\link{sfpd.ION}},
-  \code{\link{sfpd.Wt}}, \code{\link{sfpd.filter}}
+  \code{\link{sfpd.Flow}}, \code{\link{sfpd.Holdings}},
+  \code{\link{sfpd.ION}}, \code{\link{sfpd.Wt}},
+  \code{\link{sfpd.filter}}
 }
 \keyword{sfpd.ActWtTrend}
