@@ -10673,14 +10673,7 @@ sfpd.ActWtTrend <- function (x, y, n, w, h)
         y[, "Wt"] <- sign(y[, "Wt"])
     if (h == "ActWtDiff2") 
         y[, "Flow"] <- sign(y[, "Flow"])
-    y[, "Num"] <- y[, "Flow"] * y[, "Wt"]
-    y[, "Den"] <- abs(y[, "Num"])
-    y <- aggregate(y[, c("Num", "Den")], by = y["HSecurityId"], 
-        FUN = sum)
-    y[, h] <- y[, "Num"]/nonneg(y[, "Den"])
-    y[, "ReportDate"] <- yyyymmdd.to.txt(w)
-    z <- y[, c("ReportDate", "HSecurityId", h)]
-    z <- z[!is.na(z[, h]), ]
+    z <- sfpd.FloTrend.underlying(y, w, h)
     z
 }
 
@@ -10824,14 +10817,30 @@ sfpd.FloTrend <- function (x, y, n, w, h, u, v)
         y[, "Wt"] <- sign(y[, "Wt"])
     if (h == "FloDiff2") 
         y[, "Flow"] <- sign(y[, "Flow"])
-    y[, "Num"] <- y[, "Flow"] * y[, "Wt"]
-    y[, "Den"] <- abs(y[, "Num"])
-    y <- aggregate(y[, c("Num", "Den")], by = y["HSecurityId"], 
+    z <- sfpd.FloTrend.underlying(y, w, h)
+    z
+}
+
+#' sfpd.FloTrend.underlying
+#' 
+#' <n> factor
+#' @param x = data file
+#' @param y = desired flow date to be reported
+#' @param n = factor name
+#' @keywords sfpd.FloTrend.underlying
+#' @export
+#' @family sfpd
+
+sfpd.FloTrend.underlying <- function (x, y, n) 
+{
+    x[, "Num"] <- x[, "Flow"] * x[, "Wt"]
+    x[, "Den"] <- abs(x[, "Num"])
+    z <- aggregate(x[, c("Num", "Den")], by = x["HSecurityId"], 
         FUN = sum)
-    y[, h] <- y[, "Num"]/nonneg(y[, "Den"])
-    y[, "ReportDate"] <- yyyymmdd.to.txt(w)
-    z <- y[, c("ReportDate", "HSecurityId", h)]
-    z <- z[!is.na(z[, h]), ]
+    z[, n] <- z[, "Num"]/nonneg(z[, "Den"])
+    z[, "ReportDate"] <- yyyymmdd.to.txt(y)
+    z <- z[, c("ReportDate", "HSecurityId", n)]
+    z <- z[!is.na(z[, n]), ]
     z
 }
 
