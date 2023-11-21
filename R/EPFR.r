@@ -4719,12 +4719,19 @@ ftp.upload <- function (x, y, n, w, h, u = "ftp", v)
     s <- ftp.parent(z)
     s <- txt.right(s, nchar(s) - nchar(y))
     s <- paste0(x, s)
+    x <- rep(F, length(z))
     for (j in seq_along(z)) {
         cat(ftp.file(z[j]), "")
         w[["x"]] <- s[j]
         w[["y"]] <- z[j]
-        x <- do.call(ftp.put, w)
+        x[j] <- do.call(ftp.put, w)
         cat(substring(Sys.time(), 12, 16), "\n")
+    }
+    if (all(x)) {
+        cat("All files successfully uploaded.\n")
+    }
+    else {
+        err.raise(z[!x], T, "Following files were not uploaded")
     }
     invisible()
 }
@@ -6507,31 +6514,6 @@ mk.1dActWtTrend.Sec <- function (x, y, n, w = "E")
     z <- c(z, sql.1dActWtTrend.Final("#SEC", y, "SectorId"))
     z <- sql.1dFloTrend.Alloc.data(z, sql.1dFloMo.CountryId.List("Sector"), 
         n)
-    z
-}
-
-#' mk.1dFloMo
-#' 
-#' Returns a flow variable with the same row space as <n>
-#' @param x = a single YYYYMMDD
-#' @param y = a string vector of variables to build with the last elements specifying the type of funds to use
-#' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) DB - any of StockFlows/China/Japan/CSI300/Energy
-#' @keywords mk.1dFloMo
-#' @export
-#' @family mk
-
-mk.1dFloMo <- function (x, y, n) 
-{
-    x <- flowdate.lag(x, 2)
-    if (any(y[1] == c("FwtdIn0", "FwtdEx0", "SwtdIn0", "SwtdEx0"))) {
-        z <- sql.1dFloMoAggr(x, y, n$DB)
-    }
-    else if (any(y[1] == c("ION$", "ION%"))) {
-        z <- sql.1dION(x, y, 26, n$DB, F)
-    }
-    else stop(paste("Bad Argument", y[1]))
-    z <- sql.4.to.5(z)
-    z <- sql.map.classif(z, n$conn, n$classif)
     z
 }
 
@@ -12266,45 +12248,6 @@ sql.1dFundRet <- function (x)
     z <- c(sql.yyyymmdd("DayEnding"), "FundId", "FundRet = sum(PortfolioChange)/sum(AssetsStart)")
     z <- paste(sql.unbracket(sql.tbl(z, x, , "DayEnding, FundId", 
         "sum(AssetsStart) > 0")), collapse = "\n")
-    z
-}
-
-#' sql.1dION
-#' 
-#' Generates the SQL query to get the data for 1dION$ & 1dION\%
-#' @param x = data date (known two days later)
-#' @param y = a vector of variables, the last element of which is fund type used
-#' @param n = the delay in knowing allocations
-#' @param w = any of StockFlows/China/Japan/CSI300/Energy
-#' @param h = T/F depending on whether you are checking ftp
-#' @keywords sql.1dION
-#' @export
-#' @family sql
-
-sql.1dION <- function (x, y, n, w, h) 
-{
-    y <- sql.arguments(y)
-    u <- vec.named(c("Flow * HoldingValue/AssetsEnd", "HoldingValue/AssetsEnd"), 
-        c("ION$", "ION%"))
-    if (h) 
-        z <- c(sql.ReportDate(x), "t1.HSecurityId")
-    else z <- "SecurityId"
-    z <- c(z, paste0("[", y$factor, "] ", sql.ION("Flow", u[y$factor])))
-    y <- c(sql.label(sql.FundHistory(y$filter, T, "FundId"), 
-        "t0"), "inner join", sql.MonthlyAlloc("@allocDt"))
-    y <- c(sql.label(y, "t1"), "\ton t1.FundId = t0.FundId", 
-        "inner join", sql.DailyFlo("@floDt"))
-    y <- c(sql.label(y, "t2"), "\ton t2.HFundId = t0.HFundId", 
-        "inner join", sql.MonthlyAssetsEnd("@allocDt"))
-    y <- c(sql.label(y, "t3"), "\ton t3.HFundId = t1.HFundId")
-    if (!h) 
-        y <- c(y, "inner join", "SecurityHistory id", "\ton id.HSecurityId = t1.HSecurityId")
-    x <- sql.declare(c("@floDt", "@allocDt"), "datetime", c(x, 
-        yyyymm.to.day(yyyymmdd.to.AllocMo(x, n))))
-    h <- ifelse(h, "t1.HSecurityId", "SecurityId")
-    z <- sql.unbracket(sql.tbl(z, y, sql.in("t1.HSecurityId", 
-        sql.RDSuniv(w)), h))
-    z <- paste(c(x, z), collapse = "\n")
     z
 }
 
