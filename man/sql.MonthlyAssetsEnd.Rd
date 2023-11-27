@@ -4,16 +4,18 @@
 \alias{sql.MonthlyAssetsEnd}
 \title{sql.MonthlyAssetsEnd}
 \usage{
-sql.MonthlyAssetsEnd(x, y = F, n = F, w = "All")
+sql.MonthlyAssetsEnd(x, y = NULL, n = F, w = "All", h)
 }
 \arguments{
 \item{x}{= YYYYMMDD for which you want flows (known one day later)}
 
-\item{y}{= T/F variable depending on whether you want AssetsStart/AssetsEnd or just AssetsEnd}
+\item{y}{= columns in addition to AssetsEnd}
 
 \item{n}{= T/F depending on whether data are indexed by FundId}
 
 \item{w}{= share-class filter (one of All/Inst/Retail)}
+
+\item{h}{= name of AssetEnd column (e.g. "PortVal")}
 }
 \description{
 Generates the SQL query to get the data for monthly Assets End
