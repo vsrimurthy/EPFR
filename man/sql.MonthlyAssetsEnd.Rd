@@ -4,7 +4,7 @@
 \alias{sql.MonthlyAssetsEnd}
 \title{sql.MonthlyAssetsEnd}
 \usage{
-sql.MonthlyAssetsEnd(x, y = NULL, n = F, w = "All", h)
+sql.MonthlyAssetsEnd(x, y = NULL, n = F, w = "All", h = "AssetsEnd")
 }
 \arguments{
 \item{x}{= YYYYMMDD for which you want flows (known one day later)}
