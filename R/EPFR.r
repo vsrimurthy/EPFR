@@ -12302,8 +12302,7 @@ sql.1mActWt.underlying <- function (x, y)
         "BenchIndexId = @bmkId"))
     w[["C"]] <- sql.in("HFundId", sql.Holdings(paste("datediff(month, ReportDate, @allocDt) =", 
         x), "HFundId"))
-    w <- paste0("\t", sql.tbl("HFundId, Flow = sum(Flow), AssetsEnd = sum(AssetsEnd)", 
-        "MonthlyData", sql.and(w), "HFundId", "sum(AssetsEnd) > 0"))
+    w <- paste0("\t", sql.MonthlyAssetsEnd(w, "Flow"))
     z <- c(z, "cross join", sql.label(w, "t1 -- Funds Reporting Both Monthly Flows and Allocations with the right benchmark"))
     z <- c(z, "left join", paste0("\t", sql.Holdings(paste("datediff(month, ReportDate, @allocDt) =", 
         x), c("HSecurityId", "HFundId", "HoldingValue"))))
@@ -14701,7 +14700,7 @@ sql.MonthlyAlloc <- function (x, y = "All")
 #' sql.MonthlyAssetsEnd
 #' 
 #' Generates the SQL query to get the data for monthly Assets End
-#' @param x = YYYYMMDD for which you want flows (known one day later)
+#' @param x = a single YYYYMMDD or list (where clause)
 #' @param y = columns in addition to AssetsEnd
 #' @param n = T/F depending on whether data are indexed by FundId
 #' @param w = share-class filter (one of All/Inst/Retail)
@@ -14716,7 +14715,10 @@ sql.MonthlyAssetsEnd <- function (x, y = NULL, n = F, w = "All", h = "AssetsEnd"
     h <- c(h, y)
     y <- c("AssetsEnd", y)
     z <- c(z, paste0(h, " = sum(", y, ")"))
-    x <- sql.ShareClass(paste("ReportDate =", x), w)
+    if (is.list(x)) {
+        x <- sql.and(x)
+    }
+    else x <- sql.ShareClass(paste("ReportDate =", x), w)
     u <- c("AssetsEnd", "AssetsStart")
     u <- vec.to.list(intersect(u, y), T)
     u <- sql.and(lapply(u, function(x) paste0("sum(", x, ") > 0")))
@@ -15295,10 +15297,8 @@ sql.yield.curve.1dFloMo <- function (x, y, n, w)
     w <- sql.declare("@date", "datetime", w)
     x <- sql.yield.curve(x, y, n)
     z <- c(sql.label(z, "t1"), "inner join", sql.label(x, "t2 on t2.FundId = t1.FundId"))
-    x <- c("FundId", "AssetsEnd = sum(AssetsEnd)")
-    y <- c("MonthlyData t1", "inner join")
-    y <- c(y, "FundHistory t2 on t2.HFundId = t1.HFundId")
-    x <- sql.tbl(x, y, "MonthEnding = @date", "FundId", "sum(AssetsEnd) > 0")
+    x <- sql.MonthlyAssetsEnd(list(A = "MonthEnding = @date"), 
+        , T)
     z <- c(z, "inner join", sql.label(x, "t3 on t3.FundId = t1.FundId"))
     x <- c(sql.yyyymmdd("DayEnding"), "grp", sql.1dFloMo.select("FloMo"))
     z <- sql.tbl(x, z, , "DayEnding, grp")
@@ -17017,7 +17017,7 @@ weekday.to.name <- function (x)
 
 wrap <- function (x) 
 {
-    paste0("'", x, "'")
+    wrap(x)
 }
 
 #' yyyy.ex.period

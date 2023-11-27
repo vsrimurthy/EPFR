@@ -7,7 +7,7 @@
 sql.MonthlyAssetsEnd(x, y = NULL, n = F, w = "All", h = "AssetsEnd")
 }
 \arguments{
-\item{x}{= YYYYMMDD for which you want flows (known one day later)}
+\item{x}{= a single YYYYMMDD or list (where clause)}
 
 \item{y}{= columns in addition to AssetsEnd}
 
