@@ -17017,7 +17017,7 @@ weekday.to.name <- function (x)
 
 wrap <- function (x) 
 {
-    wrap(x)
+    paste0("'", x, "'")
 }
 
 #' yyyy.ex.period
