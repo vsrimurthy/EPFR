@@ -14711,24 +14711,27 @@ sql.MonthlyAlloc <- function (x, y = "All")
 
 sql.MonthlyAssetsEnd <- function (x, y = NULL, n = F, w = "All", h = "AssetsEnd") 
 {
-    z <- ifelse(n, "FundId", "HFundId")
+    n <- ifelse(n, "FundId", "HFundId")
     h <- c(h, y)
     y <- c("AssetsEnd", y)
-    z <- c(z, paste0(h, " = sum(", y, ")"))
-    if (is.list(x)) {
-        x <- sql.and(x)
-    }
-    else x <- sql.ShareClass(paste("ReportDate =", x), w)
+    z <- c(n, paste0(h, " = sum(", y, ")"))
+    if (!is.null(x)) 
+        if (is.list(x)) {
+            x <- sql.and(x)
+        }
+        else x <- sql.ShareClass(paste("ReportDate =", x), w)
     u <- c("AssetsEnd", "AssetsStart")
     u <- vec.to.list(intersect(u, y), T)
     u <- sql.and(lapply(u, function(x) paste0("sum(", x, ") > 0")))
-    if (n) {
-        y <- c("MonthlyData t1", "inner join", "FundHistory t2 on t2.HFundId = t1.HFundId")
-        z <- sql.tbl(z, y, x, "FundId", u)
+    y <- "MonthlyData"
+    if (n == "FundId") 
+        y <- c(sql.label(y, "t1"), "inner join", "FundHistory t2 on t2.HFundId = t1.HFundId")
+    if (is.null(x)) {
+        z <- c("ReportDate", z)
+        n <- paste0(n, ", ReportDate")
+        z <- sql.tbl(z, y, , n, u)
     }
-    else {
-        z <- sql.tbl(z, "MonthlyData", x, "HFundId", u)
-    }
+    else z <- sql.tbl(z, y, x, n, u)
     z
 }
 
@@ -15365,8 +15368,7 @@ sqlts.FloDollar.daily <- function (x)
     z <- c(z, "inner join", "Holdings t3 on t3.FundId = t2.FundId", 
         paste("\tand", sql.datediff("t3.ReportDate", "t1.ReportDate", 
             26)))
-    h <- sql.tbl("ReportDate, HFundId, AUM = sum(AssetsEnd)", 
-        "MonthlyData", , "ReportDate, HFundId", "sum(AssetsEnd) > 0")
+    h <- sql.MonthlyAssetsEnd(NULL)
     z <- c(z, "inner join", sql.label(h, "t4"), "\ton t4.HFundId = t3.HFundId and t4.ReportDate = t3.ReportDate")
     h <- sql.in("HSecurityId", sql.tbl("HSecurityId", "SecurityHistory", 
         "SecurityId = @secId"))
@@ -15387,9 +15389,7 @@ sqlts.FloDollar.daily <- function (x)
 sqlts.FloDollar.monthly <- function (x) 
 {
     x <- sql.declare("@secId", "int", x)
-    z <- sql.tbl(c("ReportDate", "HFundId", "Flow = sum(Flow)", 
-        "AUM = sum(AssetsEnd)"), "MonthlyData", , "ReportDate, HFundId", 
-        "sum(AssetsEnd) > 0")
+    z <- sql.MonthlyAssetsEnd(NULL, "Flow", , , "AUM")
     z <- c(sql.label(z, "t1"), "inner join", "Holdings t2 on t2.HFundId = t1.HFundId and t2.ReportDate = t1.ReportDate")
     h <- sql.in("HSecurityId", sql.tbl("HSecurityId", "SecurityHistory", 
         "SecurityId = @secId"))
