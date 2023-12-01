@@ -9389,8 +9389,7 @@ qtl.underlying <- function (x, y, n)
         h <- floor(h)
     }
     h <- x[h[-1]]
-    z <- rep(NA, length(x))
-    for (i in 1:n) z <- ifelse(is.na(z) & x >= h[i], i, z)
+    z <- approx(h, 1:n, x, method = "constant", rule = 1:2)[["y"]]
     z <- z[order(ord)]
     z
 }
