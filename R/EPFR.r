@@ -9389,6 +9389,8 @@ qtl.underlying <- function (x, y, n)
         h <- floor(h)
     }
     h <- x[h[-1]]
+    if (any(duplicated(h))) 
+        stop("Too few distinct values to create ", n, " buckets! Exiting ..")
     z <- approx(h, 1:n, x, method = "constant", rule = 1:2)[["y"]]
     z <- z[order(ord)]
     z
