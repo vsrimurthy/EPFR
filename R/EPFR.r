@@ -9376,7 +9376,7 @@ qtl.underlying <- function (x, y, n)
     if (n < 2) 
         stop("Can't do this either!")
     y <- y/sum(y)
-    ord <- order(-x)
+    ord <- order(x, decreasing = T)
     x <- x[ord]
     y <- y[ord]
     if (all(y == y[1])) {
@@ -9388,8 +9388,9 @@ qtl.underlying <- function (x, y, n)
         h <- c(h, length(x))
         h <- floor(h)
     }
-    h <- h[-1] - h[-(n + 1)]
-    z <- rep(1:n, h)
+    h <- x[h[-1]]
+    z <- rep(NA, length(x))
+    for (i in 1:n) z <- ifelse(is.na(z) & x >= h[i], i, z)
     z <- z[order(ord)]
     z
 }
