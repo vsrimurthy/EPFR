@@ -16,7 +16,6 @@ an equal-weight binning so that the first column of <x> is divided into <y> equa
 }
 \seealso{
 Other qtl: \code{\link{qtl.eq}}, \code{\link{qtl.fast}},
-  \code{\link{qtl.underlying}}, \code{\link{qtl.weighted}},
-  \code{\link{qtl.zero.weight}}, \code{\link{qtl}}
+  \code{\link{qtl}}
 }
 \keyword{qtl.single.grp}

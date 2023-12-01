@@ -9345,95 +9345,13 @@ qtl.fast <- function (x, y = 5)
 
 qtl.single.grp <- function (x, y) 
 {
-    n <- x[, 2]
-    x <- x[, 1]
-    z <- rep(NA, length(x))
-    w <- !is.element(n, 0) & !is.na(n)
-    w <- w & !is.na(x)
-    if (any(w)) 
-        z[w] <- qtl.underlying(x[w], n[w], y)
-    w2 <- is.element(n, 0) | is.na(n)
-    w2 <- w2 & !is.na(x)
-    if (any(w) & any(w2)) 
-        z[w2] <- qtl.zero.weight(x[w], z[w], x[w2], y)
-    z
-}
-
-#' qtl.underlying
-#' 
-#' divided <x> into <n> equal bins of roughly equal weight (as defined by <y>)
-#' @param x = a vector with no NA's
-#' @param y = an isomekic vector lacking NA's or zeroes
-#' @param n = a positive integer
-#' @keywords qtl.underlying
-#' @export
-#' @family qtl
-
-qtl.underlying <- function (x, y, n) 
-{
-    if (any(y < 0)) 
-        stop("Can't handle negative weights!")
-    if (n < 2) 
-        stop("Can't do this either!")
-    y <- y/sum(y)
-    ord <- order(x, decreasing = T)
-    x <- x[ord]
-    y <- y[ord]
-    if (all(y == y[1])) {
-        h <- ceiling((length(x)/n) * (0:n) + 0.5) - 1
-    }
-    else {
-        h <- 0
-        for (i in 2:n - 1) h <- c(h, qtl.weighted(y, i/n))
-        h <- c(h, length(x))
-        h <- floor(h)
-    }
-    h <- x[h[-1]]
-    if (any(duplicated(h))) 
-        stop("Too few distinct values to create ", n, " buckets! Exiting ..")
-    z <- approx(h, 1:n, x, method = "constant", rule = 1:2)[["y"]]
-    z <- z[order(ord)]
-    z
-}
-
-#' qtl.weighted
-#' 
-#' returns a number <z> so that the sum of x[1:z] is as close as possible to <y>.
-#' @param x = an isomekic vector, lacking NA's or zeroes, that sums to unity
-#' @param y = a number between zero and one
-#' @keywords qtl.weighted
-#' @export
-#' @family qtl
-
-qtl.weighted <- function (x, y) 
-{
-    beg <- 0
-    end <- 1 + length(x)
-    while (end > beg + 1) {
-        z <- floor((beg + end)/2)
-        if (sum(x[1:z]) - x[z]/2 >= y) 
-            end <- z
-        else beg <- z
-    }
-    z <- (beg + end)/2
-    z
-}
-
-#' qtl.zero.weight
-#' 
-#' assigns the members of <x> to bins
-#' @param x = a vector of variables
-#' @param y = a corresponding vector of bin assignments
-#' @param n = a vector of variables that are to be assigned to bins
-#' @param w = number of bins to divide <x> into
-#' @keywords qtl.zero.weight
-#' @export
-#' @family qtl
-
-qtl.zero.weight <- function (x, y, n, w) 
-{
-    z <- approx(x, y, n, "constant", yleft = 1, yright = w)$y
-    z <- ifelse(is.na(z), max(y), z)
+    z <- aggregate(x[2], by = x[1], FUN = sum)
+    z[, 2] <- z[, 2]/sum(z[, 2])
+    z <- z[order(z[, 1], decreasing = T), ]
+    z[, 2] <- cumsum(z[, 2]) - z[, 2]/2
+    z[, 2] <- vec.max(ceiling(y * z[, 2]), 1)
+    z <- approx(z[, 1], z[, 2], x[, 1], method = "constant", 
+        rule = 1:2)[["y"]]
     z
 }
 

@@ -20,8 +20,6 @@ performs an equal-weight binning on <x> so that the members of <mem> are divided
 }
 \seealso{
 Other qtl: \code{\link{qtl.eq}}, \code{\link{qtl.fast}},
-  \code{\link{qtl.single.grp}},
-  \code{\link{qtl.underlying}}, \code{\link{qtl.weighted}},
-  \code{\link{qtl.zero.weight}}
+  \code{\link{qtl.single.grp}}
 }
 \keyword{qtl}

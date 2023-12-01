@@ -16,8 +16,6 @@ performs a FAST equal-weight binning on <x>. Can't handle NAs.
 }
 \seealso{
 Other qtl: \code{\link{qtl.eq}},
-  \code{\link{qtl.single.grp}},
-  \code{\link{qtl.underlying}}, \code{\link{qtl.weighted}},
-  \code{\link{qtl.zero.weight}}, \code{\link{qtl}}
+  \code{\link{qtl.single.grp}}, \code{\link{qtl}}
 }
 \keyword{qtl.fast}
