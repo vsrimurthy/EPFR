@@ -9337,7 +9337,7 @@ qtl.fast <- function (x, y = 5)
 #' qtl.single.grp
 #' 
 #' an equal-weight binning so that the first column of <x> is divided into <y> equal bins. Weights determined by the 2nd column
-#' @param x = a two-column numeric data frame. No NA's in first two columns
+#' @param x = a two-column numeric data frame without NA's
 #' @param y = number of desired bins
 #' @keywords qtl.single.grp
 #' @export
@@ -9345,13 +9345,18 @@ qtl.fast <- function (x, y = 5)
 
 qtl.single.grp <- function (x, y) 
 {
-    z <- aggregate(x[2], by = x[1], FUN = sum)
-    z[, 2] <- z[, 2]/sum(z[, 2])
-    z <- z[order(z[, 1], decreasing = T), ]
-    z[, 2] <- cumsum(z[, 2]) - z[, 2]/2
-    z[, 2] <- vec.max(ceiling(y * z[, 2]), 1)
-    z <- approx(z[, 1], z[, 2], x[, 1], method = "constant", 
-        rule = 1:2)[["y"]]
+    if (any(x[, 2] < 0)) 
+        stop("Can't handle negative weights!")
+    if (sum(x[, 2]) > 0) {
+        z <- aggregate(x[2], by = x[1], FUN = sum)
+        z[, 2] <- z[, 2]/sum(z[, 2])
+        z <- z[order(z[, 1], decreasing = T), ]
+        z[, 2] <- cumsum(z[, 2]) - z[, 2]/2
+        z[, 2] <- vec.max(ceiling(y * z[, 2]), 1)
+        z <- approx(z[, 1], z[, 2], x[, 1], method = "constant", 
+            rule = 1:2)[["y"]]
+    }
+    else z <- rep(NA, dim(x)[1])
     z
 }
 

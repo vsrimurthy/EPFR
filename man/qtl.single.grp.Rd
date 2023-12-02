@@ -7,7 +7,7 @@
 qtl.single.grp(x, y)
 }
 \arguments{
-\item{x}{= a two-column numeric data frame. No NA's in first two columns}
+\item{x}{= a two-column numeric data frame without NA's}
 
 \item{y}{= number of desired bins}
 }
