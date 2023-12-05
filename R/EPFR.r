@@ -7574,7 +7574,7 @@ mk.Alpha.daily <- function (x, y, n)
 #' 
 #' Returns leftmost non-NA variable
 #' @param x = a single YYYYMM or YYYYMMDD
-#' @param y = a string vector, the elements of which are: 1) folder to fetch data from 2+) variables to fetch
+#' @param y = a string vector, the elements of which are: 1) folder to fetch data from 2) first variable to fetch 3) 2nd variable or number of trailing periods 4+) remaining vbls assuming y[3] is not an integer
 #' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
 #' @keywords mk.avail
 #' @export
@@ -7582,8 +7582,15 @@ mk.Alpha.daily <- function (x, y, n)
 
 mk.avail <- function (x, y, n) 
 {
-    avail(fetch(y[-1], x, 1, paste(n$fldr, y[1], sep = "\\"), 
-        n$classif))
+    x <- list(y = x, n = 1, w = paste(n$fldr, y[1], sep = "\\"), 
+        h = n$classif)
+    if (is.element(y[3], 2:10000)) 
+        x[["n"]] <- as.numeric(y[3])
+    if (x[["n"]] == 1) 
+        x[["x"]] <- y[-1]
+    else x[["x"]] <- y[2]
+    z <- avail(do.call(fetch, x))
+    z
 }
 
 #' mk.beta

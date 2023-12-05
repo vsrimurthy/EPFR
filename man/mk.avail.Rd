@@ -9,7 +9,7 @@ mk.avail(x, y, n)
 \arguments{
 \item{x}{= a single YYYYMM or YYYYMMDD}
 
-\item{y}{= a string vector, the elements of which are: 1) folder to fetch data from 2+) variables to fetch}
+\item{y}{= a string vector, the elements of which are: 1) folder to fetch data from 2) first variable to fetch 3) 2nd variable or number of trailing periods 4+) remaining vbls assuming y[3] is not an integer}
 
 \item{n}{= list object containing the following items: a) classif - classif file b) fldr - stock-flows folder}
 }
