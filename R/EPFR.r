@@ -7103,7 +7103,8 @@ mk.1mAllocMo <- function (x, y, n)
             stop("Bad share-class!")
         z <- sql.Dispersion(x, y, n$DB, F)
     }
-    else if (any(y[1] == c("Herfindahl", "FundCt", "HoldSum"))) {
+    else if (any(y[1] == c("Herfindahl", "FundCt", "HoldSum", 
+        "SharesHeld"))) {
         z <- sql.1mFundCt(x, y, n$DB, F, "All", 0, w)
     }
     else if (any(y[1] == c("AllocDInc", "AllocDDec", "AllocDAdd", 
