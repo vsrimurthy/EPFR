@@ -6600,17 +6600,11 @@ mk.1dFloMo.Ctry.data <- function (x, y, n, w)
 
 mk.1dFloMo.Ctry.rslt <- function (x, y, n) 
 {
-    x <- split(x, x)
-    for (j in names(x)) {
-        x[[j]] <- reshape.wide(y[, c(dimnames(y)[[2]][1:2], j)])
-        x[[j]] <- map.rname(t(x[[j]]), names(n))
-        x[[j]] <- aggregate(x = x[[j]], by = list(grp = n), FUN = sum)
-        x[[j]] <- matrix(unlist(x[[j]][, -1]), dim(x[[j]])[1], 
-            dim(x[[j]])[2] - 1, F, list(x[[j]][, 1], dimnames(x[[j]])[[2]][-1]))
-    }
-    if (length(names(x)) == 1) 
-        z <- x[[1]]
-    else z <- simplify2array(x)
+    y[, 2] <- map.rname(n, y[, 2])
+    y <- aggregate(x = y[x], by = y[2:1], FUN = sum)
+    if (length(x) > 1) 
+        y <- reshape.long(y, x, "item")
+    z <- reshape.wide(y)
     z
 }
 
