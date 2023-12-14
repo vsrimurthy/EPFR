@@ -6917,16 +6917,12 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h, u = F, v = F)
 
 mk.1dFloMo.Sec.rslt <- function (x, y, n, w, h) 
 {
-    x <- split(x, x)
-    for (j in names(x)) {
-        x[[j]] <- reshape.wide(y[, c(ifelse(w, "DayEnding", "WeekEnding"), 
-            h, j)])
-        x[[j]] <- map.rname(t(x[[j]]), names(n))
-        dimnames(x[[j]])[[1]] <- as.character(n)
-    }
-    if (length(names(x)) == 1) 
-        z <- x[[1]]
-    else z <- simplify2array(x)
+    w <- ifelse(w, "DayEnding", "WeekEnding")
+    y[, h] <- map.rname(n, y[, h])
+    y <- y[!is.na(y[, h]), c(h, w, x)]
+    if (length(x) > 1) 
+        y <- reshape.long(y, x, "item")
+    z <- reshape.wide(y)
     z
 }
 
