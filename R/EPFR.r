@@ -10459,9 +10459,13 @@ sf.underlying.data <- function (fcn, x, y, n, w, h, u, v, g, r, s)
 
 sf.underlying.data.bin <- function (x, y, n, w) 
 {
-    if (!is.list(x)) {
+    fcn <- function(x, y, n, w, j) {
         z <- qtl(x, y, n, w)
-        z <- ifelse(is.na(z), "Qna", paste0("Q", z))
+        z <- ifelse(is.na(z), "na", z)
+        paste0(j, z)
+    }
+    if (!is.list(x)) {
+        z <- fcn(x, y, n, w, "Q")
     }
     else {
         h <- length(names(x))
@@ -10469,23 +10473,14 @@ sf.underlying.data.bin <- function (x, y, n, w)
             u <- T
         else u <- is.element(y[h + 1], 1)
         if (!u) {
-            for (j in 1:h) {
-                x[[j]] <- qtl(x[[j]], y[j], n, w)
-                x[[j]] <- ifelse(is.na(x[[j]]), "na", x[[j]])
-                x[[j]] <- paste0(names(x)[j], x[[j]])
-            }
+            for (j in 1:h) x[[j]] <- fcn(x[[j]], y[j], n, w, 
+                names(x)[j])
             z <- Reduce(paste, x)
         }
         else {
-            j <- 1
-            x[[j]] <- qtl(x[[j]], y[j], n, w)
-            x[[j]] <- ifelse(is.na(x[[j]]), "na", x[[j]])
-            x[[j]] <- paste0(names(x)[j], x[[j]])
-            z <- x[[j]]
+            z <- x[[1]] <- fcn(x[[1]], y[1], n, w, names(x)[1])
             for (j in 2:h) {
-                x[[j]] <- qtl(x[[j]], y[j], n, paste(z, w))
-                x[[j]] <- ifelse(is.na(x[[j]]), "na", x[[j]])
-                x[[j]] <- paste0(names(x)[j], x[[j]])
+                x[[j]] <- fcn(x[[j]], y[j], n, paste(z, w), names(x)[j])
                 z <- paste(z, x[[j]])
             }
         }
