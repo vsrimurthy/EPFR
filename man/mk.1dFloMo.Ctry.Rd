@@ -15,7 +15,7 @@ mk.1dFloMo.Ctry(x, y, n, w, h, u = "E", v = F, g = F)
 
 \item{w}{= input to or output of sql.connect}
 
-\item{h}{= T/F depending on whether daily/weekly}
+\item{h}{= frequency (T/F for daily/weekly or D/W/M)}
 
 \item{u}{= vector of filters}
 

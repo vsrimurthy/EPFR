@@ -13,7 +13,7 @@ mk.1dFloMo.Indy(x, y, n, w, h)
 
 \item{n}{= input to or output of sql.connect}
 
-\item{w}{= T/F depending on whether daily/weekly}
+\item{w}{= frequency (T/F for daily/weekly or D/W/M)}
 
 \item{h}{= one of US/UK/JP/EM/Eurozone/All (full global)}
 }

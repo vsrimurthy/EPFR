@@ -11,7 +11,7 @@ EHD(x, y, n, w, h, u = NULL)
 
 \item{y}{= item (Flow/AssetsStart/AssetsEnd)}
 
-\item{n}{= frequency (one of D/W/M)}
+\item{n}{= frequency (T/F for daily/weekly or D/W/M)}
 
 \item{w}{= begin date in YYYYMMDD}
 

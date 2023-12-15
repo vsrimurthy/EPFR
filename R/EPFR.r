@@ -2239,7 +2239,7 @@ dup.code <- function (x, y)
 #' named vector of item between <w> and <h> sorted ascending
 #' @param x = input to or output of sql.connect
 #' @param y = item (Flow/AssetsStart/AssetsEnd)
-#' @param n = frequency (one of D/W/M)
+#' @param n = frequency (T/F for daily/weekly or D/W/M)
 #' @param w = begin date in YYYYMMDD
 #' @param h = end date in YYYYMMDD
 #' @param u = vector of filters
@@ -2248,10 +2248,8 @@ dup.code <- function (x, y)
 
 EHD <- function (x, y, n, w, h, u = NULL) 
 {
-    z <- as.character(vec.named(c("DailyData", "WeeklyData", 
-        "MonthlyData"), c("D", "W", "M"))[n])
-    n <- as.character(vec.named(c("DayEnding", "WeekEnding", 
-        "MonthEnding"), c("D", "W", "M"))[n])
+    z <- sql.Flow.tbl(n, T)
+    n <- sql.Flow.tbl(n, F)
     u <- split(u, ifelse(txt.has(u, "InstOrRetail", T), "ShareClass", 
         "Fund"))
     if (any(names(u) == "ShareClass")) 
@@ -6524,7 +6522,7 @@ mk.1dActWtTrend.Sec <- function (x, y, n, w = "E")
 #' @param y = item (Flow/AssetsStart/AssetsEnd/PortfolioChange)
 #' @param n = country list (one of Ctry/FX/Sector)
 #' @param w = input to or output of sql.connect
-#' @param h = T/F depending on whether daily/weekly
+#' @param h = frequency (T/F for daily/weekly or D/W/M)
 #' @param u = vector of filters
 #' @param v = T/F to use foreign or all allocations
 #' @param g = T/F to use institutional or all share classes
@@ -6558,7 +6556,7 @@ mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E", v = F, g = F)
             "InstOrRetail = 'Inst'"))
     }
     else g <- list(A = wrap(x))
-    r <- c(ifelse(h, "DayEnding", "WeekEnding"), "FundId", y)
+    r <- c(sql.Flow.tbl(h, F), "FundId", y)
     z <- sql.Flow(r, g, c("CB", u, "UI"), , h)
     z <- c(sql.label(z, "t1"), "inner join", sql.label(s, "t2"), 
         "\ton t2.FundId = t1.FundId")
@@ -6684,7 +6682,7 @@ mk.1dFloMo.FI <- function (x, y, n, w, h = "All", u = F)
 #' @param x = flowdate/YYYYMMDD depending on whether daily/weekly
 #' @param y = item (one of Flow/AssetsStart/AssetsEnd)
 #' @param n = input to or output of sql.connect
-#' @param w = T/F depending on whether daily/weekly
+#' @param w = frequency (T/F for daily/weekly or D/W/M)
 #' @param h = one of US/UK/JP/EM/Eurozone/All (full global)
 #' @keywords mk.1dFloMo.Indy
 #' @export
@@ -6736,7 +6734,7 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
         v)
     z <- c(z, "", v)
     v <- c("GeographicFocus", "StyleSector")
-    r <- c(ifelse(w, "DayEnding", "WeekEnding"), "FundId")
+    r <- c(sql.Flow.tbl(w, F), "FundId")
     v <- c(r, paste0(v, " = max(", v, ")"), paste0(y, " = sum(", 
         y, ")"))
     v <- sql.Flow(v, list(A = wrap(x)), c("CB", "E"), c("GeographicFocus", 
@@ -6802,7 +6800,7 @@ mk.1dFloMo.Rgn <- function (x, y, n, w, h = "E", u = F)
 #' @param x = flowdate/YYYYMMDD depending on whether daily/weekly
 #' @param y = item (Flow/AssetsStart/AssetsEnd/PortfolioChange)
 #' @param n = input to or output of sql.connect
-#' @param w = T/F depending on whether daily/weekly
+#' @param w = frequency (T/F for daily/weekly or D/W/M)
 #' @param h = a list object with the following elements: Region - one of US/UK/JP/EM/Eurozone/All (full global) Filter - a vector of filters Group - allocation bulking group (e.g. GeographicFocus/BenchIndex)
 #' @param u = T/F to use foreign or all allocations
 #' @param v = T/F to use institutional or all share classes
@@ -6862,7 +6860,7 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h, u = F, v = F)
     }
     else u <- h$Filter
     g <- c(h$Group, "StyleSector")
-    r <- c(ifelse(w, "DayEnding", "WeekEnding"), "FundId")
+    r <- c(sql.Flow.tbl(w, F), "FundId")
     g <- c(r, paste0(g, " = max(", g, ")"), paste0(y, " = sum(", 
         y, ")"))
     g <- sql.Flow(g, x, u, c(h$Group, "StyleSector"), w, paste(r, 
@@ -6909,7 +6907,7 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h, u = F, v = F)
 #' @param x = item (one of Flow/AssetsStart/AssetsEnd)
 #' @param y = flow momentum output
 #' @param n = named vector of sector codes indexed by SectorId
-#' @param w = T/F depending on whether daily/weekly
+#' @param w = frequency (T/F for daily/weekly or D/W/M)
 #' @param h = IndustryId/SectorId
 #' @keywords mk.1dFloMo.Sec.rslt
 #' @export
@@ -6917,7 +6915,7 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h, u = F, v = F)
 
 mk.1dFloMo.Sec.rslt <- function (x, y, n, w, h) 
 {
-    w <- ifelse(w, "DayEnding", "WeekEnding")
+    w <- sql.Flow.tbl(w, F)
     y[, h] <- map.rname(n, y[, h])
     y <- y[!is.na(y[, h]), c(h, w, x)]
     if (length(x) > 1) 
@@ -11558,7 +11556,7 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
 #' @param x = starting flowdate/YYYYMMDD depending on whether daily/weekly
 #' @param y = item (Flow/AssetsStart/AssetsEnd/PortfolioChange)
 #' @param n = named vector of group definitions
-#' @param w = T/F depending on whether daily/weekly
+#' @param w = frequency (T/F for daily/weekly or D/W/M)
 #' @param h = vector of filters
 #' @param u = T/F to use institutional or all share classes
 #' @keywords sql.1dFloMo.CtrySG
@@ -11567,9 +11565,7 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
 
 sql.1dFloMo.CtrySG <- function (x, y, n, w, h, u) 
 {
-    if (w) 
-        w <- c("DailyData", "DayEnding")
-    else w <- c("WeeklyData", "WeekEnding")
+    w <- c(sql.Flow.tbl(w, T), sql.Flow.tbl(w, F))
     z <- sql.case("grp", n, c(names(n), "Other"), F)
     z <- sql.label(sql.FundHistory(h, F, z), "t1")
     z <- c(z, "inner join", sql.label(w[1], "t2 on t2.HFundId = t1.HFundId"))
@@ -11674,19 +11670,18 @@ sql.1dFloMo.Rgn <- function ()
 #' @param x = SectorId/IndustryId
 #' @param y = item (one of Flow/AssetsStart/AssetsEnd)
 #' @param n = name of SQL temp table (#SEC/#INDY)
-#' @param w = T/F depending on whether daily/weekly
+#' @param w = frequency (T/F for daily/weekly or D/W/M)
 #' @keywords sql.1dFloMo.Sec.topline
 #' @export
 #' @family sql
 
 sql.1dFloMo.Sec.topline <- function (x, y, n, w) 
 {
-    r <- sql.yyyymmdd(ifelse(w, "DayEnding", "WeekEnding"))
+    r <- sql.yyyymmdd(sql.Flow.tbl(w, F))
     r <- c(r, x, paste0(y, " = 0.0001 * sum(", y, " * Universe * Allocation)"))
     z <- c("#FLO t1", "inner join", "#CTRY t2 on t2.FundId = t1.FundId")
     z <- c(z, "inner join", paste(n, "t3 on t3.FundId = t1.FundId"))
-    z <- sql.tbl(r, z, , paste0(ifelse(w, "DayEnding", "WeekEnding"), 
-        ", ", x))
+    z <- sql.tbl(r, z, , paste0(sql.Flow.tbl(w, F), ", ", x))
     z <- paste(sql.unbracket(z), collapse = "\n")
     z
 }
@@ -11927,7 +11922,7 @@ sql.1dFloTrend.Alloc.fetch <- function (x, y, n, w, h)
 #' @param x = from statement
 #' @param y = factor (one of FloTrend/FloDiff/FloDiff2)
 #' @param n = identifier column (SectorId/CountryId)
-#' @param w = T/F depending on whether daily/weekly
+#' @param w = frequency (T/F for daily/weekly or D/W/M)
 #' @keywords sql.1dFloTrend.Alloc.final
 #' @export
 #' @family sql
@@ -11944,7 +11939,7 @@ sql.1dFloTrend.Alloc.final <- function (x, y, n, w)
         y <- paste(y, sql.Diff("Allocation", "Flow", ""))
     }
     else stop("Bad Argument")
-    w <- ifelse(w, "DayEnding", "WeekEnding")
+    w <- sql.Flow.tbl(w, F)
     y <- c(sql.yyyymmdd(w), n, y)
     z <- sql.tbl(y, x, , paste0(w, ", ", n))
     z <- paste(sql.unbracket(z), collapse = "\n")
@@ -11957,7 +11952,7 @@ sql.1dFloTrend.Alloc.final <- function (x, y, n, w)
 #' @param x = flowdate/YYYYMMDD depending on whether daily/weekly
 #' @param y = temp table name (e.g. "#CTRY")
 #' @param n = identifier column (SectorId/CountryId)
-#' @param w = T/F depending on whether daily/weekly
+#' @param w = frequency (T/F for daily/weekly or D/W/M)
 #' @param h = vector of filters
 #' @keywords sql.1dFloTrend.Alloc.from
 #' @export
@@ -11966,7 +11961,7 @@ sql.1dFloTrend.Alloc.final <- function (x, y, n, w)
 sql.1dFloTrend.Alloc.from <- function (x, y, n, w, h) 
 {
     x <- list(A = wrap(x))
-    z <- c(ifelse(w, "DayEnding", "WeekEnding"), "FundId", "Flow")
+    z <- c(sql.Flow.tbl(w, F), "FundId", "Flow")
     z <- sql.label(sql.Flow(z, x, c("CB", h, "UI"), , w), "t1")
     r <- c("FundId", n, "Allocation = sum(Allocation)")
     r <- sql.tbl(r, y, , paste(r[1:2], collapse = ", "))
@@ -13918,12 +13913,12 @@ sql.FloMo.Funds <- function (x)
 
 #' sql.Flow
 #' 
-#' SQL query to fetch daily/weekly flows
+#' SQL query to fetch daily/weekly/monthly flows
 #' @param x = needed columns
 #' @param y = list of where clauses, first being the flow date restriction
 #' @param n = a vector of FundHistory filters
 #' @param w = columns needed from FundHistory besides HFundId/FundId
-#' @param h = T/F for daily/weekly
+#' @param h = frequency (T/F for daily/weekly or D/W/M)
 #' @param u = group by clause (can be missing)
 #' @param v = having clause (can be missing)
 #' @keywords sql.Flow
@@ -13934,16 +13929,14 @@ sql.Flow <- function (x, y, n = "All", w = NULL, h = T, u, v)
 {
     z <- sql.label(sql.FundHistory(n, F, c("FundId", w)), "t2")
     z <- c(z, "\ton t2.HFundId = t1.HFundId")
-    z <- c(paste(ifelse(h, "DailyData", "WeeklyData"), "t1"), 
-        "inner join", z)
+    z <- c(paste(sql.Flow.tbl(h, T), "t1"), "inner join", z)
     if (length(y[[1]]) == 1) {
-        y[[1]] <- paste(ifelse(h, "DayEnding", "WeekEnding"), 
-            "=", y[[1]])
+        y[[1]] <- paste(sql.Flow.tbl(h, F), "=", y[[1]])
     }
     else {
         y[[1]] <- paste(y[[1]], collapse = ", ")
-        y[[1]] <- paste0(ifelse(h, "DayEnding", "WeekEnding"), 
-            " in (", y[[1]], ")")
+        y[[1]] <- paste0(sql.Flow.tbl(h, F), " in (", y[[1]], 
+            ")")
     }
     z <- list(x = x, y = z, n = sql.and(y))
     if (!missing(u)) 
@@ -13951,6 +13944,31 @@ sql.Flow <- function (x, y, n = "All", w = NULL, h = T, u, v)
     if (!missing(v)) 
         z[["h"]] <- v
     z <- do.call(sql.tbl, z)
+    z
+}
+
+#' sql.Flow.tbl
+#' 
+#' table/date field name
+#' @param x = frequency (T/F for daily/weekly or D/W/M)
+#' @param y = T/F for table/date field (e.g. DailyData/DayEnding)
+#' @keywords sql.Flow.tbl
+#' @export
+#' @family sql
+
+sql.Flow.tbl <- function (x, y) 
+{
+    if (is.logical(x)) 
+        x <- ifelse(x, "D", "W")
+    if (y) {
+        z <- vec.named(c("DailyData", "WeeklyData", "MonthlyData"), 
+            c("D", "W", "M"))
+    }
+    else {
+        z <- vec.named(c("DayEnding", "WeekEnding", "MonthEnding"), 
+            c("D", "W", "M"))
+    }
+    z <- as.character(z[x])
     z
 }
 

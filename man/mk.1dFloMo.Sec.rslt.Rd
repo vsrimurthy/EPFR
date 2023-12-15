@@ -13,7 +13,7 @@ mk.1dFloMo.Sec.rslt(x, y, n, w, h)
 
 \item{n}{= named vector of sector codes indexed by SectorId}
 
-\item{w}{= T/F depending on whether daily/weekly}
+\item{w}{= frequency (T/F for daily/weekly or D/W/M)}
 
 \item{h}{= IndustryId/SectorId}
 }

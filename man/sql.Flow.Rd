@@ -15,14 +15,14 @@ sql.Flow(x, y, n = "All", w = NULL, h = T, u, v)
 
 \item{w}{= columns needed from FundHistory besides HFundId/FundId}
 
-\item{h}{= T/F for daily/weekly}
+\item{h}{= frequency (T/F for daily/weekly or D/W/M)}
 
 \item{u}{= group by clause (can be missing)}
 
 \item{v}{= having clause (can be missing)}
 }
 \description{
-SQL query to fetch daily/weekly flows
+SQL query to fetch daily/weekly/monthly flows
 }
 \seealso{
 Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
@@ -89,7 +89,8 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.CtryFlow.Alloc}},
   \code{\link{sql.DailyFlo}}, \code{\link{sql.Diff}},
   \code{\link{sql.Dispersion}},
-  \code{\link{sql.FloMo.Funds}}, \code{\link{sql.Foreign}},
+  \code{\link{sql.FloMo.Funds}},
+  \code{\link{sql.Flow.tbl}}, \code{\link{sql.Foreign}},
   \code{\link{sql.FundHistory.macro}},
   \code{\link{sql.FundHistory.sf}},
   \code{\link{sql.FundHistory}}, \code{\link{sql.HSIdmap}},

@@ -13,7 +13,7 @@ sql.1dFloMo.CtrySG(x, y, n, w, h, u)
 
 \item{n}{= named vector of group definitions}
 
-\item{w}{= T/F depending on whether daily/weekly}
+\item{w}{= frequency (T/F for daily/weekly or D/W/M)}
 
 \item{h}{= vector of filters}
 
@@ -86,7 +86,8 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.CtryFlow.Alloc}},
   \code{\link{sql.DailyFlo}}, \code{\link{sql.Diff}},
   \code{\link{sql.Dispersion}},
-  \code{\link{sql.FloMo.Funds}}, \code{\link{sql.Flow}},
+  \code{\link{sql.FloMo.Funds}},
+  \code{\link{sql.Flow.tbl}}, \code{\link{sql.Flow}},
   \code{\link{sql.Foreign}},
   \code{\link{sql.FundHistory.macro}},
   \code{\link{sql.FundHistory.sf}},
