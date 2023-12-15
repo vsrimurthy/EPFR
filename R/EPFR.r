@@ -8830,25 +8830,16 @@ publications.data <- function (x, y, n, w)
     }
     if (length(x) > 0) {
         cat("Updating", n, "for the following periods:\n")
-        conn <- sql.connect(w)
-        for (i in x) {
-            cat("\t", i, "...\n")
-            if (is.function(y)) {
-                h <- y(i)
-            }
-            else {
-                h <- txt.replace(y, "'YYYYMMDD'", wrap(i))
-            }
-            h <- sql.query.underlying(h, conn, F)
-            if (is.null(dim(h)[1])) {
-                cat("SQL error: Could not write", paste0(n, "\\", 
-                  i, ".csv"), "...\n")
-            }
-            else {
-                mat.write(h, paste0(n, "\\", i, ".csv"), ",")
-            }
+        x <- vec.to.list(x, T)
+        if (is.function(y)) {
+            h <- function(i, j) y(i)
         }
-        close(conn)
+        else {
+            h <- function(i, j) txt.replace(y, "YYYYMMDD", i)
+        }
+        x <- mk.sf.daily(h, x, w, 12, "All")
+        for (i in x) mat.write(x[[i]], paste0(n, "\\", i, ".csv"), 
+            ",")
     }
     invisible()
 }
