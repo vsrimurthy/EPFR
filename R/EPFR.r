@@ -7210,10 +7210,8 @@ mk.1mFloMo.Ctry <- function (x, y, n, w, h = "E")
     v <- sql.Allocation(c("FundId", "CountryId", "Allocation"), 
         "Country", , , sql.and(v))
     r <- c("MonthEnding", "FundId", y)
-    z <- sql.FundHistory(c("CB", h, "UI"), F, "FundId")
-    z <- c("MonthlyData t1", "inner join", sql.label(z, "t2 on t2.HFundId = t1.HFundId"))
-    z <- sql.tbl(r, z, paste0("MonthEnding = '", yyyymm.to.day(x), 
-        "'"))
+    z <- sql.Flow(r, wrap(yyyymm.to.day(x)), c("CB", h, "UI"), 
+        , "M")
     z <- c(sql.label(z, "t1"), "inner join", sql.label(v, "t2"), 
         "\ton t2.FundId = t1.FundId")
     z <- mk.1dFloMo.Ctry.data(z, y, r, w)
@@ -13892,16 +13890,14 @@ sql.extra.domicile <- function (x, y, n)
 
 sql.FloMo.Funds <- function (x) 
 {
-    if (nchar(x) == 6) {
-        sql.table <- "MonthlyData"
+    if (nchar(x) == 6) 
+        flo.dt <- "M"
+    else flo.dt <- "D"
+    sql.table <- sql.Flow.tbl(flo.dt, T)
+    dt.col <- sql.Flow.tbl(flo.dt, F)
+    if (flo.dt == "M") 
         flo.dt <- yyyymm.to.day(x)
-        dt.col <- "MonthEnding"
-    }
-    else {
-        sql.table <- "DailyData"
-        flo.dt <- x
-        dt.col <- "DayEnding"
-    }
+    else flo.dt <- x
     flo.dt <- sql.declare("@floDt", "datetime", flo.dt)
     z <- c("SecurityId = FundId", "PortfolioChangePct = 100 * sum(PortfolioChange)/sum(AssetsStart)")
     z <- c(z, "FlowPct = 100 * sum(Flow)/sum(AssetsStart)", "AssetsEnd = sum(AssetsEnd)")
