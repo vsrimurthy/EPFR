@@ -4,12 +4,14 @@
 \alias{zav}
 \title{zav}
 \usage{
-zav(x)
+zav(x, y = 0)
 }
 \arguments{
 \item{x}{= a vector/matrix/dataframe}
+
+\item{y}{= value for NA's (defaults to zero)}
 }
 \description{
-Coverts NA's to zero
+Coverts NA's to <y>
 }
 \keyword{zav}

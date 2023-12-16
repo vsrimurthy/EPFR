@@ -356,9 +356,7 @@ ascending <- function (x)
 
 avail <- function (x) 
 {
-    fcn <- function(x, y) ifelse(is.na(x), y, x)
-    z <- Reduce(fcn, mat.ex.matrix(x))
-    z
+    Reduce(zav, mat.ex.matrix(x))
 }
 
 #' avg.model
@@ -967,8 +965,7 @@ brinson <- function (x, y, n, w)
     w[, "BmkRet"] <- w[, "BmkRet"]/nonneg(w[, "BmkWgt"])
     w[, "PorRet"] <- w[, "PorRet"]/nonneg(rowSums(w[, c("BmkWgt", 
         "ActWgt")]))
-    w[, "PorRet"] <- ifelse(is.na(w[, "PorRet"]), w[, "BmkRet"], 
-        w[, "PorRet"])
+    w[, "PorRet"] <- zav(w[, "PorRet"], w[, "BmkRet"])
     w[, "PorRet"] <- w[, "PorRet"] - w[, "BmkRet"]
     z <- list()
     z[["Selec"]] <- sum(w[, "PorRet"] * w[, "BmkWgt"])
@@ -4055,7 +4052,7 @@ flowdate.to.int <- function (x)
     z <- z - z["19700101"]
     x <- yyyymmdd.to.int(x)
     y <- floor(approx(yyyymmdd.to.int(names(z)), z, x, rule = 1:2)$y)
-    z <- x - ifelse(is.na(y), z[1] - 1, y)
+    z <- x - zav(y, z[1] - 1)
     z
 }
 
@@ -5670,11 +5667,7 @@ latin.ex.arabic <- function (x)
 latin.to.arabic <- function (x) 
 {
     y <- latin.to.arabic.underlying()
-    x <- as.character(x)
-    x <- txt.trim(x)
-    x <- ifelse(is.na(x), "NA", x)
-    x <- tolower(x)
-    w <- x
+    w <- x <- tolower(zav(txt.trim(as.character(x)), "NA"))
     for (i in names(y)) w <- txt.replace(w, i, "")
     w <- w == ""
     if (all(w)) {
@@ -8084,7 +8077,7 @@ mk.vbl.scale <- function (x, y, n)
         n$classif)
     y <- as.numeric(y[5])
     x[w, 2] <- 1 - fcn.vec.grp(ptile, x[w, 2], h[w])/100
-    x[w, 2] <- ifelse(is.na(x[w, 2]), 0.5, x[w, 2])
+    x[w, 2] <- zav(x[w, 2], 0.5)
     z <- rep(NA, dim(x)[1])
     z[w] <- (x[w, 2] * 5 * (1 - y)/4 + (9 * y - 1)/8) * x[w, 
         1]
@@ -8928,10 +8921,8 @@ qa.columns <- function (x)
 
 qa.filter.map <- function (x) 
 {
-    z <- as.character(map.rname(vec.read(parameters("classif-filterNames")), 
-        x))
-    z <- ifelse(is.na(z), x, z)
-    z
+    zav(as.character(map.rname(vec.read(parameters("classif-filterNames")), 
+        x)), x)
 }
 
 #' qa.flow
@@ -10446,11 +10437,8 @@ sf.underlying.data <- function (fcn, x, y, n, w, h, u, v, g, r, s)
 
 sf.underlying.data.bin <- function (x, y, n, w) 
 {
-    fcn <- function(x, y, n, w, j) {
-        z <- qtl(x, y, n, w)
-        z <- ifelse(is.na(z), "na", z)
-        paste0(j, z)
-    }
+    fcn <- function(x, y, n, w, j) paste0(j, zav(qtl(x, y, n, 
+        w), "na"))
     if (!is.list(x)) {
         z <- fcn(x, y, n, w, "Q")
     }
@@ -10695,8 +10683,7 @@ sfpd.FloTrend <- function (x, y, n, w, h, u, v)
     u <- u[!duplicated(u[, "SecurityId"]), ]
     u <- mat.index(u[, c("SecurityId", "HSecurityId")])
     u <- map.rname(u, y[, "SecurityId"])
-    y[, "HSecurityId"] <- ifelse(is.na(y[, "HSecurityId"]), u, 
-        y[, "HSecurityId"])
+    y[, "HSecurityId"] <- zav(y[, "HSecurityId"], u)
     y[, "Wt"] <- y[, "Wt"] - y[, "OldWt"]
     y <- merge(y, x)
     if (h == "FloDiff") 
@@ -10914,10 +10901,8 @@ sim.fetch <- function (x, y, n, w, h = NULL)
         z <- data.frame(z, fetch(h, yyyymm.lag(x), 1, paste(w$fldr, 
             "derived", sep = "\\"), w$classif), stringsAsFactors = F)
     h <- c("Alp", h)
-    for (j in h) {
-        z[, j] <- qtl(z[, j], 5, u, w$classif$RgnSec)
-        z[, j] <- ifelse(is.na(z[, j]), 3, z[, j])
-    }
+    for (j in h) z[, j] <- zav(qtl(z[, j], 5, u, w$classif$RgnSec), 
+        3)
     z <- z[is.element(u, 1), ]
     z$Bmk <- renorm(z$Bmk)
     z
@@ -15709,7 +15694,7 @@ stratrets.returns <- function (x)
         z <- paste0(fcn.dir(), "\\New Model Concept\\FX\\FloMo\\csv")
         z <- parameters.ex.file(z, "ExchRates.csv")
         z <- 1/mat.read(z)
-        z$CNY <- ifelse(is.na(z$CNH), z$CNY, z$CNH)
+        z$CNY <- zav(z$CNH, z$CNY)
         z$USD <- rep(1, dim(z)[1])
         z <- z/z[, "XDR"]
     }
@@ -16056,8 +16041,8 @@ txt.ex.int.cardinal.wrapper <- function (x)
         "hundred"), z)
     z <- ifelse(is.na(z) & (x%/%100)%%10 == 0, paste(txt.ex.int.cardinal(x%/%1000), 
         "thousand and", txt.ex.int.cardinal(x%%100)), z)
-    z <- ifelse(is.na(z), paste(txt.ex.int.cardinal(x%/%100), 
-        "hundred and", txt.ex.int.cardinal(x%%100)), z)
+    z <- zav(z, paste(txt.ex.int.cardinal(x%/%100), "hundred and", 
+        txt.ex.int.cardinal(x%%100)))
     z
 }
 
@@ -16104,8 +16089,8 @@ txt.ex.int.ordinal.wrapper <- function (x)
         "hundredth"), z)
     z <- ifelse(is.na(z) & (x%/%100)%%10 == 0, paste(txt.ex.int.cardinal(x%/%1000), 
         "thousand and", txt.ex.int.ordinal(x%%100)), z)
-    z <- ifelse(is.na(z), paste(txt.ex.int.cardinal(x%/%100), 
-        "hundred and", txt.ex.int.ordinal(x%%100)), z)
+    z <- zav(z, paste(txt.ex.int.cardinal(x%/%100), "hundred and", 
+        txt.ex.int.ordinal(x%%100)))
     z
 }
 
@@ -17486,15 +17471,16 @@ yyyymmdd.to.yyyymm <- function (x, y = F)
 
 #' zav
 #' 
-#' Coverts NA's to zero
+#' Coverts NA's to <y>
 #' @param x = a vector/matrix/dataframe
+#' @param y = value for NA's (defaults to zero)
 #' @keywords zav
 #' @export
 
-zav <- function (x) 
+zav <- function (x, y = 0) 
 {
-    fcn <- function(x) ifelse(is.na(x), 0, x)
-    z <- fcn.mat.vec(fcn, x, , T)
+    fcn <- function(x, y) ifelse(is.na(x), y, x)
+    z <- fcn.mat.vec(fcn, x, y, T)
     z
 }
 
