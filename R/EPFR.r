@@ -157,9 +157,9 @@ mk.1mPerfTrend <- function (x, y, n, w = F)
             y$factor)]
     }
     else {
-        z <- map.rname(den, dimnames(n$classif)[[1]])
+        z <- map.rname(den, rownames(n$classif))
         z <- nonneg(z)
-        z <- map.rname(num, dimnames(n$classif)[[1]])/z
+        z <- map.rname(num, rownames(n$classif))/z
         z <- as.numeric(z)
     }
     z
@@ -294,7 +294,7 @@ array.ex.list <- function (x, y, n)
         y <- union
     else y <- intersect
     if (w) 
-        fcn <- function(x) dimnames(x)[[1]]
+        fcn <- rownames
     else fcn <- names
     y <- Reduce(y, lapply(x, fcn))
     x <- lapply(x, function(x) map.rname(x, y))
@@ -302,7 +302,7 @@ array.ex.list <- function (x, y, n)
         if (n) 
             n <- union
         else n <- intersect
-        n <- Reduce(n, lapply(x, function(x) dimnames(x)[[2]]))
+        n <- Reduce(n, lapply(x, colnames))
         x <- lapply(x, function(x) t(map.rname(t(x), n)))
     }
     z <- simplify2array(x)
@@ -517,14 +517,14 @@ bbk.bin.rets.summ <- function (x, y, n = F)
         "DrawDn", "DDnBeg", "DDnN")
     if (n) 
         z <- c(z, "nPrds")
-    z <- matrix(NA, length(z), dim(x)[2], F, list(z, dimnames(x)[[2]]))
+    z <- matrix(NA, length(z), dim(x)[2], F, list(z, colnames(x)))
     if (n) 
         z["nPrds", ] <- sum(!is.na(x[, 1]))
     z["AnnMn", ] <- apply(x, 2, mean, na.rm = T) * y
     z["AnnSd", ] <- apply(x, 2, sd, na.rm = T) * sqrt(y)
     z["Sharpe", ] <- 100 * z["AnnMn", ]/z["AnnSd", ]
     z["HitRate", ] <- apply(sign(x), 2, mean, na.rm = T) * 50
-    w <- dimnames(x)[[2]] == "uRet"
+    w <- colnames(x) == "uRet"
     if (any(w)) {
         z[c("Alpha", "Beta"), "uRet"] <- 0:1
         h <- !is.na(x[, "uRet"])
@@ -535,16 +535,16 @@ bbk.bin.rets.summ <- function (x, y, n = F)
                 "Beta")))
             vec <- run.cs.reg(t(x[h, !w]), vec)
             vec[, "Alpha"] <- vec[, "Alpha"] * y
-            z[dimnames(vec)[[2]], dimnames(vec)[[1]]] <- t(vec)
+            z[colnames(vec), rownames(vec)] <- t(vec)
         }
     }
     if (dim(x)[1] > 1) {
-        x <- x[order(dimnames(x)[[1]]), ]
+        x <- x[order(rownames(x)), ]
         w <- fcn.mat.vec(bbk.drawdown, x, , T)
         z["DDnN", ] <- colSums(w)
         z["DrawDn", ] <- colSums(w * zav(x))
         y <- fcn.mat.num(which.max, w, , T)
-        y <- dimnames(x)[[1]][y]
+        y <- rownames(x)[y]
         if (any(substring(y, 5, 5) == "Q")) 
             y <- yyyymm.ex.qtr(y)
         z["DDnBeg", ] <- as.numeric(y)
@@ -577,8 +577,8 @@ bbk.bin.xRet <- function (x, y, n = 5, w = F, h = F)
     z <- array.unlist(x, c("date", "security", "bin"))
     z$ret <- unlist(y)
     z <- pivot(mean, z$ret, z$date, z$bin)
-    z <- map.rname(z, dimnames(x)[[1]])
-    dimnames(z)[[2]] <- paste0("Q", dimnames(z)[[2]])
+    z <- map.rname(z, rownames(x))
+    colnames(z) <- paste0("Q", colnames(z))
     z <- mat.ex.matrix(z)
     z$TxB <- z[, 1] - z[, dim(z)[2]]
     if (w) 
@@ -610,15 +610,15 @@ bbk.bin.xRet <- function (x, y, n = 5, w = F, h = F)
 bbk.data <- function (x, y, n, w, h, u, v, g, r, s) 
 {
     x <- x[!is.na(avail(x)), ]
-    if (!ascending(dimnames(x)[[1]])) 
+    if (!ascending(rownames(x))) 
         stop("Flows are crap")
-    if (any(yyyymm.lag(dimnames(x)[[1]][dim(x)[1]], dim(x)[1]:1 - 
-        1, F) != dimnames(x)[[1]])) 
+    if (any(yyyymm.lag(rownames(x)[dim(x)[1]], dim(x)[1]:1 - 
+        1, F) != rownames(x))) 
         stop("Missing flow dates")
-    if (!ascending(dimnames(y)[[1]])) 
+    if (!ascending(rownames(y))) 
         stop("Returns are crap")
-    if (any(yyyymm.lag(dimnames(y)[[1]][dim(y)[1]], dim(y)[1]:1 - 
-        1) != dimnames(y)[[1]])) 
+    if (any(yyyymm.lag(rownames(y)[dim(y)[1]], dim(y)[1]:1 - 
+        1) != rownames(y))) 
         stop("Missing return dates")
     if (n > 1) 
         x <- compound.flows(x, n, w)
@@ -686,10 +686,10 @@ bbk.fwdRet <- function (x, y, n, w)
 {
     if (dim(x)[2] != dim(y)[2]) 
         stop("Problem 1")
-    if (any(dimnames(x)[[2]] != dimnames(y)[[2]])) 
+    if (any(colnames(x) != colnames(y))) 
         stop("Problem 2")
     y <- ret.ex.idx(y, n, T, w)
-    z <- map.rname(y, dimnames(x)[[1]])
+    z <- map.rname(y, rownames(x))
     z <- excise.zeroes(z)
     z
 }
@@ -707,10 +707,10 @@ bbk.histogram <- function (x)
     z <- vec.count(0.01 * round(x$TxB/0.5) * 0.5)
     z <- matrix(z, length(z), 3, F, list(names(z), c("Obs", "Plus", 
         "Minus")))
-    z[, "Plus"] <- ifelse(as.numeric(dimnames(z)[[1]]) < 0, NA, 
-        z[, "Plus"]/sum(z[, "Plus"]))
-    z[, "Minus"] <- ifelse(as.numeric(dimnames(z)[[1]]) < 0, 
-        z[, "Minus"]/sum(z[, "Minus"]), NA)
+    z[, "Plus"] <- ifelse(as.numeric(rownames(z)) < 0, NA, z[, 
+        "Plus"]/sum(z[, "Plus"]))
+    z[, "Minus"] <- ifelse(as.numeric(rownames(z)) < 0, z[, "Minus"]/sum(z[, 
+        "Minus"]), NA)
     z
 }
 
@@ -783,22 +783,22 @@ bbk.summ <- function (x, y, n, w)
 {
     if (n%%w != 0) 
         stop("Quantum size is wrong!")
-    prdsPerYr <- yyyy.periods.count(dimnames(x)[[1]])
+    prdsPerYr <- yyyy.periods.count(rownames(x))
     fcn <- function(x) bbk.bin.rets.summ(x, prdsPerYr/n)
     z <- mat.ex.matrix(summ.multi(fcn, x, n/w))
     fcn <- function(x) bbk.turnover(x) * prdsPerYr/n
     y <- summ.multi(fcn, mat.ex.matrix(y), n/w)
-    z <- map.rname(z, c(dimnames(z)[[1]], "AnnTo"))
-    z["AnnTo", ] <- map.rname(y, dimnames(z)[[2]])
+    z <- map.rname(z, c(rownames(z), "AnnTo"))
+    z["AnnTo", ] <- map.rname(y, colnames(z))
     z <- list(summ = z)
     if (n == w) {
-        z.ann <- yyyy.ex.period(dimnames(x)[[1]], n)
+        z.ann <- yyyy.ex.period(rownames(x), n)
         z.ann <- bbk.bin.rets.prd.summ(bbk.bin.rets.summ, x, 
             z.ann, prdsPerYr/n)
         z.ann <- rbind(z.ann["AnnMn", , ], z.ann["nPrds", "uRet", 
             ])
         z.ann <- t(z.ann)
-        dimnames(z.ann)[[2]][dim(z.ann)[2]] <- "nPrds"
+        colnames(z.ann)[dim(z.ann)[2]] <- "nPrds"
         z[["annSumm"]] <- z.ann
     }
     z
@@ -988,10 +988,10 @@ britten.jones <- function (x, y)
 {
     m <- length(y)
     n <- dim(x)[1]
-    orig.nms <- dimnames(x)[[2]]
+    orig.nms <- colnames(x)
     for (i in 1:n) y <- c(y, x[i, 1] - sum(y[i - 1 + 1:m]))
     x <- as.matrix(x[, -1])
-    z <- matrix(0, n + m, dim(x)[2], F, list(seq(1, m + n), dimnames(x)[[2]]))
+    z <- matrix(0, n + m, dim(x)[2], F, list(seq(1, m + n), colnames(x)))
     for (i in 0:m) z[1:n + i, ] <- z[1:n + i, ] + x
     if (det(crossprod(z)) > 0) {
         z <- z %*% solve(crossprod(z)) %*% crossprod(x)
@@ -1052,7 +1052,7 @@ britten.jones.data <- function (x, y, n, w = NULL)
     y <- fcn(y)
     prd.ret <- lapply(prd.ret, fcn)
     z <- NULL
-    for (i in dimnames(x$bins)[[2]]) {
+    for (i in colnames(x$bins)) {
         if (sum(!is.na(x$bins[, i]) & !duplicated(x$bins[, i])) > 
             1) {
             df <- as.numeric(x$bins[, i])
@@ -1123,7 +1123,7 @@ britten.jones.data.stack <- function (x, y, n, w, h)
 {
     u <- colSums(x[, -1] == 0) == dim(x)[1]
     if (any(u)) {
-        u <- !is.element(dimnames(x)[[2]], dimnames(x)[[2]][-1][u])
+        u <- !is.element(colnames(x), colnames(x)[-1][u])
         x <- x[, u]
     }
     if (y > 1) {
@@ -1139,11 +1139,11 @@ britten.jones.data.stack <- function (x, y, n, w, h)
             paste0("Q", 2:4), "TxB")))))
     if (!is.null(x)) {
         if (is.null(z)) {
-            dimnames(x)[[1]] <- 1:dim(x)[1]
+            rownames(x) <- 1:dim(x)[1]
             z <- x
         }
         else {
-            dimnames(x)[[1]] <- 1:dim(x)[1] + dim(z)[1]
+            rownames(x) <- 1:dim(x)[1] + dim(z)[1]
             z <- rbind(z, x)
         }
     }
@@ -1441,30 +1441,30 @@ common.fund.flow.shock <- function (x, y, n)
     x <- pivot.1d(sum, z[, "MonthEnding"], z[, c("PortfolioChange", 
         "Flow", "AssetsStart")])
     x <- as.matrix(x)
-    x <- x[order(dimnames(x)[[1]]), ]
+    x <- x[order(rownames(x)), ]
     y <- (100 * x[, "Flow"]/x[, "AssetsStart"])[-1]
     x <- 100 * x[, "PortfolioChange"]/x[, "AssetsStart"]
     for (w in c("Flow", "PortfolioChange")) z[, w] <- 100 * z[, 
         w]/z[, "AssetsStart"]
     z[, "PortfolioChange"] <- z[, "PortfolioChange"] - map.rname(x, 
         z[, "MonthEnding"])
-    x <- z[, dimnames(z)[[2]] != "AssetsStart"]
+    x <- z[, colnames(z) != "AssetsStart"]
     x[, "MonthEnding"] <- yyyymm.lag(x[, "MonthEnding"], -1)
-    dimnames(x)[[2]][3:4] <- paste0(dimnames(x)[[2]][3:4], ".m1")
+    colnames(x)[3:4] <- paste0(colnames(x)[3:4], ".m1")
     x <- merge(z, x)
-    z <- x[, dimnames(x)[[2]] != "AssetsStart"]
+    z <- x[, colnames(x) != "AssetsStart"]
     x <- reshape.wide(x[, c("MonthEnding", "FundId", "AssetsStart")])
-    x <- x[order(dimnames(x)[[1]]), order(dimnames(x)[[2]])]
+    x <- x[order(rownames(x)), order(colnames(x))]
     x <- as.matrix(x)
-    z <- split(z[, dimnames(z)[[2]] != "FundId"], z[, "FundId"])
+    z <- split(z[, colnames(z) != "FundId"], z[, "FundId"])
     z <- lapply(z, mat.index)
-    z <- lapply(z, function(x) summary(lm(txt.regr(dimnames(x)[[2]]), 
+    z <- lapply(z, function(x) summary(lm(txt.regr(colnames(x)), 
         x))[["residuals"]])
     z <- simplify2array(z)
-    z <- z[dimnames(x)[[1]], dimnames(x)[[2]]]
+    z <- z[rownames(x), colnames(x)]
     w <- qtl.eq(x)
     n <- list()
-    for (j in dimnames(z)[[1]]) {
+    for (j in rownames(z)) {
         r <- data.frame(z[j, ], x[j, ], stringsAsFactors = F)
         r[, 1] <- r[, 1] * r[, 2]
         r <- pivot.1d(sum, w[j, ], r)
@@ -1568,15 +1568,15 @@ correl <- function (x, y, n = T)
 correl.PrcMo <- function (x, y, n, w) 
 {
     x <- compound.flows(x, n, F)
-    dimnames(x)[[1]] <- yyyymmdd.lag(dimnames(x)[[1]], -w)
-    z <- map.rname(y, yyyymmdd.lag(dimnames(y)[[1]], 175))
+    rownames(x) <- yyyymmdd.lag(rownames(x), -w)
+    z <- map.rname(y, yyyymmdd.lag(rownames(y), 175))
     z <- nonneg(z)
     y <- as.matrix(y)/z
-    dimnames(y)[[1]] <- yyyymmdd.lag(dimnames(y)[[1]], -10)
+    rownames(y) <- yyyymmdd.lag(rownames(y), -10)
     x <- qtl.eq(x, 5)
     y <- qtl.eq(y, 5)
-    x <- x[is.element(dimnames(x)[[1]], dimnames(y)[[1]]), ]
-    y <- y[dimnames(x)[[1]], ]
+    x <- x[is.element(rownames(x), rownames(y)), ]
+    y <- y[rownames(x), ]
     z <- correl(unlist(x), unlist(y), F)
     z
 }
@@ -1715,7 +1715,7 @@ Ctry.msci <- function (x)
     z[, c("From", "To")] <- vec
     z <- z[z$From != z$To, ]
     z <- mat.subset(z, c("CCode", "To", "yyyymm"))
-    dimnames(z)[[2]] <- c("CCODE", "ACTION", "YYYYMM")
+    colnames(z) <- c("CCODE", "ACTION", "YYYYMM")
     z$ACTION <- toupper(z$ACTION)
     z
 }
@@ -1731,17 +1731,16 @@ Ctry.msci <- function (x)
 
 Ctry.msci.index.changes <- function (x, y) 
 {
-    super.set <- Ctry.msci.members.rng(y, dimnames(x)[[1]][1], 
-        dimnames(x)[[1]][dim(x)[1]])
+    super.set <- Ctry.msci.members.rng(y, rownames(x)[1], rownames(x)[dim(x)[1]])
     z <- Ctry.msci(y)
-    if (nchar(dimnames(x)[[1]][1]) == 8) 
+    if (nchar(rownames(x)[1]) == 8) 
         z$YYYYMM <- yyyymmdd.ex.yyyymm(z$YYYYMM)
-    if (nchar(dimnames(x)[[2]][1]) == 3) {
+    if (nchar(colnames(x)[1]) == 3) {
         z$CCODE <- Ctry.info(z$CCODE, "Curr")
         super.set <- Ctry.info(super.set, "Curr")
         z <- z[!is.element(z$CCODE, c("USD", "EUR")), ]
     }
-    w <- !is.element(z$CCODE, dimnames(x)[[2]])
+    w <- !is.element(z$CCODE, colnames(x))
     if (any(w)) {
         w2 <- is.element(super.set, z$CCODE[w])
         z <- z[!w, ]
@@ -1757,11 +1756,10 @@ Ctry.msci.index.changes <- function (x, y)
         else vec <- z[vec, "YYYYMM"]
         if (length(vec)%%2 == 0) 
             vec <- c(vec, "30720809")
-        w <- dimnames(x)[[1]] < vec[1]
+        w <- rownames(x) < vec[1]
         vec <- vec[-1]
         while (length(vec) > 0) {
-            w <- w | (dimnames(x)[[1]] >= vec[1] & dimnames(x)[[1]] < 
-                vec[2])
+            w <- w | (rownames(x) >= vec[1] & rownames(x) < vec[2])
             vec <- vec[-1]
             vec <- vec[-1]
         }
@@ -1783,7 +1781,7 @@ Ctry.msci.index.changes <- function (x, y)
 Ctry.msci.members <- function (x, y) 
 {
     z <- mat.read(parameters("MsciCtry2016"), ",")
-    z <- dimnames(z)[[1]][is.element(z[, x], 1)]
+    z <- rownames(z)[is.element(z[, x], 1)]
     point.in.2016 <- "201603"
     if (nchar(y) == 8) 
         point.in.2016 <- "20160331"
@@ -2378,7 +2376,7 @@ event.read <- function (x)
     z <- z[order(z)]
     x <- seq_along(z)
     z <- data.frame(z, x, row.names = x, stringsAsFactors = F)
-    dimnames(z)[[2]] <- c("Date", "EventNo")
+    colnames(z) <- c("Date", "EventNo")
     z
 }
 
@@ -2409,7 +2407,7 @@ excise.zeroes <- function (x)
 extract.AnnMn.sf <- function (x, y) 
 {
     z <- x
-    w <- dimnames(z)[[2]] != "uRet"
+    w <- colnames(z) != "uRet"
     z <- mat.ex.matrix(t(z[y, w, ]))
     z <- mat.last.to.first(z)
     z
@@ -2463,14 +2461,13 @@ factordump.rds <- function (x, y, n, w, h, u)
             df <- vec.named(df[, "HSecurityId"], df[, "SecurityId"])
             vbl <- fetch(x, yyyymm.lag(k, -1), 1, paste(h$fldr, 
                 "derived", sep = "\\"), h$classif)
-            is.data <- !is.na(vbl) & is.element(dimnames(h$classif)[[1]], 
+            is.data <- !is.na(vbl) & is.element(rownames(h$classif), 
                 names(df))
             vbl <- vbl[is.data]
-            df <- as.character(df[dimnames(h$classif)[[1]][is.data]])
+            df <- as.character(df[rownames(h$classif)[is.data]])
             df <- data.frame(rep(yyyymm.to.day(k), length(vbl)), 
                 df, vbl)
-            dimnames(df)[[2]] <- c("ReportDate", "HSecurityId", 
-                x)
+            colnames(df) <- c("ReportDate", "HSecurityId", x)
             z[[k]] <- df
         }
         z <- Reduce(rbind, z)
@@ -2547,9 +2544,9 @@ farben <- function (x, y)
 {
     h <- mat.read(parameters("classif-colours"))
     if (!y) {
-        v <- dimnames(h)[[1]]
+        v <- rownames(h)
         h <- map.rname(h, h$border)
-        dimnames(h)[[1]] <- v
+        rownames(h) <- v
     }
     h <- h[, c("R", "G", "B")]
     h <- mat.ex.matrix(t(h))
@@ -2557,7 +2554,7 @@ farben <- function (x, y)
         stop("farben: Can't handle this!")
     }
     else {
-        z <- dimnames(h)[[2]][1:x]
+        z <- colnames(h)[1:x]
     }
     if (length(z) == 1) 
         z <- list(One = h[, z])
@@ -3250,8 +3247,8 @@ fcn.lite <- function ()
 fcn.mat.col <- function (fcn, x, y, n) 
 {
     if (missing(y)) {
-        z <- matrix(NA, dim(x)[2], dim(x)[2], F, list(dimnames(x)[[2]], 
-            dimnames(x)[[2]]))
+        z <- matrix(NA, dim(x)[2], dim(x)[2], F, list(colnames(x), 
+            colnames(x)))
         for (i in 1:dim(x)[2]) for (j in 1:dim(x)[2]) z[i, j] <- fcn.num.nonNA(fcn, 
             x[, i], x[, j], n)
     }
@@ -3651,26 +3648,25 @@ fetch <- function (x, y, n, w, h)
         lCol <- paste(x, mm, sep = ".")
         z <- readRDS(z)
         m <- 1:dim(z)[2]
-        m <- m[dimnames(z)[[2]] == lCol]
-        dimnames(z)[[2]] <- paste(dimnames(z)[[2]], yyyy, sep = ".")
+        m <- m[colnames(z) == lCol]
+        colnames(z) <- paste(colnames(z), yyyy, sep = ".")
         while (m < n) {
             if (daily) 
                 yyyy <- yyyymm.lag(yyyy, 1)
             else yyyy <- yyyy - 1
             df <- paste0(w, "\\", x, ".", yyyy, ".r")
             df <- readRDS(df)
-            dimnames(df)[[2]] <- paste(dimnames(df)[[2]], yyyy, 
-                sep = ".")
+            colnames(df) <- paste(colnames(df), yyyy, sep = ".")
             z <- data.frame(df, z)
             m <- m + dim(df)[2]
         }
         z <- z[, seq(m - n + 1, m)]
     }
     else if (length(x) > 1) {
-        z <- matrix(NA, dim(h)[1], length(x), F, list(dimnames(h)[[1]], 
+        z <- matrix(NA, dim(h)[1], length(x), F, list(rownames(h), 
             x))
         z <- mat.ex.matrix(z)
-        for (i in dimnames(z)[[2]]) {
+        for (i in colnames(z)) {
             df <- paste0(w, "\\", i, ".", yyyy, ".r")
             lCol <- paste(i, mm, sep = ".")
             if (file.exists(df)) {
@@ -4753,10 +4749,10 @@ fwd.probs <- function (x, y, n, w, h, u, v, g, r)
     y <- x$fwdRet
     x <- x$x
     z <- c("All", "Pos", "Exc", "Last")
-    z <- matrix(NA, dim(x)[2], length(z), F, list(dimnames(x)[[2]], 
+    z <- matrix(NA, dim(x)[2], length(z), F, list(colnames(x), 
         z))
     z[, "Last"] <- unlist(x[dim(x)[1], ])
-    for (j in dimnames(x)[[2]]) {
+    for (j in colnames(x)) {
         w1 <- x[, j]
         w2 <- y[, j]
         z[j, "All"] <- sum(!is.na(w2) & w2 > 0)/sum(!is.na(w2))
@@ -4897,8 +4893,8 @@ html.email <- function (x, y = T)
     u <- c(u, "The QC process was unable to check delivery of the following:")
     h <- record.track(x, "emails", y)
     h <- h[h$yyyymmdd != h$target | h$today, ]
-    z <- html.problem.underlying(paste0("<b>", dimnames(h)[[1]], 
-        "</b>"), u, h$yyyymmdd != h$target)
+    z <- html.problem.underlying(paste0("<b>", rownames(h), "</b>"), 
+        u, h$yyyymmdd != h$target)
     u <- ifelse(y, "morning", "evening")
     u <- paste("This", u, "the following ftp uploads did not happen:")
     u <- c("The QC process certified", "successful uploads.", 
@@ -4906,7 +4902,7 @@ html.email <- function (x, y = T)
     u <- c(u, "The QC process was unable to check uploads of the following:")
     h <- record.track(x, "upload", y)
     h <- h[h$yyyymmdd != h$target | h$today, ]
-    z <- c(z, html.problem.underlying(paste0("<b>", dimnames(h)[[1]], 
+    z <- c(z, html.problem.underlying(paste0("<b>", rownames(h), 
         "</b>"), u, h$yyyymmdd != h$target))
     z <- txt.replace(z, " one reports were ", " one report was ")
     z <- txt.replace(z, " one successful uploads.", " one successful upload.")
@@ -5224,12 +5220,12 @@ html.list <- function (x)
 html.positioning <- function (x, y) 
 {
     if (missing(y)) {
-        y <- dimnames(x)[[2]]
+        y <- colnames(x)
     }
     else {
-        y <- paste0(y, " (", dimnames(x)[[2]], ")")
+        y <- paste0(y, " (", colnames(x), ")")
     }
-    x <- x[order(dimnames(x)[[1]], decreasing = T), ]
+    x <- x[order(rownames(x), decreasing = T), ]
     y <- y[order(x[1, ], decreasing = T)]
     x <- x[, order(x[1, ], decreasing = T)]
     n <- qtl.eq(x)
@@ -5239,7 +5235,7 @@ html.positioning <- function (x, y)
         5
     w1.old <- is.element(n[2, ], 1) & !is.element(n[1, ], 1)
     w5.old <- is.element(n[2, ], 5) & !is.element(n[1, ], 5)
-    z <- paste("<p>The week ended", format(day.to.date(dimnames(n)[[1]][1]), 
+    z <- paste("<p>The week ended", format(day.to.date(rownames(n)[1]), 
         "%B %d %Y"), "saw")
     if (sum(w1.new) == 0 & sum(w5.new) == 0) {
         z <- c(z, "no new entrants into either the top or bottom quintile.")
@@ -5370,12 +5366,11 @@ html.tbl <- function (x, y)
 {
     if (y) {
         x <- round(x)
-        x <- mat.ex.matrix(lapply(x, int.format), dimnames(x)[[1]])
+        x <- mat.ex.matrix(lapply(x, int.format), rownames(x))
     }
     z <- "<TABLE border=\"0\""
-    z <- c(z, paste0("<TR><TH><TH>", paste(dimnames(x)[[2]], 
-        collapse = "<TH>")))
-    y <- dimnames(x)[[1]]
+    z <- c(z, paste0("<TR><TH><TH>", paste(colnames(x), collapse = "<TH>")))
+    y <- rownames(x)
     x <- mat.ex.matrix(x)
     x$sep <- "</TD><TD align=\"right\">"
     z <- c(z, paste0("<TR><TH>", y, "<TD align=\"right\">", do.call(paste, 
@@ -5489,9 +5484,9 @@ isin.exists <- function (x)
     y <- y[!duplicated(y)]
     y <- matrix(NA, length(y), 11, F, list(y, char.seq("A", "K")))
     for (j in 1:dim(y)[2]) y[, j] <- as.numeric(map.rname(charset, 
-        substring(dimnames(y)[[1]], j, j)))
+        substring(rownames(y), j, j)))
     y <- mat.ex.matrix(y)
-    y <- vec.named(do.call(paste0, y), dimnames(y)[[1]])
+    y <- vec.named(do.call(paste0, y), rownames(y))
     y <- split(y, names(y))
     y <- lapply(y, function(x) as.numeric(txt.to.char(x)))
     y <- lapply(y, function(x) x * rep(2:1, ceiling(length(x)/2))[seq_along(x)])
@@ -5761,9 +5756,9 @@ load.dy.vbl.1obj <- function (fcn, x, y, n, w, h, u)
 {
     z <- flowdate.ex.yyyymm(h, F)
     z <- paste(w, txt.right(z, 2), sep = ".")
-    z <- matrix(NA, dim(u$classif)[1], length(z), F, list(dimnames(u$classif)[[1]], 
+    z <- matrix(NA, dim(u$classif)[1], length(z), F, list(rownames(u$classif), 
         z))
-    dd <- txt.right(dimnames(z)[[2]], 2)
+    dd <- txt.right(colnames(z), 2)
     dd <- dd[as.numeric(paste0(h, dd)) >= as.numeric(x)]
     dd <- dd[as.numeric(paste0(h, dd)) <= as.numeric(y)]
     for (i in dd) {
@@ -5811,7 +5806,7 @@ load.mo.vbl <- function (fcn, x, y, n, w, h, u)
 load.mo.vbl.1obj <- function (fcn, x, y, n, w, h, u) 
 {
     z <- paste(w, 1:12, sep = ".")
-    z <- matrix(NA, dim(u$classif)[1], length(z), F, list(dimnames(u$classif)[[1]], 
+    z <- matrix(NA, dim(u$classif)[1], length(z), F, list(rownames(u$classif), 
         z))
     mm <- 1:12
     mm <- mm[100 * h + mm >= x]
@@ -5885,7 +5880,7 @@ machine.info <- function (x)
 
 map.classif <- function (x, y, n) 
 {
-    z <- vec.to.list(intersect(c(n, paste0(n, 1:50)), dimnames(y)[[2]]))
+    z <- vec.to.list(intersect(c(n, paste0(n, 1:50)), colnames(y)))
     fcn <- function(i) as.numeric(map.rname(x, y[, i]))
     z <- avail(sapply(z, fcn))
     z
@@ -5909,15 +5904,15 @@ map.rname <- function (x, y)
             z[w] <- x[names(z)[w]]
     }
     else {
-        w <- !is.element(y, dimnames(x)[[1]])
+        w <- !is.element(y, rownames(x))
         if (any(w)) {
             y.loc <- matrix(NA, sum(w), dim(x)[2], F, list(y[w], 
-                dimnames(x)[[2]]))
+                colnames(x)))
             x <- rbind(x, y.loc)
         }
         if (dim(x)[2] == 1) {
             z <- matrix(x[as.character(y), 1], length(y), 1, 
-                F, list(y, dimnames(x)[[2]]))
+                F, list(y, colnames(x)))
         }
         else z <- x[as.character(y), ]
     }
@@ -5964,7 +5959,7 @@ mat.count <- function (x)
     fcn <- function(x) sum(!is.na(x))
     z <- fcn.mat.num(fcn, x, , T)
     z <- c(z, round(100 * z/dim(x)[1], 1))
-    z <- matrix(z, dim(x)[2], 2, F, list(dimnames(x)[[2]], c("obs", 
+    z <- matrix(z, dim(x)[2], 2, F, list(colnames(x), c("obs", 
         "pct")))
     z
 }
@@ -5980,16 +5975,15 @@ mat.count <- function (x)
 
 mat.daily.to.monthly <- function (x, y = F) 
 {
-    z <- x[order(dimnames(x)[[1]], decreasing = T), ]
-    z <- z[!duplicated(yyyymmdd.to.yyyymm(dimnames(z)[[1]])), 
-        ]
+    z <- x[order(rownames(x), decreasing = T), ]
+    z <- z[!duplicated(yyyymmdd.to.yyyymm(rownames(z))), ]
     if (y) {
-        w <- yyyymmdd.to.yyyymm(dimnames(z)[[1]])
+        w <- yyyymmdd.to.yyyymm(rownames(z))
         w <- yyyymmdd.ex.yyyymm(w)
-        w <- w == dimnames(z)[[1]]
+        w <- w == rownames(z)
         z <- z[w, ]
     }
-    dimnames(z)[[1]] <- yyyymmdd.to.yyyymm(dimnames(z)[[1]])
+    rownames(z) <- yyyymmdd.to.yyyymm(rownames(z))
     z <- mat.reverse(z)
     z
 }
@@ -6005,9 +5999,9 @@ mat.daily.to.monthly <- function (x, y = F)
 
 mat.daily.to.weekly <- function (x, y) 
 {
-    z <- x[order(dimnames(x)[[1]], decreasing = T), ]
-    z <- z[!duplicated(day.to.week(dimnames(z)[[1]], y)), ]
-    dimnames(z)[[1]] <- day.to.week(dimnames(z)[[1]], y)
+    z <- x[order(rownames(x), decreasing = T), ]
+    z <- z[!duplicated(day.to.week(rownames(z), y)), ]
+    rownames(z) <- day.to.week(rownames(z), y)
     z <- mat.reverse(z)
     z
 }
@@ -6122,7 +6116,7 @@ mat.index <- function (x, y = 1, n = T)
         w <- is.element(1:dim(x)[2], y)
     }
     else {
-        w <- is.element(dimnames(x)[[2]], y)
+        w <- is.element(colnames(x), y)
     }
     if (sum(w) > 1) 
         z <- do.call(paste, mat.ex.matrix(x)[, y])
@@ -6132,11 +6126,11 @@ mat.index <- function (x, y = 1, n = T)
     if (any(duplicated(z))) 
         stop("Duplicated row indices ...")
     if (!n) {
-        dimnames(x)[[1]] <- z
+        rownames(x) <- z
         z <- x
     }
     else if (sum(!w) > 1) {
-        dimnames(x)[[1]] <- z
+        rownames(x) <- z
         z <- x[, !w]
     }
     else {
@@ -6264,13 +6258,13 @@ mat.sort <- function (x, y, n)
 
 mat.subset <- function (x, y) 
 {
-    w <- is.element(y, dimnames(x)[[2]])
+    w <- is.element(y, colnames(x))
     if (any(!w)) {
         err.raise(y[!w], F, "Warning: The following columns are missing")
         z <- t(map.rname(t(x), y))
     }
     else if (length(y) == 1) {
-        z <- vec.named(x[, y], dimnames(x)[[1]])
+        z <- vec.named(x[, y], rownames(x))
     }
     else {
         z <- x[, y]
@@ -6288,7 +6282,7 @@ mat.subset <- function (x, y)
 
 mat.to.last.Idx <- function (x) 
 {
-    z <- dimnames(x)[[1]][dim(x)[1]]
+    z <- rownames(x)[dim(x)[1]]
     cat("Original data had", dim(x)[1], "rows ending at", z, 
         "...\n")
     z
@@ -6323,23 +6317,23 @@ mat.to.obs <- function (x)
 mat.to.xlModel <- function (x, y = 2, n = 5, w = F) 
 {
     z <- c("Open", "Close")
-    z <- matrix(NA, dim(x)[1], length(z), F, list(dimnames(x)[[1]], 
+    z <- matrix(NA, dim(x)[1], length(z), F, list(rownames(x), 
         z))
     if (w) 
-        z[, "Open"] <- yyyymm.lag(dimnames(z)[[1]], -y)
+        z[, "Open"] <- yyyymm.lag(rownames(z), -y)
     if (!w) {
-        z[, "Open"] <- dimnames(z)[[1]]
-        dimnames(z)[[1]] <- yyyymm.lag(z[, "Open"], y)
+        z[, "Open"] <- rownames(z)
+        rownames(z) <- yyyymm.lag(z[, "Open"], y)
     }
     z[, "Close"] <- yyyymm.lag(z[, "Open"], -n)
-    if (all(nchar(dimnames(x)[[1]]) == 8)) {
+    if (all(nchar(rownames(x)) == 8)) {
         if (any(day.to.weekday(z[, "Open"]) != "5") | any(day.to.weekday(z[, 
             "Close"]) != "5")) {
             cat("WARNING: YOU ARE NOT TRADING FRIDAY TO FRIDAY!\n")
         }
     }
     z <- cbind(z, x)
-    z <- z[order(dimnames(z)[[1]], decreasing = T), ]
+    z <- z[order(rownames(z), decreasing = T), ]
     z
 }
 
@@ -6353,15 +6347,13 @@ mat.to.xlModel <- function (x, y = 2, n = 5, w = F)
 
 mat.weekly.to.daily <- function (x) 
 {
-    w <- flowdate.exists(dimnames(x)[[1]])
+    w <- flowdate.exists(rownames(x))
     if (any(!w)) 
-        dimnames(x)[[1]][!w] <- yyyymmdd.lag(dimnames(x)[[1]][!w], 
-            1)
-    y <- flowdate.seq(min(dimnames(x)[[1]]), max(dimnames(x)[[1]]))
-    z <- fix.gaps(ifelse(is.element(y, dimnames(x)[[1]]), y, 
-        NA))
+        rownames(x)[!w] <- yyyymmdd.lag(rownames(x)[!w], 1)
+    y <- flowdate.seq(min(rownames(x)), max(rownames(x)))
+    z <- fix.gaps(ifelse(is.element(y, rownames(x)), y, NA))
     z <- map.rname(x, z)
-    dimnames(z)[[1]] <- y
+    rownames(z) <- y
     z
 }
 
@@ -6699,7 +6691,7 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
     }
     else if (h == "All") {
         h <- mat.read(parameters("classif-Ctry"))
-        h <- dimnames(h)[[1]][!is.na(h$CountryId)]
+        h <- rownames(h)[!is.na(h$CountryId)]
     }
     else if (all(h != c("US", "JP"))) {
         stop("Can't handle yet!")
@@ -6749,7 +6741,7 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
     foo <- mat.read(parameters("classif-GIgrp"))[, c("IndustryId", 
         "StyleSector")]
     foo <- foo[!is.na(foo$StyleSector), ]
-    for (j in dimnames(foo)[[1]]) {
+    for (j in rownames(foo)) {
         v <- c("StyleSector", foo[j, "StyleSector"])
         r <- c("IndustryId", foo[j, "IndustryId"])
         z <- c(z, "", sql.Allocations.bulk.Single("Allocation", 
@@ -6811,7 +6803,7 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h, u = F, v = F)
     }
     else if (h$Region == "All") {
         h$Region <- mat.read(parameters("classif-Ctry"))
-        h$Region <- dimnames(h$Region)[[1]][!is.na(h$Region$CountryId)]
+        h$Region <- rownames(h$Region)[!is.na(h$Region$CountryId)]
     }
     else {
         stop("Can't handle yet!")
@@ -6835,8 +6827,7 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h, u = F, v = F)
         h$Group, " int, Allocation float)"), g)
     z <- c(z, "", g)
     g <- mat.read(parameters("classif-GeoId"), "\t")
-    g <- paste(dimnames(g)[[1]][is.element(g[, "xBord"], 1)], 
-        collapse = ", ")
+    g <- paste(rownames(g)[is.element(g[, "xBord"], 1)], collapse = ", ")
     g <- paste0("GeographicFocus not in (", g, ")")
     g <- sql.delete("#CTRY", g)
     z <- c(z, "", g)
@@ -6875,12 +6866,12 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h, u = F, v = F)
     foo <- mat.read(parameters("classif-GSec"))[, c("SectorId", 
         "StyleSector")]
     foo <- foo[!is.na(foo$StyleSector), ]
-    foo <- map.rname(foo, c(dimnames(foo)[[1]], "FinsExREst"))
+    foo <- map.rname(foo, c(rownames(foo), "FinsExREst"))
     foo["FinsExREst", "SectorId"] <- 30
     foo["FinsExREst", "StyleSector"] <- foo["Fins", "StyleSector"]
     foo["Fins", "StyleSector"] <- paste(foo[c("Fins", "REst"), 
         "StyleSector"], collapse = ", ")
-    for (j in dimnames(foo)[[1]]) {
+    for (j in rownames(foo)) {
         g <- c("StyleSector", foo[j, "StyleSector"])
         r <- c("SectorId", foo[j, "SectorId"])
         z <- c(z, "", sql.Allocations.bulk.Single("Allocation", 
@@ -7257,7 +7248,7 @@ mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = T)
     sql.close(h)
     rslt[["CBA"]] <- reshape.wide(z)
     fcn <- function(x) {
-        x <- map.rname(mat.index(x), dimnames(rslt[["CBA"]])[[2]])
+        x <- map.rname(mat.index(x), colnames(rslt[["CBA"]]))
         x <- 0.01 * as.matrix(rslt[["CBA"]]) %*% as.matrix(zav(x))
         x <- map.rname(x, rslt[["MAP"]][, "CountryId"])
         x
@@ -7269,7 +7260,7 @@ mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = T)
     z <- list()
     for (j in x) {
         z[[j]] <- zav(rslt[["SCF"]][[j]]) + zav(rslt[["CBF"]][[j]])
-        dimnames(z[[j]])[[1]] <- dimnames(rslt[["MAP"]])[[1]]
+        rownames(z[[j]]) <- rownames(rslt[["MAP"]])
         if (length(n) == 1) 
             z[[j]] <- as.matrix(z[[j]])[, 1]
         else z[[j]] <- mat.ex.matrix(z[[j]])
@@ -7303,7 +7294,7 @@ mk.1wFloMo.CtryFlow.local <- function (x, y, n, w, h, u = T)
     r <- c("GeographicFocus", paste0(n, " = sum(", n, ")"))
     for (j in x) {
         z <- !is.na(w$GeoId)
-        z <- vec.named(w[z, "GeoId"], dimnames(w)[[1]][z])
+        z <- vec.named(w[z, "GeoId"], rownames(w)[z])
         names(z) <- ifelse(names(z) == "CL", "CI", names(z))
         z <- paste0("(GeographicFocus = ", z, " and Domicile = '", 
             names(z), "')")
@@ -7329,7 +7320,7 @@ mk.1wFloMo.CtryFlow.local <- function (x, y, n, w, h, u = T)
     z <- sql.CtryFlow.Alloc(w$CountryId, y[1], s)
     rslt[["CBA"]] <- sql.query.underlying(z, h$conn, F)
     sql.close(h)
-    v <- vec.named(dimnames(w)[[1]], w[, "CountryId"])
+    v <- vec.named(rownames(w), w[, "CountryId"])
     rslt[["CBA"]][, "CountryId"] <- map.rname(v, rslt[["CBA"]][, 
         "CountryId"])
     rslt[["CBA"]] <- mat.index(rslt[["CBA"]], c("CountryId", 
@@ -7353,7 +7344,7 @@ mk.1wFloMo.CtryFlow.local <- function (x, y, n, w, h, u = T)
     }
     rslt[["CBF"]] <- Reduce(rbind, rslt[["CBF"]])
     v <- !is.na(w[, "GeoId"])
-    w <- vec.named(dimnames(w)[[1]][v], w[v, "GeoId"])
+    w <- vec.named(rownames(w)[v], w[v, "GeoId"])
     for (j in names(rslt[["SCF"]])) {
         rslt[["SCF"]][[j]][, "Domicile"] <- map.rname(w, rslt[["SCF"]][[j]][, 
             "GeographicFocus"])
@@ -7366,8 +7357,7 @@ mk.1wFloMo.CtryFlow.local <- function (x, y, n, w, h, u = T)
     z <- aggregate(x = rslt[, n], by = rslt[, c("ReportDate", 
         "Domicile")], FUN = sum)
     if (length(n) == 1) 
-        dimnames(z)[[2]] <- ifelse(dimnames(z)[[2]] == "x", n, 
-            dimnames(z)[[2]])
+        colnames(z) <- ifelse(colnames(z) == "x", n, colnames(z))
     z
 }
 
@@ -7436,7 +7426,7 @@ mk.1wFloMo.IndyFlow <- function (x, y, n, w)
     rslt[["CBF"]] <- lapply(rslt[["CBF"]], fcn)
     r <- rslt[["MAP"]][!is.na(rslt[["MAP"]][, "StyleSector"]), 
         ]
-    r$IndustryId <- dimnames(r)[[1]]
+    r$IndustryId <- rownames(r)
     r <- mat.index(r, "StyleSector")
     fcn <- function(x) {
         x$StyleSector <- map.rname(r, x$StyleSector)$IndustryId
@@ -7527,7 +7517,7 @@ mk.Alpha.daily <- function (x, y, n)
     vbls <- vec.named(as.logical(y[seq((2 * m + 5)/3, m)]), y[seq(3, 
         (m + 4)/3)])
     vbls[univ] <- F
-    z <- matrix(NA, dim(n$classif)[1], length(vbls), F, list(dimnames(n$classif)[[1]], 
+    z <- matrix(NA, dim(n$classif)[1], length(vbls), F, list(rownames(n$classif), 
         names(vbls)))
     for (i in names(vbls)) {
         if (vbls[i]) 
@@ -7620,12 +7610,12 @@ mk.EigenCentrality <- function (x, y, n)
         z, "HFundId, SecurityId")))
     z <- paste(z, collapse = "\n")
     x <- sql.query.underlying(z, n$conn, F)
-    x <- x[is.element(x[, "SecurityId"], dimnames(n$classif)[[1]]), 
+    x <- x[is.element(x[, "SecurityId"], rownames(n$classif)), 
         ]
     x <- split(x[, "HFundId"], x[, "SecurityId"])
     w <- Reduce(union, x)
     x <- sapply(x, function(x) is.element(w, x))
-    dimnames(x)[[1]] <- w
+    rownames(x) <- w
     x <- crossprod(x)
     w <- diag(x) > 9
     x <- x[w, w]
@@ -7655,7 +7645,7 @@ mk.EigenCentrality <- function (x, y, n)
         y <- y/sqrt(sum(y^2))
     }
     z <- dim(z)[1] * y
-    z <- as.numeric(map.rname(z, dimnames(n[["classif"]])[[1]]))
+    z <- as.numeric(map.rname(z, rownames(n[["classif"]])))
     z
 }
 
@@ -7722,18 +7712,18 @@ mk.Fragility <- function (x, y, n)
     h <- readRDS(paste(y, "FlowPct.r", sep = "\\"))
     h <- t(h[, yyyymm.lag(x, trail:1 - 1)])
     x <- readRDS(paste0(y, "\\HoldingValue-", x, ".r"))
-    h <- h[, mat.count(h)[, 1] == trail & is.element(dimnames(h)[[2]], 
-        dimnames(x)[[2]])]
+    h <- h[, mat.count(h)[, 1] == trail & is.element(colnames(h), 
+        colnames(x))]
     h <- principal.components.covar(h, eigen)
-    x <- x[is.element(dimnames(x)[[1]], dimnames(n$classif)[[1]]), 
-        is.element(dimnames(x)[[2]], dimnames(h)[[1]])]
-    h <- h[is.element(dimnames(h)[[1]], dimnames(x)[[2]]), ]
-    h <- h[, dimnames(h)[[1]]]
+    x <- x[is.element(rownames(x), rownames(n$classif)), is.element(colnames(x), 
+        rownames(h))]
+    h <- h[is.element(rownames(h), colnames(x)), ]
+    h <- h[, rownames(h)]
     h <- tcrossprod(h, x)
     z <- colSums(t(x) * h)
     x <- rowSums(x)^2
     z <- z/nonneg(x)
-    z <- as.numeric(map.rname(z, dimnames(n$classif)[[1]]))
+    z <- as.numeric(map.rname(z, rownames(n$classif)))
     z
 }
 
@@ -7812,7 +7802,7 @@ mk.isin <- function (x, y, n)
     if (length(y) == 1) 
         y <- c(y, "isin")
     z <- read.prcRet(y[1])
-    z <- vec.named(z[, x], dimnames(z)[[1]])
+    z <- vec.named(z[, x], rownames(z))
     z <- map.classif(z, n[["classif"]], y[2])
     z
 }
@@ -7833,8 +7823,8 @@ mk.JensensAlpha.fund <- function (x, y, n)
     fndR <- fetch("1mPrcMo", x, y, paste(n$fldr, "derived", sep = "\\"), 
         n$classif)
     fndR <- as.matrix(fndR)
-    dimnames(fndR)[[2]] <- yyyymm.lag(x, y:1 - 1)
-    catR <- n$CATRETS[, dimnames(fndR)[[2]]]
+    colnames(fndR) <- yyyymm.lag(x, y:1 - 1)
+    catR <- n$CATRETS[, colnames(fndR)]
     w <- as.logical(apply(mat.to.obs(cbind(fndR, catR)), 1, min))
     z <- rep(NA, dim(fndR)[1])
     if (any(w)) {
@@ -7887,7 +7877,7 @@ mk.SatoMem <- function (x, y, n)
     n <- n[["classif"]]
     y <- readLines(y)
     z <- vec.to.list(intersect(c("isin", paste0("isin", 1:5)), 
-        dimnames(n)[[2]]))
+        colnames(n)))
     fcn <- function(i) is.element(n[, i], y)
     z <- sapply(z, fcn)
     z <- as.numeric(apply(z, 1, max))
@@ -8334,14 +8324,14 @@ obj.seq <- function (x, y, n, w, h)
 
 optimal <- function (x, y, n, w) 
 {
-    period.count <- yyyy.periods.count(dimnames(x)[[1]])
+    period.count <- yyyy.periods.count(rownames(x))
     if (w[3] > 0) {
         x <- qtl.eq(x, w[3])
         x <- (1 + w[3] - 2 * x)/(w[3] - 1)
         x <- ifelse(!is.na(x) & abs(x) < 1, 0, x)
     }
     else x <- ptile(x)
-    for (j in dimnames(x)[[1]]) {
+    for (j in rownames(x)) {
         if (period.count == 260) 
             z <- j
         else z <- yyyymmdd.ex.yyyymm(j)
@@ -8353,13 +8343,13 @@ optimal <- function (x, y, n, w)
         else {
             z <- covar(z)/(1 - 1/w[1] + 1/w[1]^2)
         }
-        opt <- solve(z) %*% map.rname(x[j, ], dimnames(z)[[2]])
+        opt <- solve(z) %*% map.rname(x[j, ], colnames(z))
         unity <- solve(z) %*% rep(1, dim(z)[1])
         opt <- opt - unity * as.numeric(crossprod(opt, z) %*% 
             unity)/as.numeric(crossprod(unity, z) %*% unity)
         opt <- opt[, 1]/sqrt(260 * (crossprod(opt, z) %*% opt)[1, 
             1])
-        x[j, ] <- zav(map.rname(opt, dimnames(x)[[2]]))
+        x[j, ] <- zav(map.rname(opt, colnames(x)))
     }
     x <- rowSums(x * zav(y))
     y <- period.count/w[4]
@@ -8545,13 +8535,13 @@ plurality.map <- function (x, y)
 portfolio.beta.wrapper <- function (x, y, n) 
 {
     y <- map.rname(mat.read(parameters.ex.file(dir.parameters("csv"), 
-        "IndexReturns-Daily.csv")), dimnames(x)[[1]])[, y]
+        "IndexReturns-Daily.csv")), rownames(x))[, y]
     x[, "Benchmark"] <- y
     z <- mat.ex.matrix(ret.ex.idx(x, 1, F, T))[-1, ]
     z <- list(x = z, xy = z * z[, "Benchmark"])
     z <- lapply(z, function(x) mat.rollsum(x, n))
     z <- z[["xy"]]/n - z[["x"]] * z[["x"]][, "Benchmark"]/n^2
-    z <- z[, dimnames(z)[[2]] != "Benchmark"]/nonneg(z[, "Benchmark"])
+    z <- z[, colnames(z) != "Benchmark"]/nonneg(z[, "Benchmark"])
     z
 }
 
@@ -8587,17 +8577,17 @@ position.floPct <- function (x, y, n)
 {
     x <- strat.path(x, "daily")
     x <- multi.asset(x)
-    if (all(n != dimnames(x)[[1]])) {
+    if (all(n != rownames(x))) {
         cat("Date", n, "not recognized! No output will be published ...\n")
         z <- NULL
     }
     else {
-        if (dimnames(x)[[1]][dim(x)[1]] != n) {
+        if (rownames(x)[dim(x)[1]] != n) {
             cat("Warning: Latest data not being used! Proceeding regardless ...\n")
-            x <- x[dimnames(x)[[1]] <= n, ]
+            x <- x[rownames(x) <= n, ]
         }
         if (missing(y)) 
-            y <- dimnames(x)[[2]]
+            y <- colnames(x)
         else x <- mat.subset(x, y)
         z <- x[dim(x)[1] - 19:0, ]
         z <- vec.named(mat.compound(t(z)), y)
@@ -8609,7 +8599,7 @@ position.floPct <- function (x, y, n)
         y <- vec.named(qtl.eq(z), names(z))
         y <- mat.ex.vec(y, z)
         z <- 0.01 * data.frame(z, 100 * x, y)
-        dimnames(z)[[2]][1:2] <- c("Current", "RankChg")
+        colnames(z)[1:2] <- c("Current", "RankChg")
     }
     z
 }
@@ -8665,8 +8655,8 @@ principal.components.underlying <- function (x, y)
 {
     x <- scale(x, scale = F)
     z <- svd(x)
-    dimnames(z$u)[[1]] <- dimnames(x)[[1]]
-    dimnames(z$v)[[1]] <- dimnames(x)[[2]]
+    rownames(z$u) <- rownames(x)
+    rownames(z$v) <- colnames(x)
     if (y < 1) 
         y <- scree(z$d)
     if (y == 1) {
@@ -8748,16 +8738,16 @@ production.write <- function (x, y)
         proceed <- dim(w)[2] == dim(x)[[2]]
     }
     if (proceed) 
-        proceed <- all(dimnames(w)[[2]] == dimnames(x)[[2]])
+        proceed <- all(colnames(w) == colnames(x))
     if (proceed) 
         proceed <- dim(x)[1] > dim(w)[1]
     if (proceed) 
-        proceed <- all(is.element(dimnames(w)[[1]], dimnames(x)[[1]]))
+        proceed <- all(is.element(rownames(w), rownames(x)))
     if (proceed) 
-        proceed <- all(colSums(mat.to.obs(x[dimnames(w)[[1]], 
-            ])) == colSums(mat.to.obs(w)))
+        proceed <- all(colSums(mat.to.obs(x[rownames(w), ])) == 
+            colSums(mat.to.obs(w)))
     if (proceed) 
-        proceed <- all(unlist(zav(x[dimnames(w)[[1]], ]) == zav(w)))
+        proceed <- all(unlist(zav(x[rownames(w), ]) == zav(w)))
     if (proceed) {
         mat.write(x, y)
         cat("Writing to", y, "...\n")
@@ -8986,8 +8976,8 @@ qa.flow <- function (x, y, n, w, h, u)
     df <- qa.mat.read(ftpFile, fldr)
     z[, "isFTP"] <- as.numeric(!is.null(df))
     if (z[, "isFTP"][1] == 1) {
-        z[, "goodFile"] <- as.numeric(all(is.element(cols, dimnames(df)[[2]])))
-        if (!n & all(dimnames(df)[[2]] != "ShareId")) 
+        z[, "goodFile"] <- as.numeric(all(is.element(cols, colnames(df))))
+        if (!n & all(colnames(df) != "ShareId")) 
             z[, "goodFile"] <- 0
     }
     else {
@@ -8996,21 +8986,21 @@ qa.flow <- function (x, y, n, w, h, u)
     if (z[, "goodFile"][1] == 1 & !isMacro) 
         df <- df[!is.na(df[, dim(df)[2]]), ]
     if (z[, "goodFile"][1] == 1 & substring(x, 5, 5) == "Q") {
-        z[, "badDts"] <- as.numeric(any(yyyymm.to.qtr(yyyymmdd.to.yyyymm(dimnames(z)[[1]])) != 
+        z[, "badDts"] <- as.numeric(any(yyyymm.to.qtr(yyyymmdd.to.yyyymm(rownames(z))) != 
             x))
     }
     else if (ftp.info(y, n, "frequency", w) == "S") {
-        z[, "badDts"] <- as.numeric(any(dimnames(z)[[1]] != x))
+        z[, "badDts"] <- as.numeric(any(rownames(z) != x))
     }
     else if (z[, "goodFile"][1] == 1) {
-        z[, "badDts"] <- as.numeric(any(yyyymmdd.to.yyyymm(dimnames(z)[[1]]) != 
+        z[, "badDts"] <- as.numeric(any(yyyymmdd.to.yyyymm(rownames(z)) != 
             x))
     }
     else {
         z[, "badDts"] <- 1
     }
     if (z[, "goodFile"][1] == 1) {
-        for (j in dimnames(z)[[1]]) {
+        for (j in rownames(z)) {
             if (n) {
                 vec <- qa.index(df, isMacro, isFactor)
             }
@@ -9034,17 +9024,16 @@ qa.flow <- function (x, y, n, w, h, u)
                 df <- data.frame(txt.parse(names(df), " "), df)
             }
             else {
-                df <- data.frame(txt.parse(dimnames(df)[[1]], 
-                  " "), df)
+                df <- data.frame(txt.parse(rownames(df), " "), 
+                  df)
             }
-            dimnames(df)[[2]] <- cols
-            dimnames(df)[[1]] <- 1:dim(df)[1]
+            dimnames(df) <- list(1:dim(df)[1], cols)
         }
     }
     else {
         z[, "DupFunds"] <- 1
     }
-    for (j in dimnames(z)[[1]][is.element(z[, "goodFile"], 0)]) {
+    for (j in rownames(z)[is.element(z[, "goodFile"], 0)]) {
         z[j, "isSQL"] <- 0
         if (z[j, "goodFile"] == 1) {
             z[j, "FTPxSQL"] <- sum(is.element(df[, "ReportDate"], 
@@ -9064,7 +9053,7 @@ qa.flow <- function (x, y, n, w, h, u)
     else {
         close.connection <- F
     }
-    for (j in dimnames(z)[[1]][is.element(z[, "goodFile"], 1)]) {
+    for (j in rownames(z)[is.element(z[, "goodFile"], 1)]) {
         if (isMacro) {
             v <- ftp.sql.other(y, j, w)
         }
@@ -9080,12 +9069,11 @@ qa.flow <- function (x, y, n, w, h, u)
         if (z[j, "isSQL"] == 1) {
             vec <- qa.index(df, isMacro, isFactor)[df[, "ReportDate"] == 
                 j]
-            dimnames(v)[[1]] <- qa.index(v, isMacro, isFactor)
+            rownames(v) <- qa.index(v, isMacro, isFactor)
             v <- v[, cols]
-            z[j, "SQLxFTP"] <- sum(!is.element(dimnames(v)[[1]], 
-                vec))
-            z[j, "FTPxSQL"] <- sum(!is.element(vec, dimnames(v)[[1]]))
-            z[j, "Common"] <- sum(is.element(vec, dimnames(v)[[1]]))
+            z[j, "SQLxFTP"] <- sum(!is.element(rownames(v), vec))
+            z[j, "FTPxSQL"] <- sum(!is.element(vec, rownames(v)))
+            z[j, "Common"] <- sum(is.element(vec, rownames(v)))
         }
         else {
             if (z[j, "goodFile"] == 1) {
@@ -9102,16 +9090,16 @@ qa.flow <- function (x, y, n, w, h, u)
         if (z[j, "Common"] > 100) {
             vec <- qa.index(df, isMacro, isFactor)
             vec <- is.element(df[, "ReportDate"], j) & is.element(vec, 
-                dimnames(v)[[1]])
+                rownames(v))
             if (isMacro) {
                 v <- v[as.character(df[vec, "FundId"]), cols[-1][-1]]
-                v <- abs(zav(df[vec, dimnames(v)[[2]]]) - zav(v))
+                v <- abs(zav(df[vec, colnames(v)]) - zav(v))
             }
             else if (isFactor) {
                 v <- v[as.character(qa.index(df, isMacro, isFactor)[vec]), 
                   cols[-1][-1]]
                 if (any(y == c("IONM", "IOND", "AllocD"))) {
-                  v <- abs(zav(df[vec, dimnames(v)[[2]]]) - zav(v))
+                  v <- abs(zav(df[vec, colnames(v)]) - zav(v))
                 }
                 else {
                   v <- abs(zav(df[vec, y]) - zav(v))
@@ -9123,9 +9111,9 @@ qa.flow <- function (x, y, n, w, h, u)
                 v <- abs(zav(df[vec, dim(df)[2]]) - zav(v))
             }
             if (any(y == c("M", "W", "D"))) {
-                z[j, paste("sum", dimnames(v)[[2]], sep = "Abs")] <- apply(v, 
+                z[j, paste("sum", colnames(v), sep = "Abs")] <- apply(v, 
                   2, sum)
-                z[j, paste("max", dimnames(v)[[2]], sep = "Abs")] <- apply(v, 
+                z[j, paste("max", colnames(v), sep = "Abs")] <- apply(v, 
                   2, max)
             }
             else if (!isMacro & !isFactor) {
@@ -9168,7 +9156,7 @@ qa.index <- function (x, y, n)
     }
     else if (n) {
         z <- c("HSecurityId", "SecurityId")
-        w <- is.element(z, dimnames(x)[[2]])
+        w <- is.element(z, colnames(x))
         z <- x[, z[w & !duplicated(w)]]
     }
     else {
@@ -9202,7 +9190,7 @@ qa.mat.read <- function (x, y, n, w, h, u, v)
         z <- mat.read(x, "\t", NULL)
         Sys.sleep(1)
         file.kill(x)
-        dimnames(z)[[2]][1] <- "ReportDate"
+        colnames(z)[1] <- "ReportDate"
         z[, "ReportDate"] <- yyyymmdd.ex.txt(z[, "ReportDate"])
     }
     z
@@ -9555,7 +9543,7 @@ record.track <- function (x, y, n)
     z <- mat.read(parameters(paste0("classif-", z)), "\t")
     z <- z[is.element(z[, "day"], c(format(day.to.date(x), "%a"), 
         "All")), ]
-    z$yyyymmdd <- map.rname(record.read(paste0(y, ".txt")), dimnames(z)[[1]])
+    z$yyyymmdd <- map.rname(record.read(paste0(y, ".txt")), rownames(z))
     z$today <- z$target <- rep(NA, dim(z)[1])
     w <- z[, "entry"] == "date" & z[, "freq"] == "D"
     z[w, "target"] <- x
@@ -9655,13 +9643,13 @@ refresh.predictors.append <- function (x, y, n = F, w = F)
         y <- mat.index(y)
     if (dim(y)[2] != dim(x)[2]) 
         stop("Problem 3")
-    if (any(!is.element(dimnames(y)[[2]], dimnames(x)[[2]]))) 
+    if (any(!is.element(colnames(y), colnames(x)))) 
         stop("Problem 4")
-    z <- y[, dimnames(x)[[2]]]
-    w <- is.element(dimnames(z)[[1]], dimnames(x)[[1]])
+    z <- y[, colnames(x)]
+    w <- is.element(rownames(z), rownames(x))
     if (sum(w) != 1) 
         stop("Problem 5")
-    m <- data.frame(unlist(z[w, ]), unlist(x[dimnames(z)[[1]][w], 
+    m <- data.frame(unlist(z[w, ]), unlist(x[rownames(z)[w], 
         ]), stringsAsFactors = F)
     m <- correl(m[, 1], m[, 2])
     m <- zav(m)
@@ -9669,8 +9657,8 @@ refresh.predictors.append <- function (x, y, n = F, w = F)
         stop("Problem: Correlation between new and old data is", 
             round(100 * m), "!")
     z <- rbind(x, z[!w, ])
-    z <- z[order(dimnames(z)[[1]]), ]
-    last.date <- dimnames(z)[[1]][dim(z)[1]]
+    z <- z[order(rownames(z)), ]
+    last.date <- rownames(z)[dim(z)[1]]
     cat("Final data have", dim(z)[1], "rows ending at", last.date, 
         "...\n")
     z
@@ -10063,7 +10051,7 @@ rrw <- function (x, y, n, w, h, u, v, g = NULL, r)
         else cat(txt.right(i, 2), "")
         x <- rrw.underlying(i, n, w, h, u, v, g, r)
         x <- mat.subset(x, c("ret", n))
-        dimnames(x)[[1]] <- paste(i, dimnames(x)[[1]])
+        rownames(x) <- paste(i, rownames(x))
         if (is.null(z)) 
             z <- x
         else z <- rbind(z, x)
@@ -10084,15 +10072,13 @@ rrw <- function (x, y, n, w, h, u, v, g = NULL, r)
 
 rrw.factors <- function (x) 
 {
-    y <- dimnames(x)[[2]]
+    y <- colnames(x)
     names(y) <- fcn.vec.num(col.ex.int, 1:dim(x)[2])
-    dimnames(x)[[2]] <- names(y)
-    z <- summary(lm(txt.regr(dimnames(x)[[2]]), x))$coeff[-1, 
-        "t value"]
+    colnames(x) <- names(y)
+    z <- summary(lm(txt.regr(colnames(x)), x))$coeff[-1, "t value"]
     while (any(z < 0) & any(z > 0)) {
-        x <- x[, !is.element(dimnames(x)[[2]], names(z)[order(z)][1])]
-        z <- summary(lm(txt.regr(dimnames(x)[[2]]), x))$coeff[, 
-            "t value"][-1]
+        x <- x[, !is.element(colnames(x), names(z)[order(z)][1])]
+        z <- summary(lm(txt.regr(colnames(x)), x))$coeff[, "t value"][-1]
     }
     names(z) <- map.rname(y, names(z))
     z
@@ -10246,7 +10232,7 @@ sf <- function (fcn, x, y, n, w, h, u, v, g = 5, r = F, s = 1, b)
             cat("\n")
         r <- sf.single.bsim(fcn, x, y, n, w, h, v, u[j], T, g, 
             s, b)$returns
-        r <- t(map.rname(t(r), c(dimnames(r)[[2]], "TxB")))
+        r <- t(map.rname(t(r), c(colnames(r), "TxB")))
         r[, "TxB"] <- r[, "Q1"] - r[, paste0("Q", g)]
         r <- mat.ex.matrix(r)
         z[[as.character(u[j])]] <- summ.multi(fcn.loc, r, s)
@@ -10303,8 +10289,7 @@ sf.detail <- function (fcn, x, y, n, w, h, u, v, g = 5, r, s = NULL)
             g)]
     z <- bbk.bin.rets.summ(x$returns, 12)
     z.ann <- t(bbk.bin.rets.prd.summ(bbk.bin.rets.summ, x$returns, 
-        txt.left(dimnames(x$returns)[[1]], 4), 12)["AnnMn", , 
-        ])
+        txt.left(rownames(x$returns), 4), 12)["AnnMn", , ])
     z <- list(summ = z, annSumm = z.ann, counts = x$counts)
     z
 }
@@ -10417,7 +10402,7 @@ sf.underlying.data <- function (fcn, x, y, n, w, h, u, v, g, r, s)
         bin <- s <- vec.max(zav(s) * bin, bin)
     }
     bin <- sf.underlying.data.bin(vbl, u, bin, h)
-    z <- data.frame(bin, ret, mem, h, row.names = dimnames(r)[[1]], 
+    z <- data.frame(bin, ret, mem, h, row.names = rownames(r), 
         stringsAsFactors = F)
     if (!is.null(s)) 
         z$wgt <- s
@@ -10474,7 +10459,7 @@ sf.underlying.data.bin <- function (x, y, n, w)
 
 sf.underlying.summ <- function (x, y) 
 {
-    if (all(dimnames(x)[[2]] != "wgt")) 
+    if (all(colnames(x) != "wgt")) 
         x$wgt <- x$mem
     u <- is.element(x$mem, 1) & !is.na(x$ret) & !is.na(x$wgt) & 
         x$wgt > 0
@@ -10536,10 +10521,9 @@ sfpd.ActWtTrend <- function (x, y, n, w, h)
         "GeographicFocus")], FUN = sum)
     x[, "FundWtdExcl0"] <- 100 * x[, "HoldingValue"]/nonneg(x[, 
         "PortVal"])
-    x <- x[, !is.element(dimnames(x)[[2]], c("HoldingValue", 
-        "PortVal"))]
+    x <- x[, !is.element(colnames(x), c("HoldingValue", "PortVal"))]
     y <- merge(y, x)
-    y <- y[, !is.element(dimnames(y)[[2]], "GeographicFocus")]
+    y <- y[, !is.element(colnames(y), "GeographicFocus")]
     y <- sfpd.Wt(y)
     y[, "Wt"] <- y[, "Wt"] - y[, "FundWtdExcl0"]
     y <- y[!is.na(y[, "Wt"]), ]
@@ -10600,8 +10584,7 @@ sfpd.FloDollar <- function (x, y, n, w)
     y[, "ReportDate"] <- yyyymmdd.to.txt(w)
     z <- y[, c("ReportDate", "GeographicFocus", "HSecurityId", 
         "Flow")]
-    dimnames(z)[[2]] <- c("ReportDate", "GeoId", "HSecurityId", 
-        "CalculatedStockFlow")
+    colnames(z) <- c("ReportDate", "GeoId", "HSecurityId", "CalculatedStockFlow")
     z
 }
 
@@ -10675,7 +10658,7 @@ sfpd.FloTrend <- function (x, y, n, w, h, u, v)
     y <- y[is.element(y[, "FundId"], u[, "FundId"]), ]
     u <- u[is.element(u[, "FundId"], y[, "FundId"]), ]
     u <- u[, c("FundId", "SecurityId", "Wt")]
-    dimnames(u)[[2]] <- c("FundId", "SecurityId", "OldWt")
+    colnames(u) <- c("FundId", "SecurityId", "OldWt")
     y <- merge(y, u, all = T)
     y[, "Wt"] <- zav(y[, "Wt"])
     y[, "OldWt"] <- zav(y[, "OldWt"])
@@ -10792,8 +10775,7 @@ sfpd.ION <- function (x, y, n, w)
 sfpd.Wt <- function (x) 
 {
     x[, "Wt"] <- 100 * x[, "HoldingValue"]/nonneg(x[, "PortVal"])
-    z <- x[, !is.element(dimnames(x)[[2]], c("HoldingValue", 
-        "PortVal"))]
+    z <- x[, !is.element(colnames(x), c("HoldingValue", "PortVal"))]
     z
 }
 
@@ -10888,7 +10870,7 @@ sim.direction.sell <- function (x, y)
 sim.fetch <- function (x, y, n, w, h = NULL) 
 {
     z <- w$classif[, c("GSec", "CountryCode")]
-    dimnames(z)[[2]] <- c("Sec", "Ctry")
+    colnames(z) <- c("Sec", "Ctry")
     z$Alp <- fetch(y, yyyymm.lag(x), 1, paste(w$fldr, "derived", 
         sep = "\\"), w$classif)
     z$Bmk <- fetch(paste0(n, "Wt"), yyyymm.lag(x), 1, paste(w$fldr, 
@@ -11081,13 +11063,13 @@ sim.summ <- function (x, y)
 
 sim.trade.grp <- function (x, y, n) 
 {
-    z <- matrix(n, dim(x)[1], length(n), T, list(dimnames(x)[[1]], 
+    z <- matrix(n, dim(x)[1], length(n), T, list(rownames(x), 
         paste0(names(n), "Wt")))
     if (y) {
-        z <- z - x[, dimnames(z)[[2]]]
+        z <- z - x[, colnames(z)]
     }
     else {
-        z <- z + x[, dimnames(z)[[2]]]
+        z <- z + x[, colnames(z)]
     }
     z <- vec.max(apply(z, 1, min), 0)
     z
@@ -11472,12 +11454,12 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
     }
     else if (x == "LatAm") {
         z <- mat.read(parameters("classif-Ctry"))
-        z <- dimnames(z)[[1]][is.element(z$EpfrRgn, "Latin America")]
+        z <- rownames(z)[is.element(z$EpfrRgn, "Latin America")]
         classif.type <- "Ctry"
     }
     else if (x == "CountryFlow") {
         z <- mat.read(parameters("classif-Ctry"))
-        z <- dimnames(z)[[1]][!is.na(z$CountryId)]
+        z <- rownames(z)[!is.na(z$CountryId)]
         classif.type <- "Ctry"
     }
     else if (x == "EMDM") {
@@ -11490,12 +11472,12 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
         classif.type <- "Ctry"
     }
     else if (x == "Sector") {
-        z <- dimnames(mat.read(parameters("classif-GSec"), "\t"))[[1]]
+        z <- rownames(mat.read(parameters("classif-GSec"), "\t"))
         classif.type <- "GSec"
         sep <- "\t"
     }
     else if (x == "Industry") {
-        z <- dimnames(mat.read(parameters("classif-GIgrp"), "\t"))[[1]]
+        z <- rownames(mat.read(parameters("classif-GIgrp"), "\t"))
         classif.type <- "GIgrp"
         sep <- "\t"
     }
@@ -11869,7 +11851,7 @@ sql.1dFloTrend.Alloc.data <- function (x, y, n)
     z <- sql.query(x, n, F)
     z <- reshape.wide(z)
     z <- map.rname(t(z), names(y))
-    dimnames(z)[[1]] <- y
+    rownames(z) <- y
     z
 }
 
@@ -13086,8 +13068,8 @@ sql.1wFlow.Corp <- function (x)
 {
     h <- mat.read(parameters("classif-StyleSector"))
     h <- map.rname(h, c(136, 133, 140, 135, 132, 139, 142, 125))
-    h$Domicile <- ifelse(dimnames(h)[[1]] == 125, "US", NA)
-    z <- vec.named(paste("StyleSector", dimnames(h)[[1]], sep = " = "), 
+    h$Domicile <- ifelse(rownames(h) == 125, "US", NA)
+    z <- vec.named(paste("StyleSector", rownames(h), sep = " = "), 
         h[, "Abbrv"])
     z[!is.na(h$Domicile)] <- paste(z[!is.na(h$Domicile)], "Domicile = 'US'", 
         sep = " and ")
@@ -13096,7 +13078,7 @@ sql.1wFlow.Corp <- function (x)
     z <- paste0("[", names(z), "] = sum(case when ", z, " then Flow else NULL end)")
     z <- c(sql.yyyymmdd("WeekEnding"), z)
     y <- list(A = "FundType = 'B'", B = "GeographicFocus = 77")
-    y[["C"]] <- sql.in("StyleSector", paste0("(", paste(dimnames(h)[[1]], 
+    y[["C"]] <- sql.in("StyleSector", paste0("(", paste(rownames(h), 
         collapse = ", "), ")"))
     y[["D"]] <- paste0("WeekEnding >= '", x, "'")
     z <- sql.tbl(z, c("WeeklyData t1", "inner join", "FundHistory t2 on t2.HFundId = t1.HFundId"), 
@@ -13372,7 +13354,7 @@ sql.bcp <- function (x, y, n = "Quant", w = "EPFRUI", h = "dbo")
     h <- paste(w, h, x, sep = ".")
     x <- parameters("SQL")
     x <- mat.read(x, "\t")
-    z <- is.element(dimnames(x)[[1]], n)
+    z <- is.element(rownames(x), n)
     if (sum(z) != 1) 
         stop("Bad type", n)
     if (sum(z) == 1) {
@@ -13536,7 +13518,7 @@ sql.close <- function (x)
 sql.connect <- function (x) 
 {
     y <- mat.read(parameters("SQL"), "\t")
-    if (all(dimnames(y)[[1]] != x)) 
+    if (all(rownames(y) != x)) 
         stop("Bad SQL connection!")
     z <- t(y)[c("PWD", "UID", "DSN"), x]
     z["Connection Timeout"] <- "0"
@@ -13581,7 +13563,7 @@ sql.cross.border <- function (x)
     if (x) 
         x <- "GeographicFocusId"
     else x <- "GeographicFocus"
-    z <- paste(x, "=", paste(dimnames(y)[[1]], y[, "Name"], sep = "--"))
+    z <- paste(x, "=", paste(rownames(y), y[, "Name"], sep = "--"))
     z <- split(z, y[, "Abbrv"])
     z
 }
@@ -13860,7 +13842,7 @@ sql.extra.domicile <- function (x, y, n)
     z <- lapply(z, unlist)
     z <- array.ex.list(z, F, T)
     z <- vec.named(paste0("not (", z[, 1], " and ", z[, 2], ")"), 
-        dimnames(z)[[1]])
+        rownames(z))
     z <- split(z, names(z))
     z
 }
@@ -13972,7 +13954,7 @@ sql.Foreign <- function ()
     x[, "GeoId"] <- paste("GeographicFocus is not NULL and", 
         x[, "GeoId"])
     z <- split(paste0("not (", x[, "DomicileId"], " and ", x[, 
-        "GeoId"], ")"), dimnames(x)[[1]])
+        "GeoId"], ")"), rownames(x))
     z
 }
 
@@ -14349,7 +14331,7 @@ sql.label <- function (x, y)
 sql.map.classif <- function (x, y, n) 
 {
     z <- sql.query.underlying(x, y, F)
-    z <- map.rname(mat.index(z, "SecurityId"), dimnames(n)[[1]])
+    z <- map.rname(mat.index(z, "SecurityId"), rownames(n))
     if (is.null(dim(z))) 
         z <- as.numeric(z)
     z
@@ -15485,12 +15467,12 @@ stratrets <- function (x)
     z <- vec.to.list(y[, "strat"], T)
     z <- lapply(z, function(y) stratrets.bbk(y, x))
     z <- array.ex.list(z, T, T)
-    z <- z[order(dimnames(z)[[1]]), y[, "strat"]]
-    if (nchar(dimnames(z)[[1]][1]) == 6) {
-        dimnames(z)[[1]] <- yyyymm.lag(dimnames(z)[[1]], -1)
+    z <- z[order(rownames(z)), y[, "strat"]]
+    if (nchar(rownames(z)[1]) == 6) {
+        rownames(z) <- yyyymm.lag(rownames(z), -1)
     }
     else {
-        dimnames(z)[[1]] <- day.lag(dimnames(z)[[1]], -7)
+        rownames(z) <- day.lag(rownames(z), -7)
     }
     z <- mat.ex.matrix(z)
     x <- min(sapply(z, function(x) find.data(!is.na(x), T)))
@@ -15513,10 +15495,10 @@ stratrets.bbk <- function (x, y)
 {
     cat("\t", x, y, "..\n")
     x <- stratrets.data(x, y)
-    x[["retW"]] <- ifelse(nchar(dimnames(x[["x"]])[[1]][1]) == 
-        8, 5, 1)
+    x[["retW"]] <- ifelse(nchar(rownames(x[["x"]])[1]) == 8, 
+        5, 1)
     z <- do.call(bbk, x)[["rets"]]
-    z <- z[order(dimnames(z)[[1]]), ]
+    z <- z[order(rownames(z)), ]
     z <- as.matrix(z)[, "TxB"]
     z
 }
@@ -15535,7 +15517,7 @@ stratrets.bbk <- function (x, y)
 stratrets.beta <- function (x, y, n, w) 
 {
     portfolio.residual(x, map.rname(portfolio.beta.wrapper(y, 
-        n, w), dimnames(x)[[1]]))
+        n, w), rownames(x)))
 }
 
 #' stratrets.data
@@ -15550,7 +15532,7 @@ stratrets.beta <- function (x, y, n, w)
 stratrets.data <- function (x, y) 
 {
     h <- mat.read(parameters("classif-strat"), "\t", NULL)
-    h <- mat.index(h[is.element(h[, "vbl"], y), dimnames(h)[[2]] != 
+    h <- mat.index(h[is.element(h[, "vbl"], y), colnames(h) != 
         "vbl"], "strat")
     if (is.na(h[x, "path"])) {
         z <- mat.read(parameters("classif-strat-multi"), "\t", 
@@ -15563,15 +15545,15 @@ stratrets.data <- function (x, y)
         0, h[x, "sec"] == 1, h[x, "delay"])
     if (!is.na(h[x, "sub"])) 
         z <- stratrets.subset(z, h[x, "sub"])
-    z <- list(x = z, y = stratrets.returns(h[x, "rets"])[, dimnames(z)[[2]]])
-    if (nchar(dimnames(z[["x"]])[[1]][1]) == 6) 
+    z <- list(x = z, y = stratrets.returns(h[x, "rets"])[, colnames(z)])
+    if (nchar(rownames(z[["x"]])[1]) == 6) 
         z[["y"]] <- mat.daily.to.monthly(z[["y"]], T)
     if (!is.na(h[x, "beta"])) 
         z[["x"]] <- stratrets.beta(z[["x"]], z[["y"]], h[x, "beta"], 
             h[x, "lkbk"])
-    h <- h[, !is.element(dimnames(h)[[2]], c("path", "lkbk", 
-        "comp", "beta", "sec", "sub", "rets"))]
-    for (j in dimnames(h)[[2]]) if (!is.na(h[x, j])) 
+    h <- h[, !is.element(colnames(h), c("path", "lkbk", "comp", 
+        "beta", "sec", "sub", "rets"))]
+    for (j in colnames(h)) if (!is.na(h[x, j])) 
         z[[j]] <- h[x, j]
     z
 }
@@ -15592,9 +15574,9 @@ stratrets.indicator <- function (x, y, n, w, h)
 {
     z <- compound.flows(multi.asset(x), y, n)
     if (w) {
-        w <- dimnames(z)[[1]] >= yyyymmdd.lag("20160831", h)
+        w <- rownames(z) >= yyyymmdd.lag("20160831", h)
         z[w, "Fins"] <- z[w, "FinsExREst"]
-        z <- z[, dimnames(z)[[2]] != "FinsExREst"]
+        z <- z[, colnames(z) != "FinsExREst"]
     }
     z
 }
@@ -15680,15 +15662,15 @@ stratrets.returns <- function (x)
         z <- mat.read(z)
         z <- z[, c("CHINA A", "CHINA B", "CHINA H", "CHINA RED CHIP", 
             "CHINA P CHIP", "OVERSEAS CHINA (US)", "OVERSEAS CHINA (SG)")]
-        dimnames(z)[[2]] <- c("A Share", "B Share", "H Share", 
-            "Red Chip", "P Chip", "ADR", "S Chip")
+        colnames(z) <- c("A Share", "B Share", "H Share", "Red Chip", 
+            "P Chip", "ADR", "S Chip")
     }
     else if (x == "Commodity") {
         z <- paste0(fcn.dir(), "\\New Model Concept\\Commodity\\FloMo\\csv")
         z <- parameters.ex.file(z, "S&P GSCI ER.csv")
         z <- mat.read(z)[, c("SPGSENP", "SPGSGCP", "SPGSSIP", 
             "SPGSAGP")]
-        dimnames(z)[[2]] <- c("Energy", "Gold", "Silver", "AG")
+        colnames(z) <- c("Energy", "Gold", "Silver", "AG")
     }
     else if (x == "FX") {
         z <- paste0(fcn.dir(), "\\New Model Concept\\FX\\FloMo\\csv")
@@ -15704,11 +15686,11 @@ stratrets.returns <- function (x)
         x <- parameters.ex.file(x, c("OfclMsciTotRetIdx.csv", 
             "pseudoReturns.csv"))
         z <- mat.read(x[1])[, c("JP", "GB", "US")]
-        dimnames(z)[[2]] <- c("Japan", "UK", "USA")
-        x <- ret.to.idx(map.rname(mat.read(x[2]), dimnames(z)[[1]]))
+        colnames(z) <- c("Japan", "UK", "USA")
+        x <- ret.to.idx(map.rname(mat.read(x[2]), rownames(z)))
         z <- data.frame(z, x, stringsAsFactors = F)
         x <- parameters.ex.file(dir.parameters("csv"), "IndexReturns-Daily.csv")
-        x <- map.rname(mat.read(x), dimnames(z)[[1]])
+        x <- map.rname(mat.read(x), rownames(z))
         z <- data.frame(z, x[, c("LatAm", "EurXGB", "PacXJP", 
             "AsiaXJP")], stringsAsFactors = F)
         x <- max(sapply(z, function(x) find.data(!is.na(x), T)))
@@ -15719,11 +15701,11 @@ stratrets.returns <- function (x)
     else {
         x <- txt.right(x, nchar(x) - nchar("Sector"))
         y <- mat.read(parameters("classif-GSec"), "\t")
-        if (any(dimnames(y)[[2]] == x)) {
+        if (any(colnames(y) == x)) {
             z <- paste0(fcn.dir(), "\\New Model Concept\\Sector\\FloMo\\csv")
             z <- parameters.ex.file(z, "OfclMsciTotRetIdx.csv")
             z <- mat.subset(mat.read(z), y[, x])
-            dimnames(z)[[2]] <- dimnames(y)[[1]]
+            colnames(z) <- rownames(y)
         }
         else {
             z <- paste0(fcn.dir(), "\\New Model Concept\\Sector", 
@@ -15756,7 +15738,7 @@ stratrets.subset <- function (x, y)
     else {
         z <- stratrets.subset.Ctry(x, y)
     }
-    z <- x[, is.element(dimnames(x)[[2]], z)]
+    z <- x[, is.element(colnames(x), z)]
     z
 }
 
@@ -15774,11 +15756,11 @@ stratrets.subset.Ctry <- function (x, y)
     z <- NULL
     w <- c("ACWI", "EAFE", "EM", "Frontier")
     if (is.element(y, w)) {
-        z <- dimnames(x)[[1]][c(1, dim(x)[1])]
+        z <- rownames(x)[c(1, dim(x)[1])]
         z <- Ctry.msci.members.rng(y, z[1], z[2])
     }
     else {
-        w <- dimnames(mat.read(parameters("MsciCtry2016"), ","))[[2]]
+        w <- colnames(mat.read(parameters("MsciCtry2016"), ","))
     }
     if (length(z) == 0 & is.element(y, w)) 
         z <- Ctry.msci.members(y, "")
@@ -17159,9 +17141,9 @@ yyyymm.to.yyyy <- function (x)
 
 yyyymmdd.bulk <- function (x) 
 {
-    z <- dimnames(x)[[1]]
+    z <- rownames(x)
     z <- yyyymm.seq(z[1], z[dim(x)[1]])
-    w <- !is.element(z, dimnames(x)[[1]])
+    w <- !is.element(z, rownames(x))
     if (any(w)) 
         err.raise(z[w], F, "Following weekdays missing from data")
     z <- map.rname(x, z)
@@ -17192,16 +17174,16 @@ yyyymmdd.diff <- function (x, y)
 
 yyyymmdd.ex.AllocMo <- function (x) 
 {
-    y <- dimnames(x)[[1]]
+    y <- rownames(x)
     y <- y[order(y)]
     begPrd <- yyyymmdd.ex.yyyymm(y[1], F)[1]
     endPrd <- yyyymmdd.ex.yyyymm(yyyymm.lag(y[dim(x)[1]], -2), 
         T)
     y <- yyyymmdd.seq(begPrd, endPrd)
     y <- vec.named(yyyymmdd.to.AllocMo(y), y)
-    y <- y[is.element(y, dimnames(x)[[1]])]
+    y <- y[is.element(y, rownames(x))]
     z <- map.rname(x, y)
-    dimnames(z)[[1]] <- names(y)
+    rownames(z) <- names(y)
     z
 }
 
