@@ -339,11 +339,7 @@ array.unlist <- function (x, y)
 
 ascending <- function (x) 
 {
-    if (any(is.na(x))) 
-        stop("Problem")
-    z <- x[order(x)]
-    z <- all(z == x)
-    z
+    all(!is.na(x) & x == x[order(x)])
 }
 
 #' avail
@@ -865,7 +861,7 @@ bear <- function (x)
 
 best.linear.strategy.blend <- function (x, y) 
 {
-    x <- list(x = x, y = y)
+    x <- as.list(environment())
     w <- Reduce("&", lapply(x, function(x) !is.na(x)))
     x <- lapply(x, function(x) x[w])
     avg <- sapply(x, mean)
@@ -8184,8 +8180,7 @@ mk.Wt <- function (x, y, n)
 
 multi.asset <- function (x) 
 {
-    x <- vec.to.list(x)
-    x <- lapply(x, mat.read)
+    x <- lapply(vec.to.list(x), mat.read)
     z <- Reduce(function(x, y) mat.index(merge(x, y, by = 0)), 
         x)
     z
