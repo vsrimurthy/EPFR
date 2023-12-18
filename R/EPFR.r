@@ -2608,7 +2608,7 @@ fcn.all.roxygenize <- function (x)
         n))
     y <- setdiff(fcn.list(), y)
     for (w in y) z <- c(z, "", fcn.roxygenize(w, , n))
-    cat(z, file = x, sep = "\n")
+    writeLines(z, x)
     invisible()
 }
 
@@ -2754,7 +2754,7 @@ fcn.clean <- function ()
         }
         i <- i + 1
     }
-    cat(z, file = fcn.path(), sep = "\n")
+    writeLines(z, fcn.path())
     invisible()
 }
 
@@ -3229,7 +3229,7 @@ fcn.lite <- function ()
     x <- sapply(x, fcn)
     y <- fcn.path()
     y <- paste0(txt.left(y, nchar(y) - nchar(".r")), "-lite.r")
-    cat(x, file = y, sep = "\n")
+    writeLines(x, y)
     invisible()
 }
 
@@ -3411,7 +3411,7 @@ fcn.order <- function ()
     x <- vec.to.list(fcn.list(), T)
     fcn <- function(x) paste(x, "<-", fcn.to.txt(x, T, F))
     x <- sapply(x, fcn)
-    cat(x, file = fcn.path(), sep = "\n")
+    writeLines(x, fcn.path())
     invisible()
 }
 
@@ -3736,14 +3736,13 @@ file.break <- function (x)
     z <- scan(file = x, what = "", skip = (i - 1) * n, sep = "\n", 
         quiet = T, nlines = n)
     while (length(z) == n) {
-        cat(z, file = paste0(y[1], "-", txt.right(10^m + i, m), 
-            y[2]), sep = "\n")
+        writeLines(z, paste0(y[1], "-", txt.right(10^m + i, m), 
+            y[2]))
         i <- i + 1
         z <- scan(file = x, what = "", skip = (i - 1) * n, sep = "\n", 
             quiet = T, nlines = n)
     }
-    cat(z, file = paste0(y[1], "-", txt.right(10^m + i, m), y[2]), 
-        sep = "\n")
+    writeLines(z, paste0(y[1], "-", txt.right(10^m + i, m), y[2]))
     invisible()
 }
 
