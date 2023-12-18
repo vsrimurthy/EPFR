@@ -4,15 +4,13 @@
 \alias{array.bind}
 \title{array.bind}
 \usage{
-array.bind(x, y)
+array.bind(...)
 }
 \arguments{
-\item{x}{= an array}
-
-\item{y}{= an array}
+\item{...}{= arrays}
 }
 \description{
-binds together <x> and <y> along the dimension they differ on
+binds together along the dimension they differ on
 }
 \seealso{
 Other array: \code{\link{array.ex.list}},

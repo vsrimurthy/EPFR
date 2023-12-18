@@ -259,18 +259,17 @@ angle <- function (x, y, n)
 
 #' array.bind
 #' 
-#' binds together <x> and <y> along the dimension they differ on
-#' @param x = an array
-#' @param y = an array
+#' binds together along the dimension they differ on
+#' @param ... = arrays
 #' @keywords array.bind
 #' @export
 #' @family array
 
-array.bind <- function (x, y) 
+array.bind <- function (...) 
 {
-    x <- array.unlist(x)
-    y <- array.unlist(y)
-    x <- rbind(x, y)
+    x <- list(...)
+    x <- lapply(x, array.unlist)
+    x <- Reduce(rbind, x)
     x <- mat.sort(x, dim(x)[2]:2 - 1, rep(F, dim(x)[2] - 1))
     z <- lapply(x[, -dim(x)[2]], unique)
     z <- array(x[, dim(x)[2]], sapply(z, length), z)
@@ -2663,18 +2662,16 @@ fcn.canonical <- function (x)
 {
     y <- fcn.to.comments(x)
     z <- fcn.comments.parse(y)
-    if (z$canonical) {
+    if (z$canonical) 
         if (z$name != x) {
             cat(x, "has a problem with NAME!\n")
             z$canonical <- F
         }
-    }
-    if (z$canonical) {
+    if (z$canonical) 
         if (!ascending(fcn.dates.parse(z$date))) {
             cat(x, "has a problem with DATE!\n")
             z$canonical <- F
         }
-    }
     if (z$canonical) {
         actual.args <- fcn.args.actual(x)
         if (length(z$args) != length(actual.args)) {
@@ -2682,27 +2679,25 @@ fcn.canonical <- function (x)
             z$canonical <- F
         }
     }
-    if (z$canonical) {
+    if (z$canonical) 
         if (any(z$args != actual.args)) {
             cat(x, "has a problem with COMMENTED ARGUMENTS NOT MATCHING ACTUAL!\n")
             z$canonical <- F
         }
-    }
     canon <- c("fcn", "x", "y", "n", "w", "h", "u", "v", "g", 
         "r", "s")
-    if (z$canonical) {
+    if (z$canonical) 
         if (length(z$args) < length(canon)) {
             n <- length(z$args)
-            if (any(z$args != canon[1:n]) & any(z$args != canon[1:n + 
-                1])) {
+            z$canonical <- all(z$args == canon[1:n]) | all(z$args == 
+                canon[1:n + 1])
+            if (!z$canonical & n == 1) 
+                z$canonical <- z$args == "..."
+            if (!z$canonical) 
                 cat(x, "has NON-CANONICAL ARGUMENTS!\n")
-                z$canonical <- F
-            }
         }
-    }
-    if (z$canonical) {
+    if (z$canonical) 
         z <- fcn.indent.proper(x)
-    }
     else z <- F
     z
 }
@@ -8441,27 +8436,6 @@ permutations.next <- function (x)
         }
     }
     z
-}
-
-#' phone.list
-#' 
-#' Cat's phone list to the screen
-#' @param x = number of desired columns
-#' @keywords phone.list
-#' @export
-
-phone.list <- function (x = 4) 
-{
-    y <- parameters("PhoneList")
-    y <- mat.read(y, "\t", NULL, F)
-    y <- paste(y[, 1], y[, 2], sep = "\t")
-    vec <- seq(0, length(y) - 1)
-    z <- split(y, vec%%x)
-    z[["sep"]] <- "\t\t"
-    z <- do.call(paste, z)
-    z <- paste(z, collapse = "\n")
-    cat(z, "\n")
-    invisible()
 }
 
 #' pivot
