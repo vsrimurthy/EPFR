@@ -15866,27 +15866,7 @@ txt.anagram.underlying <- function (x, y, n)
 
 txt.core <- function (x) 
 {
-    x <- toupper(x)
-    m <- nchar(x)
-    n <- max(m)
-    while (n > 0) {
-        w <- m >= n
-        w[w] <- !is.element(substring(x[w], n, n), c(" ", LETTERS, 
-            0:9))
-        h <- w & m == n
-        if (any(h)) {
-            x[h] <- txt.left(x[h], n - 1)
-            m[h] <- m[h] - 1
-        }
-        h <- w & m > n
-        if (any(h)) 
-            x[h] <- paste(txt.left(x[h], n - 1), substring(x[h], 
-                n + 1, m[h]))
-        n <- n - 1
-    }
-    x <- txt.trim(x)
-    z <- txt.itrim(x)
-    z
+    txt.trim(txt.itrim(gsub("[^0-9A-Z]", " ", toupper(x))))
 }
 
 #' txt.count
@@ -16349,10 +16329,10 @@ txt.regr <- function (x, y = T)
 
 #' txt.replace
 #' 
-#' replaces all instances of <txt.out> by <txt.by>
+#' replaces all instances of <y> with <n>
 #' @param x = a vector of strings
 #' @param y = a string to be swapped out
-#' @param n = a string to replace <txt.out> with
+#' @param n = a string to replace <y> with
 #' @keywords txt.replace
 #' @export
 #' @family txt
@@ -17128,17 +17108,19 @@ yyyymmdd.ex.int <- function (x)
 
 yyyymmdd.ex.txt <- function (x, y = "/", n = "MDY") 
 {
-    m <- as.numeric(regexpr(" ", x, fixed = T))
-    m <- ifelse(m == -1, 1 + nchar(x), m)
-    x <- substring(x, 1, m - 1)
-    z <- list()
-    z[[txt.left(n, 1)]] <- substring(x, 1, as.numeric(regexpr(y, 
-        x, fixed = T)) - 1)
-    x <- substring(x, 2 + nchar(z[[1]]), nchar(x))
-    z[[substring(n, 2, 2)]] <- substring(x, 1, as.numeric(regexpr(y, 
-        x, fixed = T)) - 1)
-    z[[substring(n, 3, 3)]] <- substring(x, 2 + nchar(z[[2]]), 
-        nchar(x))
+    w <- length(x) == 1
+    if (w) 
+        x <- txt.parse(x, " ")[1]
+    else x <- txt.parse(x, " ")[, 1]
+    n <- txt.to.char(n)
+    x <- txt.parse(x, y)
+    if (w) 
+        names(x) <- n
+    else colnames(x) <- n
+    if (w) 
+        x <- split(x, names(x))
+    else x <- mat.ex.matrix(x)
+    z <- lapply(x, as.numeric)
     x <- yyyy.ex.yy(z[["Y"]])
     z <- 10000 * x + 100 * as.numeric(z[["M"]]) + as.numeric(z[["D"]])
     z <- as.character(z)

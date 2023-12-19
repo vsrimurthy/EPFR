@@ -11,10 +11,10 @@ txt.replace(x, y, n)
 
 \item{y}{= a string to be swapped out}
 
-\item{n}{= a string to replace <txt.out> with}
+\item{n}{= a string to replace <y> with}
 }
 \description{
-replaces all instances of <txt.out> by <txt.by>
+replaces all instances of <y> with <n>
 }
 \seealso{
 Other txt: \code{\link{txt.anagram.underlying}},
