@@ -4854,12 +4854,10 @@ GSec.to.GSgrp <- function (x)
 html.and <- function (x) 
 {
     n <- length(x)
-    w <- rep("", n)
-    if (n > 1) 
-        w[n - 1] <- " and"
-    if (n > 2) 
-        w[3:n - 2] <- ","
-    z <- paste(paste0(x, w), collapse = " ")
+    if (n > 1) {
+        z <- paste(paste(x[-n], collapse = ", "), x[n], sep = " and ")
+    }
+    else z <- x
     z
 }
 
@@ -5421,20 +5419,7 @@ html.tenure <- function (x, y, n)
 
 int.format <- function (x) 
 {
-    z <- as.character(x)
-    y <- ifelse(txt.left(z, 1) == "-", "-", "")
-    z <- ifelse(txt.left(z, 1) == "-", txt.right(z, nchar(z) - 
-        1), z)
-    n <- 3
-    w <- nchar(z)
-    while (any(w > n)) {
-        z <- ifelse(w > n, paste(txt.left(z, w - n), txt.right(z, 
-            n), sep = ","), z)
-        w <- w + ifelse(w > n, 1, 0)
-        n <- n + 4
-    }
-    z <- paste0(y, z)
-    z
+    txt.trim(prettyNum(as.character(x), big.mark = ","))
 }
 
 #' int.to.prime
@@ -16586,7 +16571,7 @@ utf8.to.quoted.printable <- function (x)
 {
     y <- c(0:9, char.seq("A", "F"))
     h <- c(8, 9, "A", "B")
-    r <- c("E", "F", "G", "H")
+    r <- char.seq("E", "H")
     x <- utf8ToInt(x)
     x <- base.ex.int(x, 64)
     x <- split(x, 1:3)
