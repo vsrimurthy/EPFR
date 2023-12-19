@@ -17112,18 +17112,14 @@ yyyymmdd.ex.txt <- function (x, y = "/", n = "MDY")
     if (w) 
         x <- txt.parse(x, " ")[1]
     else x <- txt.parse(x, " ")[, 1]
-    n <- txt.to.char(n)
     x <- txt.parse(x, y)
     if (w) 
-        names(x) <- n
-    else colnames(x) <- n
-    if (w) 
-        x <- split(x, names(x))
-    else x <- mat.ex.matrix(x)
-    z <- lapply(x, as.numeric)
-    x <- yyyy.ex.yy(z[["Y"]])
-    z <- 10000 * x + 100 * as.numeric(z[["M"]]) + as.numeric(z[["D"]])
-    z <- as.character(z)
+        x <- matrix(as.numeric(x), 1, 3)
+    else x <- apply(x, 2, as.numeric)
+    colnames(x) <- txt.to.char(n)
+    x[, "Y"] <- yyyy.ex.yy(x[, "Y"])
+    z <- as.character(x[, c("Y", "M", "D")] %*% c(10000, 100, 
+        1))
     z
 }
 
