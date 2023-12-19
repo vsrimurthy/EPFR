@@ -10,7 +10,7 @@ txt.itrim(x)
 \item{x}{= a vector of strings}
 }
 \description{
-gets rid of multiple consecutive spaces
+replaces consecutive spaces by one
 }
 \seealso{
 Other txt: \code{\link{txt.anagram.underlying}},

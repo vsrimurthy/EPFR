@@ -9,10 +9,10 @@ txt.trim.left(x, y)
 \arguments{
 \item{x}{= a vector of string}
 
-\item{y}{= a vector of verboten strings, each of the same length}
+\item{y}{= a single character or expr of form "[\\t ]"}
 }
 \description{
-trims off leading elements of <y>
+trims off leading characters
 }
 \seealso{
 Other txt: \code{\link{txt.anagram.underlying}},

@@ -2712,7 +2712,7 @@ fcn.clean <- function ()
     w.del <- txt.has(z, paste("#", txt.space(65, "-")), T)
     w.beg <- txt.has(z, " <- function(", T) & c(w.del[-1], F)
     if (any(!w.com)) 
-        z[!w.com] <- txt.trim(z[!w.com], c(" ", "\t"))
+        z[!w.com] <- txt.trim(z[!w.com], "[\t ]")
     i <- 1
     n <- length(z)
     while (i <= n) {
@@ -16197,7 +16197,7 @@ txt.hdr <- function (x)
 
 #' txt.itrim
 #' 
-#' gets rid of multiple consecutive spaces
+#' replaces consecutive spaces by one
 #' @param x = a vector of strings
 #' @keywords txt.itrim
 #' @export
@@ -16205,14 +16205,7 @@ txt.hdr <- function (x)
 
 txt.itrim <- function (x) 
 {
-    z <- txt.replace(x, txt.space(2), txt.space(1))
-    w <- z != x
-    while (any(w)) {
-        x[w] <- z[w]
-        z[w] <- txt.replace(x[w], txt.space(2), txt.space(1))
-        w[w] <- z[w] != x[w]
-    }
-    z
+    gsub("([ ])\\1+", "\\1", x)
 }
 
 #' txt.left
@@ -16435,9 +16428,9 @@ txt.to.char <- function (x)
 
 #' txt.trim
 #' 
-#' trims leading/trailing spaces
+#' trims leading/trailing characters
 #' @param x = a vector of string
-#' @param y = a vector of verboten strings, each of the same length
+#' @param y = a single character or expr of form "[\\t ]"
 #' @keywords txt.trim
 #' @export
 #' @family txt
@@ -16449,9 +16442,9 @@ txt.trim <- function (x, y = " ")
 
 #' txt.trim.left
 #' 
-#' trims off leading elements of <y>
+#' trims off leading characters
 #' @param x = a vector of string
-#' @param y = a vector of verboten strings, each of the same length
+#' @param y = a single character or expr of form "[\\t ]"
 #' @keywords txt.trim.left
 #' @export
 #' @family txt
@@ -16463,9 +16456,9 @@ txt.trim.left <- function (x, y)
 
 #' txt.trim.right
 #' 
-#' trims off trailing elements of <y>
+#' trims off trailing characters
 #' @param x = a vector of string
-#' @param y = a vector of verboten strings, each of the same length
+#' @param y = a single character or expr of form "[\\t ]"
 #' @keywords txt.trim.right
 #' @export
 #' @family txt
