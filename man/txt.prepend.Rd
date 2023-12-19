@@ -9,12 +9,12 @@ txt.prepend(x, y, n)
 \arguments{
 \item{x}{= a vector of strings}
 
-\item{y}{= number of characters to add}
+\item{y}{= number of times to add <n>}
 
-\item{n}{= the characters to add at the beginning}
+\item{n}{= string to add at the beginning}
 }
 \description{
-bulks up each string to have at least <y> characters by adding <n> to the beginning of each string
+adds <n> <y> times to the beginning of <x>
 }
 \seealso{
 Other txt: \code{\link{txt.anagram.underlying}},

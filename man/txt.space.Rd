@@ -7,9 +7,9 @@
 txt.space(x, y = " ")
 }
 \arguments{
-\item{x}{= any integer}
+\item{x}{= an integer vector}
 
-\item{y}{= a single character}
+\item{y}{= a SINGLE string}
 }
 \description{
 returns <x> iterations of <y> pasted together

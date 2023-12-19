@@ -16333,23 +16333,17 @@ txt.parse <- function (x, y)
 
 #' txt.prepend
 #' 
-#' bulks up each string to have at least <y> characters by adding <n> to the beginning of each string
+#' adds <n> <y> times to the beginning of <x>
 #' @param x = a vector of strings
-#' @param y = number of characters to add
-#' @param n = the characters to add at the beginning
+#' @param y = number of times to add <n>
+#' @param n = string to add at the beginning
 #' @keywords txt.prepend
 #' @export
 #' @family txt
 
 txt.prepend <- function (x, y, n) 
 {
-    z <- x
-    w <- nchar(z) < y
-    while (any(w)) {
-        z[w] <- paste0(n, z[w])
-        w <- nchar(z) < y
-    }
-    z
+    paste0(txt.space(vec.max(y - nchar(x), 0), n), x)
 }
 
 #' txt.regr
@@ -16419,20 +16413,15 @@ txt.right <- function (x, y)
 #' txt.space
 #' 
 #' returns <x> iterations of <y> pasted together
-#' @param x = any integer
-#' @param y = a single character
+#' @param x = an integer vector
+#' @param y = a SINGLE string
 #' @keywords txt.space
 #' @export
 #' @family txt
 
 txt.space <- function (x, y = " ") 
 {
-    z <- ""
-    while (x > 0) {
-        z <- paste0(z, y)
-        x <- x - 1
-    }
-    z
+    strrep(y, x)
 }
 
 #' txt.to.char
