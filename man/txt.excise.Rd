@@ -7,12 +7,12 @@
 txt.excise(x, y)
 }
 \arguments{
-\item{x}{= a vector}
+\item{x}{= a vector of string}
 
-\item{y}{= a vector}
+\item{y}{= a vector of string}
 }
 \description{
-cuts out elements of <y> from <x> wherever found
+cuts first instance of each element of <y> from <x>
 }
 \seealso{
 Other txt: \code{\link{txt.anagram.underlying}},

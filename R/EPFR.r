@@ -16054,9 +16054,9 @@ txt.ex.int.underlying <- function (x, y, n, w, h)
 
 #' txt.excise
 #' 
-#' cuts out elements of <y> from <x> wherever found
-#' @param x = a vector
-#' @param y = a vector
+#' cuts first instance of each element of <y> from <x>
+#' @param x = a vector of string
+#' @param y = a vector of string
 #' @keywords txt.excise
 #' @export
 #' @family txt
@@ -16064,15 +16064,7 @@ txt.ex.int.underlying <- function (x, y, n, w, h)
 txt.excise <- function (x, y) 
 {
     z <- x
-    for (j in y) {
-        m <- nchar(j)
-        j <- as.numeric(regexpr(j, z, fixed = T))
-        n <- nchar(z)
-        z <- ifelse(j == 1, substring(z, m + 1, n), z)
-        z <- ifelse(j == n - m + 1, substring(z, 1, j - 1), z)
-        z <- ifelse(j > 1 & j < n - m + 1, paste0(substring(z, 
-            1, j - 1), substring(z, j + m, n)), z)
-    }
+    for (j in y) z <- sub(paste0("(", j, ")"), "", z)
     z
 }
 
