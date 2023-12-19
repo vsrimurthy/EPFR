@@ -16428,9 +16428,9 @@ txt.to.char <- function (x)
 
 #' txt.trim
 #' 
-#' trims leading/trailing characters
+#' trims off leading/trailing occurences of <y>
 #' @param x = a vector of string
-#' @param y = a single character or expr of form "[\\t ]"
+#' @param y = a single string or expression like "[\\t ]"
 #' @keywords txt.trim
 #' @export
 #' @family txt
@@ -16442,30 +16442,30 @@ txt.trim <- function (x, y = " ")
 
 #' txt.trim.left
 #' 
-#' trims off leading characters
+#' trims off leading occurences of <y>
 #' @param x = a vector of string
-#' @param y = a single character or expr of form "[\\t ]"
+#' @param y = a single string or expression like "[\\t ]"
 #' @keywords txt.trim.left
 #' @export
 #' @family txt
 
 txt.trim.left <- function (x, y) 
 {
-    gsub(paste0("^", y, "+"), "", x)
+    gsub(paste0("^(", y, ")+"), "", x)
 }
 
 #' txt.trim.right
 #' 
-#' trims off trailing characters
+#' trims off trailing occurences of <y>
 #' @param x = a vector of string
-#' @param y = a single character or expr of form "[\\t ]"
+#' @param y = a single string or expression like "[\\t ]"
 #' @keywords txt.trim.right
 #' @export
 #' @family txt
 
 txt.trim.right <- function (x, y) 
 {
-    gsub(paste0(y, "*$"), "", x)
+    gsub(paste0("(", y, ")*$"), "", x)
 }
 
 #' txt.words

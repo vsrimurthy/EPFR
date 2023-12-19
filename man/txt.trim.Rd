@@ -9,10 +9,10 @@ txt.trim(x, y = " ")
 \arguments{
 \item{x}{= a vector of string}
 
-\item{y}{= a single character or expr of form "[\\t ]"}
+\item{y}{= a single string or expression like "[\\t ]"}
 }
 \description{
-trims leading/trailing characters
+trims off leading/trailing occurences of <y>
 }
 \seealso{
 Other txt: \code{\link{txt.anagram.underlying}},
