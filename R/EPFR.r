@@ -15900,11 +15900,7 @@ txt.core <- function (x)
 
 txt.count <- function (x, y) 
 {
-    z <- txt.replace(x, y, "")
-    z <- nchar(z)
-    z <- nchar(x) - z
-    z <- z/nchar(y)
-    z
+    lengths(regmatches(x, gregexpr(y, x)))
 }
 
 #' txt.ex.file
@@ -16451,29 +16447,6 @@ txt.trim <- function (x, y = " ")
     txt.trim.right(txt.trim.left(x, y), y)
 }
 
-#' txt.trim.end
-#' 
-#' trims off leading or trailing elements of <y>
-#' @param fcn = a function that returns characters from the bad end
-#' @param x = a vector of string
-#' @param y = a vector of verboten strings, each of the same length
-#' @param n = a functon that returns characters from the opposite end
-#' @keywords txt.trim.end
-#' @export
-#' @family txt
-
-txt.trim.end <- function (fcn, x, y, n) 
-{
-    h <- nchar(y[1])
-    z <- x
-    w <- nchar(z) > h - 1 & is.element(fcn(z, h), y)
-    while (any(w)) {
-        z[w] <- n(z[w], nchar(z[w]) - h)
-        w <- nchar(z) > h - 1 & is.element(fcn(z, h), y)
-    }
-    z
-}
-
 #' txt.trim.left
 #' 
 #' trims off leading elements of <y>
@@ -16485,7 +16458,7 @@ txt.trim.end <- function (fcn, x, y, n)
 
 txt.trim.left <- function (x, y) 
 {
-    txt.trim.end(txt.left, x, y, txt.right)
+    gsub(paste0("^", y, "+"), "", x)
 }
 
 #' txt.trim.right
@@ -16499,7 +16472,7 @@ txt.trim.left <- function (x, y)
 
 txt.trim.right <- function (x, y) 
 {
-    txt.trim.end(txt.right, x, y, txt.left)
+    gsub(paste0(y, "*$"), "", x)
 }
 
 #' txt.words
