@@ -17108,6 +17108,7 @@ yyyymmdd.ex.int <- function (x)
 
 yyyymmdd.ex.txt <- function (x, y = "/", n = "MDY") 
 {
+    x <- as.character(x)
     w <- length(x) == 1
     if (w) 
         x <- txt.parse(x, " ")[1]
