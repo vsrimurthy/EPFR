@@ -1214,10 +1214,7 @@ char.to.int <- function (x)
 
 char.to.num <- function (x) 
 {
-    z <- txt.replace(x, "\"", "")
-    z <- txt.replace(z, ",", "")
-    z <- as.numeric(z)
-    z
+    as.numeric(gsub("[\",]", "", x))
 }
 
 #' classification.threshold
@@ -16090,9 +16087,7 @@ txt.gunning <- function (x, y, n)
     x <- x[is.element(x, c(LETTERS, " ", "."))]
     x <- paste(x, collapse = "")
     x <- txt.replace(x, ".", " . ")
-    x <- txt.trim(x)
-    while (x != txt.replace(x, txt.space(2), txt.space(1))) x <- txt.replace(x, 
-        txt.space(2), txt.space(1))
+    x <- txt.itrim(txt.trim(x))
     if (txt.right(x, 1) == ".") 
         x <- txt.left(x, nchar(x) - 1)
     x <- txt.trim(x)
@@ -16317,11 +16312,7 @@ txt.prepend <- function (x, y, n)
 
 txt.regex <- function (x) 
 {
-    z <- x
-    x <- c("\\", "^", "$", ".", "?", "*", "|", "+", "(", ")", 
-        "[", "{")
-    for (j in x) z <- txt.replace(z, j, paste0("\\", j))
-    z
+    gsub("([\\^$.?*|+()[{])", "\\\\\\1", x)
 }
 
 #' txt.regr
