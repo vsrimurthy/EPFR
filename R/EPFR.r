@@ -1214,7 +1214,7 @@ char.to.int <- function (x)
 
 char.to.num <- function (x) 
 {
-    as.numeric(gsub("[\",]", "", x))
+    as.numeric(gsub("[^0-9.]+", "", x))
 }
 
 #' classification.threshold
