@@ -30,9 +30,10 @@ Other txt: \code{\link{txt.anagram.underlying}},
   \code{\link{txt.levenshtein}},
   \code{\link{txt.name.format}}, \code{\link{txt.na}},
   \code{\link{txt.parse}}, \code{\link{txt.prepend}},
-  \code{\link{txt.replace}}, \code{\link{txt.reverse}},
-  \code{\link{txt.right}}, \code{\link{txt.space}},
-  \code{\link{txt.to.char}}, \code{\link{txt.trim.left}},
+  \code{\link{txt.regex}}, \code{\link{txt.replace}},
+  \code{\link{txt.reverse}}, \code{\link{txt.right}},
+  \code{\link{txt.space}}, \code{\link{txt.to.char}},
+  \code{\link{txt.trim.left}},
   \code{\link{txt.trim.right}}, \code{\link{txt.trim}},
   \code{\link{txt.words}}
 }

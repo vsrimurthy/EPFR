@@ -16307,6 +16307,23 @@ txt.prepend <- function (x, y, n)
     paste0(txt.space(vec.max(y - nchar(x), 0), n), x)
 }
 
+#' txt.regex
+#' 
+#' converts <x> to a regular expression by padding certain characters with \\\\
+#' @param x = string
+#' @keywords txt.regex
+#' @export
+#' @family txt
+
+txt.regex <- function (x) 
+{
+    z <- x
+    x <- c("\\", "^", "$", ".", "?", "*", "|", "+", "(", ")", 
+        "[", "{")
+    for (j in x) z <- txt.replace(z, j, paste0("\\", j))
+    z
+}
+
 #' txt.regr
 #' 
 #' returns the string you need to regress the first column on the others
@@ -16423,7 +16440,7 @@ txt.trim <- function (x, y = " ")
 
 txt.trim.left <- function (x, y) 
 {
-    gsub(paste0("^(", y, ")+"), "", x)
+    gsub(paste0("^(", txt.regex(y), ")+"), "", x)
 }
 
 #' txt.trim.right
@@ -16437,7 +16454,7 @@ txt.trim.left <- function (x, y)
 
 txt.trim.right <- function (x, y) 
 {
-    gsub(paste0("(", y, ")*$"), "", x)
+    gsub(paste0("(", txt.regex(y), ")*$"), "", x)
 }
 
 #' txt.words
