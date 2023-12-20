@@ -3114,7 +3114,7 @@ fcn.indent.proper <- function (x)
         }
         else if (!fcn.indent.ignore(y[i], w) & !fcn.indent.else(y[i], 
             w)) {
-            z <- nchar(y[i]) > nchar(txt.space(w, "\t"))
+            z <- nchar(y[i]) > w
             if (z) 
                 z <- is.element(substring(y[i], w + 1, w + 1), 
                   n)
@@ -16135,10 +16135,9 @@ txt.gunning <- function (x, y, n)
 
 txt.has <- function (x, y, n = F) 
 {
-    z <- grepl(y, x, fixed = T)
-    if (!n) 
-        z <- x[z]
-    z
+    if (n) 
+        grepl(y, x, fixed = T)
+    else grep(y, x, fixed = T, value = T)
 }
 
 #' txt.hdr
@@ -16152,12 +16151,9 @@ txt.has <- function (x, y, n = F)
 txt.hdr <- function (x) 
 {
     n <- nchar(x)
-    if (n%%2 == 1) {
+    if (n%%2 == 1) 
         x <- paste0(x, " ")
-        n <- n + 1
-    }
-    n <- 100 - n
-    n <- n/2
+    n <- (100 - n - n%%2)/2
     z <- paste0(txt.space(n, "*"), x, txt.space(n, "*"))
     z
 }
@@ -16246,19 +16242,8 @@ txt.na <- function ()
 
 txt.name.format <- function (x) 
 {
-    if (any(txt.has(x, " ", T))) {
-        z <- txt.parse(x, " ")
-        z <- fcn.mat.vec(txt.name.format, z, , T)
-        z <- do.call(paste, mat.ex.matrix(z))
-        z <- txt.trim(z)
-    }
-    else {
-        x <- tolower(x)
-        z <- txt.left(x, 1)
-        x <- txt.right(x, nchar(x) - 1)
-        z <- paste0(toupper(z), x)
-    }
-    z
+    txt.trim(gsub("( .{1})", "\\U\\1", txt.itrim(paste0(" ", 
+        x)), perl = T))
 }
 
 #' txt.parse
