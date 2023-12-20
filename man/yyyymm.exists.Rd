@@ -10,7 +10,7 @@ yyyymm.exists(x)
 \item{x}{= a vector of strings}
 }
 \description{
-returns T if <x> is a month expressed in YYYYMM format
+T if <x> is a month expressed in YYYYMM format
 }
 \seealso{
 Other yyyymm: \code{\link{yyyymm.diff}},

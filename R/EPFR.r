@@ -16877,7 +16877,7 @@ yyyymm.ex.qtr <- function (x, y = 3)
 
 #' yyyymm.exists
 #' 
-#' returns T if <x> is a month expressed in YYYYMM format
+#' T if <x> is a month expressed in YYYYMM format
 #' @param x = a vector of strings
 #' @keywords yyyymm.exists
 #' @export
@@ -16885,13 +16885,8 @@ yyyymm.ex.qtr <- function (x, y = 3)
 
 yyyymm.exists <- function (x) 
 {
-    z <- is.element(nchar(x), 6)
-    j <- 1
-    while (j < 7 & any(z)) {
-        z[z] <- is.element(substring(x[z], j, j), 0:9)
-        j <- j + 1
-    }
-    z
+    nchar(x) == 6 & !grepl("[^0-9]", x) & is.element(substring(x, 
+        5, 5), 0:1)
 }
 
 #' yyyymm.lag
