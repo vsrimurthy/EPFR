@@ -8770,8 +8770,8 @@ publications.data <- function (x, y, n, w)
             h <- function(i, j) txt.replace(y, "YYYYMMDD", i)
         }
         x <- mk.sf.daily(h, x, w, 12, "All")
-        for (i in x) mat.write(x[[i]], paste0(n, "\\", i, ".csv"), 
-            ",")
+        for (i in names(x)) mat.write(x[[i]], paste0(n, "\\", 
+            i, ".csv"), ",")
     }
     invisible()
 }
