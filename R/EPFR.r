@@ -2695,57 +2695,6 @@ fcn.canonical <- function (x)
     z
 }
 
-#' fcn.clean
-#' 
-#' removes trailing spaces and tabs & indents properly
-#' @keywords fcn.clean
-#' @export
-#' @family fcn
-
-fcn.clean <- function () 
-{
-    z <- readLines(fcn.path())
-    w.com <- fcn.indent.ignore(z, 0)
-    w.del <- txt.has(z, paste("#", txt.space(65, "-")), T)
-    w.beg <- txt.has(z, " <- function(", T) & c(w.del[-1], F)
-    if (any(!w.com)) 
-        z[!w.com] <- txt.trim(z[!w.com], "[\t ]")
-    i <- 1
-    n <- length(z)
-    while (i <= n) {
-        if (w.beg[i]) {
-            i <- i + 1
-            phase <- 1
-        }
-        else if (phase == 1 & w.del[i]) {
-            phase <- 2
-            w <- 1
-        }
-        else if (phase == 2 & fcn.indent.else(toupper(z[i]), 
-            1)) {
-            w <- w - 1
-            z[i] <- paste0(txt.space(w, "\t"), z[i])
-            w <- w + 1
-        }
-        else if (phase == 2 & fcn.indent.decrease(toupper(z[i]), 
-            1)) {
-            w <- w - 1
-            z[i] <- paste0(txt.space(w, "\t"), z[i])
-        }
-        else if (phase == 2 & fcn.indent.increase(toupper(z[i]), 
-            0)) {
-            z[i] <- paste0(txt.space(w, "\t"), z[i])
-            w <- w + 1
-        }
-        else if (phase == 2 & !w.com[i]) {
-            z[i] <- paste0(txt.space(w, "\t"), z[i])
-        }
-        i <- i + 1
-    }
-    writeLines(z, fcn.path())
-    invisible()
-}
-
 #' fcn.comments.parse
 #' 
 #' extracts information from the comments
@@ -3024,71 +2973,6 @@ fcn.has <- function (x)
     z
 }
 
-#' fcn.indent.decrease
-#' 
-#' T/F depending on whether indent should be decreased
-#' @param x = a line of code in a function
-#' @param y = number of tabs
-#' @keywords fcn.indent.decrease
-#' @export
-#' @family fcn
-
-fcn.indent.decrease <- function (x, y) 
-{
-    txt.left(x, y) == paste0(txt.space(y - 1, "\t"), "}")
-}
-
-#' fcn.indent.else
-#' 
-#' T/F depending on whether line has an else statement
-#' @param x = a line of code in a function
-#' @param y = number of tabs
-#' @keywords fcn.indent.else
-#' @export
-#' @family fcn
-
-fcn.indent.else <- function (x, y) 
-{
-    h <- "} ELSE "
-    z <- any(txt.left(x, nchar(h) + y - 1) == paste0(txt.space(y - 
-        1, "\t"), h))
-    z <- z & txt.right(x, 1) == "{"
-    z
-}
-
-#' fcn.indent.ignore
-#' 
-#' T/F depending on whether line should be ignored
-#' @param x = a line of code in a function
-#' @param y = number of tabs
-#' @keywords fcn.indent.ignore
-#' @export
-#' @family fcn
-
-fcn.indent.ignore <- function (x, y) 
-{
-    txt.left(txt.trim.left(x, "\t"), 1) == "#"
-}
-
-#' fcn.indent.increase
-#' 
-#' T/F depending on whether indent should be increased
-#' @param x = a line of code in a function
-#' @param y = number of tabs
-#' @keywords fcn.indent.increase
-#' @export
-#' @family fcn
-
-fcn.indent.increase <- function (x, y) 
-{
-    h <- c("FOR (", "WHILE (", "IF (")
-    z <- any(txt.left(x, nchar(h) + y) == paste0(txt.space(y, 
-        "\t"), h))
-    z <- z | txt.has(x, " <- FUNCTION(", T)
-    z <- z & txt.right(x, 1) == "{"
-    z
-}
-
 #' fcn.indent.proper
 #' 
 #' T/F depending on whether the function is indented properly
@@ -3099,30 +2983,24 @@ fcn.indent.increase <- function (x, y)
 
 fcn.indent.proper <- function (x) 
 {
-    y <- toupper(fcn.lines.code(x, T))
     n <- c(LETTERS, 1:9)
-    w <- 1
-    i <- 1
-    z <- T
-    while (i < 1 + length(y) & z) {
-        if (fcn.indent.decrease(y[i], w) & !fcn.indent.else(y[i], 
-            w)) {
-            w <- w - 1
-        }
-        else if (fcn.indent.increase(y[i], w)) {
-            w <- w + 1
-        }
-        else if (!fcn.indent.ignore(y[i], w) & !fcn.indent.else(y[i], 
-            w)) {
-            z <- nchar(y[i]) > w
-            if (z) 
-                z <- is.element(substring(y[i], w + 1, w + 1), 
-                  n)
-            if (!z) 
-                cat(x, ":", y[i], "\n")
-        }
-        i <- i + 1
-    }
+    y <- toupper(fcn.lines.code(x, T))
+    z <- txt.trim.left(y, "\t")
+    w <- nchar(y) - nchar(z)
+    r <- ifelse(txt.left(z, 1) == "}", -1, NA)
+    r <- ifelse(txt.left(z, 1) == "#", 0, r)
+    r <- ifelse(txt.left(z, 7) == "} ELSE " & txt.right(z, 1) == 
+        "{", 0, r)
+    for (j in c("FOR (", "WHILE (", "IF (")) r <- ifelse(txt.left(z, 
+        nchar(j)) == j & txt.right(z, 1) == "{", 1, r)
+    r <- ifelse(txt.has(z, " <- FUNCTION(", T) & txt.right(z, 
+        1) == "{", 1, r)
+    z <- nchar(y) > w & is.element(substring(y, w + 1, w + 1), 
+        n)
+    z <- z & 1 + cumsum(zav(r)) == w
+    z <- all(!is.na(r) | z)
+    if (!z) 
+        cat("Problem with", x, "..\n")
     z
 }
 
