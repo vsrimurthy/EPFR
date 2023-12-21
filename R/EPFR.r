@@ -2987,20 +2987,21 @@ fcn.indent.proper <- function (x)
     y <- toupper(fcn.lines.code(x, T))
     z <- txt.trim.left(y, "\t")
     w <- nchar(y) - nchar(z)
-    r <- ifelse(txt.left(z, 1) == "}", -1, NA)
+    r <- txt.has(z, " <- FUNCTION(", T)
+    for (j in c("FOR (", "WHILE (", "IF (")) r <- r | txt.left(z, 
+        nchar(j)) == j
+    r <- ifelse(r & txt.right(z, 1) == "{", 1, NA)
     r <- ifelse(txt.left(z, 1) == "#", 0, r)
+    r <- ifelse(txt.left(z, 1) == "}", -1, r)
     r <- ifelse(txt.left(z, 7) == "} ELSE " & txt.right(z, 1) == 
         "{", 0, r)
-    for (j in c("FOR (", "WHILE (", "IF (")) r <- ifelse(txt.left(z, 
-        nchar(j)) == j & txt.right(z, 1) == "{", 1, r)
-    r <- ifelse(txt.has(z, " <- FUNCTION(", T) & txt.right(z, 
-        1) == "{", 1, r)
-    z <- nchar(y) > w & is.element(substring(y, w + 1, w + 1), 
+    n <- nchar(y) > w & is.element(substring(y, w + 1, w + 1), 
         n)
-    z <- z & 1 + cumsum(zav(r)) == w
-    z <- all(!is.na(r) | z)
-    if (!z) 
-        cat("Problem with", x, "..\n")
+    n <- !is.na(r) | n
+    r <- 1 + cumsum(zav(r)) - zav(r) - as.numeric(txt.left(z, 
+        1) == "}") - w
+    z <- (txt.left(z, 1) == "#" & r == 1) | r == 0
+    z <- all(z & n)
     z
 }
 
