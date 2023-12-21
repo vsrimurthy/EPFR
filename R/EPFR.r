@@ -4908,12 +4908,7 @@ html.email <- function (x, y = T)
 html.ex.utf8 <- function (x) 
 {
     z <- txt.to.char(x)
-    w <- !is.element(z, char.seq("A", "Z"))
-    w <- w & !is.element(z, tolower(char.seq("A", "Z")))
-    w <- w & !is.element(z, c("\n", "\t", "\\", " "))
-    w <- w & !is.element(z, c(">", "<", "=", "/", "%", "%", "$", 
-        ":", ".", ",", ";", "?", "!"))
-    w <- w & !is.element(z, 0:9)
+    w <- !grepl("[[:alnum:]\n\t\\ ><=/%%$:.,;?!]", z)
     for (j in seq_along(z[w])) z[w][j] <- paste0("&#x", as.hexmode(utf8ToInt(z[w][j])), 
         ";")
     z <- paste(z, collapse = "")
@@ -5449,8 +5444,7 @@ isin.exists <- function (x)
 {
     charset <- vec.named(0:35, c(0:9, char.seq("A", "Z")))
     x <- toupper(txt.trim(x))
-    z <- !is.na(x) & nchar(x) == 12
-    for (j in 1:11) z <- z & is.element(substring(x, j, j), names(charset))
+    z <- !is.na(x) & nchar(x) == 12 & !grepl("[^0-9A-Z]", x)
     z <- z & is.element(substring(x, 12, 12), 0:9)
     y <- x[z]
     y <- y[!duplicated(y)]
