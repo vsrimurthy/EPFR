@@ -4004,17 +4004,10 @@ ftp.all.files.underlying <- function (x, y, n, w, h = "ftp", u, v)
 
 ftp.break <- function (x) 
 {
-    month.abbrv <- vec.named(1:12, month.abb)
-    n <- min(nchar(x)) - 4
-    z <- rep(NA, n)
-    for (i in 1:n) z[i] <- sum(!is.element(substring(x, i, i + 
-        4), paste0(" ", names(month.abbrv), " ")))
-    z <- (1:n)[order(z)][1]
-    w <- is.element(substring(x, z, z + 4), paste0(" ", names(month.abbrv), 
-        " "))
-    z <- ifelse(w, z, NA)
-    if (any(!w)) 
-        z[!w] <- ftp.break(x[!w])
+    z <- vec.to.list(month.abb, T)
+    z <- lapply(z, function(y) paste0(" ", y, " "))
+    z <- lapply(z, function(y) as.numeric(regexpr(y, x)))
+    z <- avail(lapply(z, nonneg))
     z
 }
 
