@@ -24,7 +24,7 @@ remote-site directory listing of all sub-folders
 }
 \seealso{
 Other ftp: \code{\link{ftp.all.files.underlying}},
-  \code{\link{ftp.all.files}}, \code{\link{ftp.break}},
+  \code{\link{ftp.all.files}},
   \code{\link{ftp.credential}}, \code{\link{ftp.del}},
   \code{\link{ftp.dir.parse.ftp}},
   \code{\link{ftp.dir.parse.sftp}}, \code{\link{ftp.dir}},

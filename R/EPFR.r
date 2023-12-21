@@ -3994,23 +3994,6 @@ ftp.all.files.underlying <- function (x, y, n, w, h = "ftp", u, v)
     z
 }
 
-#' ftp.break
-#' 
-#' integer vector locating " MMM " in <x>
-#' @param x = string vector
-#' @keywords ftp.break
-#' @export
-#' @family ftp
-
-ftp.break <- function (x) 
-{
-    z <- vec.to.list(month.abb, T)
-    z <- lapply(z, function(y) paste0(" ", y, " "))
-    z <- lapply(z, function(y) as.numeric(regexpr(y, x)))
-    z <- avail(lapply(z, nonneg))
-    z
-}
-
 #' ftp.credential
 #' 
 #' relevant ftp credential
@@ -4089,7 +4072,8 @@ ftp.dir.parse.ftp <- function (x)
 
 ftp.dir.parse.sftp <- function (x) 
 {
-    n <- ftp.break(x)
+    n <- split(paste0(" ", month.abb, " "), month.abb)
+    n <- avail(lapply(n, function(y) txt.first(x, y)))
     z <- substring(x, n + 1, nchar(x))
     z <- data.frame(substring(z, 1, 3), as.numeric(substring(z, 
         5, 6)), substring(z, 7, 12), substring(z, 13, nchar(z)), 
@@ -4104,8 +4088,7 @@ ftp.dir.parse.sftp <- function (x)
         z[, "size"] <- as.numeric(txt.parse(txt.itrim(y), txt.space(1))[, 
             5])/2^10
     }
-    month.abbrv <- vec.named(1:12, month.abb)
-    z$mm <- map.rname(month.abbrv, z$mm)
+    z$mm <- map.rname(vec.named(1:12, month.abb), z$mm)
     z$yyyy <- ifelse(txt.has(z$yyyy, ":", T), yyyymm.to.yyyy(yyyymmdd.to.yyyymm(today())), 
         z$yyyy)
     z$yyyy <- as.numeric(z$yyyy)
@@ -15864,6 +15847,20 @@ txt.expand <- function (x, y, n = "-", w = F)
     z[["sep"]] <- n
     z <- do.call(paste, z)
     z
+}
+
+#' txt.first
+#' 
+#' first occurrence of pattern <y> in <x> (NA if none)
+#' @param x = a vector of strings
+#' @param y = a single string
+#' @keywords txt.first
+#' @export
+#' @family txt
+
+txt.first <- function (x, y) 
+{
+    nonneg(as.numeric(regexpr(y, x)))
 }
 
 #' txt.gunning
