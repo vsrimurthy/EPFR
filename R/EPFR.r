@@ -5470,7 +5470,7 @@ knapsack.to.int <- function (x)
 
 #' latin.ex.arabic
 #' 
-#' returns <x> expressed as lower-case latin numerals
+#' lower-case latin representation of <x>
 #' @param x = a numeric vector
 #' @keywords latin.ex.arabic
 #' @export
@@ -5478,27 +5478,12 @@ knapsack.to.int <- function (x)
 
 latin.ex.arabic <- function (x) 
 {
-    y <- latin.to.arabic.underlying()
-    x <- as.numeric(x)
-    w <- is.na(x) | x < 0 | round(x) != x
-    z <- rep("", length(x))
-    if (all(!w)) {
-        for (i in names(y)) {
-            w <- x >= y[i]
-            while (any(w)) {
-                z[w] <- paste0(z[w], i)
-                x[w] <- x[w] - y[i]
-                w <- x >= y[i]
-            }
-        }
-    }
-    else z[!w] <- latin.ex.arabic(x[!w])
-    z
+    tolower(as.roman(x))
 }
 
 #' latin.to.arabic
 #' 
-#' returns <x> expressed as an integer
+#' <x> expressed as an arabic integer
 #' @param x = a character vector of latin numerals
 #' @keywords latin.to.arabic
 #' @export
@@ -5506,43 +5491,7 @@ latin.ex.arabic <- function (x)
 
 latin.to.arabic <- function (x) 
 {
-    y <- latin.to.arabic.underlying()
-    w <- x <- tolower(zav(txt.trim(as.character(x)), "NA"))
-    for (i in names(y)) w <- txt.replace(w, i, "")
-    w <- w == ""
-    if (all(w)) {
-        z <- rep(0, length(x))
-        for (i in names(y)) {
-            n <- nchar(i)
-            w <- txt.left(x, n) == i
-            while (any(w)) {
-                z[w] <- z[w] + as.numeric(y[i])
-                x[w] <- txt.right(x[w], nchar(x[w]) - n)
-                w <- txt.left(x, n) == i
-            }
-        }
-    }
-    else {
-        z <- rep(NA, length(x))
-        z[w] <- latin.to.arabic(x[w])
-    }
-    z
-}
-
-#' latin.to.arabic.underlying
-#' 
-#' basic map of latin to arabic numerals
-#' @keywords latin.to.arabic.underlying
-#' @export
-#' @family latin
-
-latin.to.arabic.underlying <- function () 
-{
-    z <- c(1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 
-        1)
-    names(z) <- c("m", "cm", "d", "cd", "c", "xc", "l", "xl", 
-        "x", "ix", "v", "iv", "i")
-    z
+    as.numeric(as.roman(x))
 }
 
 #' list.rename
@@ -5557,9 +5506,7 @@ latin.to.arabic.underlying <- function ()
 list.rename <- function (x, y, n) 
 {
     z <- x[is.element(names(x), y)]
-    x <- vec.named(n, y)
-    x <- x[names(z)]
-    names(z) <- x
+    names(z) <- vec.named(n, y)[names(z)]
     z
 }
 
@@ -5580,7 +5527,6 @@ list.rename <- function (x, y, n)
 load.dy.vbl <- function (fcn, x, y, n, w, h, u) 
 {
     load.vbl.underlying(fcn, x, y, n, w, h, u, T)
-    invisible()
 }
 
 #' load.dy.vbl.1obj
@@ -5631,7 +5577,6 @@ load.dy.vbl.1obj <- function (fcn, x, y, n, w, h, u)
 load.mo.vbl <- function (fcn, x, y, n, w, h, u) 
 {
     load.vbl.underlying(fcn, x, y, n, w, h, u, F)
-    invisible()
 }
 
 #' load.mo.vbl.1obj

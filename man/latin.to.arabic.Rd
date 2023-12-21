@@ -10,10 +10,9 @@ latin.to.arabic(x)
 \item{x}{= a character vector of latin numerals}
 }
 \description{
-returns <x> expressed as an integer
+<x> expressed as an arabic integer
 }
 \seealso{
-Other latin: \code{\link{latin.ex.arabic}},
-  \code{\link{latin.to.arabic.underlying}}
+Other latin: \code{\link{latin.ex.arabic}}
 }
 \keyword{latin.to.arabic}

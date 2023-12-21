@@ -10,10 +10,9 @@ latin.ex.arabic(x)
 \item{x}{= a numeric vector}
 }
 \description{
-returns <x> expressed as lower-case latin numerals
+lower-case latin representation of <x>
 }
 \seealso{
-Other latin: \code{\link{latin.to.arabic.underlying}},
-  \code{\link{latin.to.arabic}}
+Other latin: \code{\link{latin.to.arabic}}
 }
 \keyword{latin.ex.arabic}
