@@ -422,7 +422,7 @@ base.ex.int <- function (x, y = 26)
     else z <- NULL
     while (x > 0) {
         z <- c(x%%y, z)
-        x <- (x - x%%y)/y
+        x <- (x - z[1])/y
     }
     z
 }
@@ -438,10 +438,7 @@ base.ex.int <- function (x, y = 26)
 
 base.to.int <- function (x, y = 26) 
 {
-    m <- length(x)
-    z <- x * y^(m:1 - 1)
-    z <- sum(z)
-    z
+    sum(x * y^(rev(seq_along(x)) - 1))
 }
 
 #' bbk
@@ -1975,11 +1972,7 @@ day.to.weekday <- function (x)
 
 decimal.format <- function (x, y) 
 {
-    x <- round(x, y)
-    y <- 10^(-y - 1)
-    z <- as.character(x + y * ifelse(x < 0, -1, 1))
-    z <- txt.left(z, nchar(z) - 1)
-    z
+    formatC(x, y, format = "f")
 }
 
 #' dir.all.files
@@ -2112,7 +2105,7 @@ dir.parent <- function (x)
 
 dir.publications <- function (x) 
 {
-    dir.parameters(paste("Publications", x, sep = "\\"))
+    dir.parameters(paste0("Publications\\", x))
 }
 
 #' dir.size
@@ -2151,11 +2144,9 @@ dtw <- function (x, y)
     z <- matrix(NA, n + 1, m + 1, F, list(c(0, x), c(0, y)))
     z[1, ] <- z[, 1] <- Inf
     z[1, 1] <- 0
-    for (i in 1:m + 1) {
-        for (j in 1:n + 1) {
-            z[j, i] <- min(z[j - 1, i], min(z[j, i - 1], z[j - 
-                1, i - 1])) + abs(x[j - 1] - y[i - 1])
-        }
+    for (i in 1:m + 1) for (j in 1:n + 1) {
+        z[j, i] <- min(z[j - 1, i], min(z[j, i - 1], z[j - 1, 
+            i - 1])) + abs(x[j - 1] - y[i - 1])
     }
     w <- list(x = n, y = m)
     i <- m + 1
@@ -2398,11 +2389,8 @@ excise.zeroes <- function (x)
 
 extract.AnnMn.sf <- function (x, y) 
 {
-    z <- x
-    w <- colnames(z) != "uRet"
-    z <- mat.ex.matrix(t(z[y, w, ]))
-    z <- mat.last.to.first(z)
-    z
+    mat.last.to.first(mat.ex.matrix(t(x[y, dimnames(x)[[2]] != 
+        "uRet", ])))
 }
 
 #' extract.AnnMn.sf.wrapper
