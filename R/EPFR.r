@@ -5297,18 +5297,15 @@ isin.exists <- function (x)
     y <- mat.ex.matrix(y)
     y <- vec.named(do.call(paste0, y), rownames(y))
     y <- split(y, names(y))
-    y <- lapply(y, function(x) as.numeric(txt.to.char(x)))
     fcn <- function(x) {
-        if (length(x)%%2 == 0) 
-            z <- 1:2
-        else z <- 2:1
-        z <- rep(z, ceiling(length(x)/2))[seq_along(x)]
-        x * z
+        x <- as.numeric(txt.to.char(x))
+        z <- seq_along(x)%%2 == length(x)%%2
+        x[z] <- 2 * x[z]
+        z <- txt.to.char(paste(x, collapse = ""))
+        z <- sum(as.numeric(z))
+        z <- 10 * ceiling(z/10) - z
     }
-    y <- lapply(y, fcn)
-    y <- sapply(y, function(x) sum(as.numeric(txt.to.char(paste(x, 
-        collapse = "")))))
-    y <- 10 * ceiling(y/10) - y
+    y <- sapply(y, fcn)
     y <- txt.right(names(y), 1) == y
     z[z] <- as.logical(y[x[z]])
     z
