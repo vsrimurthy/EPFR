@@ -8530,7 +8530,7 @@ ptile <- function (x)
 
 publications.data <- function (x, y, n, w) 
 {
-    h <- dir(n, "*.csv")
+    h <- dir(n, "\\.csv$")
     if (length(h) > 0) 
         h <- h[!is.element(h, paste0(x, ".csv"))]
     if (length(h) > 0) {
@@ -8538,7 +8538,7 @@ publications.data <- function (x, y, n, w)
             n))
         file.kill(paste(n, h, sep = "\\"))
     }
-    h <- dir(n, "*.csv")
+    h <- dir(n, "\\.csv$")
     if (length(h) > 0) {
         h <- txt.left(h, nchar(h) - nchar(".csv"))
         x <- x[!is.element(x, h)]
