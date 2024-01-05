@@ -101,7 +101,7 @@ mk.1mPerfTrend <- function (x, y, n, w = F)
         sf <- c(paste(u, collapse = "\n"), paste(sf, collapse = "\n"))
     }
     else {
-        sf <- sql.FundHistory(y$filter, T, c("FundId", "GeographicFocusId"))
+        sf <- sql.FundHistory(y$filter, T, c("FundId", "GeographicFocus"))
         sf <- c(sql.label(sf, "his"), "\ton his.HFundId = t.HFundId")
         sf <- c(sql.label(sql.MonthlyAssetsEnd("@newDt"), "t"), 
             "inner join", sf)
@@ -110,7 +110,7 @@ mk.1mPerfTrend <- function (x, y, n, w = F)
         if (!w) 
             sf <- c(sf, "inner join", "SecurityHistory id on id.HSecurityId = n1.HSecurityId")
         h <- ifelse(w, "n1.HSecurityId", "SecurityId")
-        h <- c(h, "his.FundId", "GeographicFocusId", "WtCol = HoldingValue/AssetsEnd")
+        h <- c(h, "his.FundId", "GeographicFocus", "WtCol = HoldingValue/AssetsEnd")
         if (n$DB == "All") {
             sf <- sql.tbl(h, sf)
         }
@@ -129,10 +129,10 @@ mk.1mPerfTrend <- function (x, y, n, w = F)
     ui <- mat.index(ui, "FundId")
     ui <- as.numeric(map.rname(ui, sf[, "FundId"])[, "FundRet"])
     if (any(is.element(y, vbls[4:6]))) {
-        vec <- paste(sf[, 1], sf[, "GeographicFocusId"])
+        vec <- paste(sf[, 1], sf[, "GeographicFocus"])
         vec <- pivot.1d(mean, vec, sf[, "WtCol"])
         vec <- as.numeric(map.rname(vec, paste(sf[, 1], sf[, 
-            "GeographicFocusId"])))
+            "GeographicFocus"])))
         sf[, "WtCol"] <- sf[, "WtCol"] - vec
     }
     z <- ui
@@ -6854,7 +6854,6 @@ mk.1mAllocMo <- function (x, y, n)
     else {
         z <- sql.1mFloMo(x, y, n$DB, F, "All", w)
     }
-    z <- sql.4.to.5(z)
     z <- sql.map.classif(z, n$conn, n$classif)
     z
 }
@@ -11042,15 +11041,15 @@ sql.1dActWtTrend.topline <- function (x, y, n = F)
 
 sql.1dActWtTrend.topline.from <- function () 
 {
-    w <- "ReportDate, HSecurityId, GeographicFocusId, FundWtdExcl0 = sum(HoldingValue)/sum(PortVal)"
+    w <- "ReportDate, HSecurityId, GeographicFocus, FundWtdExcl0 = sum(HoldingValue)/sum(PortVal)"
     z <- c("#FLO t1", "inner join", "#HLD t2 on t2.FundId = t1.FundId", 
         "inner join", "#AUM t3 on t3.FundId = t1.FundId")
-    w <- sql.label(sql.tbl(w, z, , "ReportDate, HSecurityId, GeographicFocusId"), 
+    w <- sql.label(sql.tbl(w, z, , "ReportDate, HSecurityId, GeographicFocus"), 
         "mnW")
     z <- c("#FLO flo", "inner join", "#HLD hld on hld.FundId = flo.FundId", 
         "inner join", "#AUM aum on aum.FundId = hld.FundId", 
         "inner join")
-    z <- c(z, w, "\ton mnW.ReportDate = flo.ReportDate and mnW.HSecurityId = hld.HSecurityId and mnW.GeographicFocusId = flo.GeographicFocusId")
+    z <- c(z, w, "\ton mnW.ReportDate = flo.ReportDate and mnW.HSecurityId = hld.HSecurityId and mnW.GeographicFocus = flo.GeographicFocus")
     z
 }
 
@@ -11075,8 +11074,8 @@ sql.1dActWtTrend.underlying <- function (x, y, n, w)
     x <- paste("ReportDate", x)
     x <- sql.ShareClass(x, w)
     z <- c("DailyData t1", "inner join", sql.label(sql.FundHistory(y, 
-        T, c("FundId", "GeographicFocusId")), "t2"), "on t2.HFundId = t1.HFundId")
-    z <- sql.tbl("ReportDate, FundId, GeographicFocusId = max(GeographicFocusId), Flow = sum(Flow), AssetsStart = sum(AssetsStart)", 
+        T, c("FundId", "GeographicFocus")), "t2"), "on t2.HFundId = t1.HFundId")
+    z <- sql.tbl("ReportDate, FundId, GeographicFocus = max(GeographicFocus), Flow = sum(Flow), AssetsStart = sum(AssetsStart)", 
         z, x, "ReportDate, FundId")
     z <- sql.1dActWtTrend.underlying.basic(z, mo.end)
     z <- c(z, sql.Holdings.bulk.wrapper("#HLD", y, mo.end, "#BMKHLD", 
@@ -11099,10 +11098,10 @@ sql.1dActWtTrend.underlying <- function (x, y, n, w)
 
 sql.1dActWtTrend.underlying.basic <- function (x, y) 
 {
-    x <- c("insert into", "\t#FLO (ReportDate, FundId, GeographicFocusId, Flow, AssetsStart)", 
+    x <- c("insert into", "\t#FLO (ReportDate, FundId, GeographicFocus, Flow, AssetsStart)", 
         sql.unbracket(x))
     x <- c(sql.index("#FLO", "ReportDate, FundId"), x)
-    x <- c("create table #FLO (ReportDate datetime not null, FundId int not null, GeographicFocusId int, Flow float, AssetsStart float)", 
+    x <- c("create table #FLO (ReportDate datetime not null, FundId int not null, GeographicFocus int, Flow float, AssetsStart float)", 
         x)
     x <- c(sql.drop(c("#AUM", "#HLD", "#FLO")), "", x)
     x <- c(x, "", "create table #AUM (FundId int not null, PortVal float not null)")
@@ -11441,7 +11440,7 @@ sql.1dFloMo.select.wrapper <- function (x, y, n, w = F)
         z <- n
     }
     else if (n == "GeoId") {
-        z <- "GeoId = GeographicFocusId"
+        z <- "GeoId = GeographicFocus"
     }
     else {
         z <- sql.breakdown(n)
@@ -11494,11 +11493,11 @@ sql.1dFloMoAggr <- function (x, y, n)
     z <- yyyymm.to.day(yyyymmdd.to.AllocMo(x, 26))
     z <- sql.into(sql.TopDownAllocs.underlying(z, y, n, T), "#ALLOC")
     y <- sql.arguments(y)
-    h <- "GeographicFocusId, Flow = sum(Flow), AssetsStart = sum(AssetsStart)"
-    w <- sql.label(sql.FundHistory(y$filter, T, c("FundId", "GeographicFocusId")), 
+    h <- "GeographicFocus, Flow = sum(Flow), AssetsStart = sum(AssetsStart)"
+    w <- sql.label(sql.FundHistory(y$filter, T, c("FundId", "GeographicFocus")), 
         "t1")
     w <- c(w, "inner join", "DailyData t2 on t2.HFundId = t1.HFundId")
-    h <- sql.tbl(h, w, paste0("ReportDate = '", x, "'"), "GeographicFocusId", 
+    h <- sql.tbl(h, w, paste0("ReportDate = '", x, "'"), "GeographicFocus", 
         "sum(AssetsStart) > 0")
     z <- c(z, "", sql.into(h, "#FLOWS"))
     y <- y$factor
@@ -11511,7 +11510,7 @@ sql.1dFloMoAggr <- function (x, y, n)
             sql.nonneg(paste0("sum(AssetsStart * AverageAllocation)")))
     }
     y <- c("SecurityId", y)
-    w <- c("#ALLOC t1", "inner join", "#FLOWS t2 on GeographicFocusId = GeoId")
+    w <- c("#ALLOC t1", "inner join", "#FLOWS t2 on GeographicFocus = GeoId")
     w <- c(w, "inner join", "SecurityHistory id on id.HSecurityId = t1.HSecurityId")
     w <- paste(sql.unbracket(sql.tbl(y, w, , "SecurityId")), 
         collapse = "\n")
@@ -11803,7 +11802,7 @@ sql.1dFundCt <- function (x, y, n, w, h)
         n <- n[[1]]
     else n <- sql.and(n)
     if (all(h == "GeoId")) 
-        z <- "GeoId = GeographicFocusId"
+        z <- "GeoId = GeographicFocus"
     else z <- setdiff(h, "All")
     if (w) 
         z <- c(z, "HSecurityId")
@@ -12055,9 +12054,9 @@ sql.1mActWtTrend.underlying <- function (x, y, n)
 {
     x <- yyyymm.to.day(x)
     z <- c("MonthlyData t1", "inner join", sql.label(sql.FundHistory(y, 
-        T, c("FundId", "GeographicFocusId")), "t2"), "on t2.HFundId = t1.HFundId")
-    z <- sql.tbl("ReportDate, FundId, GeographicFocusId, Flow = sum(Flow), AssetsStart = sum(AssetsStart)", 
-        z, paste0("ReportDate = '", x, "'"), "ReportDate, FundId, GeographicFocusId")
+        T, c("FundId", "GeographicFocus")), "t2"), "on t2.HFundId = t1.HFundId")
+    z <- sql.tbl("ReportDate, FundId, GeographicFocus, Flow = sum(Flow), AssetsStart = sum(AssetsStart)", 
+        z, paste0("ReportDate = '", x, "'"), "ReportDate, FundId, GeographicFocus")
     z <- sql.1dActWtTrend.underlying.basic(z, x)
     z <- c(z, sql.Holdings.bulk.wrapper("#HLD", y, x, "#BMKHLD", 
         "#BMKAUM"))
@@ -12421,15 +12420,15 @@ sql.1mAllocSkew <- function (x, y, n, w, h = "All")
 
 sql.1mAllocSkew.topline.from <- function (x) 
 {
-    z <- c("HSecurityId", "GeographicFocusId", "FundWtdExcl0 = sum(HoldingValue)/sum(PortVal)")
+    z <- c("HSecurityId", "GeographicFocus", "FundWtdExcl0 = sum(HoldingValue)/sum(PortVal)")
     y <- c("#AUM t3", "inner join", sql.label(sql.FundHistory(x, 
-        T, c("FundId", "GeographicFocusId")), "t1"), "\ton t1.HFundId = t3.HFundId")
+        T, c("FundId", "GeographicFocus")), "t1"), "\ton t1.HFundId = t3.HFundId")
     y <- c(y, "inner join", "#HLD t2 on t2.FundId = t1.FundId")
-    z <- sql.tbl(z, y, , "HSecurityId, GeographicFocusId")
-    z <- c("inner join", sql.label(z, "mnW"), "\ton mnW.GeographicFocusId = his.GeographicFocusId and mnW.HSecurityId = n1.HSecurityId")
+    z <- sql.tbl(z, y, , "HSecurityId, GeographicFocus")
+    z <- c("inner join", sql.label(z, "mnW"), "\ton mnW.GeographicFocus = his.GeographicFocus and mnW.HSecurityId = n1.HSecurityId")
     z <- c("inner join", "#HLD n1 on n1.FundId = his.FundId", 
         z)
-    z <- c(sql.label(sql.FundHistory(x, T, c("FundId", "GeographicFocusId")), 
+    z <- c(sql.label(sql.FundHistory(x, T, c("FundId", "GeographicFocus")), 
         "his"), "\ton his.HFundId = t.HFundId", z)
     z <- c("#AUM t", "inner join", z)
     z
@@ -12658,7 +12657,7 @@ sql.1mFundCt <- function (x, y, n, w, h, u = 0, v = "All")
         sql.tbl("HFundId", "MonthlyData", v))
     n <- sql.and(n)
     if (h == "GeoId") 
-        z <- "GeoId = GeographicFocusId"
+        z <- "GeoId = GeographicFocus"
     else z <- sql.breakdown(h)
     if (w) 
         z <- c(sql.ReportDate(r), z, "HSecurityId")
@@ -12731,7 +12730,7 @@ sql.1mHoldAum <- function (x, y, n, w, h)
         65)]] <- sql.FundHistory.sf(k)
     n <- sql.and(n)
     if (h == "GeoId") 
-        z <- "GeoId = GeographicFocusId"
+        z <- "GeoId = GeographicFocus"
     else z <- sql.breakdown(h)
     if (w) 
         z <- c(sql.ReportDate(r), z, "HSecurityId")
@@ -12823,31 +12822,6 @@ sql.1wFlow.Corp <- function (x)
     z
 }
 
-#' sql.4.to.5
-#' 
-#' converts SQL from 4 to 5
-#' @param x = a SQL string
-#' @keywords sql.4.to.5
-#' @export
-#' @family sql
-
-sql.4.to.5 <- function (x) 
-{
-    z <- txt.replace(x, "[Index] = 0", "isnull(Idx, 'N') = 'N'")
-    z <- txt.replace(z, "[Index] = 1", "not isnull(Idx, 'N') = 'N'")
-    z <- txt.replace(z, "ETFTypeId is not null", "ETF = 'Y'")
-    z <- txt.replace(z, "ETFTypeId is null", "not ETF = 'Y'")
-    z <- txt.replace(z, "GeographicFocusId", "GeographicFocus")
-    z <- txt.replace(z, "StyleSectorId", "StyleSector")
-    z <- txt.replace(z, "SRI = 1", "SRI_yn = 'Y'")
-    z <- txt.replace(z, "SRI = 0", "SRI_yn = 'N'")
-    z <- txt.replace(z, "ShareClasses", "ShareClass")
-    z <- txt.replace(z, "Institutional = 1", "InstOrRetail = 'Inst'")
-    z <- txt.replace(z, "\t[Id]\n", "\tSCID\n")
-    z <- txt.replace(z, "ShareClassId", "SCID")
-    z
-}
-
 #' sql.ActWtDiff2
 #' 
 #' ActWtDiff2 on R1 Materials for positioning
@@ -12859,7 +12833,7 @@ sql.4.to.5 <- function (x)
 sql.ActWtDiff2 <- function (x) 
 {
     mo.end <- yyyymmdd.to.AllocMo(x, 26)
-    w <- sql.and(list(A = "StyleSectorId = 101", B = "GeographicFocusId = 77", 
+    w <- sql.and(list(A = "StyleSector = 101", B = "GeographicFocus = 77", 
         C = "[Index] = 1"))
     w <- sql.in("HFundId", sql.tbl("HFundId", "FundHistory", 
         w))
@@ -13138,7 +13112,7 @@ sql.BenchIndex.duplication <- function (x)
 sql.breakdown <- function (x) 
 {
     z <- setdiff(x, "All")
-    z <- ifelse(z == "GeoId", "GeographicFocusId", x)
+    z <- ifelse(z == "GeoId", "GeographicFocus", x)
     z
 }
 
@@ -13297,7 +13271,7 @@ sql.cross.border <- function (x)
     y <- mat.read(y, "\t")
     y <- y[is.element(y$xBord, 1), ]
     if (x) 
-        x <- "GeographicFocusId"
+        x <- "GeographicFocus"
     else x <- "GeographicFocus"
     z <- paste(x, "=", paste(rownames(y), y[, "Name"], sep = "--"))
     z <- split(z, y[, "Abbrv"])
@@ -14488,7 +14462,7 @@ sql.RDSuniv <- function (x)
             z))
         z <- sql.in("HSecurityId", z)
         z <- list(A = z, B = sql.in("HFundId", sql.tbl("HFundId", 
-            "FundHistory", "GeographicFocusId = 16")))
+            "FundHistory", "GeographicFocus = 16")))
         z <- sql.and(z, "or")
         z <- sql.tbl("HSecurityId", "Holdings", z, "HSecurityId")
     }
@@ -14561,8 +14535,8 @@ sql.ReportDate <- function (x)
 sql.ShareClass <- function (x, y) 
 {
     if (any(y == c("Inst", "Retail"))) {
-        z <- sql.tbl("[Id]", "ShareClasses", "Institutional = 1")
-        z <- sql.in("ShareClassId", z, y == "Inst")
+        z <- sql.tbl("SCID", "ShareClass", "InstOrRetail = 'Inst'")
+        z <- sql.in("SCID", z, y == "Inst")
         z <- sql.and(list(A = x, B = z))
     }
     else z <- x
@@ -14749,7 +14723,7 @@ sql.TopDownAllocs.underlying <- function (x, y, n, w, h)
     if (h != "All") 
         u <- paste(c(paste0("t2.", sql.breakdown(h)), u), collapse = ", ")
     if (h == "GeoId") {
-        z <- "GeoId = t2.GeographicFocusId"
+        z <- "GeoId = t2.GeographicFocus"
     }
     else if (h == "All") {
         z <- NULL
