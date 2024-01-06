@@ -6490,6 +6490,8 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
         paste(paste(y, "float"), collapse = ", "), ")"), v)
     z <- c(z, "", v)
     v <- paste(Ctry.info(names(h), "GeoId"), collapse = ", ")
+    z <- c(z, "", sql.delete("#CTRY", sql.in("FundId", sql.tbl("FundId", 
+        "#FLO", sql.in("GeographicFocus", paste0("(", v, ")"))))))
     z <- c(z, "", sql.Allocations.bulk.Single("Universe", NULL, 
         "#CTRY", "GeographicFocus", c("GeographicFocus", v)))
     z <- c(z, "", sql.Allocations.bulk.EqWtAvg("Universe", NULL, 
@@ -6499,10 +6501,10 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
     foo <- mat.read(parameters("classif-GIgrp"))[, c("IndustryId", 
         "StyleSector")]
     foo <- foo[!is.na(foo$StyleSector), ]
-    g <- paste0("(", paste(foo[, "StyleSector"], collapse = ", "), 
+    v <- paste0("(", paste(foo[, "StyleSector"], collapse = ", "), 
         ")")
     z <- c(z, "", sql.delete("#INDY", sql.in("FundId", sql.tbl("FundId", 
-        "#FLO", sql.in("StyleSector", g)))))
+        "#FLO", sql.in("StyleSector", v)))))
     for (j in rownames(foo)) {
         v <- c("StyleSector", foo[j, "StyleSector"])
         r <- c("IndustryId", foo[j, "IndustryId"])
@@ -6619,6 +6621,8 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h, u = F, v = F)
             collapse = ", "), ")"), g)
     z <- c(z, "", g)
     g <- paste(Ctry.info(names(h$Region), "GeoId"), collapse = ", ")
+    z <- c(z, "", sql.delete("#CTRY", sql.in("FundId", sql.tbl("FundId", 
+        "#FLO", sql.in("GeographicFocus", paste0("(", g, ")"))))))
     z <- c(z, "", sql.Allocations.bulk.Single("Universe", NULL, 
         "#CTRY", h$Group, c("GeographicFocus", g)))
     z <- c(z, "", sql.Allocations.bulk.EqWtAvg("Universe", NULL, 
