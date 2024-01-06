@@ -6499,6 +6499,10 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
     foo <- mat.read(parameters("classif-GIgrp"))[, c("IndustryId", 
         "StyleSector")]
     foo <- foo[!is.na(foo$StyleSector), ]
+    g <- paste0("(", paste(foo[, "StyleSector"], collapse = ", "), 
+        ")")
+    z <- c(z, "", sql.delete("#INDY", sql.in("FundId", sql.tbl("FundId", 
+        "#FLO", sql.in("StyleSector", g)))))
     for (j in rownames(foo)) {
         v <- c("StyleSector", foo[j, "StyleSector"])
         r <- c("IndustryId", foo[j, "IndustryId"])
@@ -6624,6 +6628,10 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h, u = F, v = F)
     foo <- mat.read(parameters("classif-GSec"))[, c("SectorId", 
         "StyleSector")]
     foo <- foo[!is.na(foo$StyleSector), ]
+    g <- paste0("(", paste(foo[, "StyleSector"], collapse = ", "), 
+        ")")
+    z <- c(z, "", sql.delete("#SEC", sql.in("FundId", sql.tbl("FundId", 
+        "#FLO", sql.in("StyleSector", g)))))
     foo <- map.rname(foo, c(rownames(foo), "FinsExREst"))
     foo["FinsExREst", "SectorId"] <- 30
     foo["FinsExREst", "StyleSector"] <- foo["Fins", "StyleSector"]
@@ -13000,8 +13008,6 @@ sql.Allocations.bulk.Single <- function (x, y, n, w, h)
     z <- c(paste0("\t", n, " (", paste(c("FundId", w, r, x), 
         collapse = ", "), ")"), z)
     z <- c("insert into", z)
-    z <- c(sql.delete(n, sql.in("FundId", sql.tbl("FundId", "#FLO", 
-        h))), "", z)
     z
 }
 
