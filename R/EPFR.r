@@ -7667,30 +7667,8 @@ mk.SatoMem <- function (x, y, n)
 
 mk.sf.daily <- function (fcn, x, y, n, w) 
 {
-    z <- list()
-    conn <- sql.connect(y)
-    ctr <- 0
-    for (j in names(x)) {
-        cat(j, "...\n")
-        h <- fcn(x[[j]], w)
-        if (ctr == n) {
-            close(conn)
-            conn <- sql.connect(y)
-            ctr <- 0
-        }
-        r <- sql.query(h, conn, F)
-        ctr <- ctr + 1
-        while (is.null(dim(r))) {
-            cat(txt.hdr("NEW CONNECTION"), "\n")
-            close(conn)
-            conn <- sql.connect(y)
-            r <- sql.query(h, conn, F)
-            ctr <- 1
-        }
-        z[[j]] <- r
-    }
-    close(conn)
-    z
+    sql.get(function(x, y, n) sql.query(fcn(x, y), n, F), x, 
+        y, n, w)
 }
 
 #' mk.sqlDump
@@ -13765,6 +13743,44 @@ sql.FundHistory.sf <- function (x)
             z[[char.ex.int(length(z) + 65)]] <- h
         }
     }
+    z
+}
+
+#' sql.get
+#' 
+#' gets data using <fcn>
+#' @param fcn = get function
+#' @param x = list of vectors of flowdates
+#' @param y = name of an SQL connection (e.g. "StockFlows", "NEWUI" etc.)
+#' @param n = maximum number of queries using the same connection
+#' @param w = argument passed down to <fcn>
+#' @keywords sql.get
+#' @export
+#' @family sql
+
+sql.get <- function (fcn, x, y, n, w = NULL) 
+{
+    z <- list()
+    conn <- sql.connect(y)
+    ctr <- 0
+    for (j in names(x)) {
+        cat(j, "..\n")
+        if (ctr == n) {
+            close(conn)
+            conn <- sql.connect(y)
+            ctr <- 0
+        }
+        z[[j]] <- fcn(x[[j]], w, conn)
+        ctr <- ctr + 1
+        while (is.null(dim(z[[j]]))) {
+            cat(txt.hdr("NEW CONNECTION"), "\n")
+            close(conn)
+            conn <- sql.connect(y)
+            z[[j]] <- fcn(x[[j]], w, conn)
+            ctr <- 1
+        }
+    }
+    close(conn)
     z
 }
 
