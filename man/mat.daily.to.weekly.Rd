@@ -9,7 +9,7 @@ mat.daily.to.weekly(x, y)
 \arguments{
 \item{x}{= a matrix/df of daily data}
 
-\item{y}{= an integer representing the day the week ends on 0 is Sun, 1 is Mon, ..., 6 is Sat}
+\item{y}{= an integer representing the day the week ends on 0 is Sun, 1 is Mon, .., 6 is Sat}
 }
 \description{
 returns latest data in each week in ascending order

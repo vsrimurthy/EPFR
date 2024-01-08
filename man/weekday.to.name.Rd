@@ -10,6 +10,6 @@ weekday.to.name(x)
 \item{x}{= a vector of numbers between 0 and 6}
 }
 \description{
-Converts to 0 = Sun, 1 = Mon, ..., 6 = Sat
+Converts to 0 = Sun, 1 = Mon, .., 6 = Sat
 }
 \keyword{weekday.to.name}

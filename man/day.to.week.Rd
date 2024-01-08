@@ -9,7 +9,7 @@ day.to.week(x, y)
 \arguments{
 \item{x}{= a vector of calendar dates}
 
-\item{y}{= an integer representing the day the week ends on 0 is Sun, 1 is Mon, ..., 6 is Sat}
+\item{y}{= an integer representing the day the week ends on 0 is Sun, 1 is Mon, .., 6 is Sat}
 }
 \description{
 maps days to weeks

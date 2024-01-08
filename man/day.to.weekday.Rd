@@ -10,7 +10,7 @@ day.to.weekday(x)
 \item{x}{= a vector of yyyymmdd}
 }
 \description{
-Converts to 0 = Sun, 1 = Mon, ..., 6 = Sat
+Converts to 0 = Sun, 1 = Mon, .., 6 = Sat
 }
 \seealso{
 Other day: \code{\link{day.ex.date}},

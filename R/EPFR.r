@@ -1084,7 +1084,7 @@ britten.jones.data <- function (x, y, n, w = NULL)
                 vec <- find.gaps(w1)
                 if (any(vec < n - 1)) 
                   stop("Small return gap detected: i = ", i, 
-                    ", retHz =", n, "...\n")
+                    ", retHz =", n, "..\n")
                 if (any(vec >= n - 1)) {
                   vec <- vec[vec >= n - 1]
                   n.beg <- c(n.beg, as.numeric(names(vec)) + 
@@ -1124,7 +1124,7 @@ britten.jones.data.stack <- function (x, y, n, w, h)
         n <- dim(x)[1]
         x <- britten.jones(x, vec)
         if (is.null(x)) 
-            cat("Discarding", n, "observations for", h, "due to Britten-Jones singularity ...\n")
+            cat("Discarding", n, "observations for", h, "due to Britten-Jones singularity ..\n")
     }
     if (!is.null(x)) 
         x <- mat.ex.matrix(zav(t(map.rname(t(x), c("ActRet", 
@@ -1937,7 +1937,7 @@ day.to.int <- function (x)
 #' 
 #' maps days to weeks
 #' @param x = a vector of calendar dates
-#' @param y = an integer representing the day the week ends on 0 is Sun, 1 is Mon, ..., 6 is Sat
+#' @param y = an integer representing the day the week ends on 0 is Sun, 1 is Mon, .., 6 is Sat
 #' @keywords day.to.week
 #' @export
 #' @family day
@@ -1951,7 +1951,7 @@ day.to.week <- function (x, y)
 
 #' day.to.weekday
 #' 
-#' Converts to 0 = Sun, 1 = Mon, ..., 6 = Sat
+#' Converts to 0 = Sun, 1 = Mon, .., 6 = Sat
 #' @param x = a vector of yyyymmdd
 #' @keywords day.to.weekday
 #' @export
@@ -2005,7 +2005,7 @@ dir.all.files <- function (x, y)
 
 dir.clear <- function (x, y) 
 {
-    cat("Ridding folder", x, "of", y, "files ...\n")
+    cat("Ridding folder", x, "of", y, "files ..\n")
     z <- dir(x, y)
     if (length(x) > 0) 
         file.kill(paste(x, z, sep = "\\"))
@@ -2436,7 +2436,7 @@ factordump.rds <- function (x, y, n, w, h, u)
             if (any(is.dup)) {
                 df <- df[!is.dup, ]
                 cat("Removing", sum(is.dup), "duplicated SecurityId at", 
-                  k, "...\n")
+                  k, "..\n")
             }
             df <- vec.named(df[, "HSecurityId"], df[, "SecurityId"])
             vbl <- fetch(x, yyyymm.lag(k, -1), 1, paste(h$fldr, 
@@ -2557,7 +2557,7 @@ fcn.all.canonical <- function ()
     x <- fcn.list()
     w <- sapply(vec.to.list(x), fcn.canonical)
     if (all(w)) 
-        cat("All functions are canonical ...\n")
+        cat("All functions are canonical ..\n")
     if (any(!w)) 
         err.raise(x[!w], F, "The following functions are non-canonical")
     invisible()
@@ -3528,7 +3528,7 @@ fetch <- function (x, y, n, w, h)
                 z[, i] <- readRDS(df)[, lCol]
             }
             else {
-                cat("Warning:", df, "does not exist. Proceeding regardless ...\n")
+                cat("Warning:", df, "does not exist. Proceeding regardless ..\n")
             }
         }
     }
@@ -3539,7 +3539,7 @@ fetch <- function (x, y, n, w, h)
             z <- readRDS(z)[, lCol]
         }
         else {
-            cat("Warning:", z, "does not exist. Proceeding regardless ...\n")
+            cat("Warning:", z, "does not exist. Proceeding regardless ..\n")
             z <- rep(NA, dim(h)[1])
         }
     }
@@ -5750,7 +5750,7 @@ mat.daily.to.monthly <- function (x, y = F)
 #' 
 #' returns latest data in each week in ascending order
 #' @param x = a matrix/df of daily data
-#' @param y = an integer representing the day the week ends on 0 is Sun, 1 is Mon, ..., 6 is Sat
+#' @param y = an integer representing the day the week ends on 0 is Sun, 1 is Mon, .., 6 is Sat
 #' @keywords mat.daily.to.weekly
 #' @export
 #' @family mat
@@ -5880,9 +5880,9 @@ mat.index <- function (x, y = 1, n = T)
         z <- do.call(paste, mat.ex.matrix(x)[, y])
     else z <- x[, w]
     if (any(is.na(z))) 
-        stop("NA's in row indices ...")
+        stop("NA's in row indices ..")
     if (any(duplicated(z))) 
-        stop("Duplicated row indices ...")
+        stop("Duplicated row indices ..")
     if (!n) {
         rownames(x) <- z
         z <- x
@@ -6042,7 +6042,7 @@ mat.to.last.Idx <- function (x)
 {
     z <- rownames(x)[dim(x)[1]]
     cat("Original data had", dim(x)[1], "rows ending at", z, 
-        "...\n")
+        "..\n")
     z
 }
 
@@ -8303,12 +8303,12 @@ position.floPct <- function (x, y, n)
     x <- strat.path(x, "daily")
     x <- multi.asset(x)
     if (all(n != rownames(x))) {
-        cat("Date", n, "not recognized! No output will be published ...\n")
+        cat("Date", n, "not recognized! No output will be published ..\n")
         z <- NULL
     }
     else {
         if (rownames(x)[dim(x)[1]] != n) {
-            cat("Warning: Latest data not being used! Proceeding regardless ...\n")
+            cat("Warning: Latest data not being used! Proceeding regardless ..\n")
             x <- x[rownames(x) <= n, ]
         }
         if (missing(y)) 
@@ -8475,7 +8475,7 @@ production.write <- function (x, y)
         proceed <- all(unlist(zav(x[rownames(w), ]) == zav(w)))
     if (proceed) {
         mat.write(x, y)
-        cat("Writing to", y, "...\n")
+        cat("Writing to", y, "..\n")
     }
     invisible()
 }
@@ -9345,7 +9345,7 @@ refresh.predictors <- function (fcn, x, y, n, w, h, u)
         z <- refresh.predictors.append(x, z, h, F)
     }
     else {
-        cat("There is no need to update the data ...\n")
+        cat("There is no need to update the data ..\n")
         z <- NULL
     }
     z
@@ -9385,7 +9385,7 @@ refresh.predictors.append <- function (x, y, n = F, w = F)
     z <- z[order(rownames(z)), ]
     last.date <- rownames(z)[dim(z)[1]]
     cat("Final data have", dim(z)[1], "rows ending at", last.date, 
-        "...\n")
+        "..\n")
     z
 }
 
@@ -9650,17 +9650,17 @@ rpt.email <- function (x, y, n, w, h, u, v)
     flo.dt <- paste(fldr, "Exhibits", "FlowDate.txt", sep = "\\")
     proceed <- file.exists(flo.dt)
     if (proceed) {
-        cat("Reading date from", flo.dt, "...\n")
+        cat("Reading date from", flo.dt, "..\n")
         flo.dt <- readLines(flo.dt)[1]
     }
     else {
-        cat("File", flo.dt, "does not exist ...\n")
+        cat("File", flo.dt, "does not exist ..\n")
     }
     if (proceed & n) {
         proceed <- flo.dt == publish.weekly.last()
         if (!proceed) 
             cat("Aborting. Data date", flo.dt, "does not correspond to latest publication week", 
-                publish.weekly.last(), "...\n")
+                publish.weekly.last(), "..\n")
     }
     if (proceed) {
         out.files <- parameters.ex.file(dir.publications(x), 
@@ -9673,7 +9673,7 @@ rpt.email <- function (x, y, n, w, h, u, v)
     }
     u <- substring(u, nchar(fldr) + 2, nchar(u) - nchar("Email.log"))
     if (proceed & email.exists(u, flo.dt)) {
-        cat("Aborting: The email for", u, "has already gone out ... \n")
+        cat("Aborting: The email for", u, "has already gone out .. \n")
         proceed <- F
     }
     if (proceed) {
@@ -9689,7 +9689,7 @@ rpt.email <- function (x, y, n, w, h, u, v)
                 w, out.files)
         }
         else {
-            stop("Can't handle this yet ...\n")
+            stop("Can't handle this yet ..\n")
         }
         email.record(u, flo.dt)
     }
@@ -12895,6 +12895,9 @@ sql.Allocation.Sec <- function (x, y = NULL, n = "All")
     v <- sql.unbracket(sql.Allocation(h, "Industry", y, n, sql.and(x)))
     z <- c(z, "", "insert into", paste0("\t#SEC (", paste(r, 
         collapse = ", "), ")"), v)
+    v <- sql.tbl("FundId", "#SEC", "SectorId = 7")
+    v <- list(A = "SectorId = 20", B = sql.in("FundId", v, F))
+    z <- c(z, "", sql.delete("#SEC", sql.and(v)))
     z <- c(z, "", sql.Allocation.Sec.FinsExREst(r))
     z
 }
@@ -14435,7 +14438,7 @@ sql.query.underlying <- function (x, y, n = T)
     for (i in x) z <- sqlQuery(y, i, stringsAsFactors = F)
     if (n) 
         cat("Getting", txt.ex.int(dim(z)[1]), "new", ifelse(dim(z)[1] != 
-            1, "rows", "row"), "of data ...\n")
+            1, "rows", "row"), "of data ..\n")
     z
 }
 
@@ -15074,7 +15077,7 @@ sqlts.wrapper <- function (x, y)
     z <- list()
     h <- sql.connect("StockFlows")
     for (i in x) {
-        cat(i, "...\n")
+        cat(i, "..\n")
         z[[as.character(i)]] <- sqlQuery(h, y(i), stringsAsFactors = F)
     }
     close(h)
@@ -15901,7 +15904,7 @@ txt.gunning <- function (x, y, n)
     h <- length(x)
     if (h < 100) 
         cat("Passage needs to have at least a 100 words.\nNeed at least", 
-            100 - h, "more words ...\n")
+            100 - h, "more words ..\n")
     z <- h/nonneg(z)
     if (missing(n)) {
         n <- union(txt.words(1), txt.words(2))
@@ -16319,7 +16322,7 @@ variance.ratio.test <- function (x, y)
 {
     y <- as.numeric(y)
     if (is.na(y) | y == 1) 
-        stop("Bad value of y ...")
+        stop("Bad value of y ..")
     x <- x - mean(x)
     T <- length(x)
     sd.1 <- sum(x^2)/(T - 1)
@@ -16557,7 +16560,7 @@ versionR <- function ()
 
 #' weekday.to.name
 #' 
-#' Converts to 0 = Sun, 1 = Mon, ..., 6 = Sat
+#' Converts to 0 = Sun, 1 = Mon, .., 6 = Sat
 #' @param x = a vector of numbers between 0 and 6
 #' @keywords weekday.to.name
 #' @export
@@ -16929,7 +16932,7 @@ yyyymmdd.ex.yyyymm <- function (x, y = T)
     if (any(w)) 
         z[w] <- yyyymm.lag(z[w])
     if (!y & length(x) > 1) 
-        stop("You can't do this ...\n")
+        stop("You can't do this ..\n")
     if (!y) {
         x <- paste0(x, "01")
         x <- yyyymmdd.ex.day(x)
@@ -17027,7 +17030,7 @@ yyyymmdd.to.AllocMo.unique <- function (x, y, n)
 
 #' yyyymmdd.to.CalYrDyOfWk
 #' 
-#' Converts to 0 = Sun, 1 = Mon, ..., 6 = Sat
+#' Converts to 0 = Sun, 1 = Mon, .., 6 = Sat
 #' @param x = a vector of dates in yyyymmdd format
 #' @keywords yyyymmdd.to.CalYrDyOfWk
 #' @export

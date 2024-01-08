@@ -10,7 +10,7 @@ yyyymmdd.to.CalYrDyOfWk(x)
 \item{x}{= a vector of dates in yyyymmdd format}
 }
 \description{
-Converts to 0 = Sun, 1 = Mon, ..., 6 = Sat
+Converts to 0 = Sun, 1 = Mon, .., 6 = Sat
 }
 \seealso{
 Other yyyymmdd: \code{\link{yyyymmdd.bulk}},
