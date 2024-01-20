@@ -239,6 +239,47 @@ ftp.dir <- function (x, y, n, w, h = F, u = "ftp", v)
     z
 }
 
+#' acronymize
+#' 
+#' randomly acronymnizes
+#' @param x = string vector
+#' @keywords acronymize
+#' @export
+
+acronymize <- function (x) 
+{
+    z <- x
+    m <- int.random(10)
+    n <- int.random(4)
+    if (m + n - 1 <= length(z)) {
+        x <- toupper(txt.left(z[m + 0:n], 1))
+        z[m] <- paste0(paste(x, collapse = "."), ".")
+        for (j in 1:n) z <- z[-(m + 1)]
+        if (m < length(z)) 
+            z <- c(z[1:m], acronymize(z[seq(m + 1, length(z))]))
+    }
+    z
+}
+
+#' acronymize.wrapper
+#' 
+#' randomly acronymnizes
+#' @param x = string
+#' @keywords acronymize.wrapper
+#' @export
+
+acronymize.wrapper <- function (x) 
+{
+    z <- txt.trim(txt.parse(x, "."))
+    for (j in seq_along(z)) {
+        y <- txt.parse(z[j], " ")
+        y <- acronymize(y)
+        z[j] <- paste(y, collapse = " ")
+    }
+    z <- paste0(paste(z, collapse = ". "), ".")
+    z
+}
+
 #' angle
 #' 
 #' angle ABC
@@ -5257,6 +5298,19 @@ int.format <- function (x)
     txt.trim(prettyNum(as.character(x), big.mark = ","))
 }
 
+#' int.random
+#' 
+#' random integer between 1 and <x>
+#' @param x = a natural number
+#' @keywords int.random
+#' @export
+#' @family int
+
+int.random <- function (x = 5) 
+{
+    order(rnorm(x))[1]
+}
+
 #' int.to.prime
 #' 
 #' prime factors of <x>
@@ -6789,7 +6843,7 @@ mk.1mActPas.Sec <- function (x, y, n)
     z <- c(sql.index("#SEC", "FundId, SectorId"), z)
     z <- c("create table #SEC (FundId int not null, SectorId int not null, Idx char(1), Allocation float)", 
         z)
-    z <- c(z, "", "update #SEC set Idx = 'N' where Idx is NULL")
+    z <- c(z, "", sql.update("#SEC", "Idx = 'N'", , "Idx is NULL"))
     z <- paste(c(sql.drop("#SEC"), "", z), collapse = "\n")
     v <- c("SectorId", "Idx", "Allocation = avg(Allocation)")
     v <- sql.tbl(v, "#SEC", , paste(v[-length(v)], collapse = ", "))
@@ -11071,8 +11125,8 @@ sql.1dActWtTrend.underlying <- function (x, y, n, w)
     z <- c(z, sql.Holdings.bulk.wrapper("#HLD", y, mo.end, "#BMKHLD", 
         "#BMKAUM"))
     if (n[1] != "") 
-        z <- c(z, "", "delete from #HLD where", paste0("\t", 
-            sql.in("HSecurityId", n, F)))
+        z <- c(z, "", sql.delete("#HLD", sql.in("HSecurityId", 
+            n, F)))
     z <- paste(z, collapse = "\n")
     z
 }
@@ -11675,7 +11729,7 @@ sql.1dFloTrend.Alloc.purge <- function (x, y)
     h <- lapply(split(h, h), function(h) paste0(x, ".", h, " = t.", 
         h))
     z <- sql.tbl(c("FundId", y), sql.label(z, "t"), sql.and(h))
-    z <- c(paste("delete from", x, "where exists"), z)
+    z <- sql.delete(x, sql.exists(z))
     z
 }
 
@@ -11734,19 +11788,23 @@ sql.1dFloTrend.underlying <- function (x, y, n, w, h)
         sql.unbracket(sql.MonthlyAlloc(wrap(n[1]))))
     z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(wrap(n[1]), , 
         T), "#NEWAUM"))
-    z <- c(z, "delete from #NEWHLD where FundId not in (select FundId from #NEWAUM)")
-    z <- c(z, "update #NEWHLD set HoldingValue = HoldingValue/AssetsEnd from #NEWAUM where #NEWAUM.FundId = #NEWHLD.FundId")
+    z <- c(z, sql.delete("#NEWHLD", sql.in("FundId", "(select FundId from #NEWAUM)", 
+        F)))
+    z <- c(z, sql.update("#NEWHLD", "HoldingValue = HoldingValue/AssetsEnd", 
+        "#NEWAUM", "#NEWAUM.FundId = #NEWHLD.FundId"))
     z <- c(z, "", "create table #OLDHLD (FundId int not null, HFundId int not null, HSecurityId int not null, HoldingValue float)")
     z <- c(z, sql.index("#OLDHLD", "FundId, HSecurityId"))
     z <- c(z, "insert into", "\t#OLDHLD (FundId, HFundId, HSecurityId, HoldingValue)", 
         sql.unbracket(sql.MonthlyAlloc(wrap(n[2]))))
     z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(wrap(n[2]), , 
         T), "#OLDAUM"))
-    z <- c(z, "delete from #OLDHLD where FundId not in (select FundId from #OLDAUM)")
-    z <- c(z, "update #OLDHLD set HoldingValue = HoldingValue/AssetsEnd from #OLDAUM where #OLDAUM.FundId = #OLDHLD.FundId")
+    z <- c(z, sql.delete("#OLDHLD", sql.in("FundId", "(select FundId from #OLDAUM)", 
+        F)))
+    z <- c(z, sql.update("#OLDHLD", "HoldingValue = HoldingValue/AssetsEnd", 
+        "#OLDAUM", "#OLDAUM.FundId = #OLDHLD.FundId"))
     if (y != "All") 
-        z <- c(z, "", "delete from #NEWHLD where", paste0("\t", 
-            sql.in("HSecurityId", sql.RDSuniv(y), F)), "")
+        z <- c(z, "", sql.delete("#NEWHLD", sql.in("HSecurityId", 
+            sql.RDSuniv(y), F)), "")
     h <- c(sql.drop(c("#NEWHLD", "#NEWAUM", "#OLDHLD", "#OLDAUM")), 
         "", z, "")
     z <- sql.label(sql.FundHistory(x, T, "FundId"), "his")
@@ -11939,19 +11997,11 @@ sql.1mActWtIncrPct <- function (x, y, n, w)
         "[Description]", "Allocation = HoldingValue/AssetsEnd"), 
         v, u), "#OLD")
     z <- c(sql.drop(c("#NEW", "#OLD")), "", z, "", u)
-    for (j in c("#NEW", "#OLD")) {
-        v <- sql.tbl("[Description]", j, "[Index] = 0", "[Description]")
-        v <- sql.in("[Description]", v, F)
-        v <- sql.unbracket(sql.tbl("", j, v))
-        v[1] <- "delete from"
-        v <- v[-2][-2]
-        z <- c(z, "", v)
-        v <- sql.tbl("[Description]", j, "[Index] = 1", "[Description]")
-        v <- sql.in("[Description]", v, F)
-        v <- sql.unbracket(sql.tbl("", j, v))
-        v[1] <- "delete from"
-        v <- v[-2][-2]
-        z <- c(z, "", v)
+    for (j in c("#NEW", "#OLD")) for (u in 0:1) {
+        v <- sql.tbl("[Description]", j, paste("[Index] =", u), 
+            "[Description]")
+        z <- c(z, "", sql.delete(j, sql.in("[Description]", v, 
+            F)))
     }
     for (j in c("#NEW", "#OLD")) {
         u <- c("FundId", "[Index]", "[Description]")
@@ -11981,15 +12031,15 @@ sql.1mActWtIncrPct <- function (x, y, n, w)
         v <- vec.to.list(c("[Description]", "SecurityId"))
         v <- lapply(v, function(x) paste0(j, ".", x, " = t.", 
             x))
-        v <- sql.tbl(paste0("Allocation = ", j, ".Allocation - t.Allocation"), 
+        v <- sql.update(j, paste0("Allocation = ", j, ".Allocation - t.Allocation"), 
             u, sql.and(v))
-        v <- sql.unbracket(v)
-        v[1] <- paste("update", j, "set")
         z <- c(z, "", v)
-        z <- c(z, "", paste("delete from", j, "where [Index] = 1"))
+        z <- c(z, "", sql.delete(j, "[Index] = 1"))
     }
-    z <- c(z, "", "delete from #NEW where FundId not in (select FundId from #OLD)")
-    z <- c(z, "", "delete from #OLD where FundId not in (select FundId from #NEW)")
+    z <- c(z, "", sql.delete("#NEW", sql.in("FundId", "(select FundId from #OLD)", 
+        F)))
+    z <- c(z, "", sql.delete("#OLD", sql.in("FundId", "(select FundId from #NEW)", 
+        F)))
     v <- paste(z, collapse = "\n")
     if (!w) {
         z <- "SecurityId = isnull(t1.SecurityId, t2.SecurityId)"
@@ -12051,10 +12101,10 @@ sql.1mActWtTrend.underlying <- function (x, y, n)
     z <- c(z, sql.Holdings.bulk.wrapper("#HLD", y, x, "#BMKHLD", 
         "#BMKAUM"))
     if (n[1] != "") 
-        z <- c(z, "", "delete from #HLD where", paste0("\t", 
-            sql.in("HSecurityId", n, F)))
-    z <- c(z, "", "delete from #HLD where", paste0("\t", sql.in("FundId", 
-        sql.tbl("FundId", "#FLO"), F)), "")
+        z <- c(z, "", sql.delete("#HLD", sql.in("HSecurityId", 
+            n, F)))
+    z <- c(z, "", sql.delete("#HLD", sql.in("FundId", sql.tbl("FundId", 
+        "#FLO"), F)), "")
     z <- paste(z, collapse = "\n")
     z
 }
@@ -12111,21 +12161,19 @@ sql.1mAllocD <- function (x, y, n, w, h)
         h <- c("t1.SecurityId", "Prc = isnull(t2.Prc, t1.Prc)")
         v <- sql.label(sql.tbl(h, v), "t")
         h <- "HoldingValue = 1e-6 * SharesHeld * Prc"
-        v <- sql.tbl(h, v, "#OLD.SecurityId = t.SecurityId")
-        v <- sql.unbracket(v)
-        v[1] <- "update #OLD set"
+        v <- sql.update("#OLD", h, v, "#OLD.SecurityId = t.SecurityId")
         z <- c(z, "", v)
         v <- c("FundId", "AUM = sum(HoldingValue)")
         v <- sql.label(sql.tbl(v, "#OLD", , "FundId", "sum(HoldingValue) > 0"), 
             "t")
-        v <- sql.tbl("Allocation = HoldingValue/AUM", v, "#OLD.FundId = t.FundId")
-        v <- sql.unbracket(v)
-        v[1] <- "update #OLD set"
+        v <- sql.update("#OLD", "Allocation = HoldingValue/AUM", 
+            v, "#OLD.FundId = t.FundId")
         z <- c(z, "", v)
-        z <- c(z, "", "delete from #OLD where SecurityId = -999")
+        z <- c(z, "", sql.delete("#OLD", "SecurityId = -999"))
     }
-    v <- paste(c(z, "", "delete from #NEW where FundId not in (select FundId from #OLD)"), 
-        collapse = "\n")
+    v <- sql.delete("#NEW", sql.in("FundId", "(select FundId from #OLD)", 
+        F))
+    v <- paste(c(z, "", v), collapse = "\n")
     if (!w) {
         z <- "SecurityId = isnull(t1.SecurityId, t2.SecurityId)"
     }
@@ -12381,8 +12429,7 @@ sql.1mAllocSkew <- function (x, y, n, w, h = "All")
     if (any(y$filter == "Up")) {
         h <- sql.tbl("HFundId", "MonthlyData", paste0("ReportDate = '", 
             x, "'"), "HFundId", "sum(AssetsEnd - AssetsStart - Flow) < 0")
-        z <- c(z, c("delete from #HLD where", sql.in("HFundId", 
-            h)), "")
+        z <- c(z, sql.delete("#HLD", sql.in("HFundId", h)), "")
     }
     if (w) 
         x <- c(sql.ReportDate(x), "n1.HSecurityId")
@@ -12440,7 +12487,7 @@ sql.1mBullish.Alloc <- function (x, y, n)
         "int not null, BenchIndex int, Idx char(1), Allocation float)")
     z <- c(z, c(sql.index(n, paste("FundId,", y)), x))
     z <- c(z, "", sql.BenchIndex.duplication(n))
-    z <- c(z, "", paste("update", n, "set Idx = 'N' where Idx is NULL"))
+    z <- c(z, "", sql.update(n, "Idx = 'N'", , "Idx is NULL"))
     z <- paste(c(sql.drop(n), "", z), collapse = "\n")
     z
 }
@@ -12598,8 +12645,8 @@ sql.1mFloTrend.underlying <- function (x, y, n)
     z <- c(z, sql.Holdings.bulk.wrapper("#OLDHLD", x, yyyymm.to.day(n[2]), 
         "#OLDBMKHLD", "#OLDBMKAUM"))
     if (y != "All") 
-        z <- c(z, "", "delete from #NEWHLD where", paste0("\t", 
-            sql.in("HSecurityId", sql.RDSuniv(y), F)), "")
+        z <- c(z, "", sql.delete("#NEWHLD", sql.in("HSecurityId", 
+            sql.RDSuniv(y), F)), "")
     h <- c(sql.drop(c("#FLO", txt.expand(vec, c("HLD", "AUM"), 
         ""))), "", z, "")
     z <- c(sql.label(sql.FundHistory(x, T, "FundId"), "his"), 
@@ -13086,9 +13133,8 @@ sql.BenchIndex.duplication <- function (x)
     z <- c(sql.label(z, "t1"), "inner join", "BenchIndexes t2 on t2.BIDesc = t1.BIDesc")
     z <- sql.label(sql.tbl(c("BIID", "BenchIndex"), z, "not BIID = BenchIndex"), 
         "t")
-    z <- sql.unbracket(sql.tbl("BenchIndex = t.BenchIndex", z, 
-        paste0(x, ".BenchIndex = t.BIID")))
-    z[1] <- paste("update", x, "set")
+    z <- sql.update(x, "BenchIndex = t.BenchIndex", z, paste0(x, 
+        ".BenchIndex = t.BIID"))
     z
 }
 
@@ -13137,10 +13183,10 @@ sql.Bullish <- function (x, y, n, w)
             sql.FundHistory(y$filter, T))
     h <- sql.and(h)
     z <- c(z, sql.unbracket(sql.tbl(cols, "Holdings", h)), "")
-    h <- sql.MonthlyAssetsEnd(wrap(x), , , , "PortVal")
-    z <- c(z, "update #HLD", "\tset HoldingValue = 100 * HoldingValue/PortVal")
-    z <- c(z, "from", sql.label(paste0("\t", h), "t"), "where", 
-        "\t#HLD.HFundId = t.HFundId", "")
+    h <- sql.label(sql.MonthlyAssetsEnd(wrap(x), , , , "PortVal"), 
+        "t")
+    z <- c(z, sql.update("#HLD", "HoldingValue = 100 * HoldingValue/PortVal", 
+        h, "#HLD.HFundId = t.HFundId"))
     u <- sql.and(list(A = "[Index] = 1", B = "HFundId in (select HFundId from #HLD)"))
     h <- c(sql.label(sql.tbl("HFundId, BenchIndexId", "FundHistory", 
         u), "t1"), "inner join")
@@ -13150,8 +13196,9 @@ sql.Bullish <- function (x, y, n, w)
         "#HLD t3 on t3.HFundId = t1.HFundId")
     u <- "t1.BenchIndexId, t3.HSecurityId, BmkWt = sum(HoldingValue)/nFunds"
     h <- sql.tbl(u, h, , "t1.BenchIndexId, t3.HSecurityId, nFunds")
-    z <- c(z, sql.into(h, "#BMK"), "")
-    z <- c(z, "delete from #HLD where HFundId in (select HFundId from FundHistory where [Index] = 1)")
+    z <- c(z, "", sql.into(h, "#BMK"), "")
+    z <- c(z, sql.delete("#HLD", sql.in("HFundId", sql.tbl("HFundId", 
+        "FundHistory", "[Index] = 1)"))))
     if (w) 
         x <- c(sql.ReportDate(x), "t1.HSecurityId")
     else x <- "SecurityId"
@@ -13425,9 +13472,8 @@ sql.Dispersion <- function (x, y, n, w)
     z <- c(z, "insert into #BMK", sql.unbracket(h))
     h <- sql.label(sql.tbl("BenchIndexId, AUM = sum(HoldingValue)", 
         "#BMK", , "BenchIndexId", "sum(HoldingValue) > 0"), "t")
-    h <- sql.unbracket(sql.tbl("HoldingValue = HoldingValue/AUM", 
+    z <- c(z, "", sql.update("#BMK", "HoldingValue = HoldingValue/AUM", 
         h, "#BMK.BenchIndexId = t.BenchIndexId"))
-    z <- c(z, "", "update #BMK set", h[-1])
     z <- c(z, "", "create table #HLD (HFundId int not null, HSecurityId int not null, HoldingValue float not null)")
     z <- c(z, sql.index("#HLD", "HFundId, HSecurityId"))
     u <- "BenchIndexId in (select BenchIndexId from #BMK)"
@@ -13439,22 +13485,20 @@ sql.Dispersion <- function (x, y, n, w)
     z <- c(z, "insert into #HLD", sql.unbracket(h))
     h <- sql.label(sql.tbl("HFundId, AUM = sum(HoldingValue)", 
         "#HLD", , "HFundId", "sum(HoldingValue) > 0"), "t")
-    h <- sql.unbracket(sql.tbl("HoldingValue = HoldingValue/AUM", 
+    z <- c(z, "", sql.update("#HLD", "HoldingValue = HoldingValue/AUM", 
         h, "#HLD.HFundId = t.HFundId"))
-    z <- c(z, "", "update #HLD set", h[-1])
     h <- c("FundHistory t1", "inner join", "#BMK t2 on t2.BenchIndexId = t1.BenchIndexId")
     u <- "#HLD.HFundId = t1.HFundId and #HLD.HSecurityId = t2.HSecurityId"
-    h <- sql.unbracket(sql.tbl("HoldingValue = #HLD.HoldingValue - t2.HoldingValue", 
+    z <- c(z, "", sql.update("#HLD", "HoldingValue = #HLD.HoldingValue - t2.HoldingValue", 
         h, u))
-    z <- c(z, "", "update #HLD set", h[-1])
     u <- sql.tbl("HFundId, HSecurityId", "#HLD t", "t1.HFundId = t.HFundId and t2.HSecurityId = t.HSecurityId")
     u <- sql.and(list(A = sql.exists(u, F), B = "t1.HFundId in (select HFundId from #HLD)"))
     h <- c("FundHistory t1", "inner join", "#BMK t2 on t2.BenchIndexId = t1.BenchIndexId")
     h <- sql.tbl("HFundId, HSecurityId, -HoldingValue", h, u)
     z <- c(z, "", "insert into #HLD", sql.unbracket(h))
     if (n != "All") 
-        z <- c(z, "", "delete from #HLD where", sql.in("HSecurityId", 
-            sql.RDSuniv(n), F))
+        z <- c(z, "", sql.delete("#HLD", sql.in("HSecurityId", 
+            sql.RDSuniv(n), F)))
     z <- paste(z, collapse = "\n")
     h <- "#HLD hld"
     if (w) {
@@ -13881,12 +13925,11 @@ sql.Holdings.bulk <- function (x, y, n, w, h)
     h <- sql.tbl("HFundId, AUM", h, sql.and(list(A = paste(vec[2], 
         "HFundId = t1.HFundId", sep = "."), B = paste(vec[2], 
         "AUM = t2.AUM", sep = "."))))
-    z <- c(z, "", paste("delete from", vec[2], "where not exists"), 
-        paste0("\t", h))
-    z <- c(z, "", paste("delete from", vec[1], "where HFundId not in (select HFundId from", 
-        vec[2], ")"), "")
-    z <- c(z, paste0("update ", vec[1], " set HoldingValue = HoldingValue/AUM from ", 
-        vec[2], " where ", vec[1], ".HFundId = ", vec[2], ".HFundId"))
+    z <- c(z, "", sql.delete(vec[2], sql.exists(h, F)))
+    z <- c(z, "", sql.delete(vec[1], sql.in("HFundId", sql.tbl("HFundId", 
+        vec[2]), F)), "")
+    z <- c(z, sql.update(vec[1], "HoldingValue = HoldingValue/AUM", 
+        vec[2], paste0(vec[1], ".HFundId = ", vec[2], ".HFundId")))
     z <- c(z, "", sql.drop(vec[2]))
     w <- sql.MonthlyAssetsEnd(wrap(n), , , , "AUM")
     w <- c(sql.label(w, "t1"), "inner join", "FundHistory t2 on t1.HFundId = t2.HFundId")
@@ -14857,7 +14900,7 @@ sql.unbracket <- function (x)
 #' update <x> set <y> from <n> where <w>
 #' @param x = table name
 #' @param y = set argument
-#' @param n = from argument
+#' @param n = from argument (can be missing)
 #' @param w = where clause
 #' @keywords sql.update
 #' @export
@@ -14865,8 +14908,11 @@ sql.unbracket <- function (x)
 
 sql.update <- function (x, y, n, w) 
 {
-    c("update", paste0("\t", x), "set", paste0("\t", y), "from", 
-        paste0("\t", n), "where", paste0("\t", w))
+    z <- c("update", paste0("\t", x), "set", paste0("\t", y))
+    if (!missing(n)) 
+        z <- c(z, "from", paste0("\t", n))
+    z <- c(z, "where", paste0("\t", w))
+    z
 }
 
 #' sql.yield.curve

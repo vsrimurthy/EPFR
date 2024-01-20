@@ -11,7 +11,7 @@ sql.update(x, y, n, w)
 
 \item{y}{= set argument}
 
-\item{n}{= from argument}
+\item{n}{= from argument (can be missing)}
 
 \item{w}{= where clause}
 }
