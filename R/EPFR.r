@@ -13428,10 +13428,7 @@ sql.declare <- function (x, y, n)
 
 sql.delete <- function (x, y) 
 {
-    x <- paste0("\t", x)
-    y <- paste0("\t", y)
-    z <- c("delete from", x, "where", y)
-    z
+    c("delete from", paste0("\t", x), "where", paste0("\t", y))
 }
 
 #' sql.Diff
@@ -14654,7 +14651,7 @@ sql.SRI <- function (x, y)
 #' 
 #' Full SQL statement
 #' @param x = needed columns
-#' @param y = table
+#' @param y = from clause
 #' @param n = where clause
 #' @param w = "group by" clause
 #' @param h = having clause
@@ -14669,10 +14666,7 @@ sql.tbl <- function (x, y, n, w, h, u)
     z <- c(txt.left(x[-1], 1) != "\t", F)
     z <- paste0(x, ifelse(z, ",", ""))
     z <- c("(select", paste0("\t", txt.replace(z, "\n", "\n\t")))
-    x <- txt.right(y, 5) == " join"
-    x <- x & txt.left(c(y[-1], ""), 1) != "\t"
-    x <- ifelse(x, "", "\t")
-    z <- c(z, "from", paste0(x, txt.replace(y, "\n", "\n\t")))
+    z <- c(z, "from", sql.tbl.from(y))
     if (!missing(n)) 
         z <- c(z, "where", paste0("\t", n))
     if (!missing(w)) 
@@ -14682,6 +14676,23 @@ sql.tbl <- function (x, y, n, w, h, u)
     if (!missing(u)) 
         z <- c(z, "order by", paste0("\t", u))
     z <- c(z, ")")
+    z
+}
+
+#' sql.tbl.from
+#' 
+#' indented from clause
+#' @param x = from clause
+#' @keywords sql.tbl.from
+#' @export
+#' @family sql
+
+sql.tbl.from <- function (x) 
+{
+    z <- txt.right(x, 5) == " join"
+    z <- z & txt.left(c(x[-1], ""), 1) != "\t"
+    z <- ifelse(z, "", "\t")
+    z <- paste0(z, txt.replace(x, "\n", "\n\t"))
     z
 }
 
@@ -14922,7 +14933,7 @@ sql.update <- function (x, y, n, w)
 {
     z <- c("update", paste0("\t", x), "set", paste0("\t", y))
     if (!missing(n)) 
-        z <- c(z, "from", paste0("\t", n))
+        z <- c(z, "from", sql.tbl.from(n))
     z <- c(z, "where", paste0("\t", w))
     z
 }

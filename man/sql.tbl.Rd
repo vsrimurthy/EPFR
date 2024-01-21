@@ -9,7 +9,7 @@ sql.tbl(x, y, n, w, h, u)
 \arguments{
 \item{x}{= needed columns}
 
-\item{y}{= table}
+\item{y}{= from clause}
 
 \item{n}{= where clause}
 
@@ -128,8 +128,8 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.nonneg}},
   \code{\link{sql.query.underlying}},
   \code{\link{sql.query}}, \code{\link{sql.regr}},
-  \code{\link{sql.ui}}, \code{\link{sql.unbracket}},
-  \code{\link{sql.update}},
+  \code{\link{sql.tbl.from}}, \code{\link{sql.ui}},
+  \code{\link{sql.unbracket}}, \code{\link{sql.update}},
   \code{\link{sql.yield.curve.1dFloMo}},
   \code{\link{sql.yield.curve}},
   \code{\link{sql.yyyymmdd}}, \code{\link{sql.yyyymm}}
