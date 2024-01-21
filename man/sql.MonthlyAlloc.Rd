@@ -4,12 +4,16 @@
 \alias{sql.MonthlyAlloc}
 \title{sql.MonthlyAlloc}
 \usage{
-sql.MonthlyAlloc(x, y = "All")
+sql.MonthlyAlloc(x, y = "All", n = F, w = F)
 }
 \arguments{
 \item{x}{= YYYYMMDD for which you want allocations}
 
 \item{y}{= any of StockFlows/China/Japan/CSI300/Energy}
+
+\item{n}{= T/F depending on SharesHeld/HoldingValue}
+
+\item{w}{= T/F depending on if SecurityId is wanted}
 }
 \description{
 Generates the SQL query to get the data for monthly allocations for StockFlows

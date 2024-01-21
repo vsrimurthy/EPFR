@@ -14383,17 +14383,26 @@ sql.Mo <- function (x, y, n, w)
 #' Generates the SQL query to get the data for monthly allocations for StockFlows
 #' @param x = YYYYMMDD for which you want allocations
 #' @param y = any of StockFlows/China/Japan/CSI300/Energy
+#' @param n = T/F depending on SharesHeld/HoldingValue
+#' @param w = T/F depending on if SecurityId is wanted
 #' @keywords sql.MonthlyAlloc
 #' @export
 #' @family sql
 
-sql.MonthlyAlloc <- function (x, y = "All") 
+sql.MonthlyAlloc <- function (x, y = "All", n = F, w = F) 
 {
-    z <- paste("ReportDate =", x)
+    x <- paste("ReportDate =", x)
     if (y != "All") 
-        z <- sql.and(list(A = z, B = sql.in("HSecurityId", sql.RDSuniv(y))))
-    z <- sql.Holdings(z, c("FundId", "HFundId", "HSecurityId", 
-        "HoldingValue"))
+        x <- sql.and(list(A = x, B = sql.in("HSecurityId", sql.RDSuniv(y))))
+    n <- ifelse(n, "SharesHeld", "HoldingValue")
+    if (w) 
+        n <- c("t.HSecurityId", "SecurityId", n)
+    else n <- c("HSecurityId", n)
+    n <- c("FundId", "HFundId", n)
+    z <- c("Holdings t", "inner join", "SecurityHistory id on id.HSecurityId = t.HSecurityId")
+    if (!w) 
+        z <- "Holdings"
+    z <- sql.tbl(n, z, x)
     z
 }
 
