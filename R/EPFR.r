@@ -11780,33 +11780,27 @@ sql.1dFloTrend.underlying <- function (x, y, n, w, h)
 {
     u <- sql.DailyFlo(wrap(n), , , h)
     n <- yyyymmdd.to.AllocMo.unique(n, w, F)
-    n <- c(n, yyyymm.lag(n))
-    n <- yyyymm.to.day(n)
-    z <- c("create table #NEWHLD (FundId int not null, HFundId int not null, HSecurityId int not null, HoldingValue float)")
-    z <- c(z, sql.index("#NEWHLD", "FundId, HSecurityId"))
-    z <- c(z, "insert into", "\t#NEWHLD (FundId, HFundId, HSecurityId, HoldingValue)", 
-        sql.unbracket(sql.MonthlyAlloc(wrap(n[1]))))
-    z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(wrap(n[1]), , 
-        T), "#NEWAUM"))
-    z <- c(z, sql.delete("#NEWHLD", sql.in("FundId", "(select FundId from #NEWAUM)", 
-        F)))
-    z <- c(z, sql.update("#NEWHLD", "HoldingValue = HoldingValue/AssetsEnd", 
-        "#NEWAUM", "#NEWAUM.FundId = #NEWHLD.FundId"))
-    z <- c(z, "", "create table #OLDHLD (FundId int not null, HFundId int not null, HSecurityId int not null, HoldingValue float)")
-    z <- c(z, sql.index("#OLDHLD", "FundId, HSecurityId"))
-    z <- c(z, "insert into", "\t#OLDHLD (FundId, HFundId, HSecurityId, HoldingValue)", 
-        sql.unbracket(sql.MonthlyAlloc(wrap(n[2]))))
-    z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(wrap(n[2]), , 
-        T), "#OLDAUM"))
-    z <- c(z, sql.delete("#OLDHLD", sql.in("FundId", "(select FundId from #OLDAUM)", 
-        F)))
-    z <- c(z, sql.update("#OLDHLD", "HoldingValue = HoldingValue/AssetsEnd", 
-        "#OLDAUM", "#OLDAUM.FundId = #OLDHLD.FundId"))
+    n <- yyyymm.to.day(yyyymm.lag(n, 0:1))
+    v <- c("#NEWHLD", "#OLDHLD")
+    r <- c("#NEWAUM", "#OLDAUM")
+    z <- NULL
+    for (j in 1:2) {
+        z <- c(z, "", paste("create table", v[j], "(FundId int not null, HFundId int not null, HSecurityId int not null, HoldingValue float)"))
+        z <- c(z, sql.index(v[j], "FundId, HSecurityId"))
+        z <- c(z, "insert into", paste0("\t", v[j], " (FundId, HFundId, HSecurityId, HoldingValue)"), 
+            sql.unbracket(sql.MonthlyAlloc(wrap(n[j]))))
+        z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(wrap(n[j]), 
+            , T), r[j]))
+        z <- c(z, "", sql.delete(v[j], sql.in("FundId", sql.tbl("FundId", 
+            v[j]), F)))
+        z <- c(z, "", sql.update(v[j], "HoldingValue = HoldingValue/AssetsEnd", 
+            r[j], paste0(r[j], ".FundId = ", v[j], ".FundId")))
+    }
     if (y != "All") 
         z <- c(z, "", sql.delete("#NEWHLD", sql.in("HSecurityId", 
             sql.RDSuniv(y), F)), "")
     h <- c(sql.drop(c("#NEWHLD", "#NEWAUM", "#OLDHLD", "#OLDAUM")), 
-        "", z, "")
+        z, "")
     z <- sql.label(sql.FundHistory(x, T, "FundId"), "his")
     z <- c(z, "inner join", sql.label(u, "flo on flo.HFundId = his.HFundId"))
     z <- c(z, "inner join", "#NEWHLD n1 on n1.FundId = his.FundId")
@@ -12036,10 +12030,7 @@ sql.1mActWtIncrPct <- function (x, y, n, w)
         z <- c(z, "", v)
         z <- c(z, "", sql.delete(j, "[Index] = 1"))
     }
-    z <- c(z, "", sql.delete("#NEW", sql.in("FundId", "(select FundId from #OLD)", 
-        F)))
-    z <- c(z, "", sql.delete("#OLD", sql.in("FundId", "(select FundId from #NEW)", 
-        F)))
+    z <- c(z, "", sql.common(c("#NEW", "#OLD"), "FundId"))
     v <- paste(z, collapse = "\n")
     if (!w) {
         z <- "SecurityId = isnull(t1.SecurityId, t2.SecurityId)"
@@ -12171,8 +12162,8 @@ sql.1mAllocD <- function (x, y, n, w, h)
         z <- c(z, "", v)
         z <- c(z, "", sql.delete("#OLD", "SecurityId = -999"))
     }
-    v <- sql.delete("#NEW", sql.in("FundId", "(select FundId from #OLD)", 
-        F))
+    v <- sql.delete("#NEW", sql.in("FundId", sql.tbl("FundId", 
+        "#OLD"), F))
     v <- paste(c(z, "", v), collapse = "\n")
     if (!w) {
         z <- "SecurityId = isnull(t1.SecurityId, t2.SecurityId)"
@@ -13187,7 +13178,8 @@ sql.Bullish <- function (x, y, n, w)
         "t")
     z <- c(z, sql.update("#HLD", "HoldingValue = 100 * HoldingValue/PortVal", 
         h, "#HLD.HFundId = t.HFundId"))
-    u <- sql.and(list(A = "[Index] = 1", B = "HFundId in (select HFundId from #HLD)"))
+    u <- sql.and(list(A = "[Index] = 1", B = sql.in("HFundId", 
+        sql.tbl("HFundId", "#HLD"))))
     h <- c(sql.label(sql.tbl("HFundId, BenchIndexId", "FundHistory", 
         u), "t1"), "inner join")
     h <- c(h, sql.label(sql.tbl("BenchIndexId, nFunds = count(HFundId)", 
@@ -13208,8 +13200,8 @@ sql.Bullish <- function (x, y, n, w)
     h <- c("#HLD t1", "inner join", "FundHistory t2 on t2.HFundId = t1.HFundId")
     if (!w) 
         h <- c(h, "inner join", "SecurityHistory id on id.HSecurityId = t1.HSecurityId")
-    h <- c(h, "cross join", "(select FundCt = count(distinct HFundId) from #HLD) t4", 
-        "left join")
+    h <- c(h, "cross join", sql.label(sql.tbl("FundCt = count(distinct HFundId)", 
+        "#HLD"), "t4"), "left join")
     h <- c(h, "#BMK t3 on t3.BenchIndexId = t2.BenchIndexId and t3.HSecurityId = t1.HSecurityId")
     w <- paste0(ifelse(w, "t1.HSecurityId", "SecurityId"), ", FundCt")
     z <- c(paste(z, collapse = "\n"), paste(sql.unbracket(sql.tbl(x, 
@@ -13252,6 +13244,23 @@ sql.close <- function (x)
     if (x[["close"]]) 
         close(x[["conn"]])
     invisible()
+}
+
+#' sql.common
+#' 
+#' ensures common records in <x> based on <y>
+#' @param x = pair of table names
+#' @param y = column name
+#' @keywords sql.common
+#' @export
+#' @family sql
+
+sql.common <- function (x, y) 
+{
+    z <- sql.delete(x[1], sql.in(y, sql.tbl(y, x[2]), F))
+    z <- c(z, "", sql.delete(x[2], sql.in(y, sql.tbl(y, x[1]), 
+        F)))
+    z
 }
 
 #' sql.connect
@@ -13476,7 +13485,7 @@ sql.Dispersion <- function (x, y, n, w)
         h, "#BMK.BenchIndexId = t.BenchIndexId"))
     z <- c(z, "", "create table #HLD (HFundId int not null, HSecurityId int not null, HoldingValue float not null)")
     z <- c(z, sql.index("#HLD", "HFundId, HSecurityId"))
-    u <- "BenchIndexId in (select BenchIndexId from #BMK)"
+    u <- sql.in("BenchIndexId", sql.tbl("BenchIndexId", "#BMK"))
     u <- sql.and(list(A = paste0("ReportDate = '", x, "'"), B = "[Index] = 0", 
         C = u, D = "HoldingValue > 0"))
     h <- "Holdings t1 inner join FundHistory t2 on t2.HFundId = t1.HFundId"
@@ -13492,7 +13501,8 @@ sql.Dispersion <- function (x, y, n, w)
     z <- c(z, "", sql.update("#HLD", "HoldingValue = #HLD.HoldingValue - t2.HoldingValue", 
         h, u))
     u <- sql.tbl("HFundId, HSecurityId", "#HLD t", "t1.HFundId = t.HFundId and t2.HSecurityId = t.HSecurityId")
-    u <- sql.and(list(A = sql.exists(u, F), B = "t1.HFundId in (select HFundId from #HLD)"))
+    u <- sql.and(list(A = sql.exists(u, F), B = sql.in("t1.HFundId", 
+        sql.tbl("HFundId", "#HLD"))))
     h <- c("FundHistory t1", "inner join", "#BMK t2 on t2.BenchIndexId = t1.BenchIndexId")
     h <- sql.tbl("HFundId, HSecurityId, -HoldingValue", h, u)
     z <- c(z, "", "insert into #HLD", sql.unbracket(h))
@@ -13851,16 +13861,17 @@ sql.HerdingLSV <- function (x, y)
             "'")), "#OLD"))
     w <- list(A = paste0("ReportDate = '", yyyymm.to.day(x), 
         "'"))
-    w[["B"]] <- "t1.HFundId in (select HFundId from FundHistory where [Index] = 0)"
-    w[["C"]] <- "t1.HFundId in (select HFundId from #NEW)"
-    w[["D"]] <- "FundId in (select FundId from #OLD)"
+    w[["B"]] <- sql.in("t1.HFundId", sql.tbl("HFundId", "FundHistory", 
+        "[Index] = 0"))
+    w[["C"]] <- sql.in("t1.HFundId", sql.tbl("HFundId", "#NEW"))
+    w[["D"]] <- sql.in("FundId", sql.tbl("FundId", "#OLD"))
     w <- sql.tbl("t1.HFundId, FundId, Flow = sum(Flow)", "MonthlyData t1 inner join FundHistory t2 on t2.HFundId = t1.HFundId", 
         sql.and(w), "t1.HFundId, FundId")
     z <- paste(c(z, "", sql.into(w, "#FLO")), collapse = "\n")
     h <- c("t1.HSecurityId", "prcRet = sum(t1.HoldingValue)/sum(t2.HoldingValue)")
-    h <- sql.tbl(h, "#NEW t1 inner join #OLD t2 on t2.FundId = t1.FundId and t2.HSecurityId = t1.HSecurityId", 
-        "t1.HFundId in (select HFundId from FundHistory where [Index] = 1)", 
-        "t1.HSecurityId", "sum(t2.HoldingValue) > 0")
+    h <- sql.tbl(h, c("#NEW t1", "inner join", "#OLD t2 on t2.FundId = t1.FundId and t2.HSecurityId = t1.HSecurityId"), 
+        sql.in("t1.HFundId", sql.tbl("HFundId", "FundHistory", 
+            "[Index] = 1")), "t1.HSecurityId", "sum(t2.HoldingValue) > 0")
     h <- c("#FLO t0", "cross join", sql.label(h, "t1"), "cross join")
     h <- c(h, sql.label(sql.tbl("expPctBuy = sum(case when Flow > 0 then 1.0 else 0.0 end)/count(HFundId)", 
         "#FLO"), "t4"))
@@ -14626,7 +14637,8 @@ sql.ShareClass <- function (x, y)
 
 sql.SRI <- function (x, y) 
 {
-    w <- list(A = "ReportDate = @holdDt", B = "HFundId in (select HFundId from FundHistory where SRI = 1)")
+    w <- list(A = "ReportDate = @holdDt", B = sql.in("HFundId", 
+        sql.tbl("HFundId", "FundHistory", "SRI = 1")))
     z <- sql.label(sql.tbl("HSecurityId, Ct = count(HFundId)", 
         "Holdings", sql.and(w), "HSecurityId"), "t1")
     z <- c(z, "inner join", "SecurityHistory id on id.HSecurityId = t1.HSecurityId")
