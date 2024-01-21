@@ -11780,27 +11780,26 @@ sql.1dFloTrend.underlying <- function (x, y, n, w, h)
 {
     u <- sql.DailyFlo(wrap(n), , , h)
     n <- yyyymmdd.to.AllocMo.unique(n, w, F)
-    n <- yyyymm.to.day(yyyymm.lag(n, 0:1))
-    v <- c("#NEWHLD", "#OLDHLD")
-    r <- c("#NEWAUM", "#OLDAUM")
-    z <- NULL
-    for (j in 1:2) {
-        z <- c(z, "", paste("create table", v[j], "(FundId int not null, HFundId int not null, HSecurityId int not null, HoldingValue float)"))
-        z <- c(z, sql.index(v[j], "FundId, HSecurityId"))
-        z <- c(z, "insert into", paste0("\t", v[j], " (FundId, HFundId, HSecurityId, HoldingValue)"), 
-            sql.unbracket(sql.MonthlyAlloc(wrap(n[j]))))
-        z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(wrap(n[j]), 
-            , T), r[j]))
-        z <- c(z, "", sql.delete(v[j], sql.in("FundId", sql.tbl("FundId", 
-            v[j]), F)))
-        z <- c(z, "", sql.update(v[j], "HoldingValue = HoldingValue/AssetsEnd", 
-            r[j], paste0(r[j], ".FundId = ", v[j], ".FundId")))
+    fcn <- function(x) {
+        r <- paste0(x[2], "AUM")
+        v <- paste0(x[2], "HLD")
+        z <- paste("create table", v, "(FundId int not null, HFundId int not null, HSecurityId int not null, HoldingValue float)")
+        z <- c(z, sql.index(v, "FundId, HSecurityId"))
+        z <- c(z, "insert into", paste0("\t", v, " (FundId, HFundId, HSecurityId, HoldingValue)"), 
+            sql.unbracket(sql.MonthlyAlloc(wrap(x[1]))))
+        z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(wrap(x[1]), 
+            , T), r))
+        z <- c(z, "", sql.delete(v, sql.in("FundId", sql.tbl("FundId", 
+            r), F)))
+        c(z, "", sql.update(v, "HoldingValue = HoldingValue/AssetsEnd", 
+            r, paste0(r, ".FundId = ", v, ".FundId")))
     }
+    z <- sql.currprior(fcn, n, c("#OLD", "#NEW"))
     if (y != "All") 
         z <- c(z, "", sql.delete("#NEWHLD", sql.in("HSecurityId", 
             sql.RDSuniv(y), F)), "")
     h <- c(sql.drop(c("#NEWHLD", "#NEWAUM", "#OLDHLD", "#OLDAUM")), 
-        z, "")
+        "", z, "")
     z <- sql.label(sql.FundHistory(x, T, "FundId"), "his")
     z <- c(z, "inner join", sql.label(u, "flo on flo.HFundId = his.HFundId"))
     z <- c(z, "inner join", "#NEWHLD n1 on n1.FundId = his.FundId")
@@ -13348,6 +13347,27 @@ sql.CtryFlow.Alloc <- function (x, y, n)
         collapse = ", "))
     z <- c(sql.declare("@floDt", "datetime", n), sql.unbracket(z))
     z <- paste(z, collapse = "\n")
+    z
+}
+
+#' sql.currprior
+#' 
+#' SQL query for current & prior allocations
+#' @param fcn = SQL-script generator
+#' @param x = a YYYYMM month
+#' @param y = string vector of length 2
+#' @keywords sql.currprior
+#' @export
+#' @family sql
+
+sql.currprior <- function (fcn, x, y) 
+{
+    z <- matrix(c(yyyymm.lag(x, 1:0), y), 2, 2, T)
+    z[1, ] <- yyyymm.to.day(z[1, ])
+    colnames(z) <- c("Old", "New")
+    z <- lapply(mat.ex.matrix(z), fcn)
+    z[[1]] <- c(z[[1]], "")
+    z <- Reduce(c, z)
     z
 }
 
