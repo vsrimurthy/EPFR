@@ -4,16 +4,14 @@
 \alias{sql.1mAllocMo.underlying.pre}
 \title{sql.1mAllocMo.underlying.pre}
 \usage{
-sql.1mAllocMo.underlying.pre(x, y, n, w)
+sql.1mAllocMo.underlying.pre(x, y, n)
 }
 \arguments{
 \item{x}{= filter list}
 
-\item{y}{= date for new holdings in YYYYMMDD}
+\item{y}{= YYYYMM date}
 
-\item{n}{= date for old holdings in YYYYMMDD}
-
-\item{w}{= share-class filter (one of All/Inst/Retail)}
+\item{n}{= share-class filter (one of All/Inst/Retail)}
 }
 \description{
 FROM and WHERE for 1mAllocMo
@@ -50,7 +48,6 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.1dFloTrend}}, \code{\link{sql.1dFundCt}},
   \code{\link{sql.1dFundRet}},
   \code{\link{sql.1mActWt.underlying}},
-  \code{\link{sql.1mActWtIncrPct}},
   \code{\link{sql.1mActWtTrend.underlying}},
   \code{\link{sql.1mActWtTrend}},
   \code{\link{sql.1mActWt}},
@@ -88,7 +85,6 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.FundHistory.macro}},
   \code{\link{sql.FundHistory.sf}},
   \code{\link{sql.FundHistory}}, \code{\link{sql.HSIdmap}},
-  \code{\link{sql.HerdingLSV}},
   \code{\link{sql.Holdings.bulk.wrapper}},
   \code{\link{sql.Holdings.bulk}},
   \code{\link{sql.Holdings}}, \code{\link{sql.ION}},

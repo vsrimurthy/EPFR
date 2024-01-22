@@ -4,7 +4,7 @@
 \alias{sql.currprior}
 \title{sql.currprior}
 \usage{
-sql.currprior(fcn, x, y, n)
+sql.currprior(fcn, x, y, n, w)
 }
 \arguments{
 \item{fcn}{= SQL-script generator}
@@ -13,7 +13,9 @@ sql.currprior(fcn, x, y, n)
 
 \item{y}{= table names}
 
-\item{n}{= other parameters (could be missing)}
+\item{n}{= primary parameter (could be missing)}
+
+\item{w}{= secondary parameter (could be missing)}
 }
 \description{
 SQL query for current & prior allocations
@@ -50,7 +52,6 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.1dFloTrend}}, \code{\link{sql.1dFundCt}},
   \code{\link{sql.1dFundRet}},
   \code{\link{sql.1mActWt.underlying}},
-  \code{\link{sql.1mActWtIncrPct}},
   \code{\link{sql.1mActWtTrend.underlying}},
   \code{\link{sql.1mActWtTrend}},
   \code{\link{sql.1mActWt}},
@@ -89,7 +90,6 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.FundHistory.macro}},
   \code{\link{sql.FundHistory.sf}},
   \code{\link{sql.FundHistory}}, \code{\link{sql.HSIdmap}},
-  \code{\link{sql.HerdingLSV}},
   \code{\link{sql.Holdings.bulk.wrapper}},
   \code{\link{sql.Holdings.bulk}},
   \code{\link{sql.Holdings}}, \code{\link{sql.ION}},
