@@ -4,14 +4,16 @@
 \alias{sql.currprior}
 \title{sql.currprior}
 \usage{
-sql.currprior(fcn, x, y)
+sql.currprior(fcn, x, y, n)
 }
 \arguments{
 \item{fcn}{= SQL-script generator}
 
 \item{x}{= a YYYYMM month}
 
-\item{y}{= string vector of length 2}
+\item{y}{= table names}
+
+\item{n}{= other parameters (could be missing)}
 }
 \description{
 SQL query for current & prior allocations

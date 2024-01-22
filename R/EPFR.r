@@ -11781,20 +11781,19 @@ sql.1dFloTrend.underlying <- function (x, y, n, w, h)
     u <- sql.DailyFlo(wrap(n), , , h)
     n <- yyyymmdd.to.AllocMo.unique(n, w, F)
     fcn <- function(x) {
-        r <- paste0(x[2], "AUM")
-        v <- paste0(x[2], "HLD")
-        z <- paste("create table", v, "(FundId int not null, HFundId int not null, HSecurityId int not null, HoldingValue float)")
-        z <- c(z, sql.index(v, "FundId, HSecurityId"))
-        z <- c(z, "insert into", paste0("\t", v, " (FundId, HFundId, HSecurityId, HoldingValue)"), 
+        z <- paste("create table", x[2], "(FundId int not null, HFundId int not null, HSecurityId int not null, HoldingValue float)")
+        z <- c(z, sql.index(x[2], "FundId, HSecurityId"))
+        z <- c(z, "insert into", paste0("\t", x[2], " (FundId, HFundId, HSecurityId, HoldingValue)"), 
             sql.unbracket(sql.MonthlyAlloc(wrap(x[1]))))
         z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(wrap(x[1]), 
-            , T), r))
-        z <- c(z, "", sql.delete(v, sql.in("FundId", sql.tbl("FundId", 
-            r), F)))
-        c(z, "", sql.update(v, "HoldingValue = HoldingValue/AssetsEnd", 
-            r, paste0(r, ".FundId = ", v, ".FundId")))
+            , T), x[3]))
+        z <- c(z, "", sql.delete(x[2], sql.in("FundId", sql.tbl("FundId", 
+            x[3]), F)))
+        c(z, "", sql.update(x[2], "HoldingValue = HoldingValue/AssetsEnd", 
+            x[3], paste0(x[3], ".FundId = ", x[2], ".FundId")))
     }
-    z <- sql.currprior(fcn, n, c("#OLD", "#NEW"))
+    z <- sql.currprior(fcn, n, c("#OLDHLD", "#NEWHLD"), c("#OLDAUM", 
+        "#NEWAUM"))
     if (y != "All") 
         z <- c(z, "", sql.delete("#NEWHLD", sql.in("HSecurityId", 
             sql.RDSuniv(y), F)), "")
@@ -12114,22 +12113,16 @@ sql.1mActWtTrend.underlying <- function (x, y, n)
 sql.1mAllocD <- function (x, y, n, w, h) 
 {
     y <- sql.arguments(y)
-    v <- sql.1mAllocD.from(yyyymm.to.day(x), y$filter, "FundId")
-    u <- sql.and(list(A = paste0("ReportDate = '", yyyymm.to.day(x), 
-        "'"), B = "HoldingValue > 0"))
-    z <- sql.into(sql.tbl(c("his.FundId", "SecurityId", "HoldingValue", 
-        "SharesHeld", "Allocation = HoldingValue/AssetsEnd"), 
-        v, u), "#NEW")
-    v <- sql.1mAllocD.from(yyyymm.to.day(yyyymm.lag(x)), "All", 
-        "FundId")
-    u <- list(A = paste0("ReportDate = '", yyyymm.to.day(yyyymm.lag(x)), 
-        "'"), B = "HoldingValue > 0")
-    u[["C"]] <- sql.in("t2.FundId", sql.tbl("FundId", "#NEW"))
-    u <- sql.and(u)
-    u <- sql.into(sql.tbl(c("t2.FundId", "SecurityId", "HoldingValue", 
-        "SharesHeld", "Allocation = HoldingValue/AssetsEnd"), 
-        v, u), "#OLD")
-    z <- c(sql.drop(c("#NEW", "#OLD")), "", z, "", u)
+    fcn <- function(x) {
+        v <- sql.1mAllocD.from(x[1], x[3], "FundId")
+        u <- sql.and(list(A = paste0("ReportDate = '", x[1], 
+            "'"), B = "HoldingValue > 0"))
+        sql.into(sql.tbl(c("his.FundId", "SecurityId", "HoldingValue", 
+            "SharesHeld", "Allocation = HoldingValue/AssetsEnd"), 
+            v, u), x[2])
+    }
+    z <- sql.currprior(fcn, x, c("#OLD", "#NEW"), c("All", y$filter))
+    z <- c(sql.drop(c("#NEW", "#OLD")), "", z)
     if (h) {
         h <- sql.MonthlyAssetsEnd(wrap(yyyymm.to.day(yyyymm.lag(x))), 
             , T, , "AUM")
@@ -12161,8 +12154,7 @@ sql.1mAllocD <- function (x, y, n, w, h)
         z <- c(z, "", v)
         z <- c(z, "", sql.delete("#OLD", "SecurityId = -999"))
     }
-    v <- sql.delete("#NEW", sql.in("FundId", sql.tbl("FundId", 
-        "#OLD"), F))
+    v <- sql.common(c("#NEW", "#OLD"), "FundId")
     v <- paste(c(z, "", v), collapse = "\n")
     if (!w) {
         z <- "SecurityId = isnull(t1.SecurityId, t2.SecurityId)"
@@ -13355,14 +13347,20 @@ sql.CtryFlow.Alloc <- function (x, y, n)
 #' SQL query for current & prior allocations
 #' @param fcn = SQL-script generator
 #' @param x = a YYYYMM month
-#' @param y = string vector of length 2
+#' @param y = table names
+#' @param n = other parameters (could be missing)
 #' @keywords sql.currprior
 #' @export
 #' @family sql
 
-sql.currprior <- function (fcn, x, y) 
+sql.currprior <- function (fcn, x, y, n) 
 {
-    z <- matrix(c(yyyymm.lag(x, 1:0), y), 2, 2, T)
+    if (missing(n)) {
+        z <- matrix(c(yyyymm.lag(x, 1:0), y), 2, 2, T)
+    }
+    else {
+        z <- matrix(c(yyyymm.lag(x, 1:0), y, n), 3, 2, T)
+    }
     z[1, ] <- yyyymm.to.day(z[1, ])
     colnames(z) <- c("Old", "New")
     z <- lapply(mat.ex.matrix(z), fcn)
@@ -14467,12 +14465,10 @@ sql.nonneg <- function (x)
 
 sql.Overweight <- function (x) 
 {
-    z <- c("HSecurityId", "HFundId", "SharesHeld")
-    z <- sql.Holdings(paste0("ReportDate = '", x, "'"), z)
+    z <- sql.label(sql.MonthlyAlloc(wrap(x), , T), "t1")
     h <- c("HSecurityId", "TotShs = sum(SharesHeld)")
-    h <- sql.tbl(h, "Holdings", paste0("ReportDate = '", x, "'"), 
-        "HSecurityId", "sum(SharesHeld) > 0")
-    h <- c(sql.label(z, "t1"), "inner join", sql.label(h, "t2 on t2.HSecurityId = t1.HSecurityId"))
+    h <- sql.tbl(h, z, , "HSecurityId", "sum(SharesHeld) > 0")
+    h <- c(z, "inner join", sql.label(h, "t2 on t2.HSecurityId = t1.HSecurityId"))
     z <- sql.tbl(c("t1.HSecurityId", "HFundId", "NormShs = SharesHeld/TotShs"), 
         h)
     h <- sql.tbl(c("HFundId", "TotNormShs = sum(SharesHeld/TotShs)"), 
