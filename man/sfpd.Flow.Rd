@@ -4,7 +4,7 @@
 \alias{sfpd.Flow}
 \title{sfpd.Flow}
 \usage{
-sfpd.Flow(x, y, n)
+sfpd.Flow(x, y, n, w = 1)
 }
 \arguments{
 \item{x}{= premium daily file}
@@ -12,6 +12,8 @@ sfpd.Flow(x, y, n)
 \item{y}{= flow date}
 
 \item{n}{= cutoff time (New York) (e.g. "07:00:00")}
+
+\item{w}{= 0 for same day, 1 for next day}
 }
 \description{
 subsets <x> to latest information known before time <n>
