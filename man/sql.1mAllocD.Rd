@@ -15,7 +15,7 @@ sql.1mAllocD(x, y, n, w, h)
 
 \item{w}{= T/F depending on whether you are checking ftp}
 
-\item{h}{= T/F depending on whether latest prices are being used}
+\item{h}{= T/F depending on whether price action is to be accounted for}
 }
 \description{
 Generates the SQL query to get the data for 1mAllocMo

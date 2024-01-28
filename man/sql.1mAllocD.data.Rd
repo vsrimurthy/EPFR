@@ -4,12 +4,16 @@
 \alias{sql.1mAllocD.data}
 \title{sql.1mAllocD.data}
 \usage{
-sql.1mAllocD.data(x, y)
+sql.1mAllocD.data(x, y, n, w)
 }
 \arguments{
 \item{x}{= the YYYYMM for which you want data (known 26 days later)}
 
 \item{y}{= filter (one of All/Act/Pas/Etf/Mutual)}
+
+\item{n}{= T/F depending on whether to account for price action}
+
+\item{w}{= T/F depending on whether to excise leveraged funds}
 }
 \description{
 SQL query to get the data for AllocD
