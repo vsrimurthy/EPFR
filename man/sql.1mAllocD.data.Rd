@@ -4,7 +4,7 @@
 \alias{sql.1mAllocD.data}
 \title{sql.1mAllocD.data}
 \usage{
-sql.1mAllocD.data(x, y, n, w)
+sql.1mAllocD.data(x, y, n, w, h)
 }
 \arguments{
 \item{x}{= the YYYYMM for which you want data (known 26 days later)}
@@ -14,6 +14,8 @@ sql.1mAllocD.data(x, y, n, w)
 \item{n}{= T/F depending on whether to account for price action}
 
 \item{w}{= T/F depending on whether to excise leveraged funds}
+
+\item{h}{= T/F depending on whether to excise fake cash security -999}
 }
 \description{
 SQL query to get the data for AllocD

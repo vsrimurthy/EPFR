@@ -12015,7 +12015,7 @@ sql.1mActWtTrend.underlying <- function (x, y, n)
 sql.1mAllocD <- function (x, y, n, w, h) 
 {
     y <- sql.arguments(y)
-    z <- sql.1mAllocD.data(x, y$filter, h, F)
+    z <- sql.1mAllocD.data(x, y$filter, h, F, T)
     h <- paste(z, collapse = "\n")
     if (w) 
         z <- "HSecurityId"
@@ -12046,11 +12046,12 @@ sql.1mAllocD <- function (x, y, n, w, h)
 #' @param y = filter (one of All/Act/Pas/Etf/Mutual)
 #' @param n = T/F depending on whether to account for price action
 #' @param w = T/F depending on whether to excise leveraged funds
+#' @param h = T/F depending on whether to excise fake cash security -999
 #' @keywords sql.1mAllocD.data
 #' @export
 #' @family sql
 
-sql.1mAllocD.data <- function (x, y, n, w) 
+sql.1mAllocD.data <- function (x, y, n, w, h) 
 {
     fcn <- function(x) {
         z <- c("Holdings t", "inner join", "SecurityHistory id on id.HSecurityId = t.HSecurityId")
@@ -12095,7 +12096,7 @@ sql.1mAllocD.data <- function (x, y, n, w)
         z <- c(sql.drop(c("#OLDHLD", "#NEWHLD", "#OLDAUM", "#NEWAUM")), 
             "", z)
     }
-    fcn <- function(x, y) {
+    fcnS <- function(x, y) {
         v <- "HoldingValue = HoldingValue + AUM, SharesHeld = SharesHeld + AUM, Allocation = Allocation + AUM"
         h <- sql.in("SecurityId", sql.tbl("SecurityId", y), F)
         h <- sql.tbl(c("FundId", "AUM = sum(HoldingValue)"), 
@@ -12104,15 +12105,15 @@ sql.1mAllocD.data <- function (x, y, n, w)
             B = "SecurityId = -999"))
         sql.update(x, v, sql.label(h, "t"), r)
     }
-    z <- c(z, "", fcn("#OLDHLD", "#NEWHLD"))
-    z <- c(z, "", fcn("#NEWHLD", "#OLDHLD"))
+    z <- c(z, "", fcnS("#OLDHLD", "#NEWHLD"))
+    z <- c(z, "", fcnS("#NEWHLD", "#OLDHLD"))
     z <- c(z, "", sql.common(c("#NEWHLD", "#OLDHLD"), "SecurityId"))
-    h <- c("SecurityId", "HSecurityId = max(HSecurityId)")
-    h <- sql.label(sql.tbl(h, "#NEWHLD", , "SecurityId"), "t")
-    h <- sql.update("#OLDHLD", "HSecurityId = t.HSecurityId", 
-        h, "#OLDHLD.SecurityId = t.SecurityId")
-    z <- c(z, "", h)
-    if (y != "All") {
+    v <- c("SecurityId", "HSecurityId = max(HSecurityId)")
+    v <- sql.label(sql.tbl(v, "#NEWHLD", , "SecurityId"), "t")
+    v <- sql.update("#OLDHLD", "HSecurityId = t.HSecurityId", 
+        v, "#OLDHLD.SecurityId = t.SecurityId")
+    z <- c(z, "", v)
+    if (any(y != "All")) {
         v <- sql.in("HFundId", sql.FundHistory(y, T), F)
         z <- c(z, "", sql.delete("#NEWHLD", v))
     }
@@ -12132,16 +12133,18 @@ sql.1mAllocD.data <- function (x, y, n, w)
         z <- c(z, "", fcnL("#OLDHLD"), "", fcnL("#NEWHLD"))
     z <- c(z, "", sql.common(c("#NEWHLD", "#OLDHLD"), "FundId"))
     if (n) {
-        h <- c("#OLDPRC o", "inner join", "#NEWPRC n on n.SecurityId = o.SecurityId")
+        v <- c("#OLDPRC o", "inner join", "#NEWPRC n on n.SecurityId = o.SecurityId")
         y <- sql.and(list(A = "n.Stat > 0", B = "o.Stat > 0"))
-        h <- sql.tbl(c("o.SecurityId", "Mult = n.Stat/o.Stat"), 
-            h, y)
+        v <- sql.tbl(c("o.SecurityId", "Mult = n.Stat/o.Stat"), 
+            v, y)
         z <- c(z, "", sql.update("#OLDHLD", "HoldingValue = HoldingValue * Mult", 
-            sql.label(h, "t"), "t.SecurityId = #OLDHLD.SecurityId"))
+            sql.label(v, "t"), "t.SecurityId = #OLDHLD.SecurityId"))
         z <- c(z, "", fcnW("#OLDHLD"))
     }
-    z <- c(z, "", sql.delete("#OLDHLD", "SecurityId = -999"))
-    z <- c(z, "", sql.delete("#NEWHLD", "SecurityId = -999"))
+    if (h) {
+        z <- c(z, "", sql.delete("#OLDHLD", "SecurityId = -999"))
+        z <- c(z, "", sql.delete("#NEWHLD", "SecurityId = -999"))
+    }
     z
 }
 
