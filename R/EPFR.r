@@ -12015,10 +12015,7 @@ sql.1mActWtTrend.underlying <- function (x, y, n)
 sql.1mAllocD <- function (x, y, n, w, h) 
 {
     y <- sql.arguments(y)
-    z <- sql.1mAllocD.data(x)
-    v <- sql.in("HFundId", sql.FundHistory(y$filter, T), F)
-    z <- c(z, "", sql.delete("#NEWHLD", v))
-    z <- c(z, "", sql.common(c("#NEWHLD", "#OLDHLD"), "FundId"))
+    z <- sql.1mAllocD.data(x, y$filter)
     if (h) {
         h <- c("#OLDPRC o", "inner join", "#NEWPRC n on n.SecurityId = o.SecurityId")
         y <- sql.and(list(A = "n.Stat > 0", B = "o.Stat > 0"))
@@ -12060,11 +12057,12 @@ sql.1mAllocD <- function (x, y, n, w, h)
 #' 
 #' SQL query to get the data for AllocD
 #' @param x = the YYYYMM for which you want data (known 26 days later)
+#' @param y = filter (one of All/Act/Pas/Etf/Mutual)
 #' @keywords sql.1mAllocD.data
 #' @export
 #' @family sql
 
-sql.1mAllocD.data <- function (x) 
+sql.1mAllocD.data <- function (x, y) 
 {
     fcn <- function(x) {
         z <- c("Holdings t", "inner join", "SecurityHistory id on id.HSecurityId = t.HSecurityId")
@@ -12122,27 +12120,9 @@ sql.1mAllocD.data <- function (x)
     h <- sql.update("#OLDHLD", "HSecurityId = t.HSecurityId", 
         h, "#OLDHLD.SecurityId = t.SecurityId")
     z <- c(z, "", h)
-    z
-}
-
-#' sql.1mAllocD.from
-#' 
-#' Generates the SQL query to get the data for 1mAllocMo
-#' @param x = the YYYYMMDD for which you want data (known 26 days later)
-#' @param y = the type of fund used in the computation
-#' @param n = columns needed in addition to HFundId
-#' @keywords sql.1mAllocD.from
-#' @export
-#' @family sql
-
-sql.1mAllocD.from <- function (x, y, n) 
-{
-    z <- wrap(x)
-    z <- sql.label(sql.MonthlyAssetsEnd(z), "t1")
-    z <- c(z, "inner join", sql.label(sql.FundHistory(y, T, n), 
-        "his on his.HFundId = t1.HFundId"))
-    z <- c(z, "inner join", "Holdings t2 on t2.FundId = his.FundId")
-    z <- c(z, "inner join", "SecurityHistory t3 on t3.HSecurityId = t2.HSecurityId")
+    v <- sql.in("HFundId", sql.FundHistory(y, T), F)
+    z <- c(z, "", sql.delete("#NEWHLD", v))
+    z <- c(z, "", sql.common(c("#NEWHLD", "#OLDHLD"), "FundId"))
     z
 }
 

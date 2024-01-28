@@ -4,10 +4,12 @@
 \alias{sql.1mAllocD.data}
 \title{sql.1mAllocD.data}
 \usage{
-sql.1mAllocD.data(x)
+sql.1mAllocD.data(x, y)
 }
 \arguments{
 \item{x}{= the YYYYMM for which you want data (known 26 days later)}
+
+\item{y}{= filter (one of All/Act/Pas/Etf/Mutual)}
 }
 \description{
 SQL query to get the data for AllocD
@@ -47,7 +49,6 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.1mActWtTrend.underlying}},
   \code{\link{sql.1mActWtTrend}},
   \code{\link{sql.1mActWt}},
-  \code{\link{sql.1mAllocD.from}},
   \code{\link{sql.1mAllocD.select}},
   \code{\link{sql.1mAllocD}},
   \code{\link{sql.1mAllocMo.select}},
