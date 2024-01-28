@@ -4,7 +4,7 @@
 \alias{sql.1mAllocD.data}
 \title{sql.1mAllocD.data}
 \usage{
-sql.1mAllocD.data(x, y, n, w, h)
+sql.1mAllocD.data(x, y, n, w, h, u = NULL)
 }
 \arguments{
 \item{x}{= the YYYYMM for which you want data (known 26 days later)}
@@ -16,6 +16,8 @@ sql.1mAllocD.data(x, y, n, w, h)
 \item{w}{= T/F depending on whether to excise leveraged funds}
 
 \item{h}{= T/F depending on whether to excise fake cash security -999}
+
+\item{u}{= columns in addition to AssetsEnd}
 }
 \description{
 SQL query to get the data for AllocD
@@ -55,6 +57,7 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.1mActWtTrend.underlying}},
   \code{\link{sql.1mActWtTrend}},
   \code{\link{sql.1mActWt}},
+  \code{\link{sql.1mAllocD.data.underlying}},
   \code{\link{sql.1mAllocD.select}},
   \code{\link{sql.1mAllocD}},
   \code{\link{sql.1mAllocMo.select}},

@@ -12008,14 +12008,15 @@ sql.1mActWtTrend.underlying <- function (x, y, n)
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
 #' @param h = T/F depending on whether price action is to be accounted for
+#' @param u = columns in addition to AssetsEnd
 #' @keywords sql.1mAllocD
 #' @export
 #' @family sql
 
-sql.1mAllocD <- function (x, y, n, w, h) 
+sql.1mAllocD <- function (x, y, n, w, h, u = NULL) 
 {
     y <- sql.arguments(y)
-    z <- sql.1mAllocD.data(x, y$filter, h, F, T)
+    z <- sql.1mAllocD.data(x, y$filter, h, F, T, u)
     h <- paste(z, collapse = "\n")
     if (w) 
         z <- "HSecurityId"
@@ -12025,8 +12026,11 @@ sql.1mAllocD <- function (x, y, n, w, h)
     if (w) 
         z <- c(sql.ReportDate(yyyymm.to.day(x)), z)
     for (i in y$factor) z <- c(z, sql.1mAllocD.select(i))
-    u <- c("#NEWHLD t1", "full outer join")
-    u <- c(u, "#OLDHLD t2 on t2.FundId = t1.FundId and t2.SecurityId = t1.SecurityId")
+    if (!is.null(u)) 
+        u <- c("inner join", "#NEWAUM t3 on t3.FundId = isnull(t1.FundId, t2.FundId)")
+    u <- c("#OLDHLD t2 on t2.FundId = t1.FundId and t2.SecurityId = t1.SecurityId", 
+        u)
+    u <- c("#NEWHLD t1", "full outer join", u)
     if (n == "All") {
         z <- sql.tbl(z, u, , v, paste0("count(", v, ") > 1"))
     }
@@ -12047,43 +12051,14 @@ sql.1mAllocD <- function (x, y, n, w, h)
 #' @param n = T/F depending on whether to account for price action
 #' @param w = T/F depending on whether to excise leveraged funds
 #' @param h = T/F depending on whether to excise fake cash security -999
+#' @param u = columns in addition to AssetsEnd
 #' @keywords sql.1mAllocD.data
 #' @export
 #' @family sql
 
-sql.1mAllocD.data <- function (x, y, n, w, h) 
+sql.1mAllocD.data <- function (x, y, n, w, h, u = NULL) 
 {
-    fcn <- function(x) {
-        z <- c("Holdings t", "inner join", "SecurityHistory id on id.HSecurityId = t.HSecurityId")
-        y <- c("FundId", "HFundId", "t.HSecurityId", "SecurityId", 
-            "HoldingValue", "SharesHeld", "Allocation = HoldingValue")
-        z <- sql.tbl(y, z, paste("ReportDate =", wrap(x[1])))
-        y <- paste("create table", x[2], "(FundId int not null, HFundId int not null, HSecurityId int not null, SecurityId int not null, HoldingValue float, SharesHeld float, Allocation float)")
-        z <- c(y, "insert into", paste0("\t", x[2], " (FundId, HFundId, HSecurityId, SecurityId, HoldingValue, SharesHeld, Allocation)"), 
-            sql.unbracket(z))
-        z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(wrap(x[1]), 
-            , T), x[3]))
-        if (length(x) > 3) {
-            h <- c("SecurityId", "FundId", "Price = 1000000 * HoldingValue/SharesHeld")
-            h <- sql.tbl(h, x[2], "SharesHeld > 0")
-            h <- sql.median("Price", "SecurityId", h)
-            z <- c(z, "", sql.into(h, x[4]))
-            z <- c(z, "", "insert into", paste0("\t", x[4], " (SecurityId, Stat)"), 
-                "values (-999, 1000000)")
-        }
-        z <- c(z, "", sql.delete(x[2], sql.in("FundId", sql.tbl("FundId", 
-            x[3]), F)))
-        h <- c("FundId", "HFundId", "HoldingValue = sum(HoldingValue)")
-        h <- sql.tbl(h, x[2], , "FundId, HFundId")
-        h <- c(sql.label(h, "t1"), "inner join", sql.label(x[3], 
-            "t2 on t2.FundId = t1.FundId"))
-        y <- c("t1.FundId", "HFundId", "HSecurityId = -999", 
-            "SecurityId = -999", "HoldingValue = AssetsEnd - HoldingValue", 
-            "SharesHeld = AssetsEnd - HoldingValue", "Allocation = AssetsEnd - HoldingValue")
-        h <- sql.tbl(y, h)
-        z <- c(z, "", "insert into", paste0("\t", x[2], " (FundId, HFundId, HSecurityId, SecurityId, HoldingValue, SharesHeld, Allocation)"), 
-            sql.unbracket(h))
-    }
+    fcn <- function(x) sql.1mAllocD.data.underlying(x, u)
     if (n) {
         z <- sql.currprior(fcn, x, c("#OLDHLD", "#NEWHLD"), c("#OLDAUM", 
             "#NEWAUM"), c("#OLDPRC", "#NEWPRC"))
@@ -12145,6 +12120,49 @@ sql.1mAllocD.data <- function (x, y, n, w, h)
         z <- c(z, "", sql.delete("#OLDHLD", "SecurityId = -999"))
         z <- c(z, "", sql.delete("#NEWHLD", "SecurityId = -999"))
     }
+    z
+}
+
+#' sql.1mAllocD.data.underlying
+#' 
+#' SQL query to get raw data for AllocD
+#' @param x = parameter vector
+#' @param y = columns in addition to AssetsEnd
+#' @keywords sql.1mAllocD.data.underlying
+#' @export
+#' @family sql
+
+sql.1mAllocD.data.underlying <- function (x, y) 
+{
+    z <- c("Holdings t", "inner join", "SecurityHistory id on id.HSecurityId = t.HSecurityId")
+    v <- c("FundId", "HFundId", "t.HSecurityId", "SecurityId", 
+        "HoldingValue", "SharesHeld", "Allocation = HoldingValue")
+    z <- sql.tbl(v, z, paste("ReportDate =", wrap(x[1])))
+    v <- paste("create table", x[2], "(FundId int not null, HFundId int not null, HSecurityId int not null, SecurityId int not null, HoldingValue float, SharesHeld float, Allocation float)")
+    z <- c(v, "insert into", paste0("\t", x[2], " (FundId, HFundId, HSecurityId, SecurityId, HoldingValue, SharesHeld, Allocation)"), 
+        sql.unbracket(z))
+    z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(wrap(x[1]), y, 
+        T), x[3]))
+    if (length(x) > 3) {
+        h <- c("SecurityId", "FundId", "Price = 1000000 * HoldingValue/SharesHeld")
+        h <- sql.tbl(h, x[2], "SharesHeld > 0")
+        h <- sql.median("Price", "SecurityId", h)
+        z <- c(z, "", sql.into(h, x[4]))
+        z <- c(z, "", "insert into", paste0("\t", x[4], " (SecurityId, Stat)"), 
+            "values (-999, 1000000)")
+    }
+    z <- c(z, "", sql.delete(x[2], sql.in("FundId", sql.tbl("FundId", 
+        x[3]), F)))
+    h <- c("FundId", "HFundId", "HoldingValue = sum(HoldingValue)")
+    h <- sql.tbl(h, x[2], , "FundId, HFundId")
+    h <- c(sql.label(h, "t1"), "inner join", sql.label(x[3], 
+        "t2 on t2.FundId = t1.FundId"))
+    v <- c("t1.FundId", "HFundId", "HSecurityId = -999", "SecurityId = -999", 
+        "HoldingValue = AssetsEnd - HoldingValue", "SharesHeld = AssetsEnd - HoldingValue", 
+        "Allocation = AssetsEnd - HoldingValue")
+    h <- sql.tbl(v, h)
+    z <- c(z, "", "insert into", paste0("\t", x[2], " (FundId, HFundId, HSecurityId, SecurityId, HoldingValue, SharesHeld, Allocation)"), 
+        sql.unbracket(h))
     z
 }
 
