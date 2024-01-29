@@ -11003,17 +11003,13 @@ sql.1dActWtTrend.underlying <- function (x, y, n, w)
 
 sql.1dActWtTrend.underlying.basic <- function (x, y, n) 
 {
+    z <- sql.1dFloMo.underlying(y, n, T, "All", "PortVal")
     x <- c("insert into", "\t#FLO (ReportDate, FundId, GeographicFocus, Flow, AssetsStart)", 
         sql.unbracket(x))
     x <- c(sql.index("#FLO", "ReportDate, FundId"), x)
     x <- c("create table #FLO (ReportDate datetime not null, FundId int not null, GeographicFocus int, Flow float, AssetsStart float)", 
         x)
-    x <- c(sql.drop(c("#AUM", "#HLD", "#FLO")), "", x)
-    x <- c(x, "", "create table #AUM (FundId int not null, PortVal float not null)")
-    z <- c(x, sql.index("#AUM", "FundId"))
-    w <- sql.unbracket(sql.MonthlyAssetsEnd(wrap(y), , T, , "PortVal"))
-    z <- c(z, "insert into", "\t#AUM (FundId, PortVal)", w)
-    z <- c(z, "", sql.1dActWtTrend.underlying.hold(y, n))
+    z <- c(sql.drop("#FLO"), z, x)
     z
 }
 
@@ -11396,9 +11392,17 @@ sql.1dFloMo.select.wrapper <- function (x, y, n, w = F)
 
 sql.1dFloMo.underlying <- function (x, y, n, w, h) 
 {
-    z <- sql.1dActWtTrend.underlying.hold(x, y)
-    z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(wrap(x), , n, 
-        w, h), "#AUM"))
+    if (n) 
+        n <- "FundId"
+    else n <- "HFundId"
+    z <- paste0("create table #AUM (", n, " int not null, ", 
+        h, " float not null)")
+    z <- c(z, sql.index("#AUM", n))
+    z <- c(sql.1dActWtTrend.underlying.hold(x, y), "", z)
+    y <- sql.unbracket(sql.MonthlyAssetsEnd(wrap(x), , n == "FundId", 
+        , "PortVal"))
+    z <- c(z, "insert into", paste0("\t#AUM (", n, ", ", h, ")"), 
+        y)
     z <- c(sql.drop(c("#HLD", "#AUM")), "", z, "")
     z
 }
