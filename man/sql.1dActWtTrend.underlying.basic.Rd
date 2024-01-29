@@ -4,12 +4,14 @@
 \alias{sql.1dActWtTrend.underlying.basic}
 \title{sql.1dActWtTrend.underlying.basic}
 \usage{
-sql.1dActWtTrend.underlying.basic(x, y)
+sql.1dActWtTrend.underlying.basic(x, y, n)
 }
 \arguments{
 \item{x}{= SQL query}
 
 \item{y}{= month end in YYYYMMDD format}
+
+\item{n}{= "" or the SQL query to subset to securities desired}
 }
 \description{
 Query to insert <x> into flow table
@@ -21,6 +23,7 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.1dActWtTrend.select}},
   \code{\link{sql.1dActWtTrend.topline.from}},
   \code{\link{sql.1dActWtTrend.topline}},
+  \code{\link{sql.1dActWtTrend.underlying.hold}},
   \code{\link{sql.1dActWtTrend.underlying}},
   \code{\link{sql.1dActWtTrend}},
   \code{\link{sql.1dFloMo.CountryId.List}},
@@ -74,8 +77,6 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.FundHistory.macro}},
   \code{\link{sql.FundHistory.sf}},
   \code{\link{sql.FundHistory}}, \code{\link{sql.HSIdmap}},
-  \code{\link{sql.Holdings.bulk.wrapper}},
-  \code{\link{sql.Holdings.bulk}},
   \code{\link{sql.Holdings}}, \code{\link{sql.ION}},
   \code{\link{sql.MonthlyAlloc}},
   \code{\link{sql.MonthlyAssetsEnd}}, \code{\link{sql.Mo}},
