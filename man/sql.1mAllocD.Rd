@@ -7,7 +7,7 @@
 sql.1mAllocD(x, y, n, w, h, u = NULL)
 }
 \arguments{
-\item{x}{= the YYYYMM for which you want data (known 26 days later)}
+\item{x}{= a YYYYMM or vector of flow dates (if u = "Flow")}
 
 \item{y}{= a string vector of factors to be computed, the last element of which is the type of fund used.}
 
@@ -15,12 +15,12 @@ sql.1mAllocD(x, y, n, w, h, u = NULL)
 
 \item{w}{= T/F depending on whether you are checking ftp}
 
-\item{h}{= T/F depending on whether price action is to be accounted for}
+\item{h}{= T/F depending on whether to account for price action}
 
-\item{u}{= columns in addition to AssetsEnd}
+\item{u}{= one of AssetsStart/Flow/NULL}
 }
 \description{
-Generates the SQL query to get the data for 1mAllocMo
+SQL query for 1mAllocD
 }
 \seealso{
 Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
@@ -69,9 +69,7 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.1mBullish.Alloc}},
   \code{\link{sql.1mBullish.Final}},
   \code{\link{sql.1mChActWt}}, \code{\link{sql.1mFloMo}},
-  \code{\link{sql.1mFloTrend.underlying}},
-  \code{\link{sql.1mFloTrend}}, \code{\link{sql.1mFundCt}},
-  \code{\link{sql.1mHoldAum}},
+  \code{\link{sql.1mFundCt}}, \code{\link{sql.1mHoldAum}},
   \code{\link{sql.1mSRIAdvisorPct}},
   \code{\link{sql.1wFlow.Corp}},
   \code{\link{sql.ActWtDiff2}},
