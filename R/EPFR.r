@@ -11053,7 +11053,8 @@ sql.1dActWtTrend.underlying.hold <- function (x, y)
 
 sql.1dFloMo <- function (x, y, n, w, h, u = "All") 
 {
-    v <- sql.1dFloMo.underlying(x)
+    v <- yyyymmdd.to.AllocMo.unique(x, 26, T)
+    v <- sql.1dFloMo.underlying(v, "", T, "All", "AssetsEnd")
     z <- sql.1dFloMo.select.wrapper(y, w, h, T)
     grp <- sql.1dFloMo.grp(w, h)
     x <- sql.DailyFlo(wrap(x), F, , u, h = T)
@@ -11384,17 +11385,20 @@ sql.1dFloMo.select.wrapper <- function (x, y, n, w = F)
 #' sql.1dFloMo.underlying
 #' 
 #' Underlying part of SQL query to get 1dFloMo for individual stocks
-#' @param x = the date for which you want flows (known one day later)
+#' @param x = month end in YYYYMMDD format
+#' @param y = "" or the SQL query to subset to securities desired
+#' @param n = T/F depending on whether data are indexed by FundId
+#' @param w = share-class filter (one of All/Inst/Retail)
+#' @param h = name of AssetEnd column (e.g. "PortVal")
 #' @keywords sql.1dFloMo.underlying
 #' @export
 #' @family sql
 
-sql.1dFloMo.underlying <- function (x) 
+sql.1dFloMo.underlying <- function (x, y, n, w, h) 
 {
-    x <- yyyymmdd.to.AllocMo.unique(x, 26, T)
-    z <- c(sql.into(sql.MonthlyAlloc(wrap(x)), "#HLD"))
-    z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(wrap(x), , T), 
-        "#AUM"))
+    z <- sql.1dActWtTrend.underlying.hold(x, y)
+    z <- c(z, "", sql.into(sql.MonthlyAssetsEnd(wrap(x), , n, 
+        w, h), "#AUM"))
     z <- c(sql.drop(c("#HLD", "#AUM")), "", z, "")
     z
 }
@@ -12003,11 +12007,7 @@ sql.1mAllocSkew <- function (x, y, n, w, h = "All")
 {
     y <- sql.arguments(y)
     x <- yyyymm.to.day(x)
-    z <- sql.MonthlyAssetsEnd(wrap(x), , , h, "PortVal")
-    z <- sql.into(z, "#AUM")
-    z <- c(sql.drop(c("#AUM", "#HLD")), "", z, "")
-    z <- c(z, sql.1dActWtTrend.underlying.hold(x, sql.RDSuniv(n)), 
-        "")
+    z <- sql.1dFloMo.underlying(x, sql.RDSuniv(n), F, h, "PortVal")
     if (w) 
         x <- c(sql.ReportDate(x), "n1.HSecurityId")
     else x <- "SecurityId"

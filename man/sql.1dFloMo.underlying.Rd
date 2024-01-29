@@ -4,10 +4,18 @@
 \alias{sql.1dFloMo.underlying}
 \title{sql.1dFloMo.underlying}
 \usage{
-sql.1dFloMo.underlying(x)
+sql.1dFloMo.underlying(x, y, n, w, h)
 }
 \arguments{
-\item{x}{= the date for which you want flows (known one day later)}
+\item{x}{= month end in YYYYMMDD format}
+
+\item{y}{= "" or the SQL query to subset to securities desired}
+
+\item{n}{= T/F depending on whether data are indexed by FundId}
+
+\item{w}{= share-class filter (one of All/Inst/Retail)}
+
+\item{h}{= name of AssetEnd column (e.g. "PortVal")}
 }
 \description{
 Underlying part of SQL query to get 1dFloMo for individual stocks
