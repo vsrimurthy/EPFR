@@ -16,7 +16,6 @@ select statement to compute <x>
 Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.1dActWtTrend.Final}},
   \code{\link{sql.1dActWtTrend.Flow}},
-  \code{\link{sql.1dActWtTrend.topline.from}},
   \code{\link{sql.1dActWtTrend.topline}},
   \code{\link{sql.1dActWtTrend.underlying.basic}},
   \code{\link{sql.1dActWtTrend.underlying.hold}},

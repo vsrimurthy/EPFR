@@ -7,11 +7,11 @@
 sql.1dActWtTrend.underlying.basic(x, y, n)
 }
 \arguments{
-\item{x}{= SQL query}
+\item{x}{= date restriction}
 
-\item{y}{= month end in YYYYMMDD format}
+\item{y}{= a vector of filters}
 
-\item{n}{= "" or the SQL query to subset to securities desired}
+\item{n}{= MonthlyData/DailyData}
 }
 \description{
 Query to insert <x> into flow table
@@ -21,7 +21,6 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.1dActWtTrend.Final}},
   \code{\link{sql.1dActWtTrend.Flow}},
   \code{\link{sql.1dActWtTrend.select}},
-  \code{\link{sql.1dActWtTrend.topline.from}},
   \code{\link{sql.1dActWtTrend.topline}},
   \code{\link{sql.1dActWtTrend.underlying.hold}},
   \code{\link{sql.1dActWtTrend.underlying}},

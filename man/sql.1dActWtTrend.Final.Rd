@@ -20,7 +20,6 @@ SQL query for daily ActWtTrend
 Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.1dActWtTrend.Flow}},
   \code{\link{sql.1dActWtTrend.select}},
-  \code{\link{sql.1dActWtTrend.topline.from}},
   \code{\link{sql.1dActWtTrend.topline}},
   \code{\link{sql.1dActWtTrend.underlying.basic}},
   \code{\link{sql.1dActWtTrend.underlying.hold}},

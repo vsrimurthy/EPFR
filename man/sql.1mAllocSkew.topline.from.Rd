@@ -4,10 +4,12 @@
 \alias{sql.1mAllocSkew.topline.from}
 \title{sql.1mAllocSkew.topline.from}
 \usage{
-sql.1mAllocSkew.topline.from(x)
+sql.1mAllocSkew.topline.from(x, y)
 }
 \arguments{
-\item{x}{= filter to be applied All/Act/Pas/Mutual/Etf/xJP}
+\item{x}{= table with GeoIds}
+
+\item{y}{= T/F depending on whether output is daily}
 }
 \description{
 from part of the final select statement in 1mAllocTrend
@@ -17,7 +19,6 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.1dActWtTrend.Final}},
   \code{\link{sql.1dActWtTrend.Flow}},
   \code{\link{sql.1dActWtTrend.select}},
-  \code{\link{sql.1dActWtTrend.topline.from}},
   \code{\link{sql.1dActWtTrend.topline}},
   \code{\link{sql.1dActWtTrend.underlying.basic}},
   \code{\link{sql.1dActWtTrend.underlying.hold}},
