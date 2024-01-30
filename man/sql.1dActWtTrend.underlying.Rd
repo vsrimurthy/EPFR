@@ -7,7 +7,7 @@
 sql.1dActWtTrend.underlying(x, y, n, w)
 }
 \arguments{
-\item{x}{= vector of flow dates in YYYYMMDD (known two days later)}
+\item{x}{= single YYYYMM or vector of flow dates in YYYYMMDD (known two days later)}
 
 \item{y}{= the type of fund used in the computation}
 
@@ -46,8 +46,6 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.1dFloTrend.Alloc}},
   \code{\link{sql.1dFundCt}}, \code{\link{sql.1dFundRet}},
   \code{\link{sql.1mActWt.underlying}},
-  \code{\link{sql.1mActWtTrend.underlying}},
-  \code{\link{sql.1mActWtTrend}},
   \code{\link{sql.1mActWt}},
   \code{\link{sql.1mAllocD.data.underlying}},
   \code{\link{sql.1mAllocD.data}},

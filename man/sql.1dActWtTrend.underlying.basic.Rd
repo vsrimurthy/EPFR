@@ -11,7 +11,7 @@ sql.1dActWtTrend.underlying.basic(x, y, n)
 
 \item{y}{= a vector of filters}
 
-\item{n}{= MonthlyData/DailyData}
+\item{n}{= T/F for daily or monthly data}
 }
 \description{
 Query to insert <x> into flow table
@@ -44,8 +44,6 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.1dFloTrend.Alloc}},
   \code{\link{sql.1dFundCt}}, \code{\link{sql.1dFundRet}},
   \code{\link{sql.1mActWt.underlying}},
-  \code{\link{sql.1mActWtTrend.underlying}},
-  \code{\link{sql.1mActWtTrend}},
   \code{\link{sql.1mActWt}},
   \code{\link{sql.1mAllocD.data.underlying}},
   \code{\link{sql.1mAllocD.data}},

@@ -4372,11 +4372,8 @@ ftp.sql.factor <- function (x, y, n, w, h)
         z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c("FundCt", 
             qa.filter.map(n)), w, T, h)
     }
-    else if (all(is.element(x, c("FundCt", "Herfindahl")))) {
-        z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
-            w, T, h)
-    }
-    else if (all(is.element(x, c("HoldSum", "SharesHeld")))) {
+    else if (all(is.element(x, c("FundCt", "Herfindahl", "HoldSum", 
+        "SharesHeld")))) {
         z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
             w, T, h)
     }
@@ -10781,7 +10778,7 @@ smear.Q1 <- function (x)
 #' sql.1dActWtTrend
 #' 
 #' the SQL query to get 1dActWtTrend
-#' @param x = vector of flow dates in YYYYMMDD (known two days later)
+#' @param x = single YYYYMM or vector of flow dates
 #' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
@@ -10795,7 +10792,7 @@ sql.1dActWtTrend <- function (x, y, n, w, h = "All")
     y <- sql.arguments(y)
     z <- sql.1dActWtTrend.underlying(x, y$filter, sql.RDSuniv(n), 
         h)
-    z <- c(z, sql.1dActWtTrend.topline(y$factor, w, T))
+    z <- c(z, sql.1dActWtTrend.topline(y$factor, w, !yyyymm.exists(x[1])))
     z
 }
 
@@ -10946,7 +10943,7 @@ sql.1dActWtTrend.topline <- function (x, y, n = F)
 #' sql.1dActWtTrend.underlying
 #' 
 #' the SQL query to get the data for 1dActWtTrend
-#' @param x = vector of flow dates in YYYYMMDD (known two days later)
+#' @param x = single YYYYMM or vector of flow dates in YYYYMMDD (known two days later)
 #' @param y = the type of fund used in the computation
 #' @param n = "" or the SQL query to subset to securities desired
 #' @param w = share-class filter (one of All/Inst/Retail)
@@ -10956,7 +10953,13 @@ sql.1dActWtTrend.topline <- function (x, y, n = F)
 
 sql.1dActWtTrend.underlying <- function (x, y, n, w) 
 {
-    mo.end <- yyyymmdd.to.AllocMo.unique(x, 26, T)
+    dly <- !yyyymm.exists(x[1])
+    if (dly) {
+        mo.end <- yyyymmdd.to.AllocMo.unique(x, 26, T)
+    }
+    else {
+        mo.end <- x <- yyyymm.to.day(x)
+    }
     x <- wrap(x)
     if (length(x) == 1) 
         x <- paste("=", x)
@@ -10965,7 +10968,7 @@ sql.1dActWtTrend.underlying <- function (x, y, n, w)
     x <- sql.ShareClass(x, w)
     z <- sql.drop("#FLO")
     z <- c(z, sql.1dFloMo.underlying(mo.end, n, T, "All", "PortVal"))
-    z <- c(z, sql.1dActWtTrend.underlying.basic(x, y, "DailyData"))
+    z <- c(z, sql.1dActWtTrend.underlying.basic(x, y, dly))
     z <- paste(z, collapse = "\n")
     z
 }
@@ -10975,13 +10978,16 @@ sql.1dActWtTrend.underlying <- function (x, y, n, w)
 #' Query to insert <x> into flow table
 #' @param x = date restriction
 #' @param y = a vector of filters
-#' @param n = MonthlyData/DailyData
+#' @param n = T/F for daily or monthly data
 #' @keywords sql.1dActWtTrend.underlying.basic
 #' @export
 #' @family sql
 
 sql.1dActWtTrend.underlying.basic <- function (x, y, n) 
 {
+    if (n) 
+        n <- "DailyData"
+    else n <- "MonthlyData"
     z <- c(sql.label(n, "t1"), "inner join", sql.label(sql.FundHistory(y, 
         T, c("FundId", "GeographicFocus")), "t2"), "on t2.HFundId = t1.HFundId")
     z <- sql.tbl("ReportDate, FundId, GeographicFocus = max(GeographicFocus), Flow = sum(Flow), AssetsStart = sum(AssetsStart)", 
@@ -11717,48 +11723,6 @@ sql.1mActWt.underlying <- function (x, y)
         "inner join")
     z <- c(z, "\tSecurityHistory id on id.HSecurityId = t0.HSecurityId")
     z <- paste0(y, z)
-    z
-}
-
-#' sql.1mActWtTrend
-#' 
-#' the SQL query to get 1dActWtTrend
-#' @param x = the YYYYMM for which you want data
-#' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
-#' @param n = any of StockFlows/China/Japan/CSI300/Energy
-#' @param w = T/F depending on whether you are checking ftp
-#' @keywords sql.1mActWtTrend
-#' @export
-#' @family sql
-
-sql.1mActWtTrend <- function (x, y, n, w) 
-{
-    y <- sql.arguments(y)
-    z <- sql.1mActWtTrend.underlying(x, y$filter, sql.RDSuniv(n))
-    z <- c(z, sql.1dActWtTrend.topline(y$factor, w))
-    z
-}
-
-#' sql.1mActWtTrend.underlying
-#' 
-#' the SQL query to get the data for 1dActWtTrend
-#' @param x = the YYYYMM for which you want data
-#' @param y = the type of fund used in the computation
-#' @param n = "" or the SQL query to subset to securities desired
-#' @keywords sql.1mActWtTrend.underlying
-#' @export
-#' @family sql
-
-sql.1mActWtTrend.underlying <- function (x, y, n) 
-{
-    mo.end <- x <- yyyymm.to.day(x)
-    x <- paste("ReportDate =", wrap(x))
-    z <- sql.drop("#FLO")
-    z <- c(z, sql.1dFloMo.underlying(mo.end, n, T, "All", "PortVal"))
-    z <- c(z, sql.1dActWtTrend.underlying.basic(x, y, "MonthlyData"))
-    z <- c(z, "", sql.delete("#HLD", sql.in("FundId", sql.tbl("FundId", 
-        "#FLO"), F)), "")
-    z <- paste(z, collapse = "\n")
     z
 }
 
