@@ -12265,7 +12265,7 @@ sql.ActWtDiff2 <- function (x)
 {
     mo.end <- yyyymmdd.to.AllocMo(x, 26)
     w <- sql.and(list(A = "StyleSector = 101", B = "GeographicFocus = 77", 
-        C = "[Index] = 1"))
+        C = "not isnull(Idx, 'N') = 'N'"))
     w <- sql.in("HFundId", sql.tbl("HFundId", "FundHistory", 
         w))
     w <- list(A = w, B = paste0("ReportDate = '", yyyymm.to.day(mo.end), 
@@ -12581,7 +12581,7 @@ sql.Bullish <- function (x, y, n, w)
         "t")
     z <- c(z, sql.update("#HLD", "HoldingValue = 100 * HoldingValue/PortVal", 
         h, "#HLD.HFundId = t.HFundId"))
-    u <- sql.and(list(A = "[Index] = 1", B = sql.in("HFundId", 
+    u <- sql.and(list(A = "not isnull(Idx, 'N') = 'N'", B = sql.in("HFundId", 
         sql.tbl("HFundId", "#HLD"))))
     h <- c(sql.label(sql.tbl("HFundId, BenchIndexId", "FundHistory", 
         u), "t1"), "inner join")
@@ -12593,7 +12593,7 @@ sql.Bullish <- function (x, y, n, w)
     h <- sql.tbl(u, h, , "t1.BenchIndexId, t3.HSecurityId, nFunds")
     z <- c(z, "", sql.into(h, "#BMK"), "")
     z <- c(z, sql.delete("#HLD", sql.in("HFundId", sql.tbl("HFundId", 
-        "FundHistory", "[Index] = 1)"))))
+        "FundHistory", "not isnull(Idx, 'N') = 'N'"))))
     if (w) 
         x <- c(sql.ReportDate(x), "t1.HSecurityId")
     else x <- "SecurityId"
@@ -12905,7 +12905,7 @@ sql.Dispersion <- function (x, y, n, w)
     z <- sql.drop(c("#HLD", "#BMK"))
     z <- c(z, "", "create table #BMK (BenchIndexId int not null, HSecurityId int not null, HoldingValue float not null)")
     z <- c(z, sql.index("#BMK", "BenchIndexId, HSecurityId"))
-    u <- sql.and(list(A = paste0("ReportDate = '", x, "'"), B = "[Index] = 1"))
+    u <- sql.and(list(A = paste0("ReportDate = '", x, "'"), B = "not isnull(Idx, 'N') = 'N'"))
     h <- "Holdings t1 inner join FundHistory t2 on t2.HFundId = t1.HFundId"
     h <- sql.tbl("BenchIndexId, HSecurityId, HoldingValue = sum(HoldingValue)", 
         h, u, "BenchIndexId, HSecurityId", "sum(HoldingValue) > 0")
@@ -12917,7 +12917,7 @@ sql.Dispersion <- function (x, y, n, w)
     z <- c(z, "", "create table #HLD (HFundId int not null, HSecurityId int not null, HoldingValue float not null)")
     z <- c(z, sql.index("#HLD", "HFundId, HSecurityId"))
     u <- sql.in("BenchIndexId", sql.tbl("BenchIndexId", "#BMK"))
-    u <- sql.and(list(A = paste0("ReportDate = '", x, "'"), B = "[Index] = 0", 
+    u <- sql.and(list(A = paste0("ReportDate = '", x, "'"), B = "isnull(Idx, 'N') = 'N'", 
         C = u, D = "HoldingValue > 0"))
     h <- "Holdings t1 inner join FundHistory t2 on t2.HFundId = t1.HFundId"
     h <- sql.tbl("t1.HFundId, HSecurityId, HoldingValue", h, 
