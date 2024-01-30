@@ -9,7 +9,7 @@ sql.1mAllocSkew.topline.from(x, y)
 \arguments{
 \item{x}{= table with GeoIds}
 
-\item{y}{= T/F depending on whether output is daily}
+\item{y}{= T/F depending on whether you are checking ftp}
 }
 \description{
 from part of the final select statement in 1mAllocTrend
@@ -19,11 +19,9 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.1dActWtTrend.Final}},
   \code{\link{sql.1dActWtTrend.Flow}},
   \code{\link{sql.1dActWtTrend.select}},
-  \code{\link{sql.1dActWtTrend.topline}},
   \code{\link{sql.1dActWtTrend.underlying.basic}},
   \code{\link{sql.1dActWtTrend.underlying.hold}},
   \code{\link{sql.1dActWtTrend.underlying}},
-  \code{\link{sql.1dActWtTrend}},
   \code{\link{sql.1dFloMo.CountryId.List}},
   \code{\link{sql.1dFloMo.CtrySG}},
   \code{\link{sql.1dFloMo.FI}},
@@ -48,6 +46,7 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.1mAllocD.data}},
   \code{\link{sql.1mAllocD.select}},
   \code{\link{sql.1mAllocD}},
+  \code{\link{sql.1mAllocSkew.topline}},
   \code{\link{sql.1mAllocSkew}},
   \code{\link{sql.1mBullish.Alloc}},
   \code{\link{sql.1mBullish.Final}},

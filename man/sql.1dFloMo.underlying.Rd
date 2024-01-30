@@ -4,18 +4,14 @@
 \alias{sql.1dFloMo.underlying}
 \title{sql.1dFloMo.underlying}
 \usage{
-sql.1dFloMo.underlying(x, y, n, w, h)
+sql.1dFloMo.underlying(x, y, n)
 }
 \arguments{
 \item{x}{= month end in YYYYMMDD format}
 
 \item{y}{= "" or the SQL query to subset to securities desired}
 
-\item{n}{= T/F depending on whether data are indexed by FundId}
-
-\item{w}{= share-class filter (one of All/Inst/Retail)}
-
-\item{h}{= name of AssetEnd column (e.g. "PortVal")}
+\item{n}{= name of AssetEnd column (e.g. "PortVal")}
 }
 \description{
 Underlying part of SQL query to get 1dFloMo for individual stocks
@@ -25,11 +21,9 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.1dActWtTrend.Final}},
   \code{\link{sql.1dActWtTrend.Flow}},
   \code{\link{sql.1dActWtTrend.select}},
-  \code{\link{sql.1dActWtTrend.topline}},
   \code{\link{sql.1dActWtTrend.underlying.basic}},
   \code{\link{sql.1dActWtTrend.underlying.hold}},
   \code{\link{sql.1dActWtTrend.underlying}},
-  \code{\link{sql.1dActWtTrend}},
   \code{\link{sql.1dFloMo.CountryId.List}},
   \code{\link{sql.1dFloMo.CtrySG}},
   \code{\link{sql.1dFloMo.FI}},
@@ -54,6 +48,7 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.1mAllocD.select}},
   \code{\link{sql.1mAllocD}},
   \code{\link{sql.1mAllocSkew.topline.from}},
+  \code{\link{sql.1mAllocSkew.topline}},
   \code{\link{sql.1mAllocSkew}},
   \code{\link{sql.1mBullish.Alloc}},
   \code{\link{sql.1mBullish.Final}},
