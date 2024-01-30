@@ -4335,6 +4335,16 @@ ftp.sql.factor <- function (x, y, n, w, h)
         z <- sql.1mAllocD(y, c(x, qa.filter.map(n)), w, T, F, 
             "Flow", F)
     }
+    else if (all(is.element(x, paste0("Alloc", c("Trend", "Diff", 
+        "Mo"))))) {
+        z <- sql.1mAllocD(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
+            w, T, F, "AssetsStart", F)
+    }
+    else if (all(x == "AllocD")) {
+        z <- sql.1mAllocD(yyyymmdd.to.yyyymm(y), c("AllocDA", 
+            "AllocDInc", "AllocDDec", "AllocDAdd", "AllocDRem", 
+            qa.filter.map(n)), w, T, F)
+    }
     else if (all(is.element(x, paste0("ActWt", c("Trend", "Diff", 
         "Diff2"))))) {
         z <- sql.1dActWtTrend(y, c(x, qa.filter.map(n)), w, T)
@@ -4350,6 +4360,10 @@ ftp.sql.factor <- function (x, y, n, w, h)
         z <- sql.1dFloMo(y, c("AssetsStartDollar", qa.filter.map(n)), 
             w, T, h)
     }
+    else if (all(x == "IOND")) {
+        z <- sql.1dFloMo(y, c("Inflow", "Outflow", qa.filter.map(n)), 
+            w, T, h)
+    }
     else if (all(x == "FundCtD")) {
         z <- sql.1dFundCt(y, c("FundCt", qa.filter.map(n)), w, 
             T, "GeoId")
@@ -4358,9 +4372,9 @@ ftp.sql.factor <- function (x, y, n, w, h)
         z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c("FundCt", 
             qa.filter.map(n)), w, T, h)
     }
-    else if (all(x == "HoldAum")) {
-        z <- sql.1mHoldAum(yyyymmdd.to.yyyymm(y), c("HoldAum", 
-            qa.filter.map(n)), w, T, h)
+    else if (all(is.element(x, c("FundCt", "Herfindahl")))) {
+        z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
+            w, T, h)
     }
     else if (all(is.element(x, c("HoldSum", "SharesHeld")))) {
         z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
@@ -4378,35 +4392,21 @@ ftp.sql.factor <- function (x, y, n, w, h)
         z <- sql.Dispersion(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
             w, T)
     }
-    else if (all(is.element(x, c("FundCt", "Herfindahl")))) {
-        z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
-            w, T, h)
+    else if (all(x == "HoldAum")) {
+        z <- sql.1mHoldAum(yyyymmdd.to.yyyymm(y), c("HoldAum", 
+            qa.filter.map(n)), w, T, h)
     }
     else if (all(x == "StockM")) {
-        z <- sql.1mFloMo(yyyymmdd.to.yyyymm(y), c("FloDollar", 
+        z <- sql.1mHoldAum(yyyymmdd.to.yyyymm(y), c("FloDollar", 
             qa.filter.map(n)), w, T, h)
     }
     else if (all(x == "FloMoM")) {
-        z <- sql.1mFloMo(yyyymmdd.to.yyyymm(y), c("FloMo", qa.filter.map(n)), 
-            w, T, h)
-    }
-    else if (all(x == "IOND")) {
-        z <- sql.1dFloMo(y, c("Inflow", "Outflow", qa.filter.map(n)), 
-            w, T, h)
-    }
-    else if (all(x == "IONM")) {
-        z <- sql.1mFloMo(yyyymmdd.to.yyyymm(y), c("Inflow", "Outflow", 
+        z <- sql.1mHoldAum(yyyymmdd.to.yyyymm(y), c("FloMo", 
             qa.filter.map(n)), w, T, h)
     }
-    else if (all(is.element(x, paste0("Alloc", c("Trend", "Diff", 
-        "Mo"))))) {
-        z <- sql.1mAllocD(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
-            w, T, F, "AssetsStart", F)
-    }
-    else if (all(x == "AllocD")) {
-        z <- sql.1mAllocD(yyyymmdd.to.yyyymm(y), c("AllocDA", 
-            "AllocDInc", "AllocDDec", "AllocDAdd", "AllocDRem", 
-            qa.filter.map(n)), w, T, F)
+    else if (all(x == "IONM")) {
+        z <- sql.1mHoldAum(yyyymmdd.to.yyyymm(y), c("Inflow", 
+            "Outflow", qa.filter.map(n)), w, T, h)
     }
     else if (all(x == "AllocSkew")) {
         z <- sql.1mAllocSkew(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
@@ -6788,8 +6788,10 @@ mk.1mAllocMo <- function (x, y, n)
             stop("Bad share-class!")
         z <- sql.1mSRIAdvisorPct(x, y, n$DB, F)
     }
-    else if (y[1] == "FloDollar") {
-        z <- sql.1mFloMo(x, y, n$DB, F, "All", w)
+    else if (any(y[1] == c("FloDollar", "FloMo"))) {
+        if (w != "All") 
+            stop("Bad share-class!")
+        z <- sql.1mHoldAum(x, y, n$DB, F, "All")
     }
     else if (y[1] == "Bullish") {
         if (w != "All") 
@@ -6811,18 +6813,18 @@ mk.1mAllocMo <- function (x, y, n)
             stop("Bad share-class!")
         z <- sql.1mAllocD(x, y, n$DB, F, F)
     }
-    else if (any(y[1] == c("FwtdEx0", "FwtdIn0", "SwtdEx0", "SwtdIn0"))) {
-        if (w != "All") 
-            stop("Bad share-class!")
-        z <- sql.TopDownAllocs(x, y, n$DB, F, "All")
-    }
     else if (any(y[1] == paste0("Alloc", c("Mo", "Trend", "Diff")))) {
         if (w != "All") 
             stop("Bad share-class!")
         z <- sql.1mAllocD(x, y, n$DB, F, F, "AssetsStart", F)
     }
+    else if (any(y[1] == c("FwtdEx0", "FwtdIn0", "SwtdEx0", "SwtdIn0"))) {
+        if (w != "All") 
+            stop("Bad share-class!")
+        z <- sql.TopDownAllocs(x, y, n$DB, F, "All")
+    }
     else {
-        z <- sql.1mFloMo(x, y, n$DB, F, "All", w)
+        stop("Bad Factor")
     }
     z <- sql.map.classif(z, n$conn, n$classif)
     z
@@ -12130,46 +12132,6 @@ sql.1mChActWt <- function (x, y)
     z
 }
 
-#' sql.1mFloMo
-#' 
-#' Generates the SQL query to get the data for 1mFloMo for individual stocks
-#' @param x = the YYYYMM for which you want data
-#' @param y = a string vector of factors to be computed, the last element of which is the type of fund used
-#' @param n = any of StockFlows/China/Japan/CSI300/Energy
-#' @param w = T/F depending on whether you are checking ftp
-#' @param h = breakdown filter (e.g. All/GeoId/DomicileId)
-#' @param u = share-class filter (one of All/Inst/Retail)
-#' @keywords sql.1mFloMo
-#' @export
-#' @family sql
-
-sql.1mFloMo <- function (x, y, n, w, h, u = "All") 
-{
-    u <- sql.ShareClass("ReportDate = @dy", u)
-    u <- sql.tbl("ReportDate, HFundId, Flow, AssetsStart, AssetsEnd", 
-        "MonthlyData", u)
-    z <- sql.label(sql.MonthlyAssetsEnd("@dy"), "t3")
-    z <- c(z, "inner join", sql.label(u, "t2"))
-    z <- c(z, "\ton t2.HFundId = t3.HFundId", "inner join", sql.label(sql.1dFloMo.filter(y, 
-        h), "t0"), "\ton t0.HFundId = t2.HFundId")
-    z <- c(z, "inner join", sql.label(sql.Holdings("ReportDate = @dy", 
-        c("HSecurityId", "FundId", "HoldingValue")), "t1 on t1.FundId = t0.FundId"))
-    if (!w) 
-        z <- c(z, "inner join", "SecurityHistory id on id.HSecurityId = t1.HSecurityId")
-    grp <- sql.1dFloMo.grp(w, h)
-    y <- sql.1dFloMo.select.wrapper(y, w, h)
-    if (n == "All") {
-        z <- sql.tbl(y, z, , grp, "sum(HoldingValue/t3.AssetsEnd) > 0")
-    }
-    else {
-        z <- sql.tbl(y, z, sql.in("t1.HSecurityId", sql.RDSuniv(n)), 
-            grp, "sum(HoldingValue/t3.AssetsEnd) > 0")
-    }
-    z <- paste(c(sql.declare("@dy", "datetime", yyyymm.to.day(x)), 
-        sql.unbracket(z)), collapse = "\n")
-    z
-}
-
 #' sql.1mFundCt
 #' 
 #' Generates FundCt, the ownership breadth measure set forth in Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
@@ -12278,22 +12240,43 @@ sql.1mHoldAum <- function (x, y, n, w, h)
     if (w) 
         z <- c(sql.ReportDate(r), z, "HSecurityId")
     else z <- c("SecurityId", z)
+    addl <- NULL
     for (j in y$factor) {
         if (j == "HoldAum") {
             z <- c(z, paste0(j, " = sum(AssetsEnd)"))
+        }
+        else if (j == "FloMo") {
+            z <- c(z, sql.1dFloMo.select(j))
+            addl <- union(addl, c("Flow", "AssetsStart"))
+        }
+        else if (j == "FloDollar" & !w) {
+            z <- c(z, sql.1dFloMo.select(j))
+            addl <- union(addl, "Flow")
+        }
+        else if (j == "FloDollar" & w) {
+            z <- c(z, "CalculatedStockFlow = sum(Flow * HoldingValue/AssetsEnd)")
+            addl <- union(addl, "Flow")
+        }
+        else if (j == "Inflow") {
+            z <- c(z, paste(j, "= sum(Inflow * HoldingValue/AssetsEnd)"))
+            addl <- union(addl, "Inflow")
+        }
+        else if (j == "Outflow") {
+            z <- c(z, paste(j, "= sum(Outflow * HoldingValue/AssetsEnd)"))
+            addl <- union(addl, "Outflow")
         }
         else {
             stop("Bad factor", j)
         }
     }
-    r <- c("Holdings h", "inner join", "FundHistory f on f.FundId = h.FundId")
-    r <- c(r, "inner join", sql.label(sql.MonthlyAssetsEnd("@dy"), 
-        "t on t.HFundId = f.HFundId"))
+    r <- c("Holdings t1", "inner join", "FundHistory t2 on t2.FundId = t1.FundId")
+    r <- c(r, "inner join", sql.label(sql.MonthlyAssetsEnd("@dy", 
+        addl), "t3 on t3.HFundId = t2.HFundId"))
     if (!w) 
-        r <- c(r, "inner join", "SecurityHistory id on id.HSecurityId = h.HSecurityId")
+        r <- c(r, "inner join", "SecurityHistory id on id.HSecurityId = t1.HSecurityId")
     w <- ifelse(w, "HSecurityId", "SecurityId")
     w <- paste(c(w, sql.breakdown(h)), collapse = ", ")
-    z <- sql.tbl(z, r, n, w)
+    z <- sql.tbl(z, r, n, w, "sum(HoldingValue/AssetsEnd) > 0")
     z <- paste(c(x, sql.unbracket(z)), collapse = "\n")
     z
 }
@@ -13827,7 +13810,11 @@ sql.MonthlyAssetsEnd <- function (x, y = NULL, n = F, w = "All", h = "AssetsEnd"
     n <- ifelse(n, "FundId", "HFundId")
     h <- c(h, y)
     y <- c("AssetsEnd", y)
-    z <- c(n, paste0(h, " = sum(", y, ")"))
+    z <- ifelse(y == "Inflow", "case when Flow > 0 then Flow else 0 end", 
+        y)
+    z <- ifelse(z == "Outflow", "case when Flow < 0 then Flow else 0 end", 
+        z)
+    z <- c(n, paste0(h, " = sum(", z, ")"))
     if (!is.null(x)) 
         if (is.list(x)) {
             x <- sql.and(x)
