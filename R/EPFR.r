@@ -12264,10 +12264,8 @@ sql.1wFlow.Corp <- function (x)
 sql.ActWtDiff2 <- function (x) 
 {
     mo.end <- yyyymmdd.to.AllocMo(x, 26)
-    w <- sql.and(list(A = "StyleSector = 101", B = "GeographicFocus = 77", 
-        C = "not isnull(Idx, 'N') = 'N'"))
-    w <- sql.in("HFundId", sql.tbl("HFundId", "FundHistory", 
-        w))
+    w <- sql.in("HFundId", sql.FundHistory(c("Matls", "USGeo", 
+        "Pas"), T))
     w <- list(A = w, B = paste0("ReportDate = '", yyyymm.to.day(mo.end), 
         "'"))
     z <- sql.in("HFundId", sql.tbl("HFundId", "FundHistory", 
@@ -12581,19 +12579,18 @@ sql.Bullish <- function (x, y, n, w)
         "t")
     z <- c(z, sql.update("#HLD", "HoldingValue = 100 * HoldingValue/PortVal", 
         h, "#HLD.HFundId = t.HFundId"))
-    u <- sql.and(list(A = "not isnull(Idx, 'N') = 'N'", B = sql.in("HFundId", 
-        sql.tbl("HFundId", "#HLD"))))
-    h <- c(sql.label(sql.tbl("HFundId, BenchIndexId", "FundHistory", 
-        u), "t1"), "inner join")
+    h <- c("Pas", "HFundId in (select HFundId from #HLD)")
+    h <- sql.FundHistory(h, T, "BenchIndexId")
+    h <- c(sql.label(h, "t1"), "inner join")
     h <- c(h, sql.label(sql.tbl("BenchIndexId, nFunds = count(HFundId)", 
-        "FundHistory", u, "BenchIndexId"), "t2"))
+        h, , "BenchIndexId"), "t2"))
     h <- c(h, "\ton t2.BenchIndexId = t1.BenchIndexId", "inner join", 
         "#HLD t3 on t3.HFundId = t1.HFundId")
     u <- "t1.BenchIndexId, t3.HSecurityId, BmkWt = sum(HoldingValue)/nFunds"
     h <- sql.tbl(u, h, , "t1.BenchIndexId, t3.HSecurityId, nFunds")
     z <- c(z, "", sql.into(h, "#BMK"), "")
-    z <- c(z, sql.delete("#HLD", sql.in("HFundId", sql.tbl("HFundId", 
-        "FundHistory", "not isnull(Idx, 'N') = 'N'"))))
+    z <- c(z, sql.delete("#HLD", sql.in("HFundId", sql.FundHistory("Pas", 
+        T))))
     if (w) 
         x <- c(sql.ReportDate(x), "t1.HSecurityId")
     else x <- "SecurityId"
