@@ -5189,6 +5189,20 @@ html.tenure <- function (x, y, n)
     z
 }
 
+#' int.exists
+#' 
+#' T/F depending on whether <x> contains only integers 0-9
+#' @param x = string vector
+#' @keywords int.exists
+#' @export
+#' @family int
+
+int.exists <- function (x) 
+{
+    z <- !grepl("[^0-9]", x)
+    z
+}
+
 #' int.format
 #' 
 #' adds commas "1,234,567"
@@ -13804,8 +13818,7 @@ sql.query <- function (x, y, n = T)
 sql.RDSuniv <- function (x) 
 {
     u <- mat.read(parameters("classif-RDSuniv"), "\t", NULL)
-    u <- split(u, ifelse(grepl("[^0-9]", u[, "FundId"]), "U", 
-        "F"))
+    u <- split(u, ifelse(int.exists(u[, "FundId"]), "F", "U"))
     colnames(u[["U"]]) <- c("Univ", "RDS")
     u[["U"]] <- Reduce(merge, u)
     u[["F"]][, "RDS"] <- u[["F"]][, "Univ"]
@@ -16034,8 +16047,8 @@ yyyymm.ex.qtr <- function (x, y = 3)
 
 yyyymm.exists <- function (x) 
 {
-    nchar(x) == 6 & !grepl("[^0-9]", x) & is.element(substring(x, 
-        5, 5), 0:1)
+    nchar(x) == 6 & int.exists(x) & is.element(substring(x, 5, 
+        5), 0:1)
 }
 
 #' yyyymm.lag

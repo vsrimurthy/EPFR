@@ -13,7 +13,7 @@ int.format(x)
 adds commas "1,234,567"
 }
 \seealso{
-Other int: \code{\link{int.random}},
-  \code{\link{int.to.prime}}
+Other int: \code{\link{int.exists}},
+  \code{\link{int.random}}, \code{\link{int.to.prime}}
 }
 \keyword{int.format}
