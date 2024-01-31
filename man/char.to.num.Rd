@@ -10,7 +10,7 @@ char.to.num(x)
 \item{x}{= a vector of strings}
 }
 \description{
-coerces to numeric much more brutally than does as.numeric
+coerces to numeric without generating warnings
 }
 \seealso{
 Other char: \code{\link{char.ex.int}},

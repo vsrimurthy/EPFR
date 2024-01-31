@@ -487,7 +487,7 @@ bbk.bin.rets.summ <- function (x, y, n = F)
         y <- rownames(x)[y]
         if (any(substring(y, 5, 5) == "Q")) 
             y <- yyyymm.ex.qtr(y)
-        z["DDnBeg", ] <- as.numeric(y)
+        z["DDnBeg", ] <- char.to.num(y)
     }
     z
 }
@@ -647,10 +647,10 @@ bbk.histogram <- function (x)
     z <- vec.count(0.01 * round(x$TxB/0.5) * 0.5)
     z <- matrix(z, length(z), 3, F, list(names(z), c("Obs", "Plus", 
         "Minus")))
-    z[, "Plus"] <- ifelse(as.numeric(rownames(z)) < 0, NA, z[, 
+    z[, "Plus"] <- ifelse(char.to.num(rownames(z)) < 0, NA, z[, 
         "Plus"]/sum(z[, "Plus"]))
-    z[, "Minus"] <- ifelse(as.numeric(rownames(z)) < 0, z[, "Minus"]/sum(z[, 
-        "Minus"]), NA)
+    z[, "Minus"] <- ifelse(char.to.num(rownames(z)) < 0, z[, 
+        "Minus"]/sum(z[, "Minus"]), NA)
     z
 }
 
@@ -847,7 +847,7 @@ binomial.trial <- function (x, y, n, w)
 
 bond.curve.expand <- function (x) 
 {
-    approx(as.numeric(names(x)), as.numeric(x), 1:as.numeric(names(x)[length(x)]), 
+    approx(char.to.num(names(x)), char.to.num(x), 1:char.to.num(names(x)[length(x)]), 
         method = "constant", f = 1, rule = 2)$y
 }
 
@@ -963,11 +963,11 @@ britten.jones.data <- function (x, y, n, w = NULL)
         for (i in 2:n) prd.ret[[paste0("prd", i)]] <- mat.lag(prd.ret[["prd1"]], 
             1 - i)
     y <- ret.ex.idx(y, n, T, T)
-    vec <- as.numeric(unlist(y))
+    vec <- char.to.num(unlist(y))
     w1 <- !is.na(vec) & abs(vec) < 1e-06
     if (any(w1)) {
         for (i in names(prd.ret)) {
-            w2 <- as.numeric(unlist(prd.ret[[i]]))
+            w2 <- char.to.num(unlist(prd.ret[[i]]))
             w2 <- is.na(w2) | abs(w2) < 1e-06
             w1 <- w1 & w2
         }
@@ -983,7 +983,7 @@ britten.jones.data <- function (x, y, n, w = NULL)
     prd.ret <- lapply(prd.ret, ret.to.log)
     w1 <- !is.na(unlist(y))
     for (i in names(prd.ret)) {
-        vec <- as.numeric(unlist(prd.ret[[i]]))
+        vec <- char.to.num(unlist(prd.ret[[i]]))
         vec <- ifelse(w1, vec, NA)
         prd.ret[[i]] <- matrix(vec, dim(y)[1], dim(y)[2], F, 
             dimnames(y))
@@ -995,7 +995,7 @@ britten.jones.data <- function (x, y, n, w = NULL)
     for (i in colnames(x$bins)) {
         if (sum(!is.na(x$bins[, i]) & !duplicated(x$bins[, i])) > 
             1) {
-            df <- as.numeric(x$bins[, i])
+            df <- char.to.num(x$bins[, i])
             w1 <- !is.na(df)
             n.beg <- find.data(w1, T)
             n.end <- find.data(w1, F)
@@ -1003,7 +1003,7 @@ britten.jones.data <- function (x, y, n, w = NULL)
                 vec <- find.gaps(w1)
                 if (any(vec < n - 1)) {
                   vec <- vec[vec < n - 1]
-                  for (j in names(vec)) df[as.numeric(j) + 1:as.numeric(vec[j]) - 
+                  for (j in names(vec)) df[char.to.num(j) + 1:char.to.num(vec[j]) - 
                     1] <- 3
                 }
             }
@@ -1035,9 +1035,9 @@ britten.jones.data <- function (x, y, n, w = NULL)
                     ", retHz =", n, "..\n")
                 if (any(vec >= n - 1)) {
                   vec <- vec[vec >= n - 1]
-                  n.beg <- c(n.beg, as.numeric(names(vec)) + 
-                    as.numeric(vec))
-                  n.end <- c(as.numeric(names(vec)) - 1, n.end)
+                  n.beg <- c(n.beg, char.to.num(names(vec)) + 
+                    char.to.num(vec))
+                  n.end <- c(char.to.num(names(vec)) - 1, n.end)
                   for (j in seq_along(n.beg)) z <- britten.jones.data.stack(df[n.beg[j]:n.end[j], 
                     ], n, prd.ret, n.beg[j], i)
                 }
@@ -1151,7 +1151,7 @@ char.to.int <- function (x)
 
 #' char.to.num
 #' 
-#' coerces to numeric much more brutally than does as.numeric
+#' coerces to numeric without generating warnings
 #' @param x = a vector of strings
 #' @keywords char.to.num
 #' @export
@@ -1159,7 +1159,7 @@ char.to.int <- function (x)
 
 char.to.num <- function (x) 
 {
-    as.numeric(gsub("[^0-9.]+", "", x))
+    suppressWarnings(as.numeric(x))
 }
 
 #' classification.threshold
@@ -1235,7 +1235,7 @@ col.to.int <- function (x)
 {
     z <- lapply(vec.to.list(x), txt.to.char)
     z <- lapply(z, function(x) char.to.int(x) - 64)
-    z <- as.numeric(sapply(z, base.to.int))
+    z <- char.to.num(sapply(z, base.to.int))
     z
 }
 
@@ -1550,7 +1550,7 @@ cpt.RgnSec <- function (x, y)
     vec["45-Pac"] <- vec["45-Oth"] <- 11
     z <- paste(z, y, sep = "-")
     z <- map.rname(vec, z)
-    z <- as.numeric(z)
+    z <- char.to.num(z)
     z
 }
 
@@ -1577,7 +1577,7 @@ cpt.RgnSecJP <- function (x, y)
         1
     z <- paste(z, y, sep = "-")
     z <- map.rname(vec, z)
-    z <- as.numeric(z)
+    z <- char.to.num(z)
     z
 }
 
@@ -2769,9 +2769,9 @@ fcn.dates.parse <- function (x)
         z <- yyyymmdd.ex.txt(z)
     if (length(z) > 1) {
         z <- txt.parse(z, "/")[, 1:3]
-        z[, 3] <- fix.gaps(as.numeric(z[, 3]))
+        z[, 3] <- fix.gaps(char.to.num(z[, 3]))
         z[, 3] <- yyyy.ex.yy(z[, 3])
-        z <- matrix(as.numeric(unlist(z)), dim(z)[1], dim(z)[2], 
+        z <- matrix(char.to.num(unlist(z)), dim(z)[1], dim(z)[2], 
             F, dimnames(z))
         z <- as.character(colSums(t(z) * 100^c(1, 0, 2)))
     }
@@ -2934,7 +2934,7 @@ fcn.indent.proper <- function (x)
     n <- nchar(y) > w & is.element(substring(y, w + 1, w + 1), 
         n)
     n <- !is.na(r) | n
-    r <- 1 + cumsum(zav(r)) - zav(r) - as.numeric(txt.left(z, 
+    r <- 1 + cumsum(zav(r)) - zav(r) - char.to.num(txt.left(z, 
         1) == "}") - w
     z <- (txt.left(z, 1) == "#" & r == 1) | r == 0
     z <- all(z & n)
@@ -3086,18 +3086,18 @@ fcn.mat.num <- function (fcn, x, y, n)
         z <- fcn(x, y)
     }
     else if (missing(y)) {
-        z <- apply(x, as.numeric(n) + 1, fcn)
+        z <- apply(x, char.to.num(n) + 1, fcn)
     }
     else if (is.null(dim(y))) {
-        z <- apply(x, as.numeric(n) + 1, fcn, y)
+        z <- apply(x, char.to.num(n) + 1, fcn, y)
     }
     else {
-        w <- dim(x)[2 - as.numeric(n)]
+        w <- dim(x)[2 - char.to.num(n)]
         fcn.loc <- function(x) fcn(x[1:w], x[1:w + w])
         if (n) 
             x <- rbind(x, y)
         else x <- cbind(x, y)
-        z <- apply(x, as.numeric(n) + 1, fcn.loc)
+        z <- apply(x, char.to.num(n) + 1, fcn.loc)
     }
     z
 }
@@ -3441,7 +3441,7 @@ fetch <- function (x, y, n, w, h)
     }
     else {
         yyyy <- yyyymm.to.yyyy(y)
-        mm <- as.numeric(txt.right(y, 2))
+        mm <- char.to.num(txt.right(y, 2))
     }
     if (n > 1 & length(x) > 1) {
         stop("Can't handle this!\n")
@@ -3533,7 +3533,7 @@ file.break <- function (x)
     w <- 1e+06
     n <- scan(file = x, what = "", skip = 0, sep = "\n", quiet = T, 
         nlines = w)
-    n <- as.numeric(object.size(n))/2^30
+    n <- char.to.num(object.size(n))/2^30
     n <- round(w/n)
     i <- 1
     z <- scan(file = x, what = "", skip = (i - 1) * n, sep = "\n", 
@@ -3732,10 +3732,10 @@ flowdate.ex.AllocMo <- function (x, y = 23)
 {
     x <- yyyymm.lag(x, -1)
     z <- flowdate.ex.yyyymm(x, F)
-    z <- z[as.numeric(txt.right(z, 2)) >= y]
+    z <- z[char.to.num(txt.right(z, 2)) >= y]
     x <- yyyymm.lag(x, -1)
     z <- c(z, flowdate.ex.yyyymm(x, F))
-    z <- z[as.numeric(txt.right(z, 2)) < y | yyyymmdd.to.yyyymm(z) < 
+    z <- z[char.to.num(txt.right(z, 2)) < y | yyyymmdd.to.yyyymm(z) < 
         x]
     z
 }
@@ -3842,7 +3842,7 @@ flowdate.seq <- function (x, y, n = 1)
 flowdate.to.int <- function (x) 
 {
     z <- unique(c("1970", yyyymm.to.yyyy(yyyymmdd.to.yyyymm(x))))
-    z <- as.numeric(z)[order(z)]
+    z <- char.to.num(z)[order(z)]
     z <- seq(z[1], z[length(z)])
     z <- txt.expand(z, c("0101", "1225"), "")
     z <- z[yyyymmdd.exists(z)]
@@ -4002,7 +4002,7 @@ ftp.dir.parse.ftp <- function (x)
     names(z) <- c("yyyymmdd", "size", "file")
     z[, "is.file"] <- !txt.has(x, " <DIR> ", T)
     z[, "size"] <- ifelse(z[, "is.file"], z[, "size"], 0)
-    z[, "size"] <- as.numeric(z[, "size"])/2^10
+    z[, "size"] <- char.to.num(z[, "size"])/2^10
     z[, "yyyymmdd"] <- paste0("20", substring(z[, "yyyymmdd"], 
         7, 8), substring(z[, "yyyymmdd"], 4, 5), substring(z[, 
         "yyyymmdd"], 1, 2))
@@ -4023,23 +4023,23 @@ ftp.dir.parse.sftp <- function (x)
     n <- split(paste0(" ", month.abb, " "), month.abb)
     n <- avail(lapply(n, function(y) txt.first(x, y)))
     z <- substring(x, n + 1, nchar(x))
-    z <- data.frame(substring(z, 1, 3), as.numeric(substring(z, 
+    z <- data.frame(substring(z, 1, 3), char.to.num(substring(z, 
         5, 6)), substring(z, 7, 12), substring(z, 13, nchar(z)), 
         stringsAsFactors = F)
     names(z) <- c("mm", "dd", "yyyy", "file")
     y <- substring(x, 1, n - 1)
     z[, "is.file"] <- txt.left(y, 1) == "-"
     if (dim(z)[1] == 1) {
-        z[, "size"] <- as.numeric(txt.parse(txt.itrim(y), txt.space(1))[5])/2^10
+        z[, "size"] <- char.to.num(txt.parse(txt.itrim(y), txt.space(1))[5])/2^10
     }
     else {
-        z[, "size"] <- as.numeric(txt.parse(txt.itrim(y), txt.space(1))[, 
+        z[, "size"] <- char.to.num(txt.parse(txt.itrim(y), txt.space(1))[, 
             5])/2^10
     }
     z$mm <- map.rname(vec.named(1:12, month.abb), z$mm)
     z$yyyy <- ifelse(txt.has(z$yyyy, ":", T), yyyymm.to.yyyy(yyyymmdd.to.yyyymm(today())), 
         z$yyyy)
-    z$yyyy <- as.numeric(z$yyyy)
+    z$yyyy <- char.to.num(z$yyyy)
     z[, "yyyymmdd"] <- as.character(10000 * z$yyyy + 100 * z$mm + 
         z$dd)
     z <- z[, c("size", "is.file", "yyyymmdd", "file")]
@@ -4719,7 +4719,7 @@ html.flow.breakdown <- function (x, y, n = 0)
         y <- paste0(" ", y)
     x <- x[order(abs(x), decreasing = T)]
     x <- x[order(x > 0, decreasing = sum(x) + n > 0)]
-    u <- as.numeric(sign(sum(x) + n))
+    u <- char.to.num(sign(sum(x) + n))
     x <- x * u
     h <- sum(x > 0)
     m <- length(x) - h
@@ -5264,17 +5264,17 @@ isin.exists <- function (x)
     y <- x[z]
     y <- y[!duplicated(y)]
     y <- matrix(NA, length(y), 11, F, list(y, char.seq("A", "K")))
-    for (j in 1:dim(y)[2]) y[, j] <- as.numeric(map.rname(charset, 
+    for (j in 1:dim(y)[2]) y[, j] <- char.to.num(map.rname(charset, 
         substring(rownames(y), j, j)))
     y <- mat.ex.matrix(y)
     y <- vec.named(do.call(paste0, y), rownames(y))
     y <- split(y, names(y))
     fcn <- function(x) {
-        x <- as.numeric(txt.to.char(x))
+        x <- char.to.num(txt.to.char(x))
         z <- seq_along(x)%%2 == length(x)%%2
         x[z] <- 2 * x[z]
         z <- txt.to.char(paste(x, collapse = ""))
-        z <- sum(as.numeric(z))
+        z <- sum(char.to.num(z))
         z <- 10 * ceiling(z/10) - z
     }
     y <- sapply(y, fcn)
@@ -5431,7 +5431,7 @@ latin.ex.arabic <- function (x)
 
 latin.to.arabic <- function (x) 
 {
-    as.numeric(as.roman(x))
+    char.to.num(as.roman(x))
 }
 
 #' list.rename
@@ -5490,8 +5490,8 @@ load.dy.vbl.1obj <- function (fcn, x, y, n, w, h, u)
     z <- matrix(NA, dim(u$classif)[1], length(z), F, list(rownames(u$classif), 
         z))
     dd <- txt.right(colnames(z), 2)
-    dd <- dd[as.numeric(paste0(h, dd)) >= as.numeric(x)]
-    dd <- dd[as.numeric(paste0(h, dd)) <= as.numeric(y)]
+    dd <- dd[char.to.num(paste0(h, dd)) >= char.to.num(x)]
+    dd <- dd[char.to.num(paste0(h, dd)) <= char.to.num(y)]
     for (i in dd) {
         cat(i, "")
         z[, paste(w, i, sep = ".")] <- fcn(paste0(h, i), n, u)
@@ -5611,7 +5611,7 @@ machine.info <- function (x)
 map.classif <- function (x, y, n) 
 {
     z <- vec.to.list(intersect(c(n, paste0(n, 1:50)), colnames(y)))
-    fcn <- function(i) as.numeric(map.rname(x, y[, i]))
+    fcn <- function(i) char.to.num(map.rname(x, y[, i]))
     z <- avail(sapply(z, fcn))
     z
 }
@@ -6028,7 +6028,7 @@ mat.to.last.Idx <- function (x)
 
 mat.to.obs <- function (x) 
 {
-    fcn <- function(x) as.numeric(!is.na(x))
+    fcn <- function(x) char.to.num(!is.na(x))
     z <- fcn.mat.vec(fcn, x, , T)
     z
 }
@@ -7073,7 +7073,7 @@ mk.1wFloMo.CtryFlow.local <- function (x, y, n, w, h, u = T)
     for (j in names(rslt[["CBF"]])) {
         v <- do.call(paste, rslt[["CBF"]][[j]][, c("Domicile", 
             "GeographicFocus")])
-        v <- zav(as.numeric(map.rname(rslt[["CBA"]], v)))/100
+        v <- zav(char.to.num(map.rname(rslt[["CBA"]], v)))/100
         for (k in n) rslt[["CBF"]][[j]][, k] <- rslt[["CBF"]][[j]][, 
             k] * v
     }
@@ -7223,7 +7223,7 @@ mk.Alpha <- function (x, y, n)
     univ <- y[1]
     grp.nm <- y[2]
     vbls <- y[seq(3, m/2 + 1)]
-    wts <- renorm(as.numeric(y[seq(m/2 + 2, m)]))/100
+    wts <- renorm(char.to.num(y[seq(m/2 + 2, m)]))/100
     z <- fetch(vbls, x, 1, paste(n$fldr, "derived", sep = "\\"), 
         n$classif)
     grp <- n$classif[, grp.nm]
@@ -7232,7 +7232,7 @@ mk.Alpha <- function (x, y, n)
     z <- zav(z)
     z <- as.matrix(z)
     z <- z %*% wts
-    z <- as.numeric(z)
+    z <- char.to.num(z)
     z
 }
 
@@ -7253,7 +7253,7 @@ mk.Alpha.daily <- function (x, y, n)
         stop("Bad Arguments")
     univ <- y[1]
     grp.nm <- y[2]
-    wts <- renorm(as.numeric(y[seq((m + 7)/3, (2 * m + 2)/3)]))/100
+    wts <- renorm(char.to.num(y[seq((m + 7)/3, (2 * m + 2)/3)]))/100
     vbls <- vec.named(as.logical(y[seq((2 * m + 5)/3, m)]), y[seq(3, 
         (m + 4)/3)])
     vbls[univ] <- F
@@ -7276,7 +7276,7 @@ mk.Alpha.daily <- function (x, y, n)
     z <- zav(z)
     z <- as.matrix(z)
     z <- z %*% wts
-    z <- as.numeric(z)
+    z <- char.to.num(z)
     z
 }
 
@@ -7295,7 +7295,7 @@ mk.avail <- function (x, y, n)
     x <- list(y = x, n = 1, w = paste(n$fldr, y[1], sep = "\\"), 
         h = n$classif)
     if (is.element(y[3], 2:10000)) 
-        x[["n"]] <- as.numeric(y[3])
+        x[["n"]] <- char.to.num(y[3])
     if (x[["n"]] == 1) 
         x[["x"]] <- y[-1]
     else x[["x"]] <- y[2]
@@ -7315,7 +7315,7 @@ mk.avail <- function (x, y, n)
 
 mk.beta <- function (x, y, n) 
 {
-    m <- as.numeric(y[2])
+    m <- char.to.num(y[2])
     univ <- y[1]
     w <- parameters.ex.file(dir.parameters("csv"), "IndexReturns-Monthly.csv")
     w <- mat.read(w, ",")
@@ -7325,7 +7325,7 @@ mk.beta <- function (x, y, n)
     vec <- matrix(c(rep(1, m), vec), m, 2, F, list(1:m, c("Intercept", 
         univ)))
     z <- run.cs.reg(z, vec)
-    z <- as.numeric(z[, univ])
+    z <- char.to.num(z[, univ])
     z
 }
 
@@ -7368,7 +7368,7 @@ mk.EigenCentrality <- function (x, y, n)
     for (j in 1:max(w)) {
         for (k in 1:max(w)) {
             y <- x[w == j, w == k]
-            y <- as.numeric(unlist(y))
+            y <- char.to.num(unlist(y))
             y[!is.na(y)] <- is.element(qtl.fast(y[!is.na(y)], 
                 20), 1)
             y[is.na(y)] <- F
@@ -7385,7 +7385,7 @@ mk.EigenCentrality <- function (x, y, n)
         y <- y/sqrt(sum(y^2))
     }
     z <- dim(z)[1] * y
-    z <- as.numeric(map.rname(z, rownames(n[["classif"]])))
+    z <- char.to.num(map.rname(z, rownames(n[["classif"]])))
     z
 }
 
@@ -7404,7 +7404,7 @@ mk.FloAlphaLt.Ctry <- function (x, y, n)
     z <- read.prcRet(y)
     z <- unlist(z[yyyymmdd.ex.yyyymm(x), ])
     z <- map.rname(z, n$classif$CCode)
-    z <- as.numeric(z)
+    z <- char.to.num(z)
     z
 }
 
@@ -7421,7 +7421,7 @@ mk.FloAlphaLt.Ctry <- function (x, y, n)
 mk.FloBeta <- function (x, y, n) 
 {
     x <- yyyymm.lag(x, 1)
-    m <- as.numeric(y[2])
+    m <- char.to.num(y[2])
     y <- y[1]
     w <- common.fund.flow.shock(x, y, m)
     z <- fetch("Ret", x, m, paste(n$fldr, "data", sep = "\\"), 
@@ -7429,7 +7429,7 @@ mk.FloBeta <- function (x, y, n)
     w <- matrix(c(rep(1, m), w), m, 2, F, list(1:m, c("Intercept", 
         "FloBeta")))
     z <- run.cs.reg(z, w)
-    z <- as.numeric(z[, "FloBeta"])
+    z <- char.to.num(z[, "FloBeta"])
     z
 }
 
@@ -7445,8 +7445,8 @@ mk.FloBeta <- function (x, y, n)
 
 mk.Fragility <- function (x, y, n) 
 {
-    trail <- as.numeric(y[2])
-    eigen <- as.numeric(y[3])
+    trail <- char.to.num(y[2])
+    eigen <- char.to.num(y[3])
     y <- y[1]
     x <- yyyymm.lag(x)
     h <- readRDS(paste(y, "FlowPct.r", sep = "\\"))
@@ -7463,7 +7463,7 @@ mk.Fragility <- function (x, y, n)
     z <- colSums(t(x) * h)
     x <- rowSums(x)^2
     z <- z/nonneg(x)
-    z <- as.numeric(map.rname(z, rownames(n$classif)))
+    z <- char.to.num(map.rname(z, rownames(n$classif)))
     z
 }
 
@@ -7483,7 +7483,7 @@ mk.FundsMem <- function (x, y, n)
     z <- fetch("Ret", yyyymm.lag(x, -1), 1, paste(n$fldr, "data", 
         sep = "\\"), n$classif)
     z <- w & !is.na(z)
-    z <- as.numeric(z)
+    z <- char.to.num(z)
     z
 }
 
@@ -7519,7 +7519,7 @@ mk.isin <- function (x, y, n)
 
 mk.JensensAlpha.fund <- function (x, y, n) 
 {
-    y <- as.numeric(y)
+    y <- char.to.num(y)
     fndR <- fetch("1mPrcMo", x, y, paste(n$fldr, "derived", sep = "\\"), 
         n$classif)
     fndR <- as.matrix(fndR)
@@ -7580,7 +7580,7 @@ mk.SatoMem <- function (x, y, n)
         colnames(n)))
     fcn <- function(i) is.element(n[, i], y)
     z <- sapply(z, fcn)
-    z <- as.numeric(apply(z, 1, max))
+    z <- char.to.num(apply(z, 1, max))
     z
 }
 
@@ -7615,7 +7615,7 @@ mk.sf.daily <- function (fcn, x, y, n, w)
 mk.sqlDump <- function (x, y, n) 
 {
     if (length(y) > 2) 
-        x <- yyyymm.lag(x, as.numeric(y[3], F))
+        x <- yyyymm.lag(x, char.to.num(y[3]))
     z <- paste0(n$fldr, "\\sqlDump\\", y[1], ".", x, ".r")
     z <- readRDS(z)
     z <- z[, y[2]]
@@ -7637,7 +7637,7 @@ mk.SRIMem <- function (x, y, n)
     x <- yyyymm.lag(x)
     x <- sql.SRI(x, n$DB)
     z <- sql.map.classif(x, n$conn, n$classif)
-    z <- as.numeric(!is.na(z) & z >= y)
+    z <- char.to.num(!is.na(z) & z >= y)
     z
 }
 
@@ -7687,7 +7687,7 @@ mk.vbl.diff <- function (x, y, n)
 
 mk.vbl.lag <- function (x, y, n) 
 {
-    x <- yyyymm.lag(x, as.numeric(y[2]))
+    x <- yyyymm.lag(x, char.to.num(y[2]))
     z <- fetch(y[1], x, 1, paste(n$fldr, y[3], sep = "\\"), n$classif)
     z
 }
@@ -7743,7 +7743,7 @@ mk.vbl.scale <- function (x, y, n)
     h <- n$classif[, y[4]]
     x <- fetch(y[1:2], x, 1, paste(n$fldr, "derived", sep = "\\"), 
         n$classif)
-    y <- as.numeric(y[5])
+    y <- char.to.num(y[5])
     x[w, 2] <- 1 - fcn.vec.grp(ptile, x[w, 2], h[w])/100
     x[w, 2] <- zav(x[w, 2], 0.5)
     z <- rep(NA, dim(x)[1])
@@ -7787,8 +7787,8 @@ mk.vbl.trail.fetch <- function (x, y, n)
         y <- c(y, "derived", F)
     if (length(y) == 4) 
         y <- c(y, F)
-    m <- as.numeric(y[2])
-    trail <- m + as.numeric(y[3])
+    m <- char.to.num(y[2])
+    trail <- m + char.to.num(y[3])
     if (nchar(x) == 6 & as.logical(y[5])) 
         x <- yyyymmdd.ex.yyyymm(x)
     z <- fetch(y[1], x, trail, paste(n$fldr, y[4], sep = "\\"), 
@@ -7811,7 +7811,7 @@ mk.vbl.trail.sum <- function (x, y, n)
 {
     z <- mk.vbl.trail.fetch(x, y[-2], n)
     z <- compound.sf(z, as.logical(y[2]))
-    z <- as.numeric(z)
+    z <- char.to.num(z)
     z
 }
 
@@ -7829,7 +7829,7 @@ mk.vbl.vol <- function (x, y, n)
 {
     z <- mk.vbl.trail.fetch(x, y, n)
     z <- apply(z, 1, sd)
-    z <- as.numeric(z)
+    z <- char.to.num(z)
     z
 }
 
@@ -8022,8 +8022,8 @@ optimal <- function (x, y, n, w)
         }
         opt <- solve(z) %*% map.rname(x[j, ], colnames(z))
         unity <- solve(z) %*% rep(1, dim(z)[1])
-        opt <- opt - unity * as.numeric(crossprod(opt, z) %*% 
-            unity)/as.numeric(crossprod(unity, z) %*% unity)
+        opt <- opt - unity * char.to.num(crossprod(opt, z) %*% 
+            unity)/char.to.num(crossprod(unity, z) %*% unity)
         opt <- opt[, 1]/sqrt(260 * (crossprod(opt, z) %*% opt)[1, 
             1])
         x[j, ] <- zav(map.rname(opt, colnames(x)))
@@ -8528,7 +8528,7 @@ publish.weekly.last <- function (x)
 {
     if (missing(x)) 
         x <- today()
-    z <- as.numeric(day.to.weekday(x))
+    z <- char.to.num(day.to.weekday(x))
     if (any(z == 5:6)) 
         z <- z - 3
     else z <- z + 4
@@ -8630,9 +8630,9 @@ qa.flow <- function (x, y, n, w, h, u)
     ftpFile <- txt.replace(ftp.info(y, n, "ftp.path", w), "YYYYMM", 
         x)
     df <- qa.mat.read(ftpFile, fldr)
-    z[, "isFTP"] <- as.numeric(!is.null(df))
+    z[, "isFTP"] <- char.to.num(!is.null(df))
     if (z[, "isFTP"][1] == 1) {
-        z[, "goodFile"] <- as.numeric(all(is.element(cols, colnames(df))))
+        z[, "goodFile"] <- char.to.num(all(is.element(cols, colnames(df))))
         if (!n & all(colnames(df) != "ShareId")) 
             z[, "goodFile"] <- 0
     }
@@ -8642,14 +8642,14 @@ qa.flow <- function (x, y, n, w, h, u)
     if (z[, "goodFile"][1] == 1 & !isMacro) 
         df <- df[!is.na(df[, dim(df)[2]]), ]
     if (z[, "goodFile"][1] == 1 & substring(x, 5, 5) == "Q") {
-        z[, "badDts"] <- as.numeric(any(yyyymm.to.qtr(yyyymmdd.to.yyyymm(rownames(z))) != 
+        z[, "badDts"] <- char.to.num(any(yyyymm.to.qtr(yyyymmdd.to.yyyymm(rownames(z))) != 
             x))
     }
     else if (ftp.info(y, n, "frequency", w) == "S") {
-        z[, "badDts"] <- as.numeric(any(rownames(z) != x))
+        z[, "badDts"] <- char.to.num(any(rownames(z) != x))
     }
     else if (z[, "goodFile"][1] == 1) {
-        z[, "badDts"] <- as.numeric(any(yyyymmdd.to.yyyymm(rownames(z)) != 
+        z[, "badDts"] <- char.to.num(any(yyyymmdd.to.yyyymm(rownames(z)) != 
             x))
     }
     else {
@@ -8664,7 +8664,7 @@ qa.flow <- function (x, y, n, w, h, u)
                 vec <- df[, "ShareId"]
             }
             vec <- vec[is.element(df[, "ReportDate"], j)]
-            z[j, "DupFunds"] <- as.numeric(any(duplicated(vec)))
+            z[j, "DupFunds"] <- char.to.num(any(duplicated(vec)))
         }
         df <- df[, cols]
         if (dim(df)[1] > 0) {
@@ -8717,9 +8717,9 @@ qa.flow <- function (x, y, n, w, h, u)
             v <- ftp.sql.factor(y, j, w, u)
         }
         v <- sql.query.underlying(v, h, F)
-        z[j, "isSQL"] <- as.numeric(!is.null(dim(v)))
+        z[j, "isSQL"] <- char.to.num(!is.null(dim(v)))
         if (z[j, "isSQL"] == 1) 
-            z[j, "isSQL"] <- as.numeric(dim(v)[1] > 0)
+            z[j, "isSQL"] <- char.to.num(dim(v)[1] > 0)
         if (z[j, "isSQL"] == 1 & !isMacro) 
             v <- v[!is.na(v[, dim(v)[2]]), ]
         if (z[j, "isSQL"] == 1) {
@@ -8871,12 +8871,12 @@ qa.secMenu <- function (x, y, n, w)
     secMenuFile <- txt.replace(ftp.info(y, T, "ftp.path", "Aggregate"), 
         "YYYYMM", x)
     secMenuFile <- qa.mat.read(secMenuFile, fldr)
-    z["isFTP"] <- as.numeric(!is.null(secMenuFile))
+    z["isFTP"] <- char.to.num(!is.null(secMenuFile))
     if (z["isFTP"] == 1) {
         floDolrFile <- ftp.sql.factor(txt.replace(y, "SecMenu", 
             "Stock"), yyyymm.to.day(x), "Aggregate", w)
         floDolrFile <- sql.query.underlying(floDolrFile, n, F)
-        z["isSQL"] <- as.numeric(!is.null(floDolrFile))
+        z["isSQL"] <- char.to.num(!is.null(floDolrFile))
     }
     if (z["isFTP"] == 1 & z["isSQL"] == 1) {
         x <- paste(floDolrFile[, "ReportDate"], floDolrFile[, 
@@ -9036,8 +9036,8 @@ qtr.seq <- function (x, y, n = 1)
 
 qtr.to.int <- function (x) 
 {
-    z <- as.numeric(substring(x, 1, 4))
-    z <- 4 * z + as.numeric(substring(x, 6, 6))
+    z <- char.to.num(substring(x, 1, 4))
+    z <- 4 * z + char.to.num(substring(x, 6, 6))
     z
 }
 
@@ -9205,12 +9205,12 @@ record.track <- function (x, y, n)
     z[w, "target"] <- x
     z[w, "today"] <- T
     w <- z[, "entry"] == "flow" & z[, "freq"] == "D"
-    z[w, "target"] <- publish.daily.last(flowdate.lag(x, -as.numeric(!n)))
+    z[w, "target"] <- publish.daily.last(flowdate.lag(x, -char.to.num(!n)))
     z[w, "today"] <- T
     w <- z[, "entry"] == "flow" & z[, "freq"] == "W"
-    z[w, "target"] <- publish.weekly.last(flowdate.lag(x, -as.numeric(!n)))
-    z[w, "today"] <- publish.weekly.last(flowdate.lag(x, -as.numeric(!n))) > 
-        publish.weekly.last(flowdate.lag(x, 1 - as.numeric(!n)))
+    z[w, "target"] <- publish.weekly.last(flowdate.lag(x, -char.to.num(!n)))
+    z[w, "today"] <- publish.weekly.last(flowdate.lag(x, -char.to.num(!n))) > 
+        publish.weekly.last(flowdate.lag(x, 1 - char.to.num(!n)))
     w <- z[, "entry"] == "flow" & z[, "freq"] == "M"
     z[w, "target"] <- publish.monthly.last(x, 16)
     z[w, "today"] <- publish.monthly.last(x, 16) > publish.monthly.last(flowdate.lag(x, 
@@ -9772,7 +9772,7 @@ rrw.underlying <- function (x, y, n, w, h, u, v, g)
         z[, v] <- zav(z[, v])
         for (j in y) {
             n <- !is.na(z[, j])
-            z[n, j] <- as.numeric(summary(lm(txt.regr(c(j, v)), 
+            z[n, j] <- char.to.num(summary(lm(txt.regr(c(j, v)), 
                 z[n, ]))$residuals)
             z[, j] <- mat.zScore(z[, j], z$mem, z$grp)
         }
@@ -10017,7 +10017,7 @@ sf.subset <- function (x, y, n, w)
     z <- is.element(z, x[2])
     if (m > 2) 
         z <- z & is.element(w[, x[3]], x[4])
-    z <- as.numeric(z)
+    z <- char.to.num(z)
     z
 }
 
@@ -13446,7 +13446,7 @@ sql.map.classif <- function (x, y, n)
     z <- sql.query.underlying(x, y, F)
     z <- map.rname(mat.index(z, "SecurityId"), rownames(n))
     if (is.null(dim(z))) 
-        z <- as.numeric(z)
+        z <- char.to.num(z)
     z
 }
 
@@ -15226,7 +15226,7 @@ txt.expand <- function (x, y, n = "-", w = F)
 
 txt.first <- function (x, y) 
 {
-    nonneg(as.numeric(regexpr(y, x)))
+    nonneg(char.to.num(regexpr(y, x)))
 }
 
 #' txt.gunning
@@ -15372,7 +15372,7 @@ txt.levenshtein <- function (x, y)
         for (i in 1:m + 1) {
             for (j in 1:n + 1) {
                 z[j, i] <- min(z[j - 1, i], z[j, i - 1]) + 1
-                z[j, i] <- min(z[j, i], z[j - 1, i - 1] + as.numeric(x[j] != 
+                z[j, i] <- min(z[j, i], z[j - 1, i - 1] + char.to.num(x[j] != 
                   y[i]))
             }
         }
@@ -15661,9 +15661,9 @@ utf8.to.quoted.printable <- function (x)
     x <- lapply(x, function(x) c(rep(0, 2 - length(x)), x))
     x <- lapply(x, function(x) x + 1)
     x <- lapply(x, function(x) c(x[1], y[x[2]]))
-    x[[1]][1] <- r[as.numeric(x[[1]][1])]
-    x[[2]][1] <- h[as.numeric(x[[2]][1])]
-    x[[3]][1] <- h[as.numeric(x[[3]][1])]
+    x[[1]][1] <- r[char.to.num(x[[1]][1])]
+    x[[2]][1] <- h[char.to.num(x[[2]][1])]
+    x[[3]][1] <- h[char.to.num(x[[3]][1])]
     x <- sapply(x, function(x) paste(x, collapse = ""))
     z <- paste(x, collapse = "=")
     z
@@ -15679,7 +15679,7 @@ utf8.to.quoted.printable <- function (x)
 
 variance.ratio.test <- function (x, y) 
 {
-    y <- as.numeric(y)
+    y <- char.to.num(y)
     if (is.na(y) | y == 1) 
         stop("Bad value of y ..")
     x <- x - mean(x)
@@ -15969,7 +15969,7 @@ yyyy.ex.period <- function (x, y)
 
 yyyy.ex.yy <- function (x) 
 {
-    x <- as.numeric(x)
+    x <- char.to.num(x)
     z <- ifelse(x < 100, ifelse(x < 50, 2000, 1900), 0) + x
     z
 }
@@ -16125,8 +16125,8 @@ yyyymm.to.day <- function (x)
 
 yyyymm.to.int <- function (x) 
 {
-    z <- as.numeric(substring(x, 1, 4))
-    z <- 12 * z + as.numeric(substring(x, 5, 6))
+    z <- char.to.num(substring(x, 1, 4))
+    z <- 12 * z + char.to.num(substring(x, 5, 6))
     z
 }
 
@@ -16156,7 +16156,7 @@ yyyymm.to.qtr <- function (x)
 
 yyyymm.to.yyyy <- function (x) 
 {
-    z <- as.numeric(x)
+    z <- char.to.num(x)
     z <- z%/%100
     z
 }
@@ -16265,8 +16265,8 @@ yyyymmdd.ex.txt <- function (x, y = "/", n = "MDY")
     else x <- txt.parse(x, " ")[, 1]
     x <- txt.parse(x, y)
     if (w) 
-        x <- matrix(as.numeric(x), 1, 3)
-    else x <- apply(x, 2, as.numeric)
+        x <- matrix(char.to.num(x), 1, 3)
+    else x <- apply(x, 2, char.to.num)
     colnames(x) <- txt.to.char(n)
     x[, "Y"] <- yyyy.ex.yy(x[, "Y"])
     z <- as.character(x[, c("Y", "M", "D")] %*% c(10000, 100, 
@@ -16359,7 +16359,7 @@ yyyymmdd.seq <- function (x, y, n = 1)
 yyyymmdd.to.AllocMo <- function (x, y = 23) 
 {
     n <- txt.right(x, 2)
-    n <- as.numeric(n)
+    n <- char.to.num(n)
     n <- ifelse(n < y, 2, 1)
     z <- yyyymmdd.to.yyyymm(x)
     z <- yyyymm.lag(z, n)
@@ -16398,10 +16398,10 @@ yyyymmdd.to.AllocMo.unique <- function (x, y, n)
 yyyymmdd.to.CalYrDyOfWk <- function (x) 
 {
     z <- day.to.weekday(x)
-    z <- as.numeric(z)
+    z <- char.to.num(z)
     z <- z/10
     x <- substring(x, 1, 4)
-    x <- as.numeric(x)
+    x <- char.to.num(x)
     z <- x + z
     z
 }
@@ -16458,7 +16458,7 @@ yyyymmdd.to.unity <- function (x)
 yyyymmdd.to.weekofmonth <- function (x) 
 {
     z <- substring(x, 7, 8)
-    z <- as.numeric(z)
+    z <- char.to.num(z)
     z <- (z - 1)%/%7 + 1
     z
 }
