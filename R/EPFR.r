@@ -13803,33 +13803,20 @@ sql.query <- function (x, y, n = T)
 
 sql.RDSuniv <- function (x) 
 {
-    if (any(x == c("StockFlows", "StockFlowsJP", "US", "Japan", 
-        "CSI300"))) {
-        if (x == "CSI300") {
-            bmks <- vec.named("CSI300", 31873)
-        }
-        else if (x == "StockFlowsJP") {
-            bmks <- vec.named(c("Kokusai", "Topix"), c(14601, 
-                17558))
-        }
-        else if (x == "Japan") {
-            bmks <- vec.named(c("Nikkei", "Topix"), c(13667, 
-                17558))
-        }
-        else if (x == "US") {
-            bmks <- vec.named(c("S&P500", "R3"), c(5164, 5158))
-        }
-        else if (x == "StockFlows") {
-            bmks <- c("S&P500", "Eafe", "Gem", "R3", "EafeSc", 
-                "GemSc", "Canada", "CanadaSc", "R1", "R2", "Nikkei", 
-                "Topix", "CSI300")
-            names(bmks) <- c(5164, 4430, 4835, 5158, 14602, 16621, 
-                7744, 29865, 5152, 5155, 13667, 17558, 31873)
-        }
-        z <- sql.and(vec.to.list(paste("FundId =", paste(names(bmks), 
-            bmks, sep = " --"))), "or")
+    u <- mat.read(parameters("classif-RDSuniv"), "\t", NULL)
+    u <- split(u, ifelse(grepl("[^0-9]", u[, "FundId"]), "U", 
+        "F"))
+    colnames(u[["U"]]) <- c("Univ", "RDS")
+    u[["U"]] <- Reduce(merge, u)
+    u[["F"]][, "RDS"] <- u[["F"]][, "Univ"]
+    u <- Reduce(rbind, lapply(u, function(x) x[, names(u[["F"]])]))
+    if (any(x == u[, "RDS"])) {
+        u <- vec.named(u[u[, "RDS"] == x, "Univ"], u[u[, "RDS"] == 
+            x, "FundId"])
+        z <- vec.to.list(paste("FundId =", paste(names(u), u, 
+            sep = " --")))
         z <- sql.in("HFundId", sql.tbl("HFundId", "FundHistory", 
-            z))
+            sql.and(z, "or")))
         z <- sql.tbl("HSecurityId", "Holdings", z, "HSecurityId")
     }
     else if (x == "File") {
@@ -13844,16 +13831,6 @@ sql.RDSuniv <- function (x)
         z <- list(A = z, B = sql.in("HFundId", sql.tbl("HFundId", 
             "FundHistory", "GeographicFocus = 16")))
         z <- sql.and(z, "or")
-        z <- sql.tbl("HSecurityId", "Holdings", z, "HSecurityId")
-    }
-    else if (x == "R1") {
-        z <- sql.in("HFundId", sql.tbl("HFundId", "FundHistory", 
-            "FundId = 5152"))
-        z <- sql.tbl("HSecurityId", "Holdings", z, "HSecurityId")
-    }
-    else if (x == "R3") {
-        z <- sql.in("HFundId", sql.tbl("HFundId", "FundHistory", 
-            "FundId = 5158"))
         z <- sql.tbl("HSecurityId", "Holdings", z, "HSecurityId")
     }
     else if (x == "All") {
