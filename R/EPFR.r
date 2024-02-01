@@ -4182,49 +4182,6 @@ ftp.sql.factor <- function (x, y, n, w, h)
     z
 }
 
-#' ftp.sql.other
-#' 
-#' SQL code to validate <x> flows at the <y> level
-#' @param x = M/W/D/C/I/S depending on flows or allocations
-#' @param y = flow date in YYYYMMDD format
-#' @param n = filter (e.g. Aggregate/Active/Passive/ETF/Mutual)
-#' @keywords ftp.sql.other
-#' @export
-#' @family ftp
-
-ftp.sql.other <- function (x, y, n) 
-{
-    sql.table <- ftp.info(x, T, "sql.table", n)
-    h <- ftp.info(x, T, "date.field", n)
-    cols <- qa.columns(x)[-1][-1]
-    if (any(x == c("M", "W", "D"))) {
-        w <- list(A = sql.ui(), B = paste(h, "= @dy"))
-        w <- sql.and(w)
-        z <- c("FundId", sql.yyyymmdd(h, "ReportDate"))
-        z <- c(z, paste0(cols, " = sum(", cols, ")"))
-        z <- sql.tbl(z, paste(sql.table, "t1 inner join FundHistory t2 on t1.HFundId = t2.HFundId"), 
-            w, paste(h, "FundId", sep = ", "))
-    }
-    else if (any(x == c("C", "I", "S"))) {
-        w <- list(A = sql.ui(), B = paste(h, "= @dy"), C = "FundType in ('B', 'E')")
-        if (x == "C") 
-            w[["D"]] <- c("(", sql.and(sql.cross.border(F), "or"), 
-                ")")
-        w <- sql.and(w)
-        z <- c("t2.FundId", paste0("ReportDate = convert(char(8), ", 
-            h, ", 112)"))
-        z <- c(z, cols)
-        z <- sql.tbl(z, c(paste(sql.table, "t1"), "inner join", 
-            "FundHistory t2 on t2.HFundId = t1.HFundId"), w)
-    }
-    else {
-        stop("Bad Argument")
-    }
-    z <- c(sql.declare("@dy", "datetime", y), sql.unbracket(z))
-    z <- paste(z, collapse = "\n")
-    z
-}
-
 #' ftp.upload
 #' 
 #' Copies up files from the local machine
@@ -7205,36 +7162,6 @@ mk.isin <- function (x, y, n)
     z
 }
 
-#' mk.JensensAlpha.fund
-#' 
-#' Returns variable with the same row space as <n>
-#' @param x = a single YYYYMM
-#' @param y = number of months of trailing returns to use
-#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder c) CATRETS - category returns
-#' @keywords mk.JensensAlpha.fund
-#' @export
-#' @family mk
-
-mk.JensensAlpha.fund <- function (x, y, n) 
-{
-    y <- char.to.num(y)
-    fndR <- fetch("1mPrcMo", x, y, paste(n$fldr, "derived", sep = "\\"), 
-        n$classif)
-    fndR <- as.matrix(fndR)
-    colnames(fndR) <- yyyymm.lag(x, y:1 - 1)
-    catR <- n$CATRETS[, colnames(fndR)]
-    w <- as.logical(apply(mat.to.obs(cbind(fndR, catR)), 1, min))
-    z <- rep(NA, dim(fndR)[1])
-    if (any(w)) {
-        fndM <- rowMeans(fndR[w, ])
-        catM <- rowMeans(catR[w, ])
-        beta <- rowSums((catR[w, ] - catM) * (catR[w, ] - catM))
-        beta <- rowSums((fndR[w, ] - fndM) * (catR[w, ] - catM))/nonneg(beta)
-        z[w] <- fndM - beta * catM
-    }
-    z
-}
-
 #' mk.Mem
 #' 
 #' Returns a 1/0 membership vector
@@ -8228,27 +8155,6 @@ publish.weekly.last <- function (x)
     z
 }
 
-#' qa.columns
-#' 
-#' columns expected in ftp file
-#' @param x = M/W/D depending on whether flows are monthly/weekly/daily
-#' @keywords qa.columns
-#' @export
-#' @family qa
-
-qa.columns <- function (x) 
-{
-    z <- mat.read(parameters("classif-qaColumns"), "\t", NULL, 
-        F)
-    if (is.element(x, z[, 1])) {
-        z <- z[is.element(z[, 1], x), 2]
-    }
-    else {
-        z <- c("ReportDate", "HSecurityId", x)
-    }
-    z
-}
-
 #' qa.filter.map
 #' 
 #' maps to appropriate code on the R side
@@ -8261,32 +8167,6 @@ qa.filter.map <- function (x)
 {
     zav(as.character(map.rname(vec.read(parameters("classif-filterNames")), 
         x)), x)
-}
-
-#' qa.index
-#' 
-#' unique index for <x>
-#' @param x = data frame
-#' @param y = T/F depending on whether <x> pertains to a macro strategy
-#' @param n = T/F depending on whether <x> pertains to a factor
-#' @keywords qa.index
-#' @export
-#' @family qa
-
-qa.index <- function (x, y, n) 
-{
-    if (y) {
-        z <- x[, "FundId"]
-    }
-    else if (n) {
-        z <- c("HSecurityId", "SecurityId")
-        w <- is.element(z, colnames(x))
-        z <- x[, z[w & !duplicated(w)]]
-    }
-    else {
-        z <- paste(x[, "HSecurityId"], x[, "GeoId"])
-    }
-    z
 }
 
 #' qa.mat.read
@@ -12610,25 +12490,6 @@ sql.Holdings <- function (x, y, n)
     z
 }
 
-#' sql.HSIdmap
-#' 
-#' Generates the SQL query to map SecurityId to HSecurityId
-#' @param x = the YYYYMM for which you want data (known 26 days later)
-#' @keywords sql.HSIdmap
-#' @export
-#' @family sql
-
-sql.HSIdmap <- function (x) 
-{
-    z <- sql.in("HSecurityId", sql.tbl("HSecurityId", "Holdings", 
-        "ReportDate = @mo", "HSecurityId"))
-    z <- sql.unbracket(sql.tbl(c("SecurityId", "HSecurityId"), 
-        "SecurityHistory", z))
-    z <- paste(c(sql.declare("@mo", "datetime", yyyymm.to.day(x)), 
-        z), collapse = "\n")
-    z
-}
-
 #' sql.in
 #' 
 #' <x> in <y> if <n> or <x> not in <y> otherwise
@@ -15174,8 +15035,7 @@ yyyymm.ex.qtr <- function (x, y = 3)
 
 yyyymm.exists <- function (x) 
 {
-    nchar(x) == 6 & int.exists(x) & is.element(substring(x, 5, 
-        5), 0:1)
+    grepl("^[0-9]{4}([0][1-9]|[1][0-2])$", x)
 }
 
 #' yyyymm.lag

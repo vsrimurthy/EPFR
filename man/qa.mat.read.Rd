@@ -25,7 +25,6 @@ qa.mat.read(x, y, n, w, h, u, v)
 contents of <x> as a data frame
 }
 \seealso{
-Other qa: \code{\link{qa.columns}},
-  \code{\link{qa.filter.map}}, \code{\link{qa.index}}
+Other qa: \code{\link{qa.filter.map}}
 }
 \keyword{qa.mat.read}

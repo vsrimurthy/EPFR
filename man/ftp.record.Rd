@@ -28,7 +28,6 @@ Other ftp: \code{\link{ftp.all.dir}},
   \code{\link{ftp.missing.underlying}},
   \code{\link{ftp.missing}}, \code{\link{ftp.parent}},
   \code{\link{ftp.put}}, \code{\link{ftp.rmdir}},
-  \code{\link{ftp.sql.factor}},
-  \code{\link{ftp.sql.other}}, \code{\link{ftp.upload}}
+  \code{\link{ftp.sql.factor}}, \code{\link{ftp.upload}}
 }
 \keyword{ftp.record}
