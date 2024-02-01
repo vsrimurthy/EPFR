@@ -4966,8 +4966,7 @@ isin.exists <- function (x)
 {
     charset <- vec.named(0:35, c(0:9, char.seq("A", "Z")))
     x <- toupper(txt.trim(x))
-    z <- !is.na(x) & nchar(x) == 12 & !grepl("[^0-9A-Z]", x)
-    z <- z & is.element(substring(x, 12, 12), 0:9)
+    z <- grepl("^[A-Z]{2}[0-9A-Z]{9}[0-9]{1}$", x)
     y <- x[z]
     y <- y[!duplicated(y)]
     y <- matrix(NA, length(y), 11, F, list(y, char.seq("A", "K")))
@@ -15035,7 +15034,7 @@ yyyymm.ex.qtr <- function (x, y = 3)
 
 yyyymm.exists <- function (x) 
 {
-    grepl("^[0-9]{4}([0][1-9]|[1][0-2])$", x)
+    grepl("^[0-9]{4}(0[1-9]|1[0-2])$", x)
 }
 
 #' yyyymm.lag
