@@ -16,7 +16,6 @@ Returns the full path to the factor file
 }
 \seealso{
 Other strat: \code{\link{strat.dir}},
-  \code{\link{strat.email}}, \code{\link{strat.file}},
-  \code{\link{strat.list}}
+  \code{\link{strat.email}}, \code{\link{strat.file}}
 }
 \keyword{strat.path}

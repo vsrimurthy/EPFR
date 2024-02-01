@@ -349,9 +349,7 @@ avg.winsorized <- function (x, y = 100)
 
 avg.wtd <- function (x, y) 
 {
-    fcn <- function(x, y) sum(x * y)/nonneg(sum(y))
-    z <- fcn.num.nonNA(fcn, x, y, F)
-    z
+    z <- fcn.num.nonNA(weighted.mean, x, y, F)
 }
 
 #' base.ex.int
@@ -595,22 +593,6 @@ bbk.drawdown <- function (x)
     z
 }
 
-#' bbk.fanChart
-#' 
-#' quintile fan charts
-#' @param x = "rets" part of the output of function bbk
-#' @keywords bbk.fanChart
-#' @export
-#' @family bbk
-
-bbk.fanChart <- function (x) 
-{
-    x <- mat.reverse(x[!is.na(x[, 1]), paste0("Q", 1:5)])
-    for (j in 2:dim(x)[1]) x[j, ] <- apply(x[j - 1:0, ], 2, compound)
-    z <- mat.reverse(x)/100
-    z
-}
-
 #' bbk.fwdRet
 #' 
 #' returns a matrix/data frame of the same dimensions as <x>
@@ -631,26 +613,6 @@ bbk.fwdRet <- function (x, y, n, w)
     y <- ret.ex.idx(y, n, T, w)
     z <- map.rname(y, rownames(x))
     z <- excise.zeroes(z)
-    z
-}
-
-#' bbk.histogram
-#' 
-#' return distribution
-#' @param x = "rets" part of the output of function bbk
-#' @keywords bbk.histogram
-#' @export
-#' @family bbk
-
-bbk.histogram <- function (x) 
-{
-    z <- vec.count(0.01 * round(x$TxB/0.5) * 0.5)
-    z <- matrix(z, length(z), 3, F, list(names(z), c("Obs", "Plus", 
-        "Minus")))
-    z[, "Plus"] <- ifelse(char.to.num(rownames(z)) < 0, NA, z[, 
-        "Plus"]/sum(z[, "Plus"]))
-    z[, "Minus"] <- ifelse(char.to.num(rownames(z)) < 0, z[, 
-        "Minus"]/sum(z[, "Minus"]), NA)
     z
 }
 
@@ -1492,32 +1454,6 @@ correl <- function (x, y, n = T)
     else fcn.mat.col(cor, x, y, n)
 }
 
-#' correl.PrcMo
-#' 
-#' returns correlation of <n> day flows with price momentum (175d lag 10)
-#' @param x = one-day flow percentage
-#' @param y = total return index
-#' @param n = flow window
-#' @param w = the number of days needed for the flow data to be known
-#' @keywords correl.PrcMo
-#' @export
-
-correl.PrcMo <- function (x, y, n, w) 
-{
-    x <- compound.flows(x, n, F)
-    rownames(x) <- yyyymmdd.lag(rownames(x), -w)
-    z <- map.rname(y, yyyymmdd.lag(rownames(y), 175))
-    z <- nonneg(z)
-    y <- as.matrix(y)/z
-    rownames(y) <- yyyymmdd.lag(rownames(y), -10)
-    x <- qtl.eq(x, 5)
-    y <- qtl.eq(y, 5)
-    x <- x[is.element(rownames(x), rownames(y)), ]
-    y <- y[rownames(x), ]
-    z <- correl(unlist(x), unlist(y), F)
-    z
-}
-
 #' covar
 #' 
 #' efficient estimated covariance between the columns of <x>
@@ -1578,25 +1514,6 @@ cpt.RgnSecJP <- function (x, y)
     z <- paste(z, y, sep = "-")
     z <- map.rname(vec, z)
     z <- char.to.num(z)
-    z
-}
-
-#' cptRollingAverageWeights
-#' 
-#' Returns weights on individual weeks with the most recent week being to the RIGHT
-#' @param x = number of trailing weeks to use
-#' @param y = weight on the earliest as a percentage of weight on latest week
-#' @param n = number of additional weeks to lag data
-#' @keywords cptRollingAverageWeights
-#' @export
-
-cptRollingAverageWeights <- function (x = 4, y = 100, n = 0) 
-{
-    z <- x - 1
-    z <- (y/100)^(1/z)
-    z <- (z^(x:1 - 1))
-    z <- z/sum(z)
-    z <- c(z, rep(0, n))
     z
 }
 
@@ -2357,107 +2274,6 @@ extract.AnnMn.sf.wrapper <- function (x, y = "AnnMn")
         z <- t(sapply(x, fcn))
     else z <- mat.ex.matrix(lapply(x, fcn))
     z
-}
-
-#' factordump.rds
-#' 
-#' Dumps variable <x> to folder <y> in standard text format
-#' @param x = variable name (e.g. "HerdingLSV")
-#' @param y = local folder (e.g. "C:\\\\temp\\\\mystuff")
-#' @param n = starting QTR
-#' @param w = ending QTR
-#' @param h = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) fldr - stock-flows folder
-#' @param u = output variable name
-#' @keywords factordump.rds
-#' @export
-#' @family factordump
-
-factordump.rds <- function (x, y, n, w, h, u) 
-{
-    for (j in qtr.seq(n, w)) {
-        z <- list()
-        for (k in yyyymm.lag(yyyymm.ex.qtr(j), 2:0)) {
-            cat(k, "")
-            df <- sql.query.underlying(sql.HSIdmap(k), h$conn, 
-                F)
-            is.dup <- duplicated(df$SecurityId)
-            if (any(is.dup)) {
-                df <- df[!is.dup, ]
-                cat("Removing", sum(is.dup), "duplicated SecurityId at", 
-                  k, "..\n")
-            }
-            df <- vec.named(df[, "HSecurityId"], df[, "SecurityId"])
-            vbl <- fetch(x, yyyymm.lag(k, -1), 1, paste(h$fldr, 
-                "derived", sep = "\\"), h$classif)
-            is.data <- !is.na(vbl) & is.element(rownames(h$classif), 
-                names(df))
-            vbl <- vbl[is.data]
-            df <- as.character(df[rownames(h$classif)[is.data]])
-            df <- data.frame(rep(yyyymm.to.day(k), length(vbl)), 
-                df, vbl)
-            colnames(df) <- c("ReportDate", "HSecurityId", x)
-            z[[k]] <- df
-        }
-        z <- Reduce(rbind, z)
-        factordump.write(z, paste0(y, "\\", u, j, ".txt"))
-        cat("\n")
-    }
-    invisible()
-}
-
-#' factordump.sql
-#' 
-#' Dumps variable <x> to folder <y> in standard text format
-#' @param x = variable name (e.g. "Herfindahl")
-#' @param y = local folder (e.g. "C:\\\\temp\\\\mystuff")
-#' @param n = starting QTR
-#' @param w = ending QTR
-#' @param h = one of StockFlows/Regular/Quant
-#' @keywords factordump.sql
-#' @export
-#' @family factordump
-
-factordump.sql <- function (x, y, n, w, h) 
-{
-    filters <- vec.named(c("", "AllActive", "AllPassive", "AllETF", 
-        "AllMF"), c("Aggregate", "Active", "Passive", "ETF", 
-        "Mutual"))
-    for (filter in names(filters)) {
-        cat(txt.hdr(filter), "\n")
-        myconn <- sql.connect(h)
-        for (j in qtr.seq(n, w)) {
-            z <- list()
-            for (k in yyyymm.lag(yyyymm.ex.qtr(j), 2:0)) {
-                cat(k, "")
-                z[[k]] <- sql.query.underlying(ftp.sql.factor(x, 
-                  yyyymm.to.day(k), filter, "All"), myconn, F)
-            }
-            z <- Reduce(rbind, z)
-            factordump.write(z, paste0(y, "\\", x, "\\", filter, 
-                "\\", x, filters[filter], j, ".txt"))
-            cat("\n")
-        }
-        close(myconn)
-    }
-    invisible()
-}
-
-#' factordump.write
-#' 
-#' Dumps variable <x> to path <y> in standard text format
-#' @param x = a matrix/data-frame
-#' @param y = output path
-#' @keywords factordump.write
-#' @export
-#' @family factordump
-
-factordump.write <- function (x, y) 
-{
-    x[, "ReportDate"] <- yyyymmdd.to.txt(x[, "ReportDate"])
-    dir.ensure(y)
-    write.table(x, y, sep = "\t", , row.names = F, col.names = T, 
-        quote = F)
-    invisible()
 }
 
 #' farben
@@ -3518,37 +3334,6 @@ file.bkp <- function (x, y)
     invisible()
 }
 
-#' file.break
-#' 
-#' breaks up the file into 1GB chunks and rewrites to same directory with a "-001", "-002", etc extension
-#' @param x = path to a file
-#' @keywords file.break
-#' @export
-#' @family file
-
-file.break <- function (x) 
-{
-    y <- c(txt.left(x, nchar(x) - 4), txt.right(x, 4))
-    m <- ceiling(log(2 * file.size(x)/2^30, base = 10))
-    w <- 1e+06
-    n <- scan(file = x, what = "", skip = 0, sep = "\n", quiet = T, 
-        nlines = w)
-    n <- char.to.num(object.size(n))/2^30
-    n <- round(w/n)
-    i <- 1
-    z <- scan(file = x, what = "", skip = (i - 1) * n, sep = "\n", 
-        quiet = T, nlines = n)
-    while (length(z) == n) {
-        writeLines(z, paste0(y[1], "-", txt.right(10^m + i, m), 
-            y[2]))
-        i <- i + 1
-        z <- scan(file = x, what = "", skip = (i - 1) * n, sep = "\n", 
-            quiet = T, nlines = n)
-    }
-    writeLines(z, paste0(y[1], "-", txt.right(10^m + i, m), y[2]))
-    invisible()
-}
-
 #' file.date
 #' 
 #' Returns the last modified date in yyyymmdd format
@@ -3665,29 +3450,6 @@ find.gaps <- function (x)
     }
     z <- vec.named(z[["size"]], z[["pos"]])
     z
-}
-
-#' find.whitespace.trail
-#' 
-#' cats 2 lines above and below lines with trailing white space
-#' @param x = the name of a function
-#' @keywords find.whitespace.trail
-#' @export
-#' @family find
-
-find.whitespace.trail <- function (x) 
-{
-    z <- deparse(get(x), control = "useSource")
-    n <- seq(1, length(z))[is.element(txt.right(z, 1), c(" ", 
-        "\t"))]
-    n <- c(n, n + 1, n + 2, n - 1, n - 2)
-    n <- n[!duplicated(n)]
-    n <- n[order(n)]
-    n <- vec.min(n, length(z))
-    n <- vec.max(n, 1)
-    z <- z[n]
-    vec.cat(z)
-    invisible()
 }
 
 #' fix.gaps
@@ -4597,18 +4359,6 @@ glome.ex.R3 <- function (x, y, n)
 gram.schmidt <- function (x, y) 
 {
     x - tcrossprod(y, crossprod(x, y)/sum(y^2))
-}
-
-#' greek.ex.english
-#' 
-#' returns a named vector
-#' @keywords greek.ex.english
-#' @export
-
-greek.ex.english <- function () 
-{
-    vec.named(c("platos", "mekos", "hypsos", "bathos"), c("breadth", 
-        "length", "height", "depth"))
 }
 
 #' GSec.to.GSgrp
@@ -5815,19 +5565,6 @@ mat.ex.vec <- function (x, y, n = T)
     z <- data.frame(w, x, y, stringsAsFactors = F)
     z <- reshape.wide(z)
     z
-}
-
-#' mat.fake
-#' 
-#' Returns a data frame for testing purposes
-#' @keywords mat.fake
-#' @export
-#' @family mat
-
-mat.fake <- function () 
-{
-    mat.ex.matrix(matrix(sample(35), 7, 5, F, list(1:7, char.ex.int(64 + 
-        1:5))))
 }
 
 #' mat.index
@@ -7389,25 +7126,6 @@ mk.EigenCentrality <- function (x, y, n)
     z
 }
 
-#' mk.FloAlphaLt.Ctry
-#' 
-#' Monthly Country Flow Alpha
-#' @param x = a single YYYYMM
-#' @param y = an object name (preceded by #) or the path to a ".csv" file
-#' @param n = list object containing the following items: a) classif - classif file
-#' @keywords mk.FloAlphaLt.Ctry
-#' @export
-#' @family mk
-
-mk.FloAlphaLt.Ctry <- function (x, y, n) 
-{
-    z <- read.prcRet(y)
-    z <- unlist(z[yyyymmdd.ex.yyyymm(x), ])
-    z <- map.rname(z, n$classif$CCode)
-    z <- char.to.num(z)
-    z
-}
-
 #' mk.FloBeta
 #' 
 #' Computes monthly beta versus common fund flow shock
@@ -7464,26 +7182,6 @@ mk.Fragility <- function (x, y, n)
     x <- rowSums(x)^2
     z <- z/nonneg(x)
     z <- char.to.num(map.rname(z, rownames(n$classif)))
-    z
-}
-
-#' mk.FundsMem
-#' 
-#' Returns a 1/0 vector with the same row space as <n> that is 1 whenever it has the right fund type as well as one-month forward return.
-#' @param x = a single YYYYMM
-#' @param y = a string vector, the elements of which are: 1) column to match in classif (e.g. "FundType") 2) column value (e.g. "E" or "B")
-#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
-#' @keywords mk.FundsMem
-#' @export
-#' @family mk
-
-mk.FundsMem <- function (x, y, n) 
-{
-    w <- is.element(n[, y[1]], y[2])
-    z <- fetch("Ret", yyyymm.lag(x, -1), 1, paste(n$fldr, "data", 
-        sep = "\\"), n$classif)
-    z <- w & !is.na(z)
-    z <- char.to.num(z)
     z
 }
 
@@ -8349,21 +8047,15 @@ proc.count <- function (x = 10)
 
 #' proc.kill
 #' 
-#' kills of all processes <x> if more than <y> of them are running
+#' kills off all processes <x>
 #' @param x = process name (e.g. "ftp.exe")
-#' @param y = number of instances
 #' @keywords proc.kill
 #' @export
 #' @family proc
 
-proc.kill <- function (x, y) 
+proc.kill <- function (x) 
 {
-    z <- shell("tasklist", intern = T)
-    z <- txt.parse(z, " ")[, 1]
-    z <- sum(z == x)
-    if (z > y) 
-        z <- shell(paste("TASKKILL /IM", x, "/F"), intern = T)
-    invisible()
+    shell(paste("TASKKILL /IM", x, "/F"), intern = T)
 }
 
 #' product
@@ -8571,230 +8263,6 @@ qa.filter.map <- function (x)
         x)), x)
 }
 
-#' qa.flow
-#' 
-#' Compares flow file to data from Quant server
-#' @param x = a YYYYMM month
-#' @param y = M/W/D depending on whether flows are monthly/weekly/daily
-#' @param n = T for fund or F for share-class level
-#' @param w = fund filter (e.g. Aggregate/Active/Passive/ETF/Mutual)
-#' @param h = a connection, the output of odbcDriverConnect
-#' @param u = stock filter (e.g. All/China/Japan)
-#' @keywords qa.flow
-#' @export
-#' @family qa
-
-qa.flow <- function (x, y, n, w, h, u) 
-{
-    fldr <- "C:\\temp\\crap"
-    isMacro <- any(y == c("M", "W", "D", "C", "I", "S"))
-    isFactor <- all(y != c("HoldSum", "FundCtM", "FundCtD", "StockM", 
-        "StockD", "FwtdEx0", "FwtdIn0", "SwtdEx0", "SwtdIn0")) & 
-        !isMacro
-    cols <- qa.columns(y)
-    if (ftp.info(y, n, "frequency", w) == "D") {
-        dts <- flowdate.ex.yyyymm(x, F)
-    }
-    else if (ftp.info(y, n, "frequency", w) == "W") {
-        dts <- yyyymmdd.ex.yyyymm(x, F)
-        dts <- dts[day.to.weekday(dts) == ifelse(dts >= "20010919", 
-            3, 5)]
-    }
-    else if (ftp.info(y, n, "frequency", w) == "M") {
-        dts <- yyyymm.to.day(x)
-    }
-    else if (ftp.info(y, n, "frequency", w) == "S") {
-        dts <- x
-    }
-    else if (ftp.info(y, n, "frequency", w) == "Q") {
-        dts <- yyyymm.to.day(yyyymm.lag(yyyymm.ex.qtr(x), 2:0))
-    }
-    else {
-        stop("Bad frequency")
-    }
-    z <- c("isFTP", "goodFile", "badDts", "DupFunds", "isSQL", 
-        "SQLxFTP", "FTPxSQL", "Common")
-    if (any(y == c("M", "W", "D"))) {
-        z <- c(z, txt.expand(c("sum", "max"), cols[-1][-1], "Abs", 
-            T))
-    }
-    else if (any(y == c("StockM", "StockD"))) {
-        z <- c(z, txt.expand(c("sum", "max"), "CalculatedStockFlow", 
-            "", T))
-    }
-    else {
-        z <- c(z, txt.expand(c("sum", "max"), "Turnover", "", 
-            T))
-    }
-    z <- matrix(NA, length(dts), length(z), F, list(dts, z))
-    ftpFile <- txt.replace(ftp.info(y, n, "ftp.path", w), "YYYYMM", 
-        x)
-    df <- qa.mat.read(ftpFile, fldr)
-    z[, "isFTP"] <- char.to.num(!is.null(df))
-    if (z[, "isFTP"][1] == 1) {
-        z[, "goodFile"] <- char.to.num(all(is.element(cols, colnames(df))))
-        if (!n & all(colnames(df) != "ShareId")) 
-            z[, "goodFile"] <- 0
-    }
-    else {
-        z[, "goodFile"] <- 0
-    }
-    if (z[, "goodFile"][1] == 1 & !isMacro) 
-        df <- df[!is.na(df[, dim(df)[2]]), ]
-    if (z[, "goodFile"][1] == 1 & substring(x, 5, 5) == "Q") {
-        z[, "badDts"] <- char.to.num(any(yyyymm.to.qtr(yyyymmdd.to.yyyymm(rownames(z))) != 
-            x))
-    }
-    else if (ftp.info(y, n, "frequency", w) == "S") {
-        z[, "badDts"] <- char.to.num(any(rownames(z) != x))
-    }
-    else if (z[, "goodFile"][1] == 1) {
-        z[, "badDts"] <- char.to.num(any(yyyymmdd.to.yyyymm(rownames(z)) != 
-            x))
-    }
-    else {
-        z[, "badDts"] <- 1
-    }
-    if (z[, "goodFile"][1] == 1) {
-        for (j in rownames(z)) {
-            if (n) {
-                vec <- qa.index(df, isMacro, isFactor)
-            }
-            else {
-                vec <- df[, "ShareId"]
-            }
-            vec <- vec[is.element(df[, "ReportDate"], j)]
-            z[j, "DupFunds"] <- char.to.num(any(duplicated(vec)))
-        }
-        df <- df[, cols]
-        if (dim(df)[1] > 0) {
-            if (isMacro | isFactor) {
-                df <- pivot.1d(sum, paste(df[, 1], df[, 2]), 
-                  df[, cols[-1][-1]])
-            }
-            else {
-                df <- pivot.1d(sum, paste(df[, 1], df[, 2], df[, 
-                  3]), df[, cols[-1][-1][-1]])
-            }
-            if (is.null(dim(df))) {
-                df <- data.frame(txt.parse(names(df), " "), df)
-            }
-            else {
-                df <- data.frame(txt.parse(rownames(df), " "), 
-                  df)
-            }
-            dimnames(df) <- list(1:dim(df)[1], cols)
-        }
-    }
-    else {
-        z[, "DupFunds"] <- 1
-    }
-    for (j in rownames(z)[is.element(z[, "goodFile"], 0)]) {
-        z[j, "isSQL"] <- 0
-        if (z[j, "goodFile"] == 1) {
-            z[j, "FTPxSQL"] <- sum(is.element(df[, "ReportDate"], 
-                j))
-        }
-        else {
-            z[j, "FTPxSQL"] <- 0
-        }
-        z[j, "Common"] <- 0
-        z[j, "SQLxFTP"] <- 0
-        z[j, 9:dim(z)[2]] <- 0
-    }
-    if (any(is.element(z[, "goodFile"], 1)) & missing(h)) {
-        h <- sql.connect(ftp.info(y, n, "connection", w))
-        close.connection <- T
-    }
-    else {
-        close.connection <- F
-    }
-    for (j in rownames(z)[is.element(z[, "goodFile"], 1)]) {
-        if (isMacro) {
-            v <- ftp.sql.other(y, j, w)
-        }
-        else {
-            v <- ftp.sql.factor(y, j, w, u)
-        }
-        v <- sql.query.underlying(v, h, F)
-        z[j, "isSQL"] <- char.to.num(!is.null(dim(v)))
-        if (z[j, "isSQL"] == 1) 
-            z[j, "isSQL"] <- char.to.num(dim(v)[1] > 0)
-        if (z[j, "isSQL"] == 1 & !isMacro) 
-            v <- v[!is.na(v[, dim(v)[2]]), ]
-        if (z[j, "isSQL"] == 1) {
-            vec <- qa.index(df, isMacro, isFactor)[df[, "ReportDate"] == 
-                j]
-            rownames(v) <- qa.index(v, isMacro, isFactor)
-            v <- v[, cols]
-            z[j, "SQLxFTP"] <- sum(!is.element(rownames(v), vec))
-            z[j, "FTPxSQL"] <- sum(!is.element(vec, rownames(v)))
-            z[j, "Common"] <- sum(is.element(vec, rownames(v)))
-        }
-        else {
-            if (z[j, "goodFile"] == 1) {
-                z[j, "FTPxSQL"] <- sum(is.element(df[, "ReportDate"], 
-                  j))
-            }
-            else {
-                z[j, "FTPxSQL"] <- 0
-            }
-            z[j, "Common"] <- 0
-            z[j, "SQLxFTP"] <- 0
-            z[j, 9:dim(z)[2]] <- 0
-        }
-        if (z[j, "Common"] > 100) {
-            vec <- qa.index(df, isMacro, isFactor)
-            vec <- is.element(df[, "ReportDate"], j) & is.element(vec, 
-                rownames(v))
-            if (isMacro) {
-                v <- v[as.character(df[vec, "FundId"]), cols[-1][-1]]
-                v <- abs(zav(df[vec, colnames(v)]) - zav(v))
-            }
-            else if (isFactor) {
-                v <- v[as.character(qa.index(df, isMacro, isFactor)[vec]), 
-                  cols[-1][-1]]
-                if (any(y == c("IONM", "IOND", "AllocD"))) {
-                  v <- abs(zav(df[vec, colnames(v)]) - zav(v))
-                }
-                else {
-                  v <- abs(zav(df[vec, y]) - zav(v))
-                }
-            }
-            else {
-                v <- v[paste(df[vec, "HSecurityId"], df[vec, 
-                  "GeoId"]), dim(v)[2]]
-                v <- abs(zav(df[vec, dim(df)[2]]) - zav(v))
-            }
-            if (any(y == c("M", "W", "D"))) {
-                z[j, paste("sum", colnames(v), sep = "Abs")] <- apply(v, 
-                  2, sum)
-                z[j, paste("max", colnames(v), sep = "Abs")] <- apply(v, 
-                  2, max)
-            }
-            else if (!isMacro & !isFactor) {
-                z[j, 9] <- sum(v)
-                z[j, 10] <- max(v)
-            }
-            else {
-                z[j, 9] <- sum(unlist(v))
-                if (is.null(dim(v))) {
-                  z[j, 10] <- max(v)
-                }
-                else {
-                  z[j, 10] <- max(rowSums(v))
-                }
-            }
-        }
-        else {
-            z[j, 9:dim(z)[2]] <- 0
-        }
-    }
-    if (close.connection) 
-        close(h)
-    z
-}
-
 #' qa.index
 #' 
 #' unique index for <x>
@@ -8843,55 +8311,9 @@ qa.mat.read <- function (x, y, n, w, h, u, v)
     x <- paste0(y, "\\", ftp.file(x))
     z <- NULL
     if (file.exists(x)) {
-        z <- mat.read(x, "\t", NULL)
+        z <- read.EPFR(x)
         Sys.sleep(1)
         file.kill(x)
-        colnames(z)[1] <- "ReportDate"
-        z[, "ReportDate"] <- yyyymmdd.ex.txt(z[, "ReportDate"])
-    }
-    z
-}
-
-#' qa.secMenu
-#' 
-#' compares HSecurityId/ReportDate pairs in Security Menu versus Flow Dollar
-#' @param x = a YYYYMM month
-#' @param y = SecMenuM/SecMenuD
-#' @param n = a connection, the output of odbcDriverConnect
-#' @param w = stock filter (e.g. All/China/Japan)
-#' @keywords qa.secMenu
-#' @export
-#' @family qa
-
-qa.secMenu <- function (x, y, n, w) 
-{
-    fldr <- "C:\\temp\\crap"
-    z <- vec.named(, c("isFTP", "isSQL", "DUP", "FTP", "SQL", 
-        "FTPxSQL", "SQLxFTP"))
-    secMenuFile <- txt.replace(ftp.info(y, T, "ftp.path", "Aggregate"), 
-        "YYYYMM", x)
-    secMenuFile <- qa.mat.read(secMenuFile, fldr)
-    z["isFTP"] <- char.to.num(!is.null(secMenuFile))
-    if (z["isFTP"] == 1) {
-        floDolrFile <- ftp.sql.factor(txt.replace(y, "SecMenu", 
-            "Stock"), yyyymm.to.day(x), "Aggregate", w)
-        floDolrFile <- sql.query.underlying(floDolrFile, n, F)
-        z["isSQL"] <- char.to.num(!is.null(floDolrFile))
-    }
-    if (z["isFTP"] == 1 & z["isSQL"] == 1) {
-        x <- paste(floDolrFile[, "ReportDate"], floDolrFile[, 
-            "HSecurityId"])
-        x <- x[!duplicated(x)]
-        y <- paste(secMenuFile[, "ReportDate"], secMenuFile[, 
-            "HSecurityId"])
-        z["DUP"] <- sum(duplicated(y))
-        y <- y[!duplicated(y)]
-    }
-    if (z["isFTP"] == 1 & z["isSQL"] == 1) {
-        z["FTP"] <- sum(length(y))
-        z["SQL"] <- sum(length(x))
-        z["FTPxSQL"] <- sum(!is.element(y, x))
-        z["SQLxFTP"] <- sum(!is.element(x, y))
     }
     z
 }
@@ -9064,10 +8486,9 @@ quant.info <- function (x, y)
 
 read.EPFR <- function (x) 
 {
-    z <- read.table(x, T, "\t", row.names = NULL, quote = "", 
-        as.is = T, na.strings = txt.na(), comment.char = "")
-    names(z)[1] <- "ReportDate"
-    z$ReportDate <- yyyymmdd.ex.txt(z$ReportDate)
+    z <- mat.read(x, "\t", NULL)
+    z[, 1] <- yyyymmdd.ex.txt(z[, 1])
+    colnames(z)[1] <- "ReportDate"
     z
 }
 
@@ -10130,28 +9551,6 @@ sf.underlying.summ <- function (x, y)
     else {
         z <- NULL
     }
-    z
-}
-
-#' sf.vec.to.array
-#' 
-#' expresses <x> as an array
-#' @param x = named vector of characteristics
-#' @param y = variable names
-#' @param n = number of bins
-#' @keywords sf.vec.to.array
-#' @export
-#' @family sf
-
-sf.vec.to.array <- function (x, y, n) 
-{
-    z <- split(n, y)
-    for (j in names(z)) {
-        z[[j]] <- sf.bin.nms(z[[j]], F)
-        z[[j]] <- paste0(j, substring(z[[j]], 2, nchar(z[[j]])))
-    }
-    x <- map.rname(x, do.call(paste, expand.grid(z)))
-    z <- array(x, lapply(z, length), z)
     z
 }
 
@@ -11359,47 +10758,6 @@ sql.1dFloMo.underlying <- function (x, y, n)
     z
 }
 
-#' sql.1dFloMoAggr
-#' 
-#' Generates the SQL query to get the data for aggregate 1dFloMo
-#' @param x = the YYYYMMDD for which you want flows (known two days later)
-#' @param y = one or more of FwtdIn0/FwtdEx0/SwtdIn0/SwtdEx0
-#' @param n = any of StockFlows/China/Japan/CSI300/Energy
-#' @keywords sql.1dFloMoAggr
-#' @export
-#' @family sql
-
-sql.1dFloMoAggr <- function (x, y, n) 
-{
-    z <- yyyymm.to.day(yyyymmdd.to.AllocMo(x, 26))
-    z <- sql.into(sql.TopDownAllocs.underlying(z, y, n, T), "#ALLOC")
-    y <- sql.arguments(y)
-    h <- "GeographicFocus, Flow = sum(Flow), AssetsStart = sum(AssetsStart)"
-    w <- sql.label(sql.FundHistory(y$filter, T, c("FundId", "GeographicFocus")), 
-        "t1")
-    w <- c(w, "inner join", "DailyData t2 on t2.HFundId = t1.HFundId")
-    h <- sql.tbl(h, w, paste0("ReportDate = '", x, "'"), "GeographicFocus", 
-        "sum(AssetsStart) > 0")
-    z <- c(z, "", sql.into(h, "#FLOWS"))
-    y <- y$factor
-    if (length(y) > 1) {
-        y <- paste0(y, " = 100 * sum(Flow * ", y, ")/", sql.nonneg(paste0("sum(AssetsStart * ", 
-            y, ")")))
-    }
-    else {
-        y <- paste0(y, " = 100 * sum(Flow * AverageAllocation)/", 
-            sql.nonneg(paste0("sum(AssetsStart * AverageAllocation)")))
-    }
-    y <- c("SecurityId", y)
-    w <- c("#ALLOC t1", "inner join", "#FLOWS t2 on GeographicFocus = GeoId")
-    w <- c(w, "inner join", "SecurityHistory id on id.HSecurityId = t1.HSecurityId")
-    w <- paste(sql.unbracket(sql.tbl(y, w, , "SecurityId")), 
-        collapse = "\n")
-    z <- paste(c(sql.drop(c("#FLOWS", "#ALLOC")), "", z), collapse = "\n")
-    z <- c(z, w)
-    z
-}
-
 #' sql.1dFloTrend.Alloc
 #' 
 #' SQL query for allocation table for FloTrend
@@ -11603,26 +10961,6 @@ sql.1dFundCt <- function (x, y, n, w, h)
     else w <- "SecurityId"
     w <- paste(c(w, sql.breakdown(h)), collapse = ", ")
     z <- paste(sql.unbracket(sql.tbl(z, u, n, w)), collapse = "\n")
-    z
-}
-
-#' sql.1dFundRet
-#' 
-#' Generates the SQL query to get monthly AIS for countries
-#' @param x = a list of fund identifiers
-#' @keywords sql.1dFundRet
-#' @export
-#' @family sql
-
-sql.1dFundRet <- function (x) 
-{
-    x <- sql.tbl("HFundId, FundId", "FundHistory", sql.in("FundId", 
-        paste0("(", paste(x, collapse = ", "), ")")))
-    x <- c("DailyData t1", "inner join", sql.label(x, "t2"), 
-        "\ton t2.HFundId = t1.HFundId")
-    z <- c(sql.yyyymmdd("DayEnding"), "FundId", "FundRet = sum(PortfolioChange)/sum(AssetsStart)")
-    z <- paste(sql.unbracket(sql.tbl(z, x, , "DayEnding, FundId", 
-        "sum(AssetsStart) > 0")), collapse = "\n")
     z
 }
 
@@ -13044,33 +12382,6 @@ sql.extra.domicile <- function (x, y, n)
     z
 }
 
-#' sql.FloMo.Funds
-#' 
-#' Generates the SQL query to get monthly/daily data for Funds
-#' @param x = the month/day for which you want \% flow, \% portfolio change, & assets end
-#' @keywords sql.FloMo.Funds
-#' @export
-#' @family sql
-
-sql.FloMo.Funds <- function (x) 
-{
-    if (nchar(x) == 6) 
-        flo.dt <- "M"
-    else flo.dt <- "D"
-    sql.table <- sql.Flow.tbl(flo.dt, T)
-    dt.col <- sql.Flow.tbl(flo.dt, F)
-    if (flo.dt == "M") 
-        flo.dt <- yyyymm.to.day(x)
-    else flo.dt <- x
-    flo.dt <- sql.declare("@floDt", "datetime", flo.dt)
-    z <- c("SecurityId = FundId", "PortfolioChangePct = 100 * sum(PortfolioChange)/sum(AssetsStart)")
-    z <- c(z, "FlowPct = 100 * sum(Flow)/sum(AssetsStart)", "AssetsEnd = sum(AssetsEnd)")
-    x <- c(sql.label(sql.table, "t1"), "inner join", "FundHistory t2 on t1.HFundId = t2.HFundId")
-    z <- paste(sql.unbracket(sql.tbl(z, x, paste(dt.col, "= @floDt"), 
-        "FundId", "sum(AssetsStart) > 0")), collapse = "\n")
-    z
-}
-
 #' sql.Flow
 #' 
 #' SQL query to fetch daily/weekly/monthly flows
@@ -13367,48 +12678,6 @@ sql.into <- function (x, y)
         stop("Failure in sql.into!")
     w <- c(1:n, (1:n)[w] + 1:2/3 - 1)
     z <- c(z, "into", paste0("\t", y))[order(w)]
-    z
-}
-
-#' sql.ION
-#' 
-#' sum(case when <x> > 0 then <y> else 0 end)/case when sum(abs(<y>)) > 0 then sum(abs(<y>)) else NULL end
-#' @param x = bit of SQL string
-#' @param y = bit of SQL string
-#' @keywords sql.ION
-#' @export
-#' @family sql
-
-sql.ION <- function (x, y) 
-{
-    z <- paste0("= sum(case when ", x, " > 0 then ", y, " else 0 end)")
-    z <- paste0(z, "/", sql.nonneg(paste0("sum(abs(", y, "))")))
-    z
-}
-
-#' sql.isin.old.to.new
-#' 
-#' Returns the latest isin
-#' @param x = Historical Isin
-#' @keywords sql.isin.old.to.new
-#' @export
-#' @family sql
-
-sql.isin.old.to.new <- function (x) 
-{
-    z <- sql.tbl("Id", "SecurityCode", sql.and(list(A = "SecurityCodeTypeId = 1", 
-        B = "SecurityCode = @isin")))
-    z <- sql.tbl("HSecurityId", "SecurityCodeMapping", sql.in("SecurityCodeId", 
-        z))
-    z <- sql.tbl("SecurityId", "SecurityHistory", sql.in("HSecurityId", 
-        z))
-    z <- sql.tbl("HSecurityId", "SecurityHistory", sql.and(list(A = "EndDate is NULL", 
-        B = sql.in("SecurityId", z))))
-    z <- sql.tbl("SecurityCodeId", "SecurityCodeMapping", sql.and(list(A = "SecurityCodeTypeId = 1", 
-        B = sql.in("HSecurityId", z))))
-    z <- sql.tbl("SecurityCode", "SecurityCode", sql.and(list(A = "SecurityCodeTypeId = 1", 
-        B = sql.in("Id", z))))
-    z <- paste(c(sql.declare("@isin", "char(12)", x), z), collapse = "\n")
     z
 }
 
@@ -14339,111 +13608,6 @@ sql.yyyymmdd <- function (x, y, n = F)
     z
 }
 
-#' sqlts.FloDollar.daily
-#' 
-#' SQL query for daily dollar flow
-#' @param x = the security id for which you want data
-#' @keywords sqlts.FloDollar.daily
-#' @export
-#' @family sqlts
-
-sqlts.FloDollar.daily <- function (x) 
-{
-    x <- sql.declare("@secId", "int", x)
-    z <- sql.tbl(c("ReportDate", "HFundId", "Flow = sum(Flow)"), 
-        "DailyData", , "ReportDate, HFundId")
-    z <- c(sql.label(z, "t1"), "inner join", "FundHistory t2 on t2.HFundId = t1.HFundId")
-    z <- c(z, "inner join", "Holdings t3 on t3.FundId = t2.FundId", 
-        paste("\tand", sql.datediff("t3.ReportDate", "t1.ReportDate", 
-            26)))
-    h <- sql.MonthlyAssetsEnd(NULL)
-    z <- c(z, "inner join", sql.label(h, "t4"), "\ton t4.HFundId = t3.HFundId and t4.ReportDate = t3.ReportDate")
-    h <- sql.in("HSecurityId", sql.tbl("HSecurityId", "SecurityHistory", 
-        "SecurityId = @secId"))
-    z <- sql.tbl(c(sql.yyyymmdd("t1.ReportDate", "yyyymmdd"), 
-        "FloDlr = sum(Flow * HoldingValue/AUM)"), z, h, "t1.ReportDate")
-    z <- paste(c(x, "", sql.unbracket(z)), collapse = "\n")
-    z
-}
-
-#' sqlts.FloDollar.monthly
-#' 
-#' SQL query for monthly dollar flow
-#' @param x = the security id for which you want data
-#' @keywords sqlts.FloDollar.monthly
-#' @export
-#' @family sqlts
-
-sqlts.FloDollar.monthly <- function (x) 
-{
-    x <- sql.declare("@secId", "int", x)
-    z <- sql.MonthlyAssetsEnd(NULL, "Flow", , , "AUM")
-    z <- c(sql.label(z, "t1"), "inner join", "Holdings t2 on t2.HFundId = t1.HFundId and t2.ReportDate = t1.ReportDate")
-    h <- sql.in("HSecurityId", sql.tbl("HSecurityId", "SecurityHistory", 
-        "SecurityId = @secId"))
-    z <- sql.tbl(c(sql.yyyymm("t1.ReportDate", "yyyymm"), "FloDlr = sum(Flow * HoldingValue/AUM)"), 
-        z, h, "t1.ReportDate")
-    z <- paste(c(x, "", sql.unbracket(z)), collapse = "\n")
-    z
-}
-
-#' sqlts.TopDownAllocs
-#' 
-#' SQL query for Top-Down Allocations
-#' @param x = the security id for which you want data
-#' @param y = a string vector specifying types of allocation wanted
-#' @keywords sqlts.TopDownAllocs
-#' @export
-#' @family sqlts
-
-sqlts.TopDownAllocs <- function (x, y) 
-{
-    if (missing(y)) 
-        y <- paste0(txt.expand(c("S", "F"), c("Ex", "In"), "wtd"), 
-            "0")
-    x <- sql.declare("@secId", "int", x)
-    z <- sql.and(list(A = "h.ReportDate = t.ReportDate", B = "h.HFundId = t.HFundId"))
-    z <- sql.exists(sql.tbl("ReportDate, HFundId", "Holdings h", 
-        z))
-    z <- sql.tbl("ReportDate, HFundId, AssetsEnd = sum(AssetsEnd)", 
-        "MonthlyData t", z, "ReportDate, HFundId", "sum(AssetsEnd) > 0")
-    z <- sql.label(z, "t1")
-    h <- sql.in("HSecurityId", sql.tbl("HSecurityId", "SecurityHistory", 
-        "SecurityId = @secId"))
-    h <- sql.label(sql.Holdings(h, c("ReportDate", "HFundId", 
-        "HoldingValue")), "t2")
-    z <- c(z, "left join", h, "\ton t2.HFundId = t1.HFundId and t2.ReportDate = t1.ReportDate")
-    z <- sql.tbl(c(sql.yyyymm("t1.ReportDate", "yyyymm"), sql.TopDownAllocs.items(y)), 
-        z, , "t1.ReportDate")
-    z <- paste(c(x, "", sql.unbracket(z)), collapse = "\n")
-    z
-}
-
-#' sqlts.wrapper
-#' 
-#' SQL query for monthly dollar flow
-#' @param x = a vector of security id's
-#' @param y = data item wanted (Daily/Monthly/Allocation)
-#' @keywords sqlts.wrapper
-#' @export
-#' @family sqlts
-
-sqlts.wrapper <- function (x, y) 
-{
-    w <- vec.named(c("sqlts.FloDollar.daily", "sqlts.FloDollar.monthly", 
-        "sqlts.TopDownAllocs"), c("Daily", "Monthly", "Allocation"))
-    y <- get(w[y])
-    z <- list()
-    h <- sql.connect("StockFlows")
-    for (i in x) {
-        cat(i, "..\n")
-        z[[as.character(i)]] <- sqlQuery(h, y(i), stringsAsFactors = F)
-    }
-    close(h)
-    z <- array.ex.list(lapply(z, mat.index), T)
-    z
-}
-
 #' straight
 #' 
 #' the number of elements equalling the first
@@ -14517,23 +13681,6 @@ strat.email <- function (x, y, n, w = "All")
 strat.file <- function (x, y) 
 {
     paste0(x, "-", y, ".csv")
-}
-
-#' strat.list
-#' 
-#' lists strategies of that frequency
-#' @param x = frequency (e.g. "daily", "weekly" or "monthly")
-#' @keywords strat.list
-#' @export
-#' @family strat
-
-strat.list <- function (x) 
-{
-    z <- dir(strat.dir(x))
-    x <- paste0("-", x, ".csv")
-    z <- z[txt.right(z, nchar(x)) == x]
-    z <- txt.left(z, nchar(z) - nchar(x))
-    z
 }
 
 #' strat.path
@@ -14862,26 +14009,6 @@ stratrets.subset.Ctry <- function (x, y)
     }
     if (length(z) == 0 & is.element(y, w)) 
         z <- Ctry.msci.members(y, "")
-    z
-}
-
-#' stunden
-#' 
-#' vector of <x> random numbers within +/-1 of, and averaging to, <y>
-#' @param x = integer
-#' @param y = integer
-#' @keywords stunden
-#' @export
-
-stunden <- function (x = 5, y = 8) 
-{
-    set.seed(seed = NULL)
-    z <- y - 1
-    while (mean(z) != y) {
-        z <- NULL
-        while (length(z) < x) z <- c(z, sample(seq(-1, 1) + y, 
-            1))
-    }
     z
 }
 
@@ -16194,29 +15321,6 @@ yyyymmdd.diff <- function (x, y)
     obj.diff(yyyymmdd.to.int, x, y)
 }
 
-#' yyyymmdd.ex.AllocMo
-#' 
-#' Returns an object indexed by flow dates
-#' @param x = an object indexed by allocation months
-#' @keywords yyyymmdd.ex.AllocMo
-#' @export
-#' @family yyyymmdd
-
-yyyymmdd.ex.AllocMo <- function (x) 
-{
-    y <- rownames(x)
-    y <- y[order(y)]
-    begPrd <- yyyymmdd.ex.yyyymm(y[1], F)[1]
-    endPrd <- yyyymmdd.ex.yyyymm(yyyymm.lag(y[dim(x)[1]], -2), 
-        T)
-    y <- yyyymmdd.seq(begPrd, endPrd)
-    y <- vec.named(yyyymmdd.to.AllocMo(y), y)
-    y <- y[is.element(y, rownames(x))]
-    z <- map.rname(x, y)
-    rownames(z) <- names(y)
-    z
-}
-
 #' yyyymmdd.ex.day
 #' 
 #' Falls back to the closest weekday
@@ -16387,25 +15491,6 @@ yyyymmdd.to.AllocMo.unique <- function (x, y, n)
     z
 }
 
-#' yyyymmdd.to.CalYrDyOfWk
-#' 
-#' Converts to 0 = Sun, 1 = Mon, .., 6 = Sat
-#' @param x = a vector of dates in yyyymmdd format
-#' @keywords yyyymmdd.to.CalYrDyOfWk
-#' @export
-#' @family yyyymmdd
-
-yyyymmdd.to.CalYrDyOfWk <- function (x) 
-{
-    z <- day.to.weekday(x)
-    z <- char.to.num(z)
-    z <- z/10
-    x <- substring(x, 1, 4)
-    x <- char.to.num(x)
-    z <- x + z
-    z
-}
-
 #' yyyymmdd.to.int
 #' 
 #' number of weekdays after Thursday, January 1, 1970
@@ -16434,19 +15519,6 @@ yyyymmdd.to.txt <- function (x)
     paste(format(day.to.date(x), "%m/%d/%Y"), "12:00:00 AM")
 }
 
-#' yyyymmdd.to.unity
-#' 
-#' returns a vector of 1's corresponding to the length of <x>
-#' @param x = a vector of dates in yyyymmdd format
-#' @keywords yyyymmdd.to.unity
-#' @export
-#' @family yyyymmdd
-
-yyyymmdd.to.unity <- function (x) 
-{
-    rep(1, length(x))
-}
-
 #' yyyymmdd.to.weekofmonth
 #' 
 #' returns 1 if the date fell in the first week of the month, 2 if it fell in the second, etc.
@@ -16457,10 +15529,7 @@ yyyymmdd.to.unity <- function (x)
 
 yyyymmdd.to.weekofmonth <- function (x) 
 {
-    z <- substring(x, 7, 8)
-    z <- char.to.num(z)
-    z <- (z - 1)%/%7 + 1
-    z
+    1 + (as.numeric(txt.right(x, 2)) - 1)%/%7
 }
 
 #' yyyymmdd.to.yyyymm

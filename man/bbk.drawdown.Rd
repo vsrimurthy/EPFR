@@ -16,8 +16,7 @@ returns a logical vector identifying the contiguous periods corresponding to max
 Other bbk: \code{\link{bbk.bin.rets.prd.summ}},
   \code{\link{bbk.bin.rets.summ}},
   \code{\link{bbk.bin.xRet}}, \code{\link{bbk.data}},
-  \code{\link{bbk.fanChart}}, \code{\link{bbk.fwdRet}},
-  \code{\link{bbk.histogram}}, \code{\link{bbk.holidays}},
+  \code{\link{bbk.fwdRet}}, \code{\link{bbk.holidays}},
   \code{\link{bbk.matrix}}, \code{\link{bbk.summ}},
   \code{\link{bbk.turnover}}, \code{\link{bbk}}
 }

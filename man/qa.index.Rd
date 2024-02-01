@@ -18,7 +18,6 @@ unique index for <x>
 }
 \seealso{
 Other qa: \code{\link{qa.columns}},
-  \code{\link{qa.filter.map}}, \code{\link{qa.flow}},
-  \code{\link{qa.mat.read}}, \code{\link{qa.secMenu}}
+  \code{\link{qa.filter.map}}, \code{\link{qa.mat.read}}
 }
 \keyword{qa.index}

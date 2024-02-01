@@ -13,8 +13,7 @@ qa.filter.map(x)
 maps to appropriate code on the R side
 }
 \seealso{
-Other qa: \code{\link{qa.columns}}, \code{\link{qa.flow}},
-  \code{\link{qa.index}}, \code{\link{qa.mat.read}},
-  \code{\link{qa.secMenu}}
+Other qa: \code{\link{qa.columns}}, \code{\link{qa.index}},
+  \code{\link{qa.mat.read}}
 }
 \keyword{qa.filter.map}

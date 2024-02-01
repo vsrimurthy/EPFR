@@ -13,7 +13,6 @@ find.gaps(x)
 returns the position of the first and last true value of x together with the first positions of all gaps
 }
 \seealso{
-Other find: \code{\link{find.data}},
-  \code{\link{find.whitespace.trail}}
+Other find: \code{\link{find.data}}
 }
 \keyword{find.gaps}

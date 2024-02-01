@@ -4,15 +4,13 @@
 \alias{proc.kill}
 \title{proc.kill}
 \usage{
-proc.kill(x, y)
+proc.kill(x)
 }
 \arguments{
 \item{x}{= process name (e.g. "ftp.exe")}
-
-\item{y}{= number of instances}
 }
 \description{
-kills of all processes <x> if more than <y> of them are running
+kills off all processes <x>
 }
 \seealso{
 Other proc: \code{\link{proc.count}}

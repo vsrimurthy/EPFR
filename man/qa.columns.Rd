@@ -14,7 +14,6 @@ columns expected in ftp file
 }
 \seealso{
 Other qa: \code{\link{qa.filter.map}},
-  \code{\link{qa.flow}}, \code{\link{qa.index}},
-  \code{\link{qa.mat.read}}, \code{\link{qa.secMenu}}
+  \code{\link{qa.index}}, \code{\link{qa.mat.read}}
 }
 \keyword{qa.columns}

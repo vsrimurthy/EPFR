@@ -40,7 +40,6 @@ Other sf: \code{\link{sf.bin.nms}},
   \code{\link{sf.subset}},
   \code{\link{sf.underlying.data.bin}},
   \code{\link{sf.underlying.data}},
-  \code{\link{sf.underlying.summ}},
-  \code{\link{sf.vec.to.array}}
+  \code{\link{sf.underlying.summ}}
 }
 \keyword{sf}

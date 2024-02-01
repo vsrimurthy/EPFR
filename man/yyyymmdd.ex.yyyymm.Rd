@@ -17,7 +17,6 @@ last/all weekdays in <x>
 \seealso{
 Other yyyymmdd: \code{\link{yyyymmdd.bulk}},
   \code{\link{yyyymmdd.diff}},
-  \code{\link{yyyymmdd.ex.AllocMo}},
   \code{\link{yyyymmdd.ex.day}},
   \code{\link{yyyymmdd.ex.int}},
   \code{\link{yyyymmdd.ex.txt}},
@@ -25,10 +24,8 @@ Other yyyymmdd: \code{\link{yyyymmdd.bulk}},
   \code{\link{yyyymmdd.lag}}, \code{\link{yyyymmdd.seq}},
   \code{\link{yyyymmdd.to.AllocMo.unique}},
   \code{\link{yyyymmdd.to.AllocMo}},
-  \code{\link{yyyymmdd.to.CalYrDyOfWk}},
   \code{\link{yyyymmdd.to.int}},
   \code{\link{yyyymmdd.to.txt}},
-  \code{\link{yyyymmdd.to.unity}},
   \code{\link{yyyymmdd.to.weekofmonth}},
   \code{\link{yyyymmdd.to.yyyymm}}
 }

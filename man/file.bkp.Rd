@@ -15,8 +15,8 @@ file.bkp(x, y)
 Copies <x> to <y>
 }
 \seealso{
-Other file: \code{\link{file.break}},
-  \code{\link{file.date}}, \code{\link{file.kill}},
+Other file: \code{\link{file.date}},
+  \code{\link{file.kill}},
   \code{\link{file.mtime.to.time}},
   \code{\link{file.time}}, \code{\link{file.to.last}}
 }
