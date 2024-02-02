@@ -4,12 +4,14 @@
 \alias{num.exists}
 \title{num.exists}
 \usage{
-num.exists(x)
+num.exists(x, y)
 }
 \arguments{
 \item{x}{= string vector}
+
+\item{y}{= number type}
 }
 \description{
-T/F depending on whether <x> is a number
+T/F depending on whether <x> is a number of type <y>
 }
 \keyword{num.exists}

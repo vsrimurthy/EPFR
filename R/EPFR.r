@@ -4896,19 +4896,6 @@ html.tenure <- function (x, y, n)
     z
 }
 
-#' int.exists
-#' 
-#' T/F depending on <x> is an integer
-#' @param x = string vector
-#' @keywords int.exists
-#' @export
-#' @family int
-
-int.exists <- function (x) 
-{
-    grepl("^-?[0-9]+$", x)
-}
-
 #' int.format
 #' 
 #' adds commas "1,234,567"
@@ -7543,14 +7530,35 @@ nonneg <- function (x)
 
 #' num.exists
 #' 
-#' T/F depending on whether <x> is a number
+#' T/F depending on whether <x> is a number of type <y>
 #' @param x = string vector
+#' @param y = number type
 #' @keywords num.exists
 #' @export
 
-num.exists <- function (x) 
+num.exists <- function (x, y) 
 {
-    grepl("^-?[0-9]*\\.?[0-9]*$", x)
+    if (y == "N") {
+        y <- "^([1-9][0-9]*)$"
+    }
+    else if (y == "W") {
+        y <- "^(0|[1-9][0-9]*)$"
+    }
+    else if (y == "Z") {
+        y <- "^(0|-?[1-9][0-9]*)$"
+    }
+    else if (y == "D") {
+        y <- "^(0|-|-?[1-9][0-9]*)?(\\.[0-9]+)$"
+    }
+    else if (y == "Q") {
+        z <- num.exists(x, "Z") | num.exists(x, "D")
+    }
+    else {
+        stop("Unknown number format!")
+    }
+    if (y != "Q") 
+        z <- grepl(y, x)
+    z
 }
 
 #' nyse.holidays
@@ -12958,7 +12966,8 @@ sql.query <- function (x, y, n = T)
 sql.RDSuniv <- function (x) 
 {
     u <- mat.read(parameters("classif-RDSuniv"), "\t", NULL)
-    u <- split(u, ifelse(int.exists(u[, "FundId"]), "F", "U"))
+    u <- split(u, ifelse(grepl("^[0-9]+$", u[, "FundId"]), "F", 
+        "U"))
     colnames(u[["U"]]) <- c("Univ", "RDS")
     u[["U"]] <- Reduce(merge, u)
     u[["F"]][, "RDS"] <- u[["F"]][, "Univ"]
