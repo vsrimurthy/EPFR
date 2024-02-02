@@ -4898,7 +4898,7 @@ html.tenure <- function (x, y, n)
 
 #' int.exists
 #' 
-#' T/F depending on whether <x> contains only integers 0-9
+#' T/F depending on <x> is an integer
 #' @param x = string vector
 #' @keywords int.exists
 #' @export
@@ -4906,8 +4906,7 @@ html.tenure <- function (x, y, n)
 
 int.exists <- function (x) 
 {
-    z <- !grepl("[^0-9]", x)
-    z
+    grepl("^-?[0-9]+$", x)
 }
 
 #' int.format
@@ -7540,6 +7539,18 @@ nonneg <- function (x)
     fcn <- function(x) ifelse(!is.na(x) & x > 0, x, NA)
     z <- fcn.mat.vec(fcn, x, , T)
     z
+}
+
+#' num.exists
+#' 
+#' T/F depending on whether <x> is a number
+#' @param x = string vector
+#' @keywords num.exists
+#' @export
+
+num.exists <- function (x) 
+{
+    grepl("^-?[0-9]*\\.?[0-9]*$", x)
 }
 
 #' nyse.holidays

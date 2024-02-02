@@ -10,7 +10,7 @@ int.exists(x)
 \item{x}{= string vector}
 }
 \description{
-T/F depending on whether <x> contains only integers 0-9
+T/F depending on <x> is an integer
 }
 \seealso{
 Other int: \code{\link{int.format}},
