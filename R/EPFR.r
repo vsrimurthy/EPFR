@@ -7539,25 +7539,21 @@ nonneg <- function (x)
 num.exists <- function (x, y) 
 {
     if (y == "N") {
-        y <- "^([1-9][0-9]*)$"
+        y <- "^([1-9]\\d*)$"
     }
     else if (y == "W") {
-        y <- "^(0|[1-9][0-9]*)$"
+        y <- "^(0|[1-9]\\d*)$"
     }
     else if (y == "Z") {
-        y <- "^(0|-?[1-9][0-9]*)$"
-    }
-    else if (y == "D") {
-        y <- "^(0|-|-?[1-9][0-9]*)?(\\.[0-9]+)$"
+        y <- "^(0|-?[1-9]\\d*)$"
     }
     else if (y == "Q") {
-        z <- num.exists(x, "Z") | num.exists(x, "D")
+        y <- "^-?(0|[1-9]\\d*)?(\\.\\d+)?(?<!-0)$"
     }
     else {
         stop("Unknown number format!")
     }
-    if (y != "Q") 
-        z <- grepl(y, x)
+    z <- grepl(y, x, perl = T)
     z
 }
 
