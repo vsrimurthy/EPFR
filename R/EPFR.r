@@ -4952,7 +4952,7 @@ isin.exists <- function (x)
 {
     charset <- vec.named(0:35, c(0:9, char.seq("A", "Z")))
     x <- toupper(txt.trim(x))
-    z <- grepl("^[A-Z]{2}[0-9A-Z]{9}[0-9]{1}$", x)
+    z <- grepl("^[A-Z]{2}[0-9A-Z]{9}\\d{1}$", x)
     y <- x[z]
     y <- y[!duplicated(y)]
     y <- matrix(NA, length(y), 11, F, list(y, char.seq("A", "K")))
@@ -12962,7 +12962,7 @@ sql.query <- function (x, y, n = T)
 sql.RDSuniv <- function (x) 
 {
     u <- mat.read(parameters("classif-RDSuniv"), "\t", NULL)
-    u <- split(u, ifelse(grepl("^[0-9]+$", u[, "FundId"]), "F", 
+    u <- split(u, ifelse(grepl("^\\d+$", u[, "FundId"]), "F", 
         "U"))
     colnames(u[["U"]]) <- c("Univ", "RDS")
     u[["U"]] <- Reduce(merge, u)
@@ -13795,10 +13795,10 @@ stratrets.returns <- function (x)
     }
     else if (x == "FX") {
         z <- paste0(fcn.dir(), "\\New Model Concept\\FX\\FloMo\\csv")
-        z <- parameters.ex.file(z, "ExchRates.csv")
+        z <- parameters.ex.file(z, "ExchRates-pseudo.csv")
         z <- 1/mat.read(z)
-        z$CNY <- zav(z$CNH, z$CNY)
         z$USD <- rep(1, dim(z)[1])
+        z[, "XDR"] <- rowMeans(z[, c("USD", "EUR")])
         z <- z/z[, "XDR"]
     }
     else if (x == "Multi") {
@@ -15050,7 +15050,7 @@ yyyymm.ex.qtr <- function (x, y = 3)
 
 yyyymm.exists <- function (x) 
 {
-    grepl("^[0-9]{4}(0[1-9]|1[0-2])$", x)
+    grepl("^\\d{4}(0[1-9]|1[0-2])$", x)
 }
 
 #' yyyymm.lag
