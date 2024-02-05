@@ -4,7 +4,7 @@
 \alias{sf}
 \title{sf}
 \usage{
-sf(fcn, x, y, n, w, h, u, v, g = 5, r = F, s = 1, b)
+sf(fcn, x, y, n, w, h, u, v, g = 5, r, s = 1, b = F)
 }
 \arguments{
 \item{fcn}{= function that fetches data for the appropriate period and parameter}
@@ -25,11 +25,11 @@ sf(fcn, x, y, n, w, h, u, v, g = 5, r = F, s = 1, b)
 
 \item{g}{= number of bins}
 
-\item{r}{= T/F depending on whether you want bin excess returns summarized geometrically or arithmetically}
+\item{r}{= classif file}
 
 \item{s}{= forward return horizon in months}
 
-\item{b}{= classif file}
+\item{b}{= T/F depending on whether excess return summary is geometric or arithmetic}
 }
 \description{
 runs a stock-flows simulation

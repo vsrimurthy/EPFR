@@ -4,7 +4,12 @@
 \alias{sql.1dFloMo.FI}
 \title{sql.1dFloMo.FI}
 \usage{
-sql.1dFloMo.FI()
+sql.1dFloMo.FI(x = "Flow", y)
+}
+\arguments{
+\item{x}{= flow-table column (defaults to "Flow")}
+
+\item{y}{= date from which you want data (can be missing)}
 }
 \description{
 Generates the SQL query to get daily 1dFloMo for fixed income

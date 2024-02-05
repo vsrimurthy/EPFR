@@ -9181,17 +9181,17 @@ separating.hyperplane <- function (x, y)
 #' @param u = variable parameter
 #' @param v = data folder
 #' @param g = number of bins
-#' @param r = T/F depending on whether you want bin excess returns summarized geometrically or arithmetically
+#' @param r = classif file
 #' @param s = forward return horizon in months
-#' @param b = classif file
+#' @param b = T/F depending on whether excess return summary is geometric or arithmetic
 #' @keywords sf
 #' @export
 #' @family sf
 
-sf <- function (fcn, x, y, n, w, h, u, v, g = 5, r = F, s = 1, b) 
+sf <- function (fcn, x, y, n, w, h, u, v, g = 5, r, s = 1, b = F) 
 {
     n.trail <- length(u)
-    summ.fcn <- ifelse(r, "bbk.bin.rets.geom.summ", "bbk.bin.rets.summ")
+    summ.fcn <- ifelse(b, "bbk.bin.rets.geom.summ", "bbk.bin.rets.summ")
     summ.fcn <- get(summ.fcn)
     fcn.loc <- function(x) {
         summ.fcn(x, 12/s)
@@ -9201,12 +9201,12 @@ sf <- function (fcn, x, y, n, w, h, u, v, g = 5, r = F, s = 1, b)
         cat(u[j], "")
         if (j%%10 == 0) 
             cat("\n")
-        r <- sf.single.bsim(fcn, x, y, n, w, h, v, u[j], T, g, 
-            s, b)$returns
-        r <- t(map.rname(t(r), c(colnames(r), "TxB")))
-        r[, "TxB"] <- r[, "Q1"] - r[, paste0("Q", g)]
-        r <- mat.ex.matrix(r)
-        z[[as.character(u[j])]] <- summ.multi(fcn.loc, r, s)
+        b <- sf.single.bsim(fcn, x, y, n, w, h, u[j], v, g, r, 
+            s, T)$returns
+        b <- t(map.rname(t(b), c(colnames(b), "TxB")))
+        b[, "TxB"] <- b[, "Q1"] - b[, paste0("Q", g)]
+        b <- mat.ex.matrix(b)
+        z[[as.character(u[j])]] <- summ.multi(fcn.loc, b, s)
     }
     z <- simplify2array(z)
     cat("\n")
@@ -9252,15 +9252,18 @@ sf.bin.nms <- function (x, y)
 
 sf.detail <- function (fcn, x, y, n, w, h, u, v, g = 5, r, s = NULL) 
 {
-    x <- sf.single.bsim(fcn, x, y, n, w, h, v, u, T, g, 1, r, 
+    x <- sf.single.bsim(fcn, x, y, n, w, h, u, v, g, r, 1, T, 
         s)
     x <- lapply(x, mat.ex.matrix)
     if (length(g) == 1) 
         x$returns$TxB <- x$returns$Q1 - x$returns[, paste0("Q", 
             g)]
-    z <- bbk.bin.rets.summ(x$returns, 12)
+    if (nchar(y) == 6) 
+        y <- 12
+    else y <- 250
+    z <- bbk.bin.rets.summ(x$returns, y)
     z.ann <- t(bbk.bin.rets.prd.summ(bbk.bin.rets.summ, x$returns, 
-        txt.left(rownames(x$returns), 4), 12)["AnnMn", , ])
+        txt.left(rownames(x$returns), 4), y)["AnnMn", , ])
     z <- list(summ = z, annSumm = z.ann, counts = x$counts)
     z
 }
@@ -9274,36 +9277,38 @@ sf.detail <- function (fcn, x, y, n, w, h, u, v, g = 5, r, s = NULL)
 #' @param n = membership (e.g. "EafeMem" or c("GemMem", 1))
 #' @param w = group within which binning is to be performed
 #' @param h = return variable
-#' @param u = data folder
-#' @param v = variable parameter
-#' @param g = T/F depending on whether the equal-weight universe return is desired
-#' @param r = number of bins or numeric vector with last element T/F for dependent/independent
+#' @param u = variable parameter
+#' @param v = data folder
+#' @param g = number of bins or numeric vector with last element T/F for dependent/independent
+#' @param r = classif file
 #' @param s = forward return horizon in months
-#' @param b = classif file
+#' @param b = T/F depending on whether the equal-weight universe return is desired
 #' @param p = factor you want to use for Cap-weighted back-tests (defaults to NULL)
 #' @keywords sf.single.bsim
 #' @export
 #' @family sf
 
-sf.single.bsim <- function (fcn, x, y, n, w, h, u, v, g = F, r = 5, s = 1, b, p = NULL) 
+sf.single.bsim <- function (fcn, x, y, n, w, h, u, v, g = 5, r, s = 1, b = T, p = NULL) 
 {
-    w <- b[, w]
+    w <- r[, w]
     z <- vec.to.list(yyyymm.seq(x, y), T)
-    z <- lapply(z, function(x) sf.underlying.data(fcn, n, h, 
-        x, v, w, r, u, s, b, p))
+    if (nchar(x) == 8) 
+        z <- z[!is.element(names(z), nyse.holidays())]
+    z <- lapply(z, function(x) sf.underlying.data(fcn, x, p, 
+        n, w, h, u, v, g, r, s))
     fcn <- function(x) {
         z <- ifelse(is.na(x[, "ret"]), 0, x[, "mem"])
         x <- x[, "bin"]
         pivot.1d(sum, x[z > 0], z[z > 0])
     }
     h <- array.ex.list(lapply(z, fcn), T)
-    if (length(r) == 1) 
-        h <- map.rname(h, sf.bin.nms(r, g))
+    if (length(g) == 1) 
+        h <- map.rname(h, sf.bin.nms(g, b))
     h <- t(h)
-    z <- lapply(z, function(x) sf.underlying.summ(x, g))
+    z <- lapply(z, function(x) sf.underlying.summ(x, b))
     z <- array.ex.list(z, T)
-    if (length(r) == 1) 
-        z <- map.rname(z, sf.bin.nms(r, g))
+    if (length(g) == 1) 
+        z <- map.rname(z, sf.bin.nms(g, b))
     z <- list(returns = t(z), counts = h)
     z
 }
@@ -9340,43 +9345,43 @@ sf.subset <- function (x, y, n, w)
 #' 
 #' Gets data needed to back-test a single period
 #' @param fcn = function that fetches data for the appropriate period and parameter
-#' @param x = membership (e.g. "EafeMem" or c("GemMem", 1))
-#' @param y = return variable
-#' @param n = the period for which you want returns
-#' @param w = variable parameter
-#' @param h = group within which binning is to be performed
-#' @param u = number of bins or numeric vector with last element T/F for dependent/independent
+#' @param x = the period for which you want returns
+#' @param y = factor you want to use for Cap-weighted back-tests
+#' @param n = membership (e.g. "EafeMem" or c("GemMem", 1))
+#' @param w = group within which binning is to be performed
+#' @param h = return variable
+#' @param u = variable parameter
 #' @param v = data folder
-#' @param g = forward return horizon in months
+#' @param g = number of bins or numeric vector with last element T/F for dependent/independent
 #' @param r = classif file
-#' @param s = factor you want to use for Cap-weighted back-tests
+#' @param s = forward return horizon in months
 #' @keywords sf.underlying.data
 #' @export
 #' @family sf
 
 sf.underlying.data <- function (fcn, x, y, n, w, h, u, v, g, r, s) 
 {
-    mem <- sf.subset(x, n, v, r)
-    vbl <- fcn(n, w, v, r)
-    if (g == 1) {
-        ret <- fetch(y, n, 1, paste0(v, "\\data"), r)
+    mem <- sf.subset(n, x, v, r)
+    vbl <- fcn(x, u, v, r)
+    if (s == 1) {
+        ret <- fetch(h, x, 1, paste0(v, "\\data"), r)
     }
     else {
-        ret <- fetch(y, yyyymm.lag(n, 1 - g), g, paste0(v, "\\data"), 
+        ret <- fetch(h, yyyymm.lag(x, 1 - s), s, paste0(v, "\\data"), 
             r)
         ret <- mat.compound(ret)
     }
     bin <- ifelse(is.na(ret), 0, mem)
-    if (!is.null(s)) {
-        s <- fetch(s, yyyymm.lag(n), 1, paste0(v, "\\derived"), 
+    if (!is.null(y)) {
+        y <- fetch(y, yyyymm.lag(x), 1, paste0(v, "\\derived"), 
             r)
-        bin <- s <- vec.max(zav(s) * bin, bin)
+        bin <- y <- vec.max(zav(y) * bin, bin)
     }
-    bin <- sf.underlying.data.bin(vbl, u, bin, h)
-    z <- data.frame(bin, ret, mem, h, row.names = rownames(r), 
+    bin <- sf.underlying.data.bin(vbl, g, bin, w)
+    z <- data.frame(bin, ret, mem, w, row.names = rownames(r), 
         stringsAsFactors = F)
-    if (!is.null(s)) 
-        z$wgt <- s
+    if (!is.null(y)) 
+        z$wgt <- y
     z
 }
 
@@ -10452,26 +10457,35 @@ sql.1dFloMo.CtrySG <- function (x, y, n, w, h, u)
 #' sql.1dFloMo.FI
 #' 
 #' Generates the SQL query to get daily 1dFloMo for fixed income
+#' @param x = flow-table column (defaults to "Flow")
+#' @param y = date from which you want data (can be missing)
 #' @keywords sql.1dFloMo.FI
 #' @export
 #' @family sql
 
-sql.1dFloMo.FI <- function () 
+sql.1dFloMo.FI <- function (x = "Flow", y) 
 {
-    x <- c("FundType = 'M'", "StyleSector = 130", "StyleSector = 134 and GeographicFocus = 77", 
+    z <- c("FundType = 'M'", "StyleSector = 130", "StyleSector = 134 and GeographicFocus = 77", 
         "StyleSector = 137 and GeographicFocus = 77", "StyleSector = 141 and GeographicFocus = 77", 
         "StyleSector = 185 and GeographicFocus = 77", "StyleSector = 125 and Category = '9'", 
         "Category = '8'", "GeographicFocus = 31", "GeographicFocus = 30")
-    names(x) <- c("CASH", "FLOATS", "USTRIN", "USTRLT", "USTRST", 
+    names(z) <- c("CASH", "FLOATS", "USTRIN", "USTRLT", "USTRST", 
         "USMUNI", "HYIELD", "WESEUR", "GLOBEM", "GLOFIX")
-    z <- sql.case("grp", x, c(names(x), "OTHER"), F)
+    x <- paste0("case when grp = '", names(z), "' then ", x, 
+        " else NULL end")
+    x <- paste(names(z), sql.Mo(x, txt.replace(x, "Flow", "AssetsStart"), 
+        NULL, T))
+    z <- sql.case("grp", z, c(names(z), "OTHER"), F)
     z <- c(sql.label(sql.FundHistory("FundType in ('B', 'M')", 
         F, z), "t2"))
     z <- c("DailyData t1", "inner join", z, "\ton t2.HFundId = t1.HFundId")
-    y <- paste0("case when grp = '", names(x), "' then Flow else NULL end")
-    x <- paste(names(x), sql.Mo(y, txt.replace(y, "Flow", "AssetsStart"), 
-        NULL, T))
-    z <- sql.tbl(c(sql.yyyymmdd("DayEnding"), x), z, , "DayEnding")
+    if (missing(y)) {
+        z <- sql.tbl(c(sql.yyyymmdd("DayEnding"), x), z, , "DayEnding")
+    }
+    else {
+        y <- paste("DayEnding >=", wrap(y))
+        z <- sql.tbl(c(sql.yyyymmdd("DayEnding"), x), z, y, "DayEnding")
+    }
     z <- paste(sql.unbracket(z), collapse = "\n")
     z
 }

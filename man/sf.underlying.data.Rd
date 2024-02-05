@@ -9,25 +9,25 @@ sf.underlying.data(fcn, x, y, n, w, h, u, v, g, r, s)
 \arguments{
 \item{fcn}{= function that fetches data for the appropriate period and parameter}
 
-\item{x}{= membership (e.g. "EafeMem" or c("GemMem", 1))}
+\item{x}{= the period for which you want returns}
 
-\item{y}{= return variable}
+\item{y}{= factor you want to use for Cap-weighted back-tests}
 
-\item{n}{= the period for which you want returns}
+\item{n}{= membership (e.g. "EafeMem" or c("GemMem", 1))}
 
-\item{w}{= variable parameter}
+\item{w}{= group within which binning is to be performed}
 
-\item{h}{= group within which binning is to be performed}
+\item{h}{= return variable}
 
-\item{u}{= number of bins or numeric vector with last element T/F for dependent/independent}
+\item{u}{= variable parameter}
 
 \item{v}{= data folder}
 
-\item{g}{= forward return horizon in months}
+\item{g}{= number of bins or numeric vector with last element T/F for dependent/independent}
 
 \item{r}{= classif file}
 
-\item{s}{= factor you want to use for Cap-weighted back-tests}
+\item{s}{= forward return horizon in months}
 }
 \description{
 Gets data needed to back-test a single period

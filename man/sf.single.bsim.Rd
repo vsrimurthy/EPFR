@@ -4,7 +4,7 @@
 \alias{sf.single.bsim}
 \title{sf.single.bsim}
 \usage{
-sf.single.bsim(fcn, x, y, n, w, h, u, v, g = F, r = 5, s = 1, b,
+sf.single.bsim(fcn, x, y, n, w, h, u, v, g = 5, r, s = 1, b = T,
   p = NULL)
 }
 \arguments{
@@ -20,17 +20,17 @@ sf.single.bsim(fcn, x, y, n, w, h, u, v, g = F, r = 5, s = 1, b,
 
 \item{h}{= return variable}
 
-\item{u}{= data folder}
+\item{u}{= variable parameter}
 
-\item{v}{= variable parameter}
+\item{v}{= data folder}
 
-\item{g}{= T/F depending on whether the equal-weight universe return is desired}
+\item{g}{= number of bins or numeric vector with last element T/F for dependent/independent}
 
-\item{r}{= number of bins or numeric vector with last element T/F for dependent/independent}
+\item{r}{= classif file}
 
 \item{s}{= forward return horizon in months}
 
-\item{b}{= classif file}
+\item{b}{= T/F depending on whether the equal-weight universe return is desired}
 
 \item{p}{= factor you want to use for Cap-weighted back-tests (defaults to NULL)}
 }
