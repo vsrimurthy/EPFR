@@ -10894,17 +10894,18 @@ sql.1mActWt.underlying <- function (x, y)
 #' @param h = T/F depending on whether to account for price action
 #' @param u = one of AssetsStart/Flow/NULL
 #' @param v = T/F depending on whether to chuck securities held by just one fund
+#' @param g = share-class filter (one of All/Inst/Retail) (x not monthly!)
 #' @keywords sql.1mAllocD
 #' @export
 #' @family sql
 
-sql.1mAllocD <- function (x, y, n, w, h, u = NULL, v = T) 
+sql.1mAllocD <- function (x, y, n, w, h, u = NULL, v = T, g = "All") 
 {
     has.dt <- !yyyymm.exists(x[1])
     y <- sql.arguments(y)
     z <- u
     if (has.dt) {
-        u <- sql.DailyFlo(wrap(x), , , "All")
+        u <- sql.DailyFlo(wrap(x), , , g)
         x <- yyyymmdd.to.AllocMo.unique(x, 26, F)
         r <- sql.FundHistory(y$filter, T, "FundId")
         r <- sql.label(r, "t2 on t2.HFundId = t1.HFundId")

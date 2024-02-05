@@ -4,7 +4,7 @@
 \alias{sql.1mAllocD}
 \title{sql.1mAllocD}
 \usage{
-sql.1mAllocD(x, y, n, w, h, u = NULL, v = T)
+sql.1mAllocD(x, y, n, w, h, u = NULL, v = T, g = "All")
 }
 \arguments{
 \item{x}{= a YYYYMM or vector of flow dates (if u = "Flow")}
@@ -20,6 +20,8 @@ sql.1mAllocD(x, y, n, w, h, u = NULL, v = T)
 \item{u}{= one of AssetsStart/Flow/NULL}
 
 \item{v}{= T/F depending on whether to chuck securities held by just one fund}
+
+\item{g}{= share-class filter (one of All/Inst/Retail) (x not monthly!)}
 }
 \description{
 SQL query for 1mAllocD
