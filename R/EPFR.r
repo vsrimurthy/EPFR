@@ -10209,87 +10209,6 @@ sql.1dActWtTrend.select <- function (x)
     z
 }
 
-#' sql.1dActWtTrend.underlying
-#' 
-#' the SQL query to get the data for 1dActWtTrend
-#' @param x = single YYYYMM or vector of flow dates in YYYYMMDD (known two days later)
-#' @param y = the type of fund used in the computation
-#' @param n = "" or the SQL query to subset to securities desired
-#' @param w = share-class filter (one of All/Inst/Retail)
-#' @keywords sql.1dActWtTrend.underlying
-#' @export
-#' @family sql
-
-sql.1dActWtTrend.underlying <- function (x, y, n, w) 
-{
-    dly <- !yyyymm.exists(x[1])
-    if (dly) {
-        mo.end <- yyyymmdd.to.AllocMo.unique(x, 26, T)
-    }
-    else {
-        mo.end <- x <- yyyymm.to.day(x)
-    }
-    x <- wrap(x)
-    if (length(x) == 1) 
-        x <- paste("=", x)
-    else x <- paste0("in (", paste(x, collapse = ", "), ")")
-    x <- paste("ReportDate", x)
-    x <- sql.ShareClass(x, w)
-    z <- sql.drop("#FLO")
-    z <- c(z, sql.1dFloMo.underlying(mo.end, n, "PortVal"))
-    z <- c(z, sql.1dActWtTrend.underlying.basic(x, y, dly))
-    z <- paste(z, collapse = "\n")
-    z
-}
-
-#' sql.1dActWtTrend.underlying.basic
-#' 
-#' Query to insert <x> into flow table
-#' @param x = date restriction
-#' @param y = a vector of filters
-#' @param n = T/F for daily or monthly data
-#' @keywords sql.1dActWtTrend.underlying.basic
-#' @export
-#' @family sql
-
-sql.1dActWtTrend.underlying.basic <- function (x, y, n) 
-{
-    if (n) 
-        n <- "DailyData"
-    else n <- "MonthlyData"
-    z <- c(sql.label(n, "t1"), "inner join", sql.label(sql.FundHistory(y, 
-        T, c("FundId", "GeographicFocus")), "t2"), "on t2.HFundId = t1.HFundId")
-    z <- sql.tbl("ReportDate, FundId, GeographicFocus = max(GeographicFocus), Flow = sum(Flow), AssetsStart = sum(AssetsStart)", 
-        z, x, "ReportDate, FundId")
-    z <- c("insert into", "\t#FLO (ReportDate, FundId, GeographicFocus, Flow, AssetsStart)", 
-        sql.unbracket(z))
-    z <- c(sql.index("#FLO", "ReportDate, FundId"), z)
-    z <- c("create table #FLO (ReportDate datetime not null, FundId int not null, GeographicFocus int, Flow float, AssetsStart float)", 
-        z)
-    z
-}
-
-#' sql.1dActWtTrend.underlying.hold
-#' 
-#' Query to insert <x> into flow table
-#' @param x = month end in YYYYMMDD format
-#' @param y = "" or the SQL query to subset to securities desired
-#' @keywords sql.1dActWtTrend.underlying.hold
-#' @export
-#' @family sql
-
-sql.1dActWtTrend.underlying.hold <- function (x, y) 
-{
-    z <- "create table #HLD (FundId int not null, HFundId int not null, HSecurityId int not null, HoldingValue float)"
-    z <- c(z, sql.index("#HLD", "FundId, HSecurityId"))
-    z <- c(z, "insert into", "\t#HLD (FundId, HFundId, HSecurityId, HoldingValue)", 
-        sql.unbracket(sql.MonthlyAlloc(wrap(x))))
-    if (y[1] != "") 
-        z <- c(z, "", sql.delete("#HLD", sql.in("HSecurityId", 
-            y, F)))
-    z
-}
-
 #' sql.1dFloMo
 #' 
 #' Generates the SQL query to get the data for 1dFloMo for individual stocks
@@ -10306,7 +10225,8 @@ sql.1dActWtTrend.underlying.hold <- function (x, y)
 sql.1dFloMo <- function (x, y, n, w, h, u = "All") 
 {
     v <- yyyymmdd.to.AllocMo.unique(x, 26, T)
-    v <- sql.1dFloMo.underlying(v, "", "AssetsEnd")
+    z <- c(sql.drop("#AUM"), sql.1dFloMo.hld(v, ""), "")
+    v <- c(z, sql.1dFloMo.aum(v, "AssetsEnd"))
     z <- sql.1dFloMo.select.wrapper(y, w, h, T)
     grp <- sql.1dFloMo.grp(w, h)
     x <- sql.DailyFlo(wrap(x), F, , u, h = T)
@@ -10325,6 +10245,26 @@ sql.1dFloMo <- function (x, y, n, w, h, u = "All")
     }
     z <- c(paste(v, collapse = "\n"), paste(sql.unbracket(z), 
         collapse = "\n"))
+    z
+}
+
+#' sql.1dFloMo.aum
+#' 
+#' Underlying part of SQL query to get 1dFloMo for individual stocks
+#' @param x = month end in YYYYMMDD format
+#' @param y = name of AssetEnd column (e.g. "PortVal")
+#' @keywords sql.1dFloMo.aum
+#' @export
+#' @family sql
+
+sql.1dFloMo.aum <- function (x, y) 
+{
+    z <- sql.unbracket(sql.MonthlyAssetsEnd(wrap(x), , T, , y))
+    z <- c("insert into", paste0("\t#AUM (FundId, ", y, ")"), 
+        z)
+    z <- c(sql.index("#AUM", "FundId"), z)
+    z <- c(paste0("create table #AUM (FundId int not null, ", 
+        y, " float not null)"), z)
     z
 }
 
@@ -10521,6 +10461,36 @@ sql.1dFloMo.grp <- function (x, y)
     z
 }
 
+#' sql.1dFloMo.hld
+#' 
+#' Query to insert <x> into flow table
+#' @param x = month end in YYYYMMDD format
+#' @param y = "" or the SQL query to subset to securities desired
+#' @param n = T/F depending on whether you want to introduce rounding error
+#' @keywords sql.1dFloMo.hld
+#' @export
+#' @family sql
+
+sql.1dFloMo.hld <- function (x, y, n = F) 
+{
+    z <- sql.MonthlyAlloc(wrap(x))
+    if (n) {
+        z <- sql.into(z, "#HLD")
+    }
+    else {
+        z <- c("insert into", "\t#HLD (FundId, HFundId, HSecurityId, HoldingValue)", 
+            sql.unbracket(z))
+        z <- c(sql.index("#HLD", "FundId, HSecurityId"), z)
+        z <- c("create table #HLD (FundId int not null, HFundId int not null, HSecurityId int not null, HoldingValue float)", 
+            z)
+    }
+    z <- c(sql.drop("#HLD"), "", z)
+    if (y[1] != "") 
+        z <- c(z, "", sql.delete("#HLD", sql.in("HSecurityId", 
+            y, F)))
+    z
+}
+
 #' sql.1dFloMo.Rgn
 #' 
 #' Generates the SQL query to get daily 1dFloMo for regions
@@ -10640,29 +10610,6 @@ sql.1dFloMo.select.wrapper <- function (x, y, n, w = F)
             z <- c(z, sql.1dFloMo.select(i))
         }
     }
-    z
-}
-
-#' sql.1dFloMo.underlying
-#' 
-#' Underlying part of SQL query to get 1dFloMo for individual stocks
-#' @param x = month end in YYYYMMDD format
-#' @param y = "" or the SQL query to subset to securities desired
-#' @param n = name of AssetEnd column (e.g. "PortVal")
-#' @keywords sql.1dFloMo.underlying
-#' @export
-#' @family sql
-
-sql.1dFloMo.underlying <- function (x, y, n) 
-{
-    z <- paste0("create table #AUM (FundId int not null, ", n, 
-        " float not null)")
-    z <- c(z, sql.index("#AUM", "FundId"))
-    z <- c(sql.1dActWtTrend.underlying.hold(x, y), "", z)
-    y <- sql.unbracket(sql.MonthlyAssetsEnd(wrap(x), , T, , "PortVal"))
-    z <- c(z, "insert into", paste0("\t#AUM (FundId, ", n, ")"), 
-        y)
-    z <- c(sql.drop(c("#HLD", "#AUM")), "", z, "")
     z
 }
 
@@ -11165,7 +11112,7 @@ sql.1mAllocD.select <- function (x)
 sql.1mAllocSkew <- function (x, y, n, w, h = "All") 
 {
     y <- sql.arguments(y)
-    z <- sql.1dActWtTrend.underlying(x, y$filter, sql.RDSuniv(n), 
+    z <- sql.1mAllocSkew.underlying(x, y$filter, sql.RDSuniv(n), 
         h)
     z <- c(z, sql.1mAllocSkew.topline(y$factor, w, F))
     z
@@ -11216,6 +11163,67 @@ sql.1mAllocSkew.topline.from <- function (x, y)
     z <- c(z, w, "\ton mnW.ReportDate = t1.ReportDate and mnW.HSecurityId = t2.HSecurityId and mnW.GeographicFocus = t1.GeographicFocus")
     if (!y) 
         z <- c(z, "inner join", "SecurityHistory id on id.HSecurityId = t2.HSecurityId")
+    z
+}
+
+#' sql.1mAllocSkew.underlying
+#' 
+#' the SQL query to get the data for 1dActWtTrend
+#' @param x = single YYYYMM or vector of flow dates in YYYYMMDD (known two days later)
+#' @param y = the type of fund used in the computation
+#' @param n = "" or the SQL query to subset to securities desired
+#' @param w = share-class filter (one of All/Inst/Retail)
+#' @keywords sql.1mAllocSkew.underlying
+#' @export
+#' @family sql
+
+sql.1mAllocSkew.underlying <- function (x, y, n, w) 
+{
+    dly <- !yyyymm.exists(x[1])
+    if (dly) {
+        mo.end <- yyyymmdd.to.AllocMo.unique(x, 26, T)
+    }
+    else {
+        mo.end <- x <- yyyymm.to.day(x)
+    }
+    x <- wrap(x)
+    if (length(x) == 1) 
+        x <- paste("=", x)
+    else x <- paste0("in (", paste(x, collapse = ", "), ")")
+    x <- paste("ReportDate", x)
+    x <- sql.ShareClass(x, w)
+    z <- sql.drop(c("#FLO", "#AUM"))
+    z <- c(z, sql.1dFloMo.hld(mo.end, n, !dly))
+    z <- c(z, "", sql.1dFloMo.aum(mo.end, "PortVal"))
+    z <- c(z, "", sql.1mAllocSkew.underlying.basic(x, y, dly))
+    z <- paste(z, collapse = "\n")
+    z
+}
+
+#' sql.1mAllocSkew.underlying.basic
+#' 
+#' Query to insert <x> into flow table
+#' @param x = date restriction
+#' @param y = a vector of filters
+#' @param n = T/F for daily or monthly data
+#' @keywords sql.1mAllocSkew.underlying.basic
+#' @export
+#' @family sql
+
+sql.1mAllocSkew.underlying.basic <- function (x, y, n) 
+{
+    if (n) 
+        n <- "DailyData"
+    else n <- "MonthlyData"
+    z <- c(sql.label(n, "t1"), "inner join", sql.label(sql.FundHistory(y, 
+        T, c("FundId", "GeographicFocus")), "t2"), "on t2.HFundId = t1.HFundId")
+    z <- sql.tbl("ReportDate, FundId, GeographicFocus = max(GeographicFocus), Flow = sum(Flow), AssetsStart = sum(AssetsStart)", 
+        z, x, "ReportDate, FundId")
+    z <- c("insert into", "\t#FLO (ReportDate, FundId, GeographicFocus, Flow, AssetsStart)", 
+        sql.unbracket(z))
+    z <- c(sql.index("#FLO", "ReportDate, FundId"), z)
+    z <- c("create table #FLO (ReportDate datetime not null, FundId int not null, GeographicFocus int, Flow float, AssetsStart float)", 
+        z)
     z
 }
 
@@ -11535,7 +11543,7 @@ sql.ActWtDiff2 <- function (x)
     z <- sql.tbl("HSecurityId", "Holdings", z, "HSecurityId")
     w[["C"]] <- sql.in("HSecurityId", z)
     w <- sql.tbl("HSecurityId", "Holdings", sql.and(w), "HSecurityId")
-    z <- sql.1dActWtTrend.underlying(x, "All", w, "All")
+    z <- sql.1mAllocSkew.underlying(x, "All", w, "All")
     z <- c(z, sql.1mAllocSkew.topline("ActWtDiff2", F, F))
     z
 }
