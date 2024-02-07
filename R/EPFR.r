@@ -6625,30 +6625,36 @@ mk.1mFloMo.Ctry <- function (x, y, n, w, h = "E")
 #' mk.1wFloMo.CtryFlow
 #' 
 #' Country flows using all funds
-#' @param x = YYYYMMDD
+#' @param x = YYYYMMDD (flowdate or month end)
 #' @param y = a vector of FundHistory filters (first element MUST BE FundType)
 #' @param n = item(s) (any of Flow/AssetsStart/AssetsEnd)
 #' @param w = country list (one of Ctry/LatAm)
 #' @param h = input to or output of sql.connect
-#' @param u = T/F depending on whether weekly or daily data needed
+#' @param u = frequency (T/F for daily/weekly or D/W/M)
 #' @keywords mk.1wFloMo.CtryFlow
 #' @export
 #' @family mk
 
-mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = T) 
+mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = "W") 
 {
-    s <- yyyymm.to.day(yyyymmdd.to.AllocMo.unique(x, 23, F))
     h <- sql.connect.wrapper(h)
     w <- sql.1dFloMo.CountryId.List(w)
     w <- Ctry.info(w, c("GeoId", "CountryId"))
     rslt <- list(MAP = w)
+    if (u == "M") {
+        s <- x
+    }
+    else {
+        s <- yyyymm.to.day(yyyymmdd.to.AllocMo.unique(x, 23, 
+            F))
+    }
     rslt[["SCF"]] <- list()
     for (j in x) {
         z <- paste(w$GeoId[!is.na(w$GeoId)], collapse = ", ")
         z <- paste0("GeographicFocus in (", z, ")")
         r <- c("GeographicFocus", paste0(n, " = sum(", n, ")"))
         z <- sql.Flow(r, list(A = "@floDt"), c(y, z, "UI"), "GeographicFocus", 
-            !u, "GeographicFocus")
+            u, "GeographicFocus")
         z <- c(sql.declare("@floDt", "datetime", j), sql.unbracket(z))
         rslt[["SCF"]][[j]] <- sql.query.underlying(paste(z, collapse = "\n"), 
             h$conn, F)
@@ -6657,7 +6663,7 @@ mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = T)
     for (j in x) {
         r <- c("GeographicFocus", paste0(n, " = sum(", n, ")"))
         z <- sql.Flow(r, list(A = "@floDt"), c(y, "CB", "UI"), 
-            "GeographicFocus", !u, "GeographicFocus")
+            "GeographicFocus", u, "GeographicFocus")
         z <- c(sql.declare("@floDt", "datetime", j), sql.unbracket(z))
         rslt[["CBF"]][[j]] <- sql.query.underlying(paste(z, collapse = "\n"), 
             h$conn, F)
@@ -11115,7 +11121,8 @@ sql.1mAllocSkew <- function (x, y, n, w, h = "All")
     y <- sql.arguments(y)
     z <- sql.1mAllocSkew.underlying(x, y$filter, sql.RDSuniv(n), 
         h)
-    z <- c(z, sql.1mAllocSkew.topline(y$factor, w, F))
+    z <- c(z, sql.1mAllocSkew.topline(y$factor, w, nchar(x[1]) == 
+        8))
     z
 }
 

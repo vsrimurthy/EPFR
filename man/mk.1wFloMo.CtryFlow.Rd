@@ -4,10 +4,10 @@
 \alias{mk.1wFloMo.CtryFlow}
 \title{mk.1wFloMo.CtryFlow}
 \usage{
-mk.1wFloMo.CtryFlow(x, y, n, w, h, u = T)
+mk.1wFloMo.CtryFlow(x, y, n, w, h, u = "W")
 }
 \arguments{
-\item{x}{= YYYYMMDD}
+\item{x}{= YYYYMMDD (flowdate or month end)}
 
 \item{y}{= a vector of FundHistory filters (first element MUST BE FundType)}
 
@@ -17,7 +17,7 @@ mk.1wFloMo.CtryFlow(x, y, n, w, h, u = T)
 
 \item{h}{= input to or output of sql.connect}
 
-\item{u}{= T/F depending on whether weekly or daily data needed}
+\item{u}{= frequency (T/F for daily/weekly or D/W/M)}
 }
 \description{
 Country flows using all funds
