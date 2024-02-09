@@ -33,7 +33,7 @@ sf.underlying.data(fcn, x, y, n, w, h, u, v, g, r, s)
 Gets data needed to back-test a single period
 }
 \seealso{
-Other sf: \code{\link{sf.bin.nms}},
+Other sf: \code{\link{sf.bin.nms}}, \code{\link{sf.daily}},
   \code{\link{sf.detail}}, \code{\link{sf.single.bsim}},
   \code{\link{sf.subset}},
   \code{\link{sf.underlying.data.bin}},

@@ -19,7 +19,7 @@ sf.underlying.data.bin(x, y, n, w)
 character vector of bin memberships
 }
 \seealso{
-Other sf: \code{\link{sf.bin.nms}},
+Other sf: \code{\link{sf.bin.nms}}, \code{\link{sf.daily}},
   \code{\link{sf.detail}}, \code{\link{sf.single.bsim}},
   \code{\link{sf.subset}},
   \code{\link{sf.underlying.data}},

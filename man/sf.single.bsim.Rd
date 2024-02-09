@@ -38,7 +38,7 @@ sf.single.bsim(fcn, x, y, n, w, h, u, v, g = 5, r, s = 1, b = T,
 runs a single quintile simulation
 }
 \seealso{
-Other sf: \code{\link{sf.bin.nms}},
+Other sf: \code{\link{sf.bin.nms}}, \code{\link{sf.daily}},
   \code{\link{sf.detail}}, \code{\link{sf.subset}},
   \code{\link{sf.underlying.data.bin}},
   \code{\link{sf.underlying.data}},

@@ -19,7 +19,7 @@ sf.subset(x, y, n, w)
 Returns a 1/0 mem vector
 }
 \seealso{
-Other sf: \code{\link{sf.bin.nms}},
+Other sf: \code{\link{sf.bin.nms}}, \code{\link{sf.daily}},
   \code{\link{sf.detail}}, \code{\link{sf.single.bsim}},
   \code{\link{sf.underlying.data.bin}},
   \code{\link{sf.underlying.data}},

@@ -9238,6 +9238,69 @@ sf.bin.nms <- function (x, y)
     z
 }
 
+#' sf.daily
+#' 
+#' runs a daily stock-flows simulation FAST
+#' @param x = first-return date in YYYYMMDD
+#' @param y = first-return date in YYYYMMDD after <prdBeg>
+#' @param n = membership (e.g. "R2Mem")
+#' @param w = binning group (e.g. "GSec")
+#' @param h = return variable
+#' @param u = variable parameter
+#' @param v = data folder
+#' @param g = number of bins
+#' @param r = classif file
+#' @keywords sf.daily
+#' @export
+#' @family sf
+
+sf.daily <- function (x, y, n, w, h, u, v, g = 5, r) 
+{
+    z <- flowdate.diff(y, x) + 1
+    z <- fetch(h, y, z, paste0(v, "\\data"), r)
+    colnames(z) <- flowdate.seq(x, y)
+    x <- dim(z)[2] + as.numeric(u[2]) - 1
+    x <- fetch(u[1], flowdate.lag(y, 1), x, paste0(v, "\\derived"), 
+        r)
+    if (as.numeric(u[2]) > 1) {
+        x <- t(compound.flows(t(x), as.numeric(u[2]), u[1] != 
+            "1dFloMo"))
+    }
+    x <- x[, dim(x)[2] + 1 - seq(dim(z)[2], 1)]
+    colnames(x) <- colnames(z)
+    y <- split(colnames(z), yyyymmdd.to.yyyymm(colnames(z)))
+    names(y) <- yyyymm.lag(names(y))
+    u <- fetch(n, max(names(y)), 1 + length(y), paste0(v, "\\data"), 
+        r)
+    colnames(u) <- yyyymm.lag(max(names(y)), length(y):0)
+    for (j in names(y)) z[!is.element(u[, j], 1), y[[j]]] <- NA
+    z <- z[, !is.element(colnames(z), nyse.holidays())]
+    x <- x[, colnames(z)]
+    u <- !is.na(as.numeric(unlist(z)))
+    y <- as.numeric(unlist(x))
+    y <- ifelse(u, y, NA)
+    x <- matrix(y, dim(x)[1], dim(x)[2], F, dimnames(x))
+    fcn <- function(x) qtl(x, g, r[, "All"], r[, w])
+    x <- zav(apply(x, 2, fcn))
+    u <- apply(z, 2, mean, na.rm = T)
+    z <- z - matrix(u, dim(z)[1], dim(z)[2], T)
+    x <- rbind(z, x)
+    fcn <- function(z) {
+        z <- matrix(z, length(z)/2, 2, F)
+        map.rname(pivot.1d(mean, z[!is.na(z[, 1]), 2], z[!is.na(z[, 
+            1]), 1]), 0:g)
+    }
+    x <- apply(x, 2, fcn)
+    rownames(x) <- paste0("Q", c("na", 1:g))
+    x <- t(map.rname(x, sf.bin.nms(g, T)))
+    x[, "uRet"] <- u
+    x <- mat.ex.matrix(x)
+    x[, "TxB"] <- x[, "Q1"] - x[, paste0("Q", g)]
+    z <- bbk.bin.rets.summ(x, 250)
+    z <- list(summ = z, rets = x)
+    z
+}
+
 #' sf.detail
 #' 
 #' runs a stock-flows simulation
