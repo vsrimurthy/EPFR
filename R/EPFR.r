@@ -1430,11 +1430,9 @@ compound.sf <- function (x, y)
     if (y) 
         fcn <- sum
     else fcn <- compound
-    w <- rowSums(mat.to.obs(x)) > dim(x)[2]/2
-    x <- zav(x)
-    z <- rep(NA, dim(x)[1])
-    if (any(w)) 
-        z[w] <- fcn.mat.num(fcn, x[w, ], , F)
+    w <- is.na(x[, dim(x)[2]])
+    z <- fcn.mat.num(fcn, zav(x), , F)
+    z[w] <- NA
     z
 }
 
@@ -5617,8 +5615,9 @@ mat.reverse <- function (x)
 
 mat.rollsum <- function (x, y) 
 {
-    fcn.mat.vec(function(x) vec.diff(vec.cum(x), y)[-1], x, , 
-        T)
+    fcn <- function(z) as.numeric(filter(z, rep(1, y), sides = 1))
+    z <- fcn.mat.vec(fcn, x, , T)
+    z
 }
 
 #' mat.same
