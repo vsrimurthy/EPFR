@@ -4,14 +4,18 @@
 \alias{sql.CtryFlow.Alloc}
 \title{sql.CtryFlow.Alloc}
 \usage{
-sql.CtryFlow.Alloc(x, y, n)
+sql.CtryFlow.Alloc(x, y, n, w, h)
 }
 \arguments{
-\item{x}{= YYYYMMDD}
+\item{x}{= NULL or a vector of identifiers}
 
 \item{y}{= FundType}
 
 \item{n}{= allocation month, in YYYYMMMDD format}
+
+\item{w}{= one of Country/Sector/Industry}
+
+\item{h}{= vector of filters}
 }
 \description{
 SQL query for allocations needed in country flows
@@ -64,10 +68,11 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.Allocations.bulk.Single}},
   \code{\link{sql.Allocation}},
   \code{\link{sql.BenchIndex.duplication}},
-  \code{\link{sql.Bullish}}, \code{\link{sql.DailyFlo}},
-  \code{\link{sql.Diff}}, \code{\link{sql.Dispersion}},
-  \code{\link{sql.Flow.tbl}}, \code{\link{sql.Flow}},
-  \code{\link{sql.Foreign}},
+  \code{\link{sql.Bullish}},
+  \code{\link{sql.CtryFlow.Flow}},
+  \code{\link{sql.DailyFlo}}, \code{\link{sql.Diff}},
+  \code{\link{sql.Dispersion}}, \code{\link{sql.Flow.tbl}},
+  \code{\link{sql.Flow}}, \code{\link{sql.Foreign}},
   \code{\link{sql.FundHistory.macro}},
   \code{\link{sql.FundHistory.sf}},
   \code{\link{sql.FundHistory}},

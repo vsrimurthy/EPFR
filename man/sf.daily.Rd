@@ -17,7 +17,7 @@ sf.daily(x, y, n, w, h, u, v, g = 5, r)
 
 \item{h}{= return variable}
 
-\item{u}{= variable parameter}
+\item{u}{= variable & lookback (e.g. c("1dFloMo", 3))}
 
 \item{v}{= data folder}
 

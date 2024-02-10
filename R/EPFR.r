@@ -6641,34 +6641,24 @@ mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = "W")
     w <- sql.1dFloMo.CountryId.List(w)
     w <- Ctry.info(w, c("GeoId", "CountryId"))
     rslt <- list(MAP = w)
-    if (u == "M") {
+    if (u == "M") 
         s <- x
-    }
-    else {
-        s <- yyyymm.to.day(yyyymmdd.to.AllocMo.unique(x, 23, 
-            F))
-    }
-    rslt[["SCF"]] <- list()
-    for (j in x) {
-        z <- paste(w$GeoId[!is.na(w$GeoId)], collapse = ", ")
-        z <- paste0("GeographicFocus in (", z, ")")
-        r <- c("GeographicFocus", paste0(n, " = sum(", n, ")"))
-        z <- sql.Flow(r, list(A = "@floDt"), c(y, z, "UI"), "GeographicFocus", 
-            u, "GeographicFocus")
-        z <- c(sql.declare("@floDt", "datetime", j), sql.unbracket(z))
-        rslt[["SCF"]][[j]] <- sql.query.underlying(paste(z, collapse = "\n"), 
-            h$conn, F)
-    }
-    rslt[["CBF"]] <- list()
-    for (j in x) {
-        r <- c("GeographicFocus", paste0(n, " = sum(", n, ")"))
-        z <- sql.Flow(r, list(A = "@floDt"), c(y, "CB", "UI"), 
-            "GeographicFocus", u, "GeographicFocus")
-        z <- c(sql.declare("@floDt", "datetime", j), sql.unbracket(z))
-        rslt[["CBF"]][[j]] <- sql.query.underlying(paste(z, collapse = "\n"), 
-            h$conn, F)
-    }
-    z <- sql.CtryFlow.Alloc(w$CountryId, y[1], s)
+    else s <- yyyymmdd.to.AllocMo.unique(x, 23, T)
+    rslt[["SCF"]] <- vec.to.list(x, T)
+    z <- paste(w$GeoId[!is.na(w$GeoId)], collapse = ", ")
+    z <- c(y, paste0("GeographicFocus in (", z, ")"), "UI")
+    rslt[["SCF"]] <- lapply(rslt[["SCF"]], function(x) sql.CtryFlow.Flow(x, 
+        n, "GeographicFocus", u, z))
+    rslt[["SCF"]] <- lapply(rslt[["SCF"]], function(z) sql.query.underlying(z, 
+        h$conn, F))
+    rslt[["CBF"]] <- vec.to.list(x, T)
+    z <- c(y, "CB", "UI")
+    rslt[["CBF"]] <- lapply(rslt[["CBF"]], function(x) sql.CtryFlow.Flow(x, 
+        n, "GeographicFocus", u, z))
+    rslt[["CBF"]] <- lapply(rslt[["CBF"]], function(z) sql.query.underlying(z, 
+        h$conn, F))
+    z <- sql.CtryFlow.Alloc(w$CountryId, y[1], s, "Country", 
+        "CB")
     z <- sql.query.underlying(z, h$conn, F)
     sql.close(h)
     rslt[["CBA"]] <- reshape.wide(z)
@@ -6742,7 +6732,8 @@ mk.1wFloMo.CtryFlow.local <- function (x, y, n, w, h, u = T)
         rslt[["CBF"]][[j]] <- sql.query.underlying(paste(z, collapse = "\n"), 
             h$conn, F)
     }
-    z <- sql.CtryFlow.Alloc(w$CountryId, y[1], s)
+    z <- sql.CtryFlow.Alloc(w$CountryId, y[1], s, "Country", 
+        "CB")
     rslt[["CBA"]] <- sql.query.underlying(z, h$conn, F)
     sql.close(h)
     v <- vec.named(rownames(w), w[, "CountryId"])
@@ -6792,78 +6783,66 @@ mk.1wFloMo.CtryFlow.local <- function (x, y, n, w, h, u = T)
 #' @param x = YYYYMMDD
 #' @param y = item(s) (any of Flow/AssetsStart/AssetsEnd)
 #' @param n = input to or output of sql.connect
-#' @param w = T/F depending on whether weekly or daily data needed
+#' @param w = frequency (T/F for daily/weekly or D/W/M)
 #' @keywords mk.1wFloMo.IndyFlow
 #' @export
 #' @family mk
 
 mk.1wFloMo.IndyFlow <- function (x, y, n, w) 
 {
-    v <- yyyymmdd.to.AllocMo.unique(x, 23, T)
     n <- sql.connect.wrapper(n)
     rslt <- mat.read(parameters("classif-GIgrp"))[, c("IndustryId", 
         "UINm", "StyleSector")]
     rslt <- list(MAP = mat.index(rslt))
-    rslt[["SCF"]] <- list()
-    for (j in x) {
-        r <- c("StyleSector", "GeographicFocus", paste0(y, " = sum(", 
-            y, ")"))
-        z <- paste(rslt$MAP$StyleSector[!is.na(rslt$MAP$StyleSector)], 
-            collapse = ", ")
-        z <- paste0("StyleSector in (", z, ")")
-        z <- sql.Flow(r, list(A = "@floDt"), c("E", z, "UI"), 
-            c("StyleSector", "GeographicFocus"), !w, c("StyleSector, GeographicFocus"))
-        z <- c(sql.declare("@floDt", "datetime", j), sql.unbracket(z))
-        rslt[["SCF"]][[j]] <- sql.query.underlying(paste(z, collapse = "\n"), 
-            n$conn, F)
-    }
-    rslt[["CBF"]] <- list()
-    for (j in x) {
-        r <- c("GeographicFocus", paste0(y, " = sum(", y, ")"))
-        z <- paste(rslt$MAP$StyleSector[!is.na(rslt$MAP$StyleSector)], 
-            collapse = ", ")
-        z <- paste0("StyleSector not in (", z, ")")
-        z <- sql.Flow(r, list(A = "@floDt"), c("E", z, "UI"), 
-            "GeographicFocus", !w, "GeographicFocus")
-        z <- c(sql.declare("@floDt", "datetime", j), sql.unbracket(z))
-        rslt[["CBF"]][[j]] <- sql.query.underlying(paste(z, collapse = "\n"), 
-            n$conn, F)
-    }
-    r <- c("Advisor", "IndustryId", "GeographicFocus", "Allocation = avg(Allocation)")
-    u <- list(A = "ReportDate = @floDt")
+    if (w == "M") 
+        v <- x
+    else v <- yyyymmdd.to.AllocMo.unique(x, 23, T)
+    rslt[["SCF"]] <- vec.to.list(x, T)
+    z <- paste(rslt$MAP$StyleSector[!is.na(rslt$MAP$StyleSector)], 
+        collapse = ", ")
+    z <- c("E", paste0("StyleSector in (", z, ")"), "UI")
+    rslt[["SCF"]] <- lapply(rslt[["SCF"]], function(x) sql.CtryFlow.Flow(x, 
+        y, "StyleSector", w, z))
+    rslt[["SCF"]] <- lapply(rslt[["SCF"]], function(z) sql.query.underlying(z, 
+        n$conn, F))
+    rslt[["CBF"]] <- vec.to.list(x, T)
+    z <- paste(rslt$MAP$StyleSector[!is.na(rslt$MAP$StyleSector)], 
+        collapse = ", ")
+    z <- c("E", paste0("StyleSector not in (", z, ")"), "UI")
+    rslt[["CBF"]] <- lapply(rslt[["CBF"]], function(x) sql.CtryFlow.Flow(x, 
+        y, "GeographicFocus", w, z))
+    rslt[["CBF"]] <- lapply(rslt[["CBF"]], function(z) sql.query.underlying(z, 
+        n$conn, F))
     z <- paste(rslt$MAP$StyleSector[!is.na(rslt$MAP$StyleSector)], 
         collapse = ", ")
     z <- paste0("StyleSector not in (", z, ")")
-    z <- sql.Allocation(r, "Industry", c("Advisor", "GeographicFocus"), 
-        c(z, "E", "UI"), sql.and(u), paste(r[-length(r)], collapse = ", "))
-    z <- sql.tbl(r[-1], sql.label(z, "t"), , paste(r[-length(r)][-1], 
-        collapse = ", "))
-    z <- c(sql.declare("@floDt", "datetime", v), sql.unbracket(z))
-    rslt[["CBA"]] <- sql.query.underlying(paste(z, collapse = "\n"), 
-        n$conn, F)
+    z <- sql.CtryFlow.Alloc(NULL, "E", v, "Industry", z)
+    z <- sql.query.underlying(z, n$conn, F)
     sql.close(n)
+    rslt[["CBA"]] <- reshape.wide(z)
     fcn <- function(x) {
-        x <- map.rname(mat.index(x), rslt[["CBA"]][, "GeographicFocus"])
-        x <- 0.01 * x * rslt[["CBA"]][, "Allocation"]
-        x <- data.frame(rslt[["CBA"]][, 1:2], x, stringsAsFactors = F)
+        x <- map.rname(mat.index(x), colnames(rslt[["CBA"]]))
+        x <- 0.01 * as.matrix(rslt[["CBA"]]) %*% as.matrix(zav(x))
+        x <- map.rname(x, rownames(rslt[["MAP"]]))
         x
     }
     rslt[["CBF"]] <- lapply(rslt[["CBF"]], fcn)
-    r <- rslt[["MAP"]][!is.na(rslt[["MAP"]][, "StyleSector"]), 
-        ]
-    r$IndustryId <- rownames(r)
-    r <- mat.index(r, "StyleSector")
+    r <- !is.na(rslt[["MAP"]][, "StyleSector"])
+    r <- vec.named(rownames(rslt[["MAP"]])[r], rslt[["MAP"]][r, 
+        "StyleSector"])
     fcn <- function(x) {
-        x$StyleSector <- map.rname(r, x$StyleSector)$IndustryId
-        names(x) <- ifelse(names(x) == "StyleSector", "IndustryId", 
-            names(x))
+        x <- mat.index(x)
+        rownames(x) <- map.rname(r, rownames(x))
+        x <- map.rname(x, rownames(rslt[["MAP"]]))
         x
     }
     rslt[["SCF"]] <- lapply(rslt[["SCF"]], fcn)
     z <- list()
     for (j in x) {
-        r <- rbind(rslt[["SCF"]][[j]], rslt[["CBF"]][[j]])
-        z[[j]] <- aggregate(x = r[, y], by = r[, 1:2], FUN = sum)
+        z[[j]] <- zav(rslt[["SCF"]][[j]]) + zav(rslt[["CBF"]][[j]])
+        if (length(y) == 1) 
+            z[[j]] <- as.matrix(z[[j]])[, 1]
+        else z[[j]] <- mat.ex.matrix(z[[j]])
     }
     if (length(x) == 1) 
         z <- z[[x]]
@@ -9246,7 +9225,7 @@ sf.bin.nms <- function (x, y)
 #' @param n = membership (e.g. "R2Mem")
 #' @param w = binning group (e.g. "GSec")
 #' @param h = return variable
-#' @param u = variable parameter
+#' @param u = variable & lookback (e.g. c("1dFloMo", 3))
 #' @param v = data folder
 #' @param g = number of bins
 #' @param r = classif file
@@ -9276,12 +9255,8 @@ sf.daily <- function (x, y, n, w, h, u, v, g = 5, r)
     for (j in names(y)) z[!is.element(u[, j], 1), y[[j]]] <- NA
     z <- z[, !is.element(colnames(z), nyse.holidays())]
     x <- x[, colnames(z)]
-    u <- !is.na(as.numeric(unlist(z)))
-    y <- as.numeric(unlist(x))
-    y <- ifelse(u, y, NA)
-    x <- matrix(y, dim(x)[1], dim(x)[2], F, dimnames(x))
-    fcn <- function(x) qtl(x, g, r[, "All"], r[, w])
-    x <- zav(apply(x, 2, fcn))
+    x <- x * nonneg(mat.to.obs(z))
+    x <- zav(apply(x, 2, function(x) qtl(x, g, , r[, w])))
     u <- apply(z, 2, mean, na.rm = T)
     z <- z - matrix(u, dim(z)[1], dim(z)[2], T)
     x <- rbind(z, x)
@@ -12067,25 +12042,48 @@ sql.cross.border <- function (x)
 #' sql.CtryFlow.Alloc
 #' 
 #' SQL query for allocations needed in country flows
-#' @param x = YYYYMMDD
+#' @param x = NULL or a vector of identifiers
 #' @param y = FundType
 #' @param n = allocation month, in YYYYMMMDD format
+#' @param w = one of Country/Sector/Industry
+#' @param h = vector of filters
 #' @keywords sql.CtryFlow.Alloc
 #' @export
 #' @family sql
 
-sql.CtryFlow.Alloc <- function (x, y, n) 
+sql.CtryFlow.Alloc <- function (x, y, n, w, h) 
 {
-    r <- c("Advisor", "CountryId", "GeographicFocus", "Allocation = avg(Allocation)")
-    u <- list(A = paste0("CountryId in (", paste(x[!is.na(x)], 
-        collapse = ", "), ")"))
-    u[["B"]] <- "ReportDate = @floDt"
-    z <- sql.Allocation(r, "Country", c("Advisor", "GeographicFocus"), 
-        c("CB", y[1], "UI"), sql.and(u), paste(r[-length(r)], 
-            collapse = ", "))
+    r <- c("Advisor", paste0(w, "Id"), "GeographicFocus", "Allocation = avg(Allocation)")
+    u <- list(A = "ReportDate = @floDt")
+    if (!is.null(x)) 
+        u[["B"]] <- paste0(w, "Id in (", paste(x[!is.na(x)], 
+            collapse = ", "), ")")
+    z <- sql.Allocation(r, w, c("Advisor", "GeographicFocus"), 
+        c(h, y[1], "UI"), sql.and(u), paste(r[-length(r)], collapse = ", "))
     z <- sql.tbl(r[-1], sql.label(z, "t"), , paste(r[-length(r)][-1], 
         collapse = ", "))
     z <- c(sql.declare("@floDt", "datetime", n), sql.unbracket(z))
+    z <- paste(z, collapse = "\n")
+    z
+}
+
+#' sql.CtryFlow.Flow
+#' 
+#' SQL query for single-group flows
+#' @param x = YYYYMMDD
+#' @param y = item(s) (any of Flow/AssetsStart/AssetsEnd)
+#' @param n = characteristics
+#' @param w = frequency (T/F for daily/weekly or D/W/M)
+#' @param h = vector of filters
+#' @keywords sql.CtryFlow.Flow
+#' @export
+#' @family sql
+
+sql.CtryFlow.Flow <- function (x, y, n, w, h) 
+{
+    y <- c(n, paste0(y, " = sum(", y, ")"))
+    z <- sql.Flow(y, list(A = "@floDt"), h, n, w, paste(n, collapse = ", "))
+    z <- c(sql.declare("@floDt", "datetime", x), sql.unbracket(z))
     z <- paste(z, collapse = "\n")
     z
 }

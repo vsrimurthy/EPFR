@@ -13,7 +13,7 @@ mk.1wFloMo.IndyFlow(x, y, n, w)
 
 \item{n}{= input to or output of sql.connect}
 
-\item{w}{= T/F depending on whether weekly or daily data needed}
+\item{w}{= frequency (T/F for daily/weekly or D/W/M)}
 }
 \description{
 SQL query for country-flow percentage for date <x>
