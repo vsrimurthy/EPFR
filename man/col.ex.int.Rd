@@ -12,7 +12,4 @@ col.ex.int(x)
 \description{
 Returns the relevant excel column (1 = "A", 2 = "B", etc.)
 }
-\seealso{
-Other col: \code{\link{col.lag}}, \code{\link{col.to.int}}
-}
 \keyword{col.ex.int}

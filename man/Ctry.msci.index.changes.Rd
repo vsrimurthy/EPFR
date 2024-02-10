@@ -14,10 +14,4 @@ Ctry.msci.index.changes(x, y)
 \description{
 handles the addition and removal of countries from an index
 }
-\seealso{
-Other Ctry: \code{\link{Ctry.info}},
-  \code{\link{Ctry.msci.members.rng}},
-  \code{\link{Ctry.msci.members}}, \code{\link{Ctry.msci}},
-  \code{\link{Ctry.to.CtryGrp}}
-}
 \keyword{Ctry.msci.index.changes}

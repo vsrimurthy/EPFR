@@ -20,7 +20,4 @@ rpt.email.send(x, y, n, w, h)
 \description{
 emails report
 }
-\seealso{
-Other rpt: \code{\link{rpt.email}}
-}
 \keyword{rpt.email.send}

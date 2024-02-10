@@ -16,8 +16,4 @@ publish.monthly.last(x, y = 23, n = 0)
 \description{
 date of last monthly publication
 }
-\seealso{
-Other publish: \code{\link{publish.daily.last}},
-  \code{\link{publish.weekly.last}}
-}
 \keyword{publish.monthly.last}

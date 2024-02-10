@@ -12,7 +12,4 @@ bond.curve.expand(x)
 \description{
 full yield curve
 }
-\seealso{
-Other bond: \code{\link{bond.price}}
-}
 \keyword{bond.curve.expand}

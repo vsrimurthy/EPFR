@@ -12,12 +12,4 @@ flowdate.ex.int(x)
 \description{
 the <x>th daily flow-publication date after Thursday, January 1, 1970
 }
-\seealso{
-Other flowdate: \code{\link{flowdate.diff}},
-  \code{\link{flowdate.ex.AllocMo}},
-  \code{\link{flowdate.ex.yyyymm}},
-  \code{\link{flowdate.exists}},
-  \code{\link{flowdate.lag}}, \code{\link{flowdate.seq}},
-  \code{\link{flowdate.to.int}}
-}
 \keyword{flowdate.ex.int}

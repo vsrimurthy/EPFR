@@ -12,9 +12,4 @@ ret.to.log(x)
 \description{
 converts to logarithmic return
 }
-\seealso{
-Other ret: \code{\link{ret.ex.idx}},
-  \code{\link{ret.idx.gaps.fix}},
-  \code{\link{ret.outliers}}, \code{\link{ret.to.idx}}
-}
 \keyword{ret.to.log}

@@ -12,10 +12,4 @@ knapsack.prev(x)
 \description{
 inverse of knapsack.next
 }
-\seealso{
-Other knapsack: \code{\link{knapsack.count}},
-  \code{\link{knapsack.ex.int}},
-  \code{\link{knapsack.next}},
-  \code{\link{knapsack.to.int}}
-}
 \keyword{knapsack.prev}

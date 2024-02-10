@@ -14,8 +14,4 @@ qtl.single.grp(x, y)
 \description{
 an equal-weight binning so that the first column of <x> is divided into <y> equal bins. Weights determined by the 2nd column
 }
-\seealso{
-Other qtl: \code{\link{qtl.eq}}, \code{\link{qtl.fast}},
-  \code{\link{qtl}}
-}
 \keyword{qtl.single.grp}

@@ -24,7 +24,4 @@ qa.mat.read(x, y, n, w, h, u, v)
 \description{
 contents of <x> as a data frame
 }
-\seealso{
-Other qa: \code{\link{qa.filter.map}}
-}
 \keyword{qa.mat.read}

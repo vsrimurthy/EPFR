@@ -24,7 +24,4 @@ rpt.email(x, y, n, w, h, u, v)
 \description{
 emails report
 }
-\seealso{
-Other rpt: \code{\link{rpt.email.send}}
-}
 \keyword{rpt.email}

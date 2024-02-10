@@ -14,12 +14,4 @@ sim.direction.buy(x, y)
 \description{
 percentage buy needed to get worst group under control
 }
-\seealso{
-Other sim: \code{\link{sim.direction.sell}},
-  \code{\link{sim.direction}}, \code{\link{sim.fetch}},
-  \code{\link{sim.limits}}, \code{\link{sim.optimal}},
-  \code{\link{sim.overall}}, \code{\link{sim.seed}},
-  \code{\link{sim.summ}}, \code{\link{sim.trade.grp}},
-  \code{\link{sim.trade.stk}}
-}
 \keyword{sim.direction.buy}

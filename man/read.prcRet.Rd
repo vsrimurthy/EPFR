@@ -12,7 +12,4 @@ read.prcRet(x)
 \description{
 returns the contents of the file
 }
-\seealso{
-Other read: \code{\link{read.EPFR}}
-}
 \keyword{read.prcRet}

@@ -14,7 +14,4 @@ cpt.RgnSec(x, y)
 \description{
 makes Region-Sector groupings
 }
-\seealso{
-Other cpt: \code{\link{cpt.RgnSecJP}}
-}
 \keyword{cpt.RgnSec}

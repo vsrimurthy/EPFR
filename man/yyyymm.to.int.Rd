@@ -12,11 +12,4 @@ yyyymm.to.int(x)
 \description{
 returns a vector of integers
 }
-\seealso{
-Other yyyymm: \code{\link{yyyymm.diff}},
-  \code{\link{yyyymm.ex.int}}, \code{\link{yyyymm.ex.qtr}},
-  \code{\link{yyyymm.exists}}, \code{\link{yyyymm.lag}},
-  \code{\link{yyyymm.seq}}, \code{\link{yyyymm.to.day}},
-  \code{\link{yyyymm.to.qtr}}, \code{\link{yyyymm.to.yyyy}}
-}
 \keyword{yyyymm.to.int}

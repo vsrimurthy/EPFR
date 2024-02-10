@@ -12,8 +12,4 @@ int.random(x = 5)
 \description{
 random integer between 1 and <x>
 }
-\seealso{
-Other int: \code{\link{int.format}},
-  \code{\link{int.to.prime}}
-}
 \keyword{int.random}

@@ -28,12 +28,4 @@ sf.daily(x, y, n, w, h, u, v, g = 5, r)
 \description{
 runs a daily stock-flows simulation FAST
 }
-\seealso{
-Other sf: \code{\link{sf.bin.nms}},
-  \code{\link{sf.detail}}, \code{\link{sf.single.bsim}},
-  \code{\link{sf.subset}},
-  \code{\link{sf.underlying.data.bin}},
-  \code{\link{sf.underlying.data}},
-  \code{\link{sf.underlying.summ}}, \code{\link{sf}}
-}
 \keyword{sf.daily}

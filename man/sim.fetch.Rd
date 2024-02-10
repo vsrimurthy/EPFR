@@ -20,12 +20,4 @@ sim.fetch(x, y, n, w, h = NULL)
 \description{
 data needed to run simulation
 }
-\seealso{
-Other sim: \code{\link{sim.direction.buy}},
-  \code{\link{sim.direction.sell}},
-  \code{\link{sim.direction}}, \code{\link{sim.limits}},
-  \code{\link{sim.optimal}}, \code{\link{sim.overall}},
-  \code{\link{sim.seed}}, \code{\link{sim.summ}},
-  \code{\link{sim.trade.grp}}, \code{\link{sim.trade.stk}}
-}
 \keyword{sim.fetch}

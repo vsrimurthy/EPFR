@@ -12,7 +12,4 @@ proc.kill(x)
 \description{
 kills off all processes <x>
 }
-\seealso{
-Other proc: \code{\link{proc.count}}
-}
 \keyword{proc.kill}

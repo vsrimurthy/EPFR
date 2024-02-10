@@ -12,11 +12,4 @@ yyyymm.to.yyyy(x)
 \description{
 Converts to yyyy years
 }
-\seealso{
-Other yyyymm: \code{\link{yyyymm.diff}},
-  \code{\link{yyyymm.ex.int}}, \code{\link{yyyymm.ex.qtr}},
-  \code{\link{yyyymm.exists}}, \code{\link{yyyymm.lag}},
-  \code{\link{yyyymm.seq}}, \code{\link{yyyymm.to.day}},
-  \code{\link{yyyymm.to.int}}, \code{\link{yyyymm.to.qtr}}
-}
 \keyword{yyyymm.to.yyyy}

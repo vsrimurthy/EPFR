@@ -12,8 +12,4 @@ strat.dir(x)
 \description{
 the folder where <x> factors live
 }
-\seealso{
-Other strat: \code{\link{strat.email}},
-  \code{\link{strat.file}}, \code{\link{strat.path}}
-}
 \keyword{strat.dir}

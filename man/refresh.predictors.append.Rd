@@ -18,11 +18,4 @@ refresh.predictors.append(x, y, n = F, w = F)
 \description{
 Appends new to old data after performing checks
 }
-\seealso{
-Other refresh: \code{\link{refresh.predictors.daily}},
-  \code{\link{refresh.predictors.monthly}},
-  \code{\link{refresh.predictors.script}},
-  \code{\link{refresh.predictors.weekly}},
-  \code{\link{refresh.predictors}}
-}
 \keyword{refresh.predictors.append}

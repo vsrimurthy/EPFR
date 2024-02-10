@@ -12,7 +12,4 @@ recipient.exists(x)
 \description{
 T/F depending on whether recipient list exists
 }
-\seealso{
-Other recipient: \code{\link{recipient.read}}
-}
 \keyword{recipient.exists}

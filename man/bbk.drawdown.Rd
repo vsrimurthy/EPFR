@@ -12,12 +12,4 @@ bbk.drawdown(x)
 \description{
 returns a logical vector identifying the contiguous periods corresponding to max drawdown
 }
-\seealso{
-Other bbk: \code{\link{bbk.bin.rets.prd.summ}},
-  \code{\link{bbk.bin.rets.summ}},
-  \code{\link{bbk.bin.xRet}}, \code{\link{bbk.data}},
-  \code{\link{bbk.fwdRet}}, \code{\link{bbk.holidays}},
-  \code{\link{bbk.matrix}}, \code{\link{bbk.summ}},
-  \code{\link{bbk.turnover}}, \code{\link{bbk}}
-}
 \keyword{bbk.drawdown}

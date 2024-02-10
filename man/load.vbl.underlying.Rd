@@ -26,9 +26,4 @@ load.vbl.underlying(fcn, x, y, n, w, h, u, v)
 \description{
 Loads a variable
 }
-\seealso{
-Other load: \code{\link{load.dy.vbl.1obj}},
-  \code{\link{load.dy.vbl}},
-  \code{\link{load.mo.vbl.1obj}}, \code{\link{load.mo.vbl}}
-}
 \keyword{load.vbl.underlying}

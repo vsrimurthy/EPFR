@@ -24,9 +24,4 @@ email(x, y, n, w = "", h = F, u, v)
 \description{
 emails <x>
 }
-\seealso{
-Other email: \code{\link{email.exists}},
-  \code{\link{email.kill}}, \code{\link{email.list}},
-  \code{\link{email.record}}
-}
 \keyword{email}

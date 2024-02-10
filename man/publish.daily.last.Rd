@@ -12,8 +12,4 @@ publish.daily.last(x)
 \description{
 last daily flow-publication date
 }
-\seealso{
-Other publish: \code{\link{publish.monthly.last}},
-  \code{\link{publish.weekly.last}}
-}
 \keyword{publish.daily.last}

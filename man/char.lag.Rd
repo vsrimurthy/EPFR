@@ -14,9 +14,4 @@ char.lag(x, y)
 \description{
 lags <x> by <y>
 }
-\seealso{
-Other char: \code{\link{char.ex.int}},
-  \code{\link{char.seq}}, \code{\link{char.to.int}},
-  \code{\link{char.to.num}}
-}
 \keyword{char.lag}

@@ -14,8 +14,4 @@ compound.sf(x, y)
 \description{
 compounds flows
 }
-\seealso{
-Other compound: \code{\link{compound.flows}},
-  \code{\link{compound}}
-}
 \keyword{compound.sf}

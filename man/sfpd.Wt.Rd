@@ -12,14 +12,4 @@ sfpd.Wt(x)
 \description{
 computes weight
 }
-\seealso{
-Other sfpd: \code{\link{sfpd.ActWtTrend}},
-  \code{\link{sfpd.FloDollar}},
-  \code{\link{sfpd.FloMo.underlying}},
-  \code{\link{sfpd.FloMo}},
-  \code{\link{sfpd.FloTrend.underlying}},
-  \code{\link{sfpd.FloTrend}}, \code{\link{sfpd.Flow}},
-  \code{\link{sfpd.Holdings}}, \code{\link{sfpd.ION}},
-  \code{\link{sfpd.filter}}
-}
 \keyword{sfpd.Wt}

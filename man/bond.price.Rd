@@ -16,7 +16,4 @@ bond.price(x, y, n)
 \description{
 bond prices
 }
-\seealso{
-Other bond: \code{\link{bond.curve.expand}}
-}
 \keyword{bond.price}

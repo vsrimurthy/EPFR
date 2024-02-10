@@ -12,10 +12,4 @@ day.to.int(x)
 \description{
 number of days after Thursday, January 1, 1970
 }
-\seealso{
-Other day: \code{\link{day.ex.date}},
-  \code{\link{day.ex.int}}, \code{\link{day.lag}},
-  \code{\link{day.seq}}, \code{\link{day.to.date}},
-  \code{\link{day.to.weekday}}, \code{\link{day.to.week}}
-}
 \keyword{day.to.int}

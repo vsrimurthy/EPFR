@@ -12,11 +12,4 @@ yyyymm.ex.int(x)
 \description{
 returns a vector of <yyyymm> months
 }
-\seealso{
-Other yyyymm: \code{\link{yyyymm.diff}},
-  \code{\link{yyyymm.ex.qtr}}, \code{\link{yyyymm.exists}},
-  \code{\link{yyyymm.lag}}, \code{\link{yyyymm.seq}},
-  \code{\link{yyyymm.to.day}}, \code{\link{yyyymm.to.int}},
-  \code{\link{yyyymm.to.qtr}}, \code{\link{yyyymm.to.yyyy}}
-}
 \keyword{yyyymm.ex.int}

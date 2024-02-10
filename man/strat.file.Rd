@@ -14,8 +14,4 @@ strat.file(x, y)
 \description{
 the path to the factor file
 }
-\seealso{
-Other strat: \code{\link{strat.dir}},
-  \code{\link{strat.email}}, \code{\link{strat.path}}
-}
 \keyword{strat.file}

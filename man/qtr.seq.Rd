@@ -16,8 +16,4 @@ qtr.seq(x, y, n = 1)
 \description{
 returns a sequence of QTR between (and including) x and y
 }
-\seealso{
-Other qtr: \code{\link{qtr.ex.int}}, \code{\link{qtr.lag}},
-  \code{\link{qtr.to.int}}
-}
 \keyword{qtr.seq}

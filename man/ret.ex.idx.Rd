@@ -18,9 +18,4 @@ ret.ex.idx(x, y, n, w)
 \description{
 computes return
 }
-\seealso{
-Other ret: \code{\link{ret.idx.gaps.fix}},
-  \code{\link{ret.outliers}}, \code{\link{ret.to.idx}},
-  \code{\link{ret.to.log}}
-}
 \keyword{ret.ex.idx}

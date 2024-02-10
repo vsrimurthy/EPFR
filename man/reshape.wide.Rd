@@ -12,7 +12,4 @@ reshape.wide(x)
 \description{
 converts <x> to an array
 }
-\seealso{
-Other reshape: \code{\link{reshape.long}}
-}
 \keyword{reshape.wide}

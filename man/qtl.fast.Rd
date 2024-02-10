@@ -14,8 +14,4 @@ qtl.fast(x, y = 5)
 \description{
 performs a FAST equal-weight binning on <x>. Can't handle NAs.
 }
-\seealso{
-Other qtl: \code{\link{qtl.eq}},
-  \code{\link{qtl.single.grp}}, \code{\link{qtl}}
-}
 \keyword{qtl.fast}

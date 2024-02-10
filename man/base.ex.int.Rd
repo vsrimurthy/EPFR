@@ -14,7 +14,4 @@ base.ex.int(x, y = 26)
 \description{
 Expresses <x> in base <y>
 }
-\seealso{
-Other base: \code{\link{base.to.int}}
-}
 \keyword{base.ex.int}

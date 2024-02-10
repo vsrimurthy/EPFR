@@ -14,8 +14,4 @@ qtr.lag(x, y)
 \description{
 lags <x> by <y> quarters
 }
-\seealso{
-Other qtr: \code{\link{qtr.ex.int}}, \code{\link{qtr.seq}},
-  \code{\link{qtr.to.int}}
-}
 \keyword{qtr.lag}

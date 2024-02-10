@@ -14,8 +14,4 @@ avg.wtd(x, y)
 \description{
 returns the weighted mean of <x> given weights <n>
 }
-\seealso{
-Other avg: \code{\link{avg.model}},
-  \code{\link{avg.winsorized}}
-}
 \keyword{avg.wtd}

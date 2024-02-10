@@ -12,7 +12,4 @@ recipient.read(x)
 \description{
 vector of recipient tranches
 }
-\seealso{
-Other recipient: \code{\link{recipient.exists}}
-}
 \keyword{recipient.read}

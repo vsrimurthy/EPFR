@@ -12,7 +12,4 @@ proc.count(x = 10)
 \description{
 returns top <x> processes by number running
 }
-\seealso{
-Other proc: \code{\link{proc.kill}}
-}
 \keyword{proc.count}

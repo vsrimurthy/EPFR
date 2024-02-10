@@ -24,11 +24,4 @@ refresh.predictors(fcn, x, y, n, w, h, u)
 \description{
 refreshes the text file contains flows data from SQL
 }
-\seealso{
-Other refresh: \code{\link{refresh.predictors.append}},
-  \code{\link{refresh.predictors.daily}},
-  \code{\link{refresh.predictors.monthly}},
-  \code{\link{refresh.predictors.script}},
-  \code{\link{refresh.predictors.weekly}}
-}
 \keyword{refresh.predictors}

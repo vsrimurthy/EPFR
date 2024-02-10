@@ -12,7 +12,4 @@ read.EPFR(x)
 \description{
 reads in the file
 }
-\seealso{
-Other read: \code{\link{read.prcRet}}
-}
 \keyword{read.EPFR}

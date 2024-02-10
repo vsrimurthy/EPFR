@@ -12,8 +12,4 @@ int.to.prime(x)
 \description{
 prime factors of <x>
 }
-\seealso{
-Other int: \code{\link{int.format}},
-  \code{\link{int.random}}
-}
 \keyword{int.to.prime}

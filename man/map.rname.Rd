@@ -14,7 +14,4 @@ map.rname(x, y)
 \description{
 returns a matrix/df, the row names of which match up with <y>
 }
-\seealso{
-Other map: \code{\link{map.classif}}
-}
 \keyword{map.rname}

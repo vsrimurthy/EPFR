@@ -17,10 +17,4 @@ handles the addition and removal of countries from an index
 \examples{
 Ctry.info("PK", "CtryNm")
 }
-\seealso{
-Other Ctry: \code{\link{Ctry.msci.index.changes}},
-  \code{\link{Ctry.msci.members.rng}},
-  \code{\link{Ctry.msci.members}}, \code{\link{Ctry.msci}},
-  \code{\link{Ctry.to.CtryGrp}}
-}
 \keyword{Ctry.info}

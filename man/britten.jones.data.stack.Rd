@@ -20,8 +20,4 @@ britten.jones.data.stack(x, y, n, w, h)
 \description{
 applies the Britten-Jones transformation to a subset and then stacks
 }
-\seealso{
-Other britten: \code{\link{britten.jones.data}},
-  \code{\link{britten.jones}}
-}
 \keyword{britten.jones.data.stack}

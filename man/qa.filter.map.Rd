@@ -12,7 +12,4 @@ qa.filter.map(x)
 \description{
 maps to appropriate code on the R side
 }
-\seealso{
-Other qa: \code{\link{qa.mat.read}}
-}
 \keyword{qa.filter.map}

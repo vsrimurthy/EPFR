@@ -16,19 +16,4 @@ yyyymmdd.to.AllocMo.unique(x, y, n)
 \description{
 Checks each day in <x> has same allocation month. Error otherwise
 }
-\seealso{
-Other yyyymmdd: \code{\link{yyyymmdd.bulk}},
-  \code{\link{yyyymmdd.diff}},
-  \code{\link{yyyymmdd.ex.day}},
-  \code{\link{yyyymmdd.ex.int}},
-  \code{\link{yyyymmdd.ex.txt}},
-  \code{\link{yyyymmdd.ex.yyyymm}},
-  \code{\link{yyyymmdd.exists}},
-  \code{\link{yyyymmdd.lag}}, \code{\link{yyyymmdd.seq}},
-  \code{\link{yyyymmdd.to.AllocMo}},
-  \code{\link{yyyymmdd.to.int}},
-  \code{\link{yyyymmdd.to.txt}},
-  \code{\link{yyyymmdd.to.weekofmonth}},
-  \code{\link{yyyymmdd.to.yyyymm}}
-}
 \keyword{yyyymmdd.to.AllocMo.unique}

@@ -12,8 +12,4 @@ compound(x)
 \description{
 Outputs the compounded return
 }
-\seealso{
-Other compound: \code{\link{compound.flows}},
-  \code{\link{compound.sf}}
-}
 \keyword{compound}

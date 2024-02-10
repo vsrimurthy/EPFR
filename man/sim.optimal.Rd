@@ -22,12 +22,4 @@ sim.optimal(x, y, n, w, h, u)
 \description{
 returns named vector of optimal portfolio weights
 }
-\seealso{
-Other sim: \code{\link{sim.direction.buy}},
-  \code{\link{sim.direction.sell}},
-  \code{\link{sim.direction}}, \code{\link{sim.fetch}},
-  \code{\link{sim.limits}}, \code{\link{sim.overall}},
-  \code{\link{sim.seed}}, \code{\link{sim.summ}},
-  \code{\link{sim.trade.grp}}, \code{\link{sim.trade.stk}}
-}
 \keyword{sim.optimal}

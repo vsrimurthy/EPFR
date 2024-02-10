@@ -12,15 +12,4 @@ html.flow.underlying(x)
 \description{
 list object containing the following items: a) text - dates and text information about flows b) numbers - numeric summary of the flows
 }
-\seealso{
-Other html: \code{\link{html.and}},
-  \code{\link{html.email}}, \code{\link{html.ex.utf8}},
-  \code{\link{html.flow.breakdown}},
-  \code{\link{html.flow.english}},
-  \code{\link{html.image}}, \code{\link{html.list}},
-  \code{\link{html.positioning}},
-  \code{\link{html.problem.underlying}},
-  \code{\link{html.problem}}, \code{\link{html.signature}},
-  \code{\link{html.tbl}}, \code{\link{html.tenure}}
-}
 \keyword{html.flow.underlying}

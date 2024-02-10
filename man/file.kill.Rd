@@ -12,10 +12,4 @@ file.kill(x)
 \description{
 Deletes designated files
 }
-\seealso{
-Other file: \code{\link{file.bkp}},
-  \code{\link{file.date}},
-  \code{\link{file.mtime.to.time}},
-  \code{\link{file.time}}, \code{\link{file.to.last}}
-}
 \keyword{file.kill}

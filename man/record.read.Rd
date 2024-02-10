@@ -12,9 +12,4 @@ record.read(x)
 \description{
 named vector of records and sent dates
 }
-\seealso{
-Other record: \code{\link{record.exists}},
-  \code{\link{record.kill}}, \code{\link{record.track}},
-  \code{\link{record.write}}
-}
 \keyword{record.read}

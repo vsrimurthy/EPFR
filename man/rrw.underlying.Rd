@@ -26,7 +26,4 @@ rrw.underlying(x, y, n, w, h, u, v, g)
 \description{
 Runs regressions
 }
-\seealso{
-Other rrw: \code{\link{rrw.factors}}, \code{\link{rrw}}
-}
 \keyword{rrw.underlying}

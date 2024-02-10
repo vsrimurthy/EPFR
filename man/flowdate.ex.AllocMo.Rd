@@ -14,12 +14,4 @@ flowdate.ex.AllocMo(x, y = 23)
 \description{
 Returns the flowdates corresponding to <x> (inverse of yyyymmdd.to.AllocMo)
 }
-\seealso{
-Other flowdate: \code{\link{flowdate.diff}},
-  \code{\link{flowdate.ex.int}},
-  \code{\link{flowdate.ex.yyyymm}},
-  \code{\link{flowdate.exists}},
-  \code{\link{flowdate.lag}}, \code{\link{flowdate.seq}},
-  \code{\link{flowdate.to.int}}
-}
 \keyword{flowdate.ex.AllocMo}

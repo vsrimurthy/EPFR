@@ -18,11 +18,4 @@ sf.underlying.data.bin(x, y, n, w)
 \description{
 character vector of bin memberships
 }
-\seealso{
-Other sf: \code{\link{sf.bin.nms}}, \code{\link{sf.daily}},
-  \code{\link{sf.detail}}, \code{\link{sf.single.bsim}},
-  \code{\link{sf.subset}},
-  \code{\link{sf.underlying.data}},
-  \code{\link{sf.underlying.summ}}, \code{\link{sf}}
-}
 \keyword{sf.underlying.data.bin}

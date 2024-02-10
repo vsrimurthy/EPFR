@@ -12,19 +12,4 @@ yyyymmdd.exists(x)
 \description{
 returns T if <x> is a weekday
 }
-\seealso{
-Other yyyymmdd: \code{\link{yyyymmdd.bulk}},
-  \code{\link{yyyymmdd.diff}},
-  \code{\link{yyyymmdd.ex.day}},
-  \code{\link{yyyymmdd.ex.int}},
-  \code{\link{yyyymmdd.ex.txt}},
-  \code{\link{yyyymmdd.ex.yyyymm}},
-  \code{\link{yyyymmdd.lag}}, \code{\link{yyyymmdd.seq}},
-  \code{\link{yyyymmdd.to.AllocMo.unique}},
-  \code{\link{yyyymmdd.to.AllocMo}},
-  \code{\link{yyyymmdd.to.int}},
-  \code{\link{yyyymmdd.to.txt}},
-  \code{\link{yyyymmdd.to.weekofmonth}},
-  \code{\link{yyyymmdd.to.yyyymm}}
-}
 \keyword{yyyymmdd.exists}

@@ -12,8 +12,4 @@ char.ex.int(x)
 \description{
 the characters whose ascii values correspond to <x>
 }
-\seealso{
-Other char: \code{\link{char.lag}}, \code{\link{char.seq}},
-  \code{\link{char.to.int}}, \code{\link{char.to.num}}
-}
 \keyword{char.ex.int}

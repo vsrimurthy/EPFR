@@ -12,9 +12,4 @@ ret.to.idx(x)
 \description{
 computes a total-return index
 }
-\seealso{
-Other ret: \code{\link{ret.ex.idx}},
-  \code{\link{ret.idx.gaps.fix}},
-  \code{\link{ret.outliers}}, \code{\link{ret.to.log}}
-}
 \keyword{ret.to.idx}

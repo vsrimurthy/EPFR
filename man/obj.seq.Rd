@@ -20,7 +20,4 @@ obj.seq(x, y, n, w, h)
 \description{
 returns a sequence of objects between (and including) <x> and <y>
 }
-\seealso{
-Other obj: \code{\link{obj.diff}}, \code{\link{obj.lag}}
-}
 \keyword{obj.seq}

@@ -12,10 +12,4 @@ file.date(x)
 \description{
 Returns the last modified date in yyyymmdd format
 }
-\seealso{
-Other file: \code{\link{file.bkp}},
-  \code{\link{file.kill}},
-  \code{\link{file.mtime.to.time}},
-  \code{\link{file.time}}, \code{\link{file.to.last}}
-}
 \keyword{file.date}

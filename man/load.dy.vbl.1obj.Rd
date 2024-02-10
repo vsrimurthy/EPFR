@@ -24,10 +24,4 @@ load.dy.vbl.1obj(fcn, x, y, n, w, h, u)
 \description{
 Loads a daily variable
 }
-\seealso{
-Other load: \code{\link{load.dy.vbl}},
-  \code{\link{load.mo.vbl.1obj}},
-  \code{\link{load.mo.vbl}},
-  \code{\link{load.vbl.underlying}}
-}
 \keyword{load.dy.vbl.1obj}

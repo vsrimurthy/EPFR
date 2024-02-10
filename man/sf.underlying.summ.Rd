@@ -14,11 +14,4 @@ sf.underlying.summ(x, y)
 \description{
 Returns a named vector of bin returns
 }
-\seealso{
-Other sf: \code{\link{sf.bin.nms}}, \code{\link{sf.daily}},
-  \code{\link{sf.detail}}, \code{\link{sf.single.bsim}},
-  \code{\link{sf.subset}},
-  \code{\link{sf.underlying.data.bin}},
-  \code{\link{sf.underlying.data}}, \code{\link{sf}}
-}
 \keyword{sf.underlying.summ}

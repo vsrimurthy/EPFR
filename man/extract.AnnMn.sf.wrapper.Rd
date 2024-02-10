@@ -14,7 +14,4 @@ extract.AnnMn.sf.wrapper(x, y = "AnnMn")
 \description{
 Subsets to "AnnMn" and re-labels columns
 }
-\seealso{
-Other extract: \code{\link{extract.AnnMn.sf}}
-}
 \keyword{extract.AnnMn.sf.wrapper}

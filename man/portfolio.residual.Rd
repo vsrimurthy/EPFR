@@ -14,7 +14,4 @@ portfolio.residual(x, y)
 \description{
 residual of <x> after factoring out <y> for each row
 }
-\seealso{
-Other portfolio: \code{\link{portfolio.beta.wrapper}}
-}
 \keyword{portfolio.residual}

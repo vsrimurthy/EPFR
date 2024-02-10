@@ -16,9 +16,4 @@ record.exists(x, y, n)
 \description{
 T/F depending on whether action already taken
 }
-\seealso{
-Other record: \code{\link{record.kill}},
-  \code{\link{record.read}}, \code{\link{record.track}},
-  \code{\link{record.write}}
-}
 \keyword{record.exists}

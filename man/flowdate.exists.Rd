@@ -12,12 +12,4 @@ flowdate.exists(x)
 \description{
 returns T if <x> is a daily flow-publication date
 }
-\seealso{
-Other flowdate: \code{\link{flowdate.diff}},
-  \code{\link{flowdate.ex.AllocMo}},
-  \code{\link{flowdate.ex.int}},
-  \code{\link{flowdate.ex.yyyymm}},
-  \code{\link{flowdate.lag}}, \code{\link{flowdate.seq}},
-  \code{\link{flowdate.to.int}}
-}
 \keyword{flowdate.exists}

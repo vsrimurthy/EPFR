@@ -28,7 +28,4 @@ fwd.probs(x, y, n, w, h, u, v, g, r)
 \description{
 probability that forward return is positive given predictor is positive
 }
-\seealso{
-Other fwd: \code{\link{fwd.probs.wrapper}}
-}
 \keyword{fwd.probs}

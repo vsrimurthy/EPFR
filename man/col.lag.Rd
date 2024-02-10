@@ -14,8 +14,4 @@ col.lag(x, y)
 \description{
 Lags <x> by <y> columns
 }
-\seealso{
-Other col: \code{\link{col.ex.int}},
-  \code{\link{col.to.int}}
-}
 \keyword{col.lag}

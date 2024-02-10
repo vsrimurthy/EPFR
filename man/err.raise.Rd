@@ -16,7 +16,4 @@ err.raise(x, y, n)
 \description{
 error message
 }
-\seealso{
-Other err: \code{\link{err.raise.txt}}
-}
 \keyword{err.raise}

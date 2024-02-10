@@ -16,9 +16,4 @@ record.track(x, y, n)
 \description{
 writes report for date <x> and type <y>
 }
-\seealso{
-Other record: \code{\link{record.exists}},
-  \code{\link{record.kill}}, \code{\link{record.read}},
-  \code{\link{record.write}}
-}
 \keyword{record.track}

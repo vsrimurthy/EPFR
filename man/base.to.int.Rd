@@ -14,7 +14,4 @@ base.to.int(x, y = 26)
 \description{
 Evaluates the base <y> number <x>
 }
-\seealso{
-Other base: \code{\link{base.ex.int}}
-}
 \keyword{base.to.int}

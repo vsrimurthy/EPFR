@@ -12,26 +12,4 @@ txt.words(x = "All")
 \description{
 a vector of capitalized words
 }
-\seealso{
-Other txt: \code{\link{txt.anagram.underlying}},
-  \code{\link{txt.anagram}}, \code{\link{txt.core}},
-  \code{\link{txt.count}}, \code{\link{txt.ex.file}},
-  \code{\link{txt.ex.int.cardinal.wrapper}},
-  \code{\link{txt.ex.int.cardinal}},
-  \code{\link{txt.ex.int.ordinal.wrapper}},
-  \code{\link{txt.ex.int.ordinal}},
-  \code{\link{txt.ex.int.underlying}},
-  \code{\link{txt.ex.int}}, \code{\link{txt.excise}},
-  \code{\link{txt.expand}}, \code{\link{txt.first}},
-  \code{\link{txt.gunning}}, \code{\link{txt.has}},
-  \code{\link{txt.hdr}}, \code{\link{txt.itrim}},
-  \code{\link{txt.left}}, \code{\link{txt.levenshtein}},
-  \code{\link{txt.name.format}}, \code{\link{txt.na}},
-  \code{\link{txt.parse}}, \code{\link{txt.prepend}},
-  \code{\link{txt.regex}}, \code{\link{txt.regr}},
-  \code{\link{txt.replace}}, \code{\link{txt.reverse}},
-  \code{\link{txt.right}}, \code{\link{txt.space}},
-  \code{\link{txt.to.char}}, \code{\link{txt.trim.left}},
-  \code{\link{txt.trim.right}}, \code{\link{txt.trim}}
-}
 \keyword{txt.words}

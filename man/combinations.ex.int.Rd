@@ -16,9 +16,4 @@ combinations.ex.int(x, y, n)
 \description{
 inverse of combinations.to.int; returns a logical vector of length <n>, <y> of which elements are T
 }
-\seealso{
-Other combinations: \code{\link{combinations.next}},
-  \code{\link{combinations.to.int}},
-  \code{\link{combinations}}
-}
 \keyword{combinations.ex.int}

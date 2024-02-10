@@ -14,12 +14,4 @@ bbk.holidays(x, y)
 \description{
 Sets <x> to NA whenever <y> is NA
 }
-\seealso{
-Other bbk: \code{\link{bbk.bin.rets.prd.summ}},
-  \code{\link{bbk.bin.rets.summ}},
-  \code{\link{bbk.bin.xRet}}, \code{\link{bbk.data}},
-  \code{\link{bbk.drawdown}}, \code{\link{bbk.fwdRet}},
-  \code{\link{bbk.matrix}}, \code{\link{bbk.summ}},
-  \code{\link{bbk.turnover}}, \code{\link{bbk}}
-}
 \keyword{bbk.holidays}

@@ -14,8 +14,4 @@ principal.components.covar(x, y)
 \description{
 covariance using first <y> components as factors
 }
-\seealso{
-Other principal: \code{\link{principal.components.underlying}},
-  \code{\link{principal.components}}
-}
 \keyword{principal.components.covar}

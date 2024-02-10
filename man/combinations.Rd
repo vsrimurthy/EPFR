@@ -14,9 +14,4 @@ combinations(x, y)
 \description{
 returns all possible combinations of <y> values of <x>
 }
-\seealso{
-Other combinations: \code{\link{combinations.ex.int}},
-  \code{\link{combinations.next}},
-  \code{\link{combinations.to.int}}
-}
 \keyword{combinations}

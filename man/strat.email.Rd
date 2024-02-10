@@ -18,8 +18,4 @@ strat.email(x, y, n, w = "All")
 \description{
 emails strategies <x> of frequency <y>
 }
-\seealso{
-Other strat: \code{\link{strat.dir}},
-  \code{\link{strat.file}}, \code{\link{strat.path}}
-}
 \keyword{strat.email}

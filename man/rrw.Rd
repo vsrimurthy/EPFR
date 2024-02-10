@@ -28,8 +28,4 @@ rrw(x, y, n, w, h, u, v, g = NULL, r)
 \description{
 regression results
 }
-\seealso{
-Other rrw: \code{\link{rrw.factors}},
-  \code{\link{rrw.underlying}}
-}
 \keyword{rrw}

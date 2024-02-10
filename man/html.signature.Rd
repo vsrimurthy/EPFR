@@ -9,16 +9,4 @@ html.signature()
 \description{
 signature at the end of an email
 }
-\seealso{
-Other html: \code{\link{html.and}},
-  \code{\link{html.email}}, \code{\link{html.ex.utf8}},
-  \code{\link{html.flow.breakdown}},
-  \code{\link{html.flow.english}},
-  \code{\link{html.flow.underlying}},
-  \code{\link{html.image}}, \code{\link{html.list}},
-  \code{\link{html.positioning}},
-  \code{\link{html.problem.underlying}},
-  \code{\link{html.problem}}, \code{\link{html.tbl}},
-  \code{\link{html.tenure}}
-}
 \keyword{html.signature}

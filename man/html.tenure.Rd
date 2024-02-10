@@ -16,16 +16,4 @@ html.tenure(x, y, n)
 \description{
 describes how long securities/factors have belonged to a group
 }
-\seealso{
-Other html: \code{\link{html.and}},
-  \code{\link{html.email}}, \code{\link{html.ex.utf8}},
-  \code{\link{html.flow.breakdown}},
-  \code{\link{html.flow.english}},
-  \code{\link{html.flow.underlying}},
-  \code{\link{html.image}}, \code{\link{html.list}},
-  \code{\link{html.positioning}},
-  \code{\link{html.problem.underlying}},
-  \code{\link{html.problem}}, \code{\link{html.signature}},
-  \code{\link{html.tbl}}
-}
 \keyword{html.tenure}

@@ -12,8 +12,4 @@ publish.weekly.last(x)
 \description{
 date of last weekly publication
 }
-\seealso{
-Other publish: \code{\link{publish.daily.last}},
-  \code{\link{publish.monthly.last}}
-}
 \keyword{publish.weekly.last}

@@ -14,13 +14,4 @@ vec.read(x, y = ",")
 \description{
 reads into <x> a named vector
 }
-\seealso{
-Other vec: \code{\link{vec.cat}}, \code{\link{vec.count}},
-  \code{\link{vec.cum}}, \code{\link{vec.diff}},
-  \code{\link{vec.ex.filters}}, \code{\link{vec.lag}},
-  \code{\link{vec.max}}, \code{\link{vec.min}},
-  \code{\link{vec.named}}, \code{\link{vec.same}},
-  \code{\link{vec.swap}}, \code{\link{vec.to.list}},
-  \code{\link{vec.unique}}
-}
 \keyword{vec.read}

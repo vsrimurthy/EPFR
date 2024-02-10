@@ -14,7 +14,4 @@ avg.winsorized(x, y = 100)
 \description{
 mean is computed over the quantiles 2 through <y> - 1
 }
-\seealso{
-Other avg: \code{\link{avg.model}}, \code{\link{avg.wtd}}
-}
 \keyword{avg.winsorized}

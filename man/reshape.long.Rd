@@ -18,7 +18,4 @@ reshape.long(x, y, n = "id", w = "val")
 \description{
 <x> in long format
 }
-\seealso{
-Other reshape: \code{\link{reshape.wide}}
-}
 \keyword{reshape.long}

@@ -16,8 +16,4 @@ compound.flows(x, y, n = F)
 \description{
 compounded flows over <n> trailing periods indexed by last day in the flow window
 }
-\seealso{
-Other compound: \code{\link{compound.sf}},
-  \code{\link{compound}}
-}
 \keyword{compound.flows}

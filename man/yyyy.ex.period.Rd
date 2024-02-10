@@ -14,8 +14,4 @@ yyyy.ex.period(x, y)
 \description{
 the year in which the return window ends
 }
-\seealso{
-Other yyyy: \code{\link{yyyy.ex.yy}},
-  \code{\link{yyyy.periods.count}}
-}
 \keyword{yyyy.ex.period}
