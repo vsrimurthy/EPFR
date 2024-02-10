@@ -6636,64 +6636,55 @@ mk.1mFloMo.Ctry <- function (x, y, n, w, h = "E")
 
 mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = "W") 
 {
-    h <- sql.connect.wrapper(h)
     w <- sql.1dFloMo.CountryId.List(w)
     w <- Ctry.info(w, c("GeoId", "CountryId"))
-    rslt <- list(MAP = w)
-    if (u == "M") 
-        s <- x
-    else s <- yyyymmdd.to.AllocMo.unique(x, 23, T)
-    rslt[["SCF"]] <- vec.to.list(x, T)
-    z <- paste(w$GeoId[!is.na(w$GeoId)], collapse = ", ")
-    z <- c(y, paste0("GeographicFocus in (", z, ")"), "UI")
-    rslt[["SCF"]] <- lapply(rslt[["SCF"]], function(x) sql.CtryFlow.Flow(x, 
-        n, "GeographicFocus", u, z))
-    rslt[["SCF"]] <- lapply(rslt[["SCF"]], function(z) sql.query.underlying(z, 
-        h$conn, F))
-    rslt[["CBF"]] <- vec.to.list(x, T)
-    z <- c(y, "CB", "UI")
-    rslt[["CBF"]] <- lapply(rslt[["CBF"]], function(x) sql.CtryFlow.Flow(x, 
-        n, "GeographicFocus", u, z))
-    rslt[["CBF"]] <- lapply(rslt[["CBF"]], function(z) sql.query.underlying(z, 
-        h$conn, F))
-    z <- sql.CtryFlow.Alloc(w$CountryId, y[1], s, "Country", 
-        "CB")
-    z <- sql.query.underlying(z, h$conn, F)
-    sql.close(h)
-    rslt[["CBA"]] <- reshape.wide(z)
-    z <- mk.1wFloMo.CtryFlow.data(rslt)
+    colnames(w)[1] <- "GeographicFocus"
+    z <- list(MAP = w)
+    z <- mk.1wFloMo.CtryFlow.data(x, y, n, z, h, u, "CB")
+    z <- mk.1wFloMo.CtryFlow.rslt(z)
     z
 }
 
 #' mk.1wFloMo.CtryFlow.data
 #' 
-#' Country flows using all funds
-#' @param x = result object with names MAP, CBF, SCF & CBA
+#' data for country-flow computation
+#' @param x = YYYYMMDD (flowdate or month end)
+#' @param y = a vector of FundHistory filters (first element MUST BE FundType)
+#' @param n = item(s) (any of Flow/AssetsStart/AssetsEnd)
+#' @param w = result object with element MAP
+#' @param h = input to or output of sql.connect
+#' @param u = frequency (T/F for daily/weekly or D/W/M)
+#' @param v = filter to define cross-border funds
 #' @keywords mk.1wFloMo.CtryFlow.data
 #' @export
 #' @family mk
 
-mk.1wFloMo.CtryFlow.data <- function (x) 
+mk.1wFloMo.CtryFlow.data <- function (x, y, n, w, h, u, v) 
 {
-    fcn <- function(z) {
-        z <- zav(map.rname(mat.index(z), colnames(x[["CBA"]])))
-        z <- 0.01 * as.matrix(x[["CBA"]]) %*% as.matrix(z)
-        z <- map.rname(z, x[["MAP"]][, 2])
-        z
-    }
-    x[["CBF"]] <- lapply(x[["CBF"]], fcn)
-    fcn <- function(z) map.rname(mat.index(z), x[["MAP"]][, 1])
-    x[["SCF"]] <- lapply(x[["SCF"]], fcn)
-    z <- list()
-    for (j in names(x[["CBF"]])) {
-        z[[j]] <- zav(x[["SCF"]][[j]]) + zav(x[["CBF"]][[j]])
-        rownames(z[[j]]) <- rownames(x[["MAP"]])
-        if (dim(x[["CBF"]][[1]])[2] == 1) 
-            z[[j]] <- as.matrix(z[[j]])[, 1]
-        else z[[j]] <- mat.ex.matrix(z[[j]])
-    }
-    if (length(x[["CBF"]]) == 1) 
-        z <- z[[1]]
+    h <- sql.connect.wrapper(h)
+    if (u == "M") 
+        s <- x
+    else s <- yyyymmdd.to.AllocMo.unique(x, 23, T)
+    w[["SCF"]] <- vec.to.list(x, T)
+    z <- paste(w$MAP[!is.na(w$MAP[, 1]), 1], collapse = ", ")
+    z <- c(y, paste0(colnames(w$MAP)[1], " in (", z, ")"), "UI")
+    w[["SCF"]] <- lapply(w[["SCF"]], function(x) sql.CtryFlow.Flow(x, 
+        n, colnames(w$MAP)[1], u, z))
+    w[["SCF"]] <- lapply(w[["SCF"]], function(z) sql.query.underlying(z, 
+        h$conn, F))
+    w[["CBF"]] <- vec.to.list(x, T)
+    z <- c(y, v, "UI")
+    w[["CBF"]] <- lapply(w[["CBF"]], function(x) sql.CtryFlow.Flow(x, 
+        n, "GeographicFocus", u, z))
+    w[["CBF"]] <- lapply(w[["CBF"]], function(z) sql.query.underlying(z, 
+        h$conn, F))
+    n <- txt.left(colnames(w$MAP)[2], nchar(colnames(w$MAP)[2]) - 
+        2)
+    z <- sql.CtryFlow.Alloc(w$MAP[, 2], y[1], s, n, v)
+    z <- sql.query.underlying(z, h$conn, F)
+    sql.close(h)
+    w[["CBA"]] <- reshape.wide(z)
+    z <- w
     z
 }
 
@@ -6789,50 +6780,64 @@ mk.1wFloMo.CtryFlow.local <- function (x, y, n, w, h, u = T)
     z
 }
 
+#' mk.1wFloMo.CtryFlow.rslt
+#' 
+#' Country flows using all funds
+#' @param x = result object with names MAP, CBF, SCF & CBA
+#' @keywords mk.1wFloMo.CtryFlow.rslt
+#' @export
+#' @family mk
+
+mk.1wFloMo.CtryFlow.rslt <- function (x) 
+{
+    fcn <- function(z) {
+        z <- zav(map.rname(mat.index(z), colnames(x[["CBA"]])))
+        z <- 0.01 * as.matrix(x[["CBA"]]) %*% as.matrix(z)
+        z <- map.rname(z, x[["MAP"]][, 2])
+        z
+    }
+    x[["CBF"]] <- lapply(x[["CBF"]], fcn)
+    fcn <- function(z) map.rname(mat.index(z), x[["MAP"]][, 1])
+    x[["SCF"]] <- lapply(x[["SCF"]], fcn)
+    z <- list()
+    for (j in names(x[["CBF"]])) {
+        z[[j]] <- zav(x[["SCF"]][[j]]) + zav(x[["CBF"]][[j]])
+        rownames(z[[j]]) <- rownames(x[["MAP"]])
+        if (dim(x[["CBF"]][[1]])[2] == 1) 
+            z[[j]] <- as.matrix(z[[j]])[, 1]
+        else z[[j]] <- mat.ex.matrix(z[[j]])
+    }
+    if (length(x[["CBF"]]) == 1) 
+        z <- z[[1]]
+    z
+}
+
 #' mk.1wFloMo.IndyFlow
 #' 
-#' SQL query for country-flow percentage for date <x>
+#' Industry/Sector flows
 #' @param x = YYYYMMDD
 #' @param y = item(s) (any of Flow/AssetsStart/AssetsEnd)
 #' @param n = input to or output of sql.connect
 #' @param w = frequency (T/F for daily/weekly or D/W/M)
+#' @param h = T/F depending for Industry/Sector flows
 #' @keywords mk.1wFloMo.IndyFlow
 #' @export
 #' @family mk
 
-mk.1wFloMo.IndyFlow <- function (x, y, n, w) 
+mk.1wFloMo.IndyFlow <- function (x, y, n, w, h = T) 
 {
-    n <- sql.connect.wrapper(n)
-    rslt <- mat.read(parameters("classif-GIgrp"))[, c("IndustryId", 
-        "UINm", "StyleSector")]
-    rslt <- list(MAP = rslt[, c("StyleSector", "IndustryId")])
-    if (w == "M") 
-        v <- x
-    else v <- yyyymmdd.to.AllocMo.unique(x, 23, T)
-    rslt[["SCF"]] <- vec.to.list(x, T)
-    z <- paste(rslt$MAP$StyleSector[!is.na(rslt$MAP$StyleSector)], 
-        collapse = ", ")
-    z <- c("E", paste0("StyleSector in (", z, ")"), "UI")
-    rslt[["SCF"]] <- lapply(rslt[["SCF"]], function(x) sql.CtryFlow.Flow(x, 
-        y, "StyleSector", w, z))
-    rslt[["SCF"]] <- lapply(rslt[["SCF"]], function(z) sql.query.underlying(z, 
-        n$conn, F))
-    rslt[["CBF"]] <- vec.to.list(x, T)
-    z <- paste(rslt$MAP$StyleSector[!is.na(rslt$MAP$StyleSector)], 
-        collapse = ", ")
-    z <- c("E", paste0("StyleSector not in (", z, ")"), "UI")
-    rslt[["CBF"]] <- lapply(rslt[["CBF"]], function(x) sql.CtryFlow.Flow(x, 
-        y, "GeographicFocus", w, z))
-    rslt[["CBF"]] <- lapply(rslt[["CBF"]], function(z) sql.query.underlying(z, 
-        n$conn, F))
-    z <- paste(rslt$MAP$StyleSector[!is.na(rslt$MAP$StyleSector)], 
-        collapse = ", ")
-    z <- paste0("StyleSector not in (", z, ")")
-    z <- sql.CtryFlow.Alloc(NULL, "E", v, "Industry", z)
-    z <- sql.query.underlying(z, n$conn, F)
-    sql.close(n)
-    rslt[["CBA"]] <- reshape.wide(z)
-    z <- mk.1wFloMo.CtryFlow.data(rslt)
+    if (h) {
+        z <- mat.read(parameters("classif-GIgrp"))
+        z <- list(MAP = z[, c("StyleSector", "IndustryId")])
+    }
+    else {
+        z <- mat.read(parameters("classif-GSec"))
+        z <- list(MAP = z[, c("StyleSector", "SectorId")])
+    }
+    v <- paste(z$MAP[!is.na(z$MAP[, 1]), 1], collapse = ", ")
+    v <- paste0(colnames(z$MAP)[1], " not in (", v, ")")
+    z <- mk.1wFloMo.CtryFlow.data(x, "E", y, z, n, w, v)
+    z <- mk.1wFloMo.CtryFlow.rslt(z)
     z
 }
 

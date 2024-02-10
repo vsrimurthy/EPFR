@@ -4,7 +4,7 @@
 \alias{mk.1wFloMo.IndyFlow}
 \title{mk.1wFloMo.IndyFlow}
 \usage{
-mk.1wFloMo.IndyFlow(x, y, n, w)
+mk.1wFloMo.IndyFlow(x, y, n, w, h = T)
 }
 \arguments{
 \item{x}{= YYYYMMDD}
@@ -14,9 +14,11 @@ mk.1wFloMo.IndyFlow(x, y, n, w)
 \item{n}{= input to or output of sql.connect}
 
 \item{w}{= frequency (T/F for daily/weekly or D/W/M)}
+
+\item{h}{= T/F depending for Industry/Sector flows}
 }
 \description{
-SQL query for country-flow percentage for date <x>
+Industry/Sector flows
 }
 \seealso{
 Other mk: \code{\link{mk.1dActWtTrend.Ctry}},
@@ -41,6 +43,7 @@ Other mk: \code{\link{mk.1dActWtTrend.Ctry}},
   \code{\link{mk.1mFloMo.Ctry}},
   \code{\link{mk.1wFloMo.CtryFlow.data}},
   \code{\link{mk.1wFloMo.CtryFlow.local}},
+  \code{\link{mk.1wFloMo.CtryFlow.rslt}},
   \code{\link{mk.1wFloMo.CtryFlow}},
   \code{\link{mk.ActWt}}, \code{\link{mk.Alpha.daily}},
   \code{\link{mk.Alpha}}, \code{\link{mk.EigenCentrality}},

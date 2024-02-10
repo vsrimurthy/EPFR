@@ -4,13 +4,25 @@
 \alias{mk.1wFloMo.CtryFlow.data}
 \title{mk.1wFloMo.CtryFlow.data}
 \usage{
-mk.1wFloMo.CtryFlow.data(x)
+mk.1wFloMo.CtryFlow.data(x, y, n, w, h, u, v)
 }
 \arguments{
-\item{x}{= result object with names MAP, CBF, SCF & CBA}
+\item{x}{= YYYYMMDD (flowdate or month end)}
+
+\item{y}{= a vector of FundHistory filters (first element MUST BE FundType)}
+
+\item{n}{= item(s) (any of Flow/AssetsStart/AssetsEnd)}
+
+\item{w}{= result object with element MAP}
+
+\item{h}{= input to or output of sql.connect}
+
+\item{u}{= frequency (T/F for daily/weekly or D/W/M)}
+
+\item{v}{= filter to define cross-border funds}
 }
 \description{
-Country flows using all funds
+data for country-flow computation
 }
 \seealso{
 Other mk: \code{\link{mk.1dActWtTrend.Ctry}},
@@ -34,6 +46,7 @@ Other mk: \code{\link{mk.1dActWtTrend.Ctry}},
   \code{\link{mk.1mBullish.rslt}},
   \code{\link{mk.1mFloMo.Ctry}},
   \code{\link{mk.1wFloMo.CtryFlow.local}},
+  \code{\link{mk.1wFloMo.CtryFlow.rslt}},
   \code{\link{mk.1wFloMo.CtryFlow}},
   \code{\link{mk.1wFloMo.IndyFlow}},
   \code{\link{mk.ActWt}}, \code{\link{mk.Alpha.daily}},
