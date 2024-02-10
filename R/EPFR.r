@@ -6661,26 +6661,39 @@ mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = "W")
     z <- sql.query.underlying(z, h$conn, F)
     sql.close(h)
     rslt[["CBA"]] <- reshape.wide(z)
-    fcn <- function(x) {
-        x <- map.rname(mat.index(x), colnames(rslt[["CBA"]]))
-        x <- 0.01 * as.matrix(rslt[["CBA"]]) %*% as.matrix(zav(x))
-        x <- map.rname(x, rslt[["MAP"]][, "CountryId"])
-        x
+    z <- mk.1wFloMo.CtryFlow.data(rslt)
+    z
+}
+
+#' mk.1wFloMo.CtryFlow.data
+#' 
+#' Country flows using all funds
+#' @param x = result object with names MAP, CBF, SCF & CBA
+#' @keywords mk.1wFloMo.CtryFlow.data
+#' @export
+#' @family mk
+
+mk.1wFloMo.CtryFlow.data <- function (x) 
+{
+    fcn <- function(z) {
+        z <- zav(map.rname(mat.index(z), colnames(x[["CBA"]])))
+        z <- 0.01 * as.matrix(x[["CBA"]]) %*% as.matrix(z)
+        z <- map.rname(z, x[["MAP"]][, 2])
+        z
     }
-    rslt[["CBF"]] <- lapply(rslt[["CBF"]], fcn)
-    fcn <- function(x) map.rname(mat.index(x), rslt[["MAP"]][, 
-        "GeoId"])
-    rslt[["SCF"]] <- lapply(rslt[["SCF"]], fcn)
+    x[["CBF"]] <- lapply(x[["CBF"]], fcn)
+    fcn <- function(z) map.rname(mat.index(z), x[["MAP"]][, 1])
+    x[["SCF"]] <- lapply(x[["SCF"]], fcn)
     z <- list()
-    for (j in x) {
-        z[[j]] <- zav(rslt[["SCF"]][[j]]) + zav(rslt[["CBF"]][[j]])
-        rownames(z[[j]]) <- rownames(rslt[["MAP"]])
-        if (length(n) == 1) 
+    for (j in names(x[["CBF"]])) {
+        z[[j]] <- zav(x[["SCF"]][[j]]) + zav(x[["CBF"]][[j]])
+        rownames(z[[j]]) <- rownames(x[["MAP"]])
+        if (dim(x[["CBF"]][[1]])[2] == 1) 
             z[[j]] <- as.matrix(z[[j]])[, 1]
         else z[[j]] <- mat.ex.matrix(z[[j]])
     }
-    if (length(x) == 1) 
-        z <- z[[x]]
+    if (length(x[["CBF"]]) == 1) 
+        z <- z[[1]]
     z
 }
 
@@ -6792,7 +6805,7 @@ mk.1wFloMo.IndyFlow <- function (x, y, n, w)
     n <- sql.connect.wrapper(n)
     rslt <- mat.read(parameters("classif-GIgrp"))[, c("IndustryId", 
         "UINm", "StyleSector")]
-    rslt <- list(MAP = mat.index(rslt))
+    rslt <- list(MAP = rslt[, c("StyleSector", "IndustryId")])
     if (w == "M") 
         v <- x
     else v <- yyyymmdd.to.AllocMo.unique(x, 23, T)
@@ -6819,32 +6832,7 @@ mk.1wFloMo.IndyFlow <- function (x, y, n, w)
     z <- sql.query.underlying(z, n$conn, F)
     sql.close(n)
     rslt[["CBA"]] <- reshape.wide(z)
-    fcn <- function(x) {
-        x <- map.rname(mat.index(x), colnames(rslt[["CBA"]]))
-        x <- 0.01 * as.matrix(rslt[["CBA"]]) %*% as.matrix(zav(x))
-        x <- map.rname(x, rownames(rslt[["MAP"]]))
-        x
-    }
-    rslt[["CBF"]] <- lapply(rslt[["CBF"]], fcn)
-    r <- !is.na(rslt[["MAP"]][, "StyleSector"])
-    r <- vec.named(rownames(rslt[["MAP"]])[r], rslt[["MAP"]][r, 
-        "StyleSector"])
-    fcn <- function(x) {
-        x <- mat.index(x)
-        rownames(x) <- map.rname(r, rownames(x))
-        x <- map.rname(x, rownames(rslt[["MAP"]]))
-        x
-    }
-    rslt[["SCF"]] <- lapply(rslt[["SCF"]], fcn)
-    z <- list()
-    for (j in x) {
-        z[[j]] <- zav(rslt[["SCF"]][[j]]) + zav(rslt[["CBF"]][[j]])
-        if (length(y) == 1) 
-            z[[j]] <- as.matrix(z[[j]])[, 1]
-        else z[[j]] <- mat.ex.matrix(z[[j]])
-    }
-    if (length(x) == 1) 
-        z <- z[[x]]
+    z <- mk.1wFloMo.CtryFlow.data(rslt)
     z
 }
 
