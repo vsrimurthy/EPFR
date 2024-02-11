@@ -2650,20 +2650,19 @@ fcn.indent.proper <- function (x)
     y <- toupper(fcn.lines.code(x, T))
     z <- txt.trim.left(y, "\t")
     w <- nchar(y) - nchar(z)
-    r <- txt.has(z, " <- FUNCTION(", T)
-    for (j in c("FOR (", "WHILE (", "IF (")) r <- r | txt.left(z, 
-        nchar(j)) == j
-    r <- ifelse(r & txt.right(z, 1) == "{", 1, NA)
-    r <- ifelse(txt.left(z, 1) == "#", 0, r)
-    r <- ifelse(txt.left(z, 1) == "}", -1, r)
-    r <- ifelse(txt.left(z, 7) == "} ELSE " & txt.right(z, 1) == 
-        "{", 0, r)
+    r <- grepl(" <- FUNCTION\\(", z)
+    for (j in c("^FOR \\(", "^WHILE \\(", "^IF \\(")) r <- r | 
+        grepl(j, z)
+    r <- ifelse(r & grepl("\\{$", z), 1, NA)
+    r <- ifelse(grepl("^#", z), 0, r)
+    r <- ifelse(grepl("^}", z), -1, r)
+    r <- ifelse(grepl("^} ELSE .*\\{$", z), 0, r)
     n <- nchar(y) > w & is.element(substring(y, w + 1, w + 1), 
         n)
     n <- !is.na(r) | n
-    r <- 1 + cumsum(zav(r)) - zav(r) - char.to.num(txt.left(z, 
-        1) == "}") - w
-    z <- (txt.left(z, 1) == "#" & r == 1) | r == 0
+    r <- 1 + cumsum(zav(r)) - zav(r) - as.numeric(grepl("^}", 
+        z)) - w
+    z <- (grepl("^#", z) & r == 1) | r == 0
     z <- all(z & n)
     z
 }
