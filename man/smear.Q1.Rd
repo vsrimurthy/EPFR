@@ -10,6 +10,6 @@ smear.Q1(x)
 \item{x}{= any real number}
 }
 \description{
-Returns weights associated with ranks 1:x so that a) every position in the top quintile has an equal positive weight b) every position in the bottom 3 quintiles has an equal negative weight c) second quintile positions get a linear interpolation d) the weights sum to zero e) the positive weights sum to 100
+Returns weights associated with ranks 1:x so that #		:	a) every position in the top quintile has an equal positive weight #		:	b) every position in the bottom 3 quintiles has an equal negative weight #		:	c) second quintile positions get a linear interpolation #		:	d) the weights sum to zero #		:	e) the positive weights sum to 100
 }
 \keyword{smear.Q1}

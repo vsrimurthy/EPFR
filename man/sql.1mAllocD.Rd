@@ -9,7 +9,7 @@ sql.1mAllocD(x, y, n, w, h, u = NULL, v = T, g = "All")
 \arguments{
 \item{x}{= a YYYYMM or vector of flow dates (if u = "Flow")}
 
-\item{y}{= a string vector of factors to be computed, the last element of which is the type of fund used.}
+\item{y}{= a string vector of factors to be computed, #        :    the last element of which is the type of fund used.}
 
 \item{n}{= any of StockFlows/China/Japan/CSI300/Energy}
 

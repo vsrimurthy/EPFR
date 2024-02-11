@@ -7,7 +7,7 @@
 sql.arguments(x)
 }
 \arguments{
-\item{x}{= a string vector of variables to build with the last elements specifying the type of funds to use}
+\item{x}{= a string vector of variables to build with the last elements #        :    specifying the type of funds to use}
 }
 \description{
 splits <x> into factor and filters

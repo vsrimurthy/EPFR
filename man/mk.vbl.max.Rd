@@ -11,7 +11,7 @@ mk.vbl.max(x, y, n)
 
 \item{y}{= a string vector of names of two variables}
 
-\item{n}{= list object containing the following items: a) classif - classif file b) fldr - stock-flows folder}
+\item{n}{= list object containing the following items: #        :    a) classif - classif file #        :    b) fldr - stock-flows folder}
 }
 \description{
 Computes the maximum of the two variables

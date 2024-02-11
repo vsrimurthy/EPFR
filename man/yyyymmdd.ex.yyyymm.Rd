@@ -9,7 +9,7 @@ yyyymmdd.ex.yyyymm(x, y = T)
 \arguments{
 \item{x}{= a vector/single YYYYMM depending on if y is T/F}
 
-\item{y}{= T/F variable depending on whether the last or all trading days in that month are desired}
+\item{y}{= T/F variable depending on whether the last or #        :    all trading days in that month are desired}
 }
 \description{
 last/all weekdays in <x>

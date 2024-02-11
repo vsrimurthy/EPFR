@@ -9,9 +9,9 @@ mk.Alpha(x, y, n)
 \arguments{
 \item{x}{= a single YYYYMM}
 
-\item{y}{= a string vector, the first two elements of which are universe and group to zScore on and within. This is then followed by a list of variables which are, in turn, followed by weights to put on variables}
+\item{y}{= a string vector, the first two elements of which are #        :    universe and group to zScore on and within. This is then followed by #        :    a list of variables which are, in turn, followed by weights to put on variables}
 
-\item{n}{= list object containing the following items: a) classif - classif file b) fldr - stock-flows folder}
+\item{n}{= list object containing the following items: #        :    a) classif - classif file #        :    b) fldr - stock-flows folder}
 }
 \description{
 makes Alpha

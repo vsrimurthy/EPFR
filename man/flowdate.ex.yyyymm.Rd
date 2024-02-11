@@ -9,7 +9,7 @@ flowdate.ex.yyyymm(x, y = T)
 \arguments{
 \item{x}{= a vector/single YYYYMM depending on if y is T/F}
 
-\item{y}{= T/F variable depending on whether the last or all daily flow-publication dates in <x> are desired}
+\item{y}{= T/F variable depending on whether the last or all #        :    daily flow-publication dates in <x> are desired}
 }
 \description{
 last/all trading days daily flow-publication dates in <x>

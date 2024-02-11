@@ -10,6 +10,6 @@ combinations.to.int(x)
 \item{x}{= a logical vector}
 }
 \description{
-maps each particular way to choose <sum(x)> things amongst <length(x)> things to the number line
+maps each particular way to choose <sum(x)> things #		:	amongst <length(x)> things to the number line
 }
 \keyword{combinations.to.int}

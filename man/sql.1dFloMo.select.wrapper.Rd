@@ -7,7 +7,7 @@
 sql.1dFloMo.select.wrapper(x, y, n, w = F)
 }
 \arguments{
-\item{x}{= a string vector of factors to be computed, the last elements of are the type of fund used}
+\item{x}{= a string vector of factors to be computed, the last elements of #        :    are the type of fund used}
 
 \item{y}{= T/F depending on whether you are checking ftp}
 

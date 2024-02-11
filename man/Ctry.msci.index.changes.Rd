@@ -7,7 +7,7 @@
 Ctry.msci.index.changes(x, y)
 }
 \arguments{
-\item{x}{= a matrix/df of total returns indexed by the beginning of the period (trade date in yyyymmdd format)}
+\item{x}{= a matrix/df of total returns indexed by the beginning #        :    of the period (trade date in yyyymmdd format)}
 
 \item{y}{= an MSCI index such as ACWI/EAFE/EM}
 }

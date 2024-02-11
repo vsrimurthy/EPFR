@@ -9,7 +9,7 @@ sql.Bullish(x, y, n, w)
 \arguments{
 \item{x}{= the YYYYMM for which you want data (known 26 days later)}
 
-\item{y}{= a string vector of factors to be computed, the last element of which is the type of fund used.}
+\item{y}{= a string vector of factors to be computed, #        :    the last element of which is the type of fund used.}
 
 \item{n}{= any of StockFlows/China/Japan/CSI300/Energy}
 

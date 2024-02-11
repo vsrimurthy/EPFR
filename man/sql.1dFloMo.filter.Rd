@@ -7,7 +7,7 @@
 sql.1dFloMo.filter(x, y)
 }
 \arguments{
-\item{x}{= a string vector of factors to be computed, the last elements of which are the type of fund used}
+\item{x}{= a string vector of factors to be computed, the #        :    last elements of which are the type of fund used}
 
 \item{y}{= breakdown filter (e.g. All/GeoId/DomicileId)}
 }

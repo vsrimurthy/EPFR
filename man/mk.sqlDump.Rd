@@ -9,9 +9,9 @@ mk.sqlDump(x, y, n)
 \arguments{
 \item{x}{= a single YYYYMM}
 
-\item{y}{= a string vector, the elements of which are: 1) file to read from 2) variable to read 3) lag (defaults to zero)}
+\item{y}{= a string vector, the elements of which are: #        :    1) file to read from #        :    2) variable to read #        :    3) lag (defaults to zero)}
 
-\item{n}{= list object containing the following items: a) fldr - stock-flows folder}
+\item{n}{= list object containing the following items: #        :    a) fldr - stock-flows folder}
 }
 \description{
 Returns variable with the same row space as <n>

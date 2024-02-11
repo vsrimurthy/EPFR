@@ -10,6 +10,6 @@ sql.RDSuniv(x)
 \item{x}{= any of StockFlows/China/Japan/CSI300/Energy}
 }
 \description{
-Generates the SQL query to get the row space for a stock flows research data set
+Generates the SQL query to get the row space for a #		:	stock flows research data set
 }
 \keyword{sql.RDSuniv}

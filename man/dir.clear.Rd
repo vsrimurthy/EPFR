@@ -9,7 +9,7 @@ dir.clear(x, y)
 \arguments{
 \item{x}{= a path such as "C:\\\\temp"}
 
-\item{y}{= a string such as "*.txt"}
+\item{y}{= a string such as "\\\\.txt"}
 }
 \description{
 rids <x> of files of type <y>

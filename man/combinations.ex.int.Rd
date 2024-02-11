@@ -14,6 +14,6 @@ combinations.ex.int(x, y, n)
 \item{n}{= a positive integer}
 }
 \description{
-inverse of combinations.to.int; returns a logical vector of length <n>, <y> of which elements are T
+inverse of combinations.to.int; returns a logical vector #		:	of length <n>, <y> of which elements are T
 }
 \keyword{combinations.ex.int}

@@ -13,7 +13,7 @@ optimal(x, y, n, w)
 
 \item{n}{= an isoplatic matrix/df of daily returns on which to train the risk model}
 
-\item{w}{= a numeric vector, the elements of which are: 1) number of trailing days to train the risk model on 2) number of principal components (when 0 raw return matrix is used) 3) number of bins (when 0, indicator is ptiled) 4) forward return window in days or months depending on the row space of <x>}
+\item{w}{= a numeric vector, the elements of which are: #        :    1) number of trailing days to train the risk model on #        :    2) number of principal components (when 0 raw return matrix is used) #        :    3) number of bins (when 0, indicator is ptiled) #        :    4) forward return window in days or months depending on the row space of <x>}
 }
 \description{
 Performance statistics of the optimal zero-cost unit-variance portfolio

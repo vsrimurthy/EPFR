@@ -9,9 +9,9 @@ mk.vbl.ratio(x, y, n)
 \arguments{
 \item{x}{= a single YYYYMM}
 
-\item{y}{= a string vector, the elements of which are the numerator and denominator respectively.}
+\item{y}{= a string vector, the elements of which are the #        :    numerator and denominator respectively.}
 
-\item{n}{= list object containing the following items: a) classif - classif file b) fldr - stock-flows folder}
+\item{n}{= list object containing the following items: #        :    a) classif - classif file #        :    b) fldr - stock-flows folder}
 }
 \description{
 Computes the ratio of the two variables

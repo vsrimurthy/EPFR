@@ -14,6 +14,6 @@ knapsack.ex.int(x, y, n)
 \item{n}{= a positive integer}
 }
 \description{
-inverse of knapsack.to.int; returns a vector of length <n>, the elements of which sum to <y>
+inverse of knapsack.to.int; returns a vector of length <n>, #		:	the elements of which sum to <y>
 }
 \keyword{knapsack.ex.int}

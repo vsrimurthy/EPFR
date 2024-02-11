@@ -12,6 +12,6 @@ yyyymmdd.to.AllocMo(x, y = 23)
 \item{y}{= calendar day in the next month when allocations are known (usually the 23rd)}
 }
 \description{
-Returns the month for which you need to get allocations Flows as of the 23rd of each month are known by the 24th. By this time allocations from the previous month are known
+Returns the month for which you need to get allocations Flows as of the 23rd of each month are known by the 24th. By this time allocations from #		:	the previous month are known
 }
 \keyword{yyyymmdd.to.AllocMo}

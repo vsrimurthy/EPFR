@@ -9,9 +9,9 @@ sql.1mActWt(x, y)
 \arguments{
 \item{x}{= the YYYYMM for which you want data (known 24 days later)}
 
-\item{y}{= a string vector, the elements of which are: 1) FundId for the fund used as the benchmark 2) BenchIndexId of the benchmark}
+\item{y}{= a string vector, the elements of which are: #        :    1) FundId for the fund used as the benchmark #        :    2) BenchIndexId of the benchmark}
 }
 \description{
-Generates the SQL query to get the following active weights: a) EqlAct = equal weight average (incl 0) less the benchmark b) CapAct = fund weight average (incl 0) less the benchmark c) PosAct = fund weight average (incl 0) less the benchmark (positive flows only) d) NegAct = fund weight average (incl 0) less the benchmark (negative flows only)
+Generates the SQL query to get the following active weights: #		:	a) EqlAct = equal weight average (incl 0) less the benchmark #		:	b) CapAct = fund weight average (incl 0) less the benchmark #		:	c) PosAct = fund weight average (incl 0) less the benchmark (positive flows only) #		:	d) NegAct = fund weight average (incl 0) less the benchmark (negative flows only)
 }
 \keyword{sql.1mActWt}

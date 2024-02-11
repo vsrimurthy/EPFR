@@ -9,9 +9,9 @@ mk.vbl.sum(x, y, n)
 \arguments{
 \item{x}{= a single YYYYMM}
 
-\item{y}{= a string vector, the elements of which are the variables to be added.}
+\item{y}{= a string vector, the elements of which are the variables #        :    to be added.}
 
-\item{n}{= list object containing the following items: a) classif - classif file b) fldr - stock-flows folder}
+\item{n}{= list object containing the following items: #        :    a) classif - classif file #        :    b) fldr - stock-flows folder}
 }
 \description{
 Computes the sum of the two variables

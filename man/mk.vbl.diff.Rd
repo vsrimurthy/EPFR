@@ -9,9 +9,9 @@ mk.vbl.diff(x, y, n)
 \arguments{
 \item{x}{= a single YYYYMM}
 
-\item{y}{= a string vector, the elements of which are the variables being subtracted and subtracted from respectively.}
+\item{y}{= a string vector, the elements of which are the variables #        :    being subtracted and subtracted from respectively.}
 
-\item{n}{= list object containing the following items: a) classif - classif file b) fldr - stock-flows folder}
+\item{n}{= list object containing the following items: #        :    a) classif - classif file #        :    b) fldr - stock-flows folder}
 }
 \description{
 Computes the difference of the two variables

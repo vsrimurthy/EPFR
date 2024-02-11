@@ -9,7 +9,7 @@ sql.1mHoldAum(x, y, n, w, h)
 \arguments{
 \item{x}{= the YYYYMM for which you want data (known 26 days later)}
 
-\item{y}{= a string vector of factors to be computed, the last elements of which are the types of fund used.}
+\item{y}{= a string vector of factors to be computed, #        :    the last elements of which are the types of fund used.}
 
 \item{n}{= any of StockFlows/China/Japan/CSI300/Energy}
 

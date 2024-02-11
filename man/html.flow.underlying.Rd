@@ -10,6 +10,6 @@ html.flow.underlying(x)
 \item{x}{= a numeric vector indexed by YYYYMMDD}
 }
 \description{
-list object containing the following items: a) text - dates and text information about flows b) numbers - numeric summary of the flows
+list object containing the following items: #		:	a) text - dates and text information about flows #		:	b) numbers - numeric summary of the flows
 }
 \keyword{html.flow.underlying}

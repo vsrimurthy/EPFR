@@ -11,7 +11,7 @@ mk.ActWt(x, y, n)
 
 \item{y}{= a string vector of names of the portfolio and benchmark}
 
-\item{n}{= list object containing the following items: a) classif - classif file b) fldr - stock-flows folder}
+\item{n}{= list object containing the following items: #        :    a) classif - classif file #        :    b) fldr - stock-flows folder}
 }
 \description{
 Active weight

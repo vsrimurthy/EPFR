@@ -9,9 +9,9 @@ mk.vbl.lag(x, y, n)
 \arguments{
 \item{x}{= a single YYYYMM}
 
-\item{y}{= a string vector, the elements of which are: 1) the variable to be lagged 2) the lag in months 3) the sub-folder in which the variable lives}
+\item{y}{= a string vector, the elements of which are: #        :    1) the variable to be lagged #        :    2) the lag in months #        :    3) the sub-folder in which the variable lives}
 
-\item{n}{= list object containing the following items: a) classif - classif file b) fldr - stock-flows folder}
+\item{n}{= list object containing the following items: #        :    a) classif - classif file #        :    b) fldr - stock-flows folder}
 }
 \description{
 Lags the variable

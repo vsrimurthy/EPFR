@@ -9,9 +9,9 @@ mk.isin(x, y, n)
 \arguments{
 \item{x}{= a single YYYYMM or YYYYMMDD}
 
-\item{y}{= a string vector, the elements of which are: 1) an object name (preceded by #) or the path to a ".csv" file 2) defaults to "isin"}
+\item{y}{= a string vector, the elements of which are: #        :    1) an object name (preceded by #) or the path to a ".csv" file #        :    2) defaults to "isin"}
 
-\item{n}{= list object containing the following items: a) classif - classif file}
+\item{n}{= list object containing the following items: #        :    a) classif - classif file}
 }
 \description{
 Looks up date from external file and maps on isin

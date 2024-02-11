@@ -9,9 +9,9 @@ mk.FloBeta(x, y, n)
 \arguments{
 \item{x}{= a single YYYYMM}
 
-\item{y}{= a string vector, the elements of which are: 1) connection string (e.g. "NEWUI") 2) number of trailing months of returns (e.g. 36)}
+\item{y}{= a string vector, the elements of which are: #        :    1) connection string (e.g. "NEWUI") #        :    2) number of trailing months of returns (e.g. 36)}
 
-\item{n}{= list object containing the following items: a) classif - classif file b) fldr - stock-flows folder}
+\item{n}{= list object containing the following items: #        :    a) classif - classif file #        :    b) fldr - stock-flows folder}
 }
 \description{
 Computes monthly beta versus common fund flow shock

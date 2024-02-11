@@ -559,7 +559,7 @@ bbk.data <- function (x, y, n, w, h, u, v, g, r, s)
 
 #' bbk.drawdown
 #' 
-#' returns a logical vector identifying the contiguous periods corresponding to max drawdown
+#' returns a logical vector identifying the contiguous periods #		:	corresponding to max drawdown
 #' @param x = a numeric vector
 #' @keywords bbk.drawdown
 #' @export
@@ -1201,7 +1201,7 @@ combinations <- function (x, y)
 
 #' combinations.ex.int
 #' 
-#' inverse of combinations.to.int; returns a logical vector of length <n>, <y> of which elements are T
+#' inverse of combinations.to.int; returns a logical vector #		:	of length <n>, <y> of which elements are T
 #' @param x = a positive integer
 #' @param y = a positive integer
 #' @param n = a positive integer
@@ -1247,7 +1247,7 @@ combinations.next <- function (x)
 
 #' combinations.to.int
 #' 
-#' maps each particular way to choose <sum(x)> things amongst <length(x)> things to the number line
+#' maps each particular way to choose <sum(x)> things #		:	amongst <length(x)> things to the number line
 #' @param x = a logical vector
 #' @keywords combinations.to.int
 #' @export
@@ -1534,7 +1534,7 @@ Ctry.msci <- function (x)
 #' Ctry.msci.index.changes
 #' 
 #' handles the addition and removal of countries from an index
-#' @param x = a matrix/df of total returns indexed by the beginning of the period (trade date in yyyymmdd format)
+#' @param x = a matrix/df of total returns indexed by the beginning #		:	of the period (trade date in yyyymmdd format)
 #' @param y = an MSCI index such as ACWI/EAFE/EM
 #' @keywords Ctry.msci.index.changes
 #' @export
@@ -1583,7 +1583,7 @@ Ctry.msci.index.changes <- function (x, y)
 #' 
 #' lists countries in an index at <y>
 #' @param x = an index name such as ACWI/EAFE/EM
-#' @param y = one of the following: (a) a YYYYMM date (b) a YYYYMMDD date (c) "" for a static series
+#' @param y = one of the following: #		:	(a) a YYYYMM date #		:	(b) a YYYYMMDD date #		:	(c) "" for a static series
 #' @keywords Ctry.msci.members
 #' @export
 
@@ -1749,7 +1749,7 @@ day.to.int <- function (x)
 #' 
 #' maps days to weeks
 #' @param x = a vector of calendar dates
-#' @param y = an integer representing the day the week ends on 0 is Sun, 1 is Mon, .., 6 is Sat
+#' @param y = an integer representing the day the week ends on #		:	0 is Sun, 1 is Mon, .., 6 is Sat
 #' @keywords day.to.week
 #' @export
 
@@ -1789,7 +1789,7 @@ decimal.format <- function (x, y)
 #' 
 #' Returns all files in the folder including sub-directories
 #' @param x = a path such as "C:\\\\temp"
-#' @param y = a string such as "*.txt"
+#' @param y = a string such as "\\\\.txt"
 #' @keywords dir.all.files
 #' @export
 
@@ -1807,7 +1807,7 @@ dir.all.files <- function (x, y)
 #' 
 #' rids <x> of files of type <y>
 #' @param x = a path such as "C:\\\\temp"
-#' @param y = a string such as "*.txt"
+#' @param y = a string such as "\\\\.txt"
 #' @keywords dir.clear
 #' @export
 
@@ -1919,7 +1919,7 @@ dir.publications <- function (x)
 
 dir.size <- function (x) 
 {
-    z <- dir.all.files(x, "*.*")
+    z <- dir.all.files(x, "\\.")
     if (length(z) == 0) {
         z <- 0
     }
@@ -2585,7 +2585,7 @@ fcn.expressions.count <- function (x)
 fcn.extract.args <- function (x) 
 {
     n <- length(x)
-    x <- txt.right(x, nchar(x) - ifelse(1:n == 1, 10, 5))
+    x <- gsub("^(# Args\t\t: |#\t\t: )", "", x)
     if (n > 1) {
         w <- txt.has(x, "=", T)
         while (any(w[-n] & !w[-1])) {
@@ -2615,10 +2615,7 @@ fcn.extract.args <- function (x)
 
 fcn.extract.out <- function (x) 
 {
-    n <- length(x)
-    z <- txt.right(x, nchar(x) - ifelse(1:n == 1, 11, 5))
-    z <- paste(z, collapse = " ")
-    z
+    paste(gsub("^(# Output\t: |#\t\t: )", "", x), collapse = " ")
 }
 
 #' fcn.has
@@ -3311,7 +3308,7 @@ find.data <- function (x, y = T)
 
 #' find.gaps
 #' 
-#' returns the position of the first and last true value of x together with the first positions of all gaps
+#' returns the position of the first and last true value of x #		:	together with the first positions of all gaps
 #' @param x = a logical vector
 #' @keywords find.gaps
 #' @export
@@ -3411,7 +3408,7 @@ flowdate.ex.int <- function (x)
 #' 
 #' last/all trading days daily flow-publication dates in <x>
 #' @param x = a vector/single YYYYMM depending on if y is T/F
-#' @param y = T/F variable depending on whether the last or all daily flow-publication dates in <x> are desired
+#' @param y = T/F variable depending on whether the last or all #		:	daily flow-publication dates in <x> are desired
 #' @keywords flowdate.ex.yyyymm
 #' @export
 
@@ -3506,7 +3503,7 @@ ftp.all.dir <- function (x, y, n, w, h, u)
     z <- z[!sapply(z, is.symbol)]
     z[["v"]] <- F
     z <- do.call(ftp.all.files.underlying, z)
-    z <- txt.right(z, nchar(z) - nchar(x) - 1)
+    z <- gsub(paste0("^", x, "."), "", z)
     z
 }
 
@@ -3530,7 +3527,7 @@ ftp.all.files <- function (x, y, n, w, h, u)
     z <- do.call(ftp.all.files.underlying, z)
     if (x == "/") 
         x <- ""
-    z <- txt.right(z, nchar(z) - nchar(x) - 1)
+    z <- gsub(paste0("^", x, "."), "", z)
     z
 }
 
@@ -3700,7 +3697,7 @@ ftp.download <- function (x, y, n, w, h, u = "ftp", v)
     dir.ensure(paste0(unique(y), "\\foo.txt"))
     z <- paste0(x, "/", z)
     for (j in seq_along(z)) {
-        cat(txt.right(z[j], nchar(z[j]) - nchar(x)), "..\n")
+        cat(gsub(paste0("^", x), "", z[j]), "..\n")
         do.call(ftp.get, c(list(x = z[j], y = y[j]), w))
     }
     invisible()
@@ -4049,7 +4046,7 @@ ftp.upload <- function (x, y, n, w, h, u = "ftp", v)
 {
     w <- as.list(environment())
     w <- w[!sapply(w, is.symbol)]
-    z <- dir.all.files(y, "*.*")
+    z <- dir.all.files(y, "\\.")
     s <- ftp.parent(z)
     s <- txt.right(s, nchar(s) - nchar(y))
     s <- paste0(x, s)
@@ -4453,7 +4450,7 @@ html.flow.english <- function (x, y, n, w)
 
 #' html.flow.underlying
 #' 
-#' list object containing the following items: a) text - dates and text information about flows b) numbers - numeric summary of the flows
+#' list object containing the following items: #		:	a) text - dates and text information about flows #		:	b) numbers - numeric summary of the flows
 #' @param x = a numeric vector indexed by YYYYMMDD
 #' @keywords html.flow.underlying
 #' @export
@@ -4825,7 +4822,7 @@ knapsack.count <- function (x, y)
 
 #' knapsack.ex.int
 #' 
-#' inverse of knapsack.to.int; returns a vector of length <n>, the elements of which sum to <y>
+#' inverse of knapsack.to.int; returns a vector of length <n>, #		:	the elements of which sum to <y>
 #' @param x = a positive integer
 #' @param y = a positive integer
 #' @param n = a positive integer
@@ -4904,7 +4901,7 @@ knapsack.prev <- function (x)
 
 #' knapsack.to.int
 #' 
-#' maps each particular way to subdivide <sum(x)> things amongst <length(x)> people to the number line
+#' maps each particular way to subdivide <sum(x)> things #		:	amongst <length(x)> people to the number line
 #' @param x = a vector of non-negative integers
 #' @keywords knapsack.to.int
 #' @export
@@ -5226,7 +5223,7 @@ mat.daily.to.monthly <- function (x, y = F)
 #' 
 #' returns latest data in each week in ascending order
 #' @param x = a matrix/df of daily data
-#' @param y = an integer representing the day the week ends on 0 is Sun, 1 is Mon, .., 6 is Sat
+#' @param y = an integer representing the day the week ends on #		:	0 is Sun, 1 is Mon, .., 6 is Sat
 #' @keywords mat.daily.to.weekly
 #' @export
 
@@ -5983,7 +5980,7 @@ mk.1dFloMo.Rgn <- function (x, y, n, w, h = "E", u = F)
 #' @param y = item (Flow/AssetsStart/AssetsEnd/PortfolioChange)
 #' @param n = input to or output of sql.connect
 #' @param w = frequency (T/F for daily/weekly or D/W/M)
-#' @param h = a list object with the following elements: Region - one of US/UK/JP/EM/Eurozone/All (full global) Filter - a vector of filters Group - allocation bulking group (e.g. GeographicFocus/BenchIndex)
+#' @param h = a list object with the following elements: #		:	Region - one of US/UK/JP/EM/Eurozone/All (full global) #		:	Filter - a vector of filters #		:	Group - allocation bulking group (e.g. GeographicFocus/BenchIndex)
 #' @param u = T/F to use foreign or all allocations
 #' @param v = T/F to use institutional or all share classes
 #' @keywords mk.1dFloMo.Sec
@@ -6231,8 +6228,8 @@ mk.1mActPas.Sec <- function (x, y, n)
 #' 
 #' Returns a flow variable with the same row space as <n>
 #' @param x = a single YYYYMM
-#' @param y = a string vector of variables to build with the last elements specifying the type of funds to use
-#' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) DB - any of StockFlows/China/Japan/CSI300/Energy
+#' @param y = a string vector of variables to build with the last elements #		:	specifying the type of funds to use
+#' @param n = list object containing the following items: #		:	a) classif - classif file #		:	b) conn - a connection, the output of odbcDriverConnect #		:	c) DB - any of StockFlows/China/Japan/CSI300/Energy
 #' @keywords mk.1mAllocMo
 #' @export
 
@@ -6612,7 +6609,7 @@ mk.1wFloMo.IndyFlow <- function (x, y, n, w, h = T)
 #' Active weight
 #' @param x = a single YYYYMM
 #' @param y = a string vector of names of the portfolio and benchmark
-#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
+#' @param n = list object containing the following items: #		:	a) classif - classif file #		:	b) fldr - stock-flows folder
 #' @keywords mk.ActWt
 #' @export
 
@@ -6630,8 +6627,8 @@ mk.ActWt <- function (x, y, n)
 #' 
 #' makes Alpha
 #' @param x = a single YYYYMM
-#' @param y = a string vector, the first two elements of which are universe and group to zScore on and within. This is then followed by a list of variables which are, in turn, followed by weights to put on variables
-#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
+#' @param y = a string vector, the first two elements of which are #		:	universe and group to zScore on and within. This is then followed by #		:	a list of variables which are, in turn, followed by weights to put on variables
+#' @param n = list object containing the following items: #		:	a) classif - classif file #		:	b) fldr - stock-flows folder
 #' @keywords mk.Alpha
 #' @export
 
@@ -6660,8 +6657,8 @@ mk.Alpha <- function (x, y, n)
 #' 
 #' makes Alpha
 #' @param x = a single YYYYMMDD
-#' @param y = a string vector, the first two elements of which are universe and group to zScore on and within. This is then followed by a list of variables which are, in turn, followed by weights to put on variables and a logical vector indicating whether the variables are daily.
-#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
+#' @param y = a string vector, the first two elements of which are #		:	universe and group to zScore on and within. This is then followed by #		:	a list of variables which are, in turn, followed by weights to put on variables #		:	and a logical vector indicating whether the variables are daily.
+#' @param n = list object containing the following items: #		:	a) classif - classif file #		:	b) fldr - stock-flows folder
 #' @keywords mk.Alpha.daily
 #' @export
 
@@ -6703,8 +6700,8 @@ mk.Alpha.daily <- function (x, y, n)
 #' 
 #' Returns leftmost non-NA variable
 #' @param x = a single YYYYMM or YYYYMMDD
-#' @param y = a string vector, the elements of which are: 1) folder to fetch data from 2) first variable to fetch 3) 2nd variable or number of trailing periods 4+) remaining vbls assuming y[3] is not an integer
-#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
+#' @param y = a string vector, the elements of which are: #		:	1) folder to fetch data from #		:	2) first variable to fetch 3) 2nd variable or number of trailing periods #		:	4+) remaining vbls assuming y[3] is not an integer
+#' @param n = list object containing the following items: #		:	a) classif - classif file #		:	b) fldr - stock-flows folder
 #' @keywords mk.avail
 #' @export
 
@@ -6725,8 +6722,8 @@ mk.avail <- function (x, y, n)
 #' 
 #' Computes monthly beta versus relevant benchmark
 #' @param x = a single YYYYMM
-#' @param y = a string vector, the elements of which are: 1) benchmark (e.g. "Eafe") 2) number of trailing months of returns (e.g. 12)
-#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
+#' @param y = a string vector, the elements of which are: #		:	1) benchmark (e.g. "Eafe") #		:	2) number of trailing months of returns (e.g. 12)
+#' @param n = list object containing the following items: #		:	a) classif - classif file #		:	b) fldr - stock-flows folder
 #' @keywords mk.beta
 #' @export
 
@@ -6750,8 +6747,8 @@ mk.beta <- function (x, y, n)
 #' 
 #' Returns EigenCentrality with the same row space as <n>
 #' @param x = a single YYYYMM
-#' @param y = a string vector of variables to build with the last elements specifying the type of funds to use
-#' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) DB - any of StockFlows/China/Japan/CSI300/Energy
+#' @param y = a string vector of variables to build with the last elements #		:	specifying the type of funds to use
+#' @param n = list object containing the following items: #		:	a) classif - classif file #		:	b) conn - a connection, the output of odbcDriverConnect #		:	c) DB - any of StockFlows/China/Japan/CSI300/Energy
 #' @keywords mk.EigenCentrality
 #' @export
 
@@ -6809,8 +6806,8 @@ mk.EigenCentrality <- function (x, y, n)
 #' 
 #' Computes monthly beta versus common fund flow shock
 #' @param x = a single YYYYMM
-#' @param y = a string vector, the elements of which are: 1) connection string (e.g. "NEWUI") 2) number of trailing months of returns (e.g. 36)
-#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
+#' @param y = a string vector, the elements of which are: #		:	1) connection string (e.g. "NEWUI") #		:	2) number of trailing months of returns (e.g. 36)
+#' @param n = list object containing the following items: #		:	a) classif - classif file #		:	b) fldr - stock-flows folder
 #' @keywords mk.FloBeta
 #' @export
 
@@ -6831,10 +6828,10 @@ mk.FloBeta <- function (x, y, n)
 
 #' mk.Fragility
 #' 
-#' Generates the fragility measure set forth in Greenwood & Thesmar (2011) "Stock Price Fragility"
+#' Generates the fragility measure set forth in #		:	Greenwood & Thesmar (2011) "Stock Price Fragility"
 #' @param x = a single YYYYMM
-#' @param y = vector containing the following items: a) folder - where the underlying data live b) trail - number of return periods to use c) factors - number of eigenvectors to use
-#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
+#' @param y = vector containing the following items: #		:	a) folder - where the underlying data live #		:	b) trail - number of return periods to use #		:	c) factors - number of eigenvectors to use
+#' @param n = list object containing the following items: #		:	a) classif - classif file #		:	b) fldr - stock-flows folder
 #' @keywords mk.Fragility
 #' @export
 
@@ -6866,8 +6863,8 @@ mk.Fragility <- function (x, y, n)
 #' 
 #' Looks up date from external file and maps on isin
 #' @param x = a single YYYYMM or YYYYMMDD
-#' @param y = a string vector, the elements of which are: 1) an object name (preceded by #) or the path to a ".csv" file 2) defaults to "isin"
-#' @param n = list object containing the following items: a) classif - classif file
+#' @param y = a string vector, the elements of which are: #		:	1) an object name (preceded by #) or the path to a ".csv" file #		:	2) defaults to "isin"
+#' @param n = list object containing the following items: #		:	a) classif - classif file
 #' @keywords mk.isin
 #' @export
 
@@ -6886,7 +6883,7 @@ mk.isin <- function (x, y, n)
 #' Returns a 1/0 membership vector
 #' @param x = a single YYYYMM
 #' @param y = a vector of FundId
-#' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect
+#' @param n = list object containing the following items: #		:	a) classif - classif file #		:	b) conn - a connection, the output of odbcDriverConnect
 #' @keywords mk.Mem
 #' @export
 
@@ -6910,7 +6907,7 @@ mk.Mem <- function (x, y, n)
 #' Returns a 1/0 membership vector
 #' @param x = an argument which is never used
 #' @param y = path to a file containing isin's
-#' @param n = list object containing the following items: a) classif - classif file
+#' @param n = list object containing the following items: #		:	a) classif - classif file
 #' @keywords mk.SatoMem
 #' @export
 
@@ -6947,8 +6944,8 @@ mk.sf.daily <- function (fcn, x, y, n, w)
 #' 
 #' Returns variable with the same row space as <n>
 #' @param x = a single YYYYMM
-#' @param y = a string vector, the elements of which are: 1) file to read from 2) variable to read 3) lag (defaults to zero)
-#' @param n = list object containing the following items: a) fldr - stock-flows folder
+#' @param y = a string vector, the elements of which are: #		:	1) file to read from #		:	2) variable to read #		:	3) lag (defaults to zero)
+#' @param n = list object containing the following items: #		:	a) fldr - stock-flows folder
 #' @keywords mk.sqlDump
 #' @export
 
@@ -6967,7 +6964,7 @@ mk.sqlDump <- function (x, y, n)
 #' 1/0 depending on whether <y> or more SRI funds own the stock
 #' @param x = a single YYYYMM
 #' @param y = a positive integer
-#' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) DB - any of StockFlows/China/Japan/CSI300/Energy
+#' @param n = list object containing the following items: #		:	a) classif - classif file #		:	b) conn - a connection, the output of odbcDriverConnect #		:	c) DB - any of StockFlows/China/Japan/CSI300/Energy
 #' @keywords mk.SRIMem
 #' @export
 
@@ -6985,7 +6982,7 @@ mk.SRIMem <- function (x, y, n)
 #' Makes the MoM change in the variable
 #' @param x = a single YYYYMM
 #' @param y = variable name
-#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
+#' @param n = list object containing the following items: #		:	a) classif - classif file #		:	b) fldr - stock-flows folder
 #' @keywords mk.vbl.chg
 #' @export
 
@@ -7000,8 +6997,8 @@ mk.vbl.chg <- function (x, y, n)
 #' 
 #' Computes the difference of the two variables
 #' @param x = a single YYYYMM
-#' @param y = a string vector, the elements of which are the variables being subtracted and subtracted from respectively.
-#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
+#' @param y = a string vector, the elements of which are the variables #		:	being subtracted and subtracted from respectively.
+#' @param n = list object containing the following items: #		:	a) classif - classif file #		:	b) fldr - stock-flows folder
 #' @keywords mk.vbl.diff
 #' @export
 
@@ -7016,8 +7013,8 @@ mk.vbl.diff <- function (x, y, n)
 #' 
 #' Lags the variable
 #' @param x = a single YYYYMM
-#' @param y = a string vector, the elements of which are: 1) the variable to be lagged 2) the lag in months 3) the sub-folder in which the variable lives
-#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
+#' @param y = a string vector, the elements of which are: #		:	1) the variable to be lagged #		:	2) the lag in months #		:	3) the sub-folder in which the variable lives
+#' @param n = list object containing the following items: #		:	a) classif - classif file #		:	b) fldr - stock-flows folder
 #' @keywords mk.vbl.lag
 #' @export
 
@@ -7033,7 +7030,7 @@ mk.vbl.lag <- function (x, y, n)
 #' Computes the maximum of the two variables
 #' @param x = a single YYYYMM
 #' @param y = a string vector of names of two variables
-#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
+#' @param n = list object containing the following items: #		:	a) classif - classif file #		:	b) fldr - stock-flows folder
 #' @keywords mk.vbl.max
 #' @export
 
@@ -7048,8 +7045,8 @@ mk.vbl.max <- function (x, y, n)
 #' 
 #' Computes the ratio of the two variables
 #' @param x = a single YYYYMM
-#' @param y = a string vector, the elements of which are the numerator and denominator respectively.
-#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
+#' @param y = a string vector, the elements of which are the #		:	numerator and denominator respectively.
+#' @param n = list object containing the following items: #		:	a) classif - classif file #		:	b) fldr - stock-flows folder
 #' @keywords mk.vbl.ratio
 #' @export
 
@@ -7062,10 +7059,10 @@ mk.vbl.ratio <- function (x, y, n)
 
 #' mk.vbl.scale
 #' 
-#' Linearly scales the first variable based on percentiles of the second. Top decile goes to scaling factor. Bot decile is fixed.
+#' Linearly scales the first variable based on percentiles of the second. #		:	Top decile goes to scaling factor. Bot decile is fixed.
 #' @param x = a single YYYYMM
-#' @param y = a string vector, the elements of which are: 1) the variable to be scaled 2) the secondary variable 3) the universe within which to scale 4) the grouping within which to scale 5) scaling factor on top decile
-#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
+#' @param y = a string vector, the elements of which are: #		:	1) the variable to be scaled #		:	2) the secondary variable #		:	3) the universe within which to scale #		:	4) the grouping within which to scale #		:	5) scaling factor on top decile
+#' @param n = list object containing the following items: #		:	a) classif - classif file #		:	b) fldr - stock-flows folder
 #' @keywords mk.vbl.scale
 #' @export
 
@@ -7089,8 +7086,8 @@ mk.vbl.scale <- function (x, y, n)
 #' 
 #' Computes the sum of the two variables
 #' @param x = a single YYYYMM
-#' @param y = a string vector, the elements of which are the variables to be added.
-#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
+#' @param y = a string vector, the elements of which are the variables #		:	to be added.
+#' @param n = list object containing the following items: #		:	a) classif - classif file #		:	b) fldr - stock-flows folder
 #' @keywords mk.vbl.sum
 #' @export
 
@@ -7105,8 +7102,8 @@ mk.vbl.sum <- function (x, y, n)
 #' 
 #' compounded variable over some trailing window
 #' @param x = a single YYYYMM or YYYYMMDD
-#' @param y = a string vector, the elements of which are: 1) variable to fetch (e.g. "AllocMo"/"AllocDiff"/"AllocTrend"/"Ret") 2) number of trailing periods to use (e.g. "11") 3) number of periods to lag (defaults to "0") 4) sub-folder to fetch basic variable from (defaults to "derived") 5) T/F depending on whether the compounded variable is daily (defaults to F, matters only if <x> is monthly)
-#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
+#' @param y = a string vector, the elements of which are: #		:	1) variable to fetch (e.g. "AllocMo"/"AllocDiff"/"AllocTrend"/"Ret") #		:	2) number of trailing periods to use (e.g. "11") #		:	3) number of periods to lag (defaults to "0") #		:	4) sub-folder to fetch basic variable from (defaults to "derived") #		:	5) T/F depending on whether the compounded variable is daily (defaults to F, matters only if <x> is monthly)
+#' @param n = list object containing the following items: #		:	a) classif - classif file #		:	b) fldr - stock-flows folder
 #' @keywords mk.vbl.trail.fetch
 #' @export
 
@@ -7132,8 +7129,8 @@ mk.vbl.trail.fetch <- function (x, y, n)
 #' 
 #' compounded variable over some trailing window
 #' @param x = a single YYYYMM or YYYYMMDD
-#' @param y = a string vector, the elements of which are: 1) variable to fetch (e.g. "1mAllocMo"/"1dAllocDiff"/"1dAllocTrend"/"Ret") 2) T to sum or F to compound (e.g. "T") 3) number of trailing periods to use (e.g. "11") 4) number of periods to lag (defaults to "0") 5) sub-folder to fetch basic variable from (defaults to "derived") 6) T/F depending on whether the compounded variable is daily (defaults to F, matters only if <x> is monthly)
-#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
+#' @param y = a string vector, the elements of which are: #		:	1) variable to fetch (e.g. "1mAllocMo"/"1dAllocDiff"/"1dAllocTrend"/"Ret") #		:	2) T to sum or F to compound (e.g. "T") #		:	3) number of trailing periods to use (e.g. "11") #		:	4) number of periods to lag (defaults to "0") #		:	5) sub-folder to fetch basic variable from (defaults to "derived") #		:	6) T/F depending on whether the compounded variable is daily (defaults to F, matters only if <x> is monthly)
+#' @param n = list object containing the following items: #		:	a) classif - classif file #		:	b) fldr - stock-flows folder
 #' @keywords mk.vbl.trail.sum
 #' @export
 
@@ -7149,8 +7146,8 @@ mk.vbl.trail.sum <- function (x, y, n)
 #' 
 #' volatility of variable over some trailing window
 #' @param x = a single YYYYMM or YYYYMMDD
-#' @param y = a string vector, the elements of which are: 1) variable to fetch (e.g. "AllocMo"/"AllocDiff"/"AllocTrend"/"Ret") 2) number of trailing periods to use (e.g. "11") 3) number of periods to lag (defaults to "0") 4) sub-folder to fetch basic variable from (defaults to "derived") 5) T/F depending on whether the compounded variable is daily (defaults to F, matters only if <x> is monthly)
-#' @param n = list object containing the following items: a) classif - classif file b) fldr - stock-flows folder
+#' @param y = a string vector, the elements of which are: #		:	1) variable to fetch (e.g. "AllocMo"/"AllocDiff"/"AllocTrend"/"Ret") #		:	2) number of trailing periods to use (e.g. "11") #		:	3) number of periods to lag (defaults to "0") #		:	4) sub-folder to fetch basic variable from (defaults to "derived") #		:	5) T/F depending on whether the compounded variable is daily (defaults to F, matters only if <x> is monthly)
+#' @param n = list object containing the following items: #		:	a) classif - classif file #		:	b) fldr - stock-flows folder
 #' @keywords mk.vbl.vol
 #' @export
 
@@ -7167,7 +7164,7 @@ mk.vbl.vol <- function (x, y, n)
 #' Generates the SQL query to get monthly index weight for individual stocks
 #' @param x = a single YYYYMM
 #' @param y = FundId of the fund of interest
-#' @param n = list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect
+#' @param n = list object containing the following items: #		:	a) classif - classif file #		:	b) conn - a connection, the output of odbcDriverConnect
 #' @keywords mk.Wt
 #' @export
 
@@ -7349,7 +7346,7 @@ obj.seq <- function (x, y, n, w, h)
 #' @param x = a matrix/df of indicators
 #' @param y = an isomekic isoplatic matrix/df containing associated forward returns
 #' @param n = an isoplatic matrix/df of daily returns on which to train the risk model
-#' @param w = a numeric vector, the elements of which are: 1) number of trailing days to train the risk model on 2) number of principal components (when 0 raw return matrix is used) 3) number of bins (when 0, indicator is ptiled) 4) forward return window in days or months depending on the row space of <x>
+#' @param w = a numeric vector, the elements of which are: #		:	1) number of trailing days to train the risk model on #		:	2) number of principal components (when 0 raw return matrix is used) #		:	3) number of bins (when 0, indicator is ptiled) #		:	4) forward return window in days or months depending on the row space of <x>
 #' @keywords optimal
 #' @export
 
@@ -8365,7 +8362,7 @@ refresh.predictors.monthly <- function (x, y, n, w, h)
 refresh.predictors.script <- function (x, y, n, w) 
 {
     if (nchar(y) > 0) {
-        z <- paste0(txt.left(x, nchar(x) - nchar(y)), "where\n\t", 
+        z <- paste0(gsub(paste0(y, "$"), "", x), "where\n\t", 
             n, " >= '", w, "'\n", y)
     }
     else {
@@ -8426,7 +8423,7 @@ reshape.long <- function (x, y, n = "id", w = "val")
 #' reshape.wide
 #' 
 #' converts <x> to an array
-#' @param x = a matrix/data-frame with last columns corresponding to the entries of the resulting array
+#' @param x = a matrix/data-frame with last columns corresponding #		:	to the entries of the resulting array
 #' @keywords reshape.wide
 #' @export
 
@@ -9150,7 +9147,7 @@ sf.underlying.data.bin <- function (x, y, n, w)
 #' sf.underlying.summ
 #' 
 #' Returns a named vector of bin returns
-#' @param x = a matrix/df with the following columns: a) bin - bin memberships b) ret - forward returns c) mem - 1/0 universe memberships d) wgt - universe weights (optional)
+#' @param x = a matrix/df with the following columns: #		:	a) bin - bin memberships #		:	b) ret - forward returns #		:	c) mem - 1/0 universe memberships #		:	d) wgt - universe weights (optional)
 #' @param y = T/F variable controlling whether universe return is returned
 #' @keywords sf.underlying.summ
 #' @export
@@ -9758,7 +9755,7 @@ sim.trade.stk <- function (x, y, n, w)
 
 #' smear.Q1
 #' 
-#' Returns weights associated with ranks 1:x so that a) every position in the top quintile has an equal positive weight b) every position in the bottom 3 quintiles has an equal negative weight c) second quintile positions get a linear interpolation d) the weights sum to zero e) the positive weights sum to 100
+#' Returns weights associated with ranks 1:x so that #		:	a) every position in the top quintile has an equal positive weight #		:	b) every position in the bottom 3 quintiles has an equal negative weight #		:	c) second quintile positions get a linear interpolation #		:	d) the weights sum to zero #		:	e) the positive weights sum to 100
 #' @param x = any real number
 #' @keywords smear.Q1
 #' @export
@@ -9881,9 +9878,9 @@ sql.1dActWtTrend.Flow <- function (x, y)
 sql.1dActWtTrend.select <- function (x) 
 {
     y <- ""
-    if (is.element(txt.right(x, 3), c("Num", "Den"))) {
+    if (grepl("(Num|Den)$", x)) {
         y <- txt.right(x, 3)
-        x <- txt.left(x, nchar(x) - nchar(y))
+        x <- gsub(paste0(y, "$"), "", x)
     }
     if (x == "ActWtTrend") {
         z <- paste0(x, y, " ", sql.Trend("Flow * (t2.HoldingValue/PortVal - FundWtdExcl0)", 
@@ -9909,7 +9906,7 @@ sql.1dActWtTrend.select <- function (x)
 #' 
 #' Generates the SQL query to get the data for 1dFloMo for individual stocks
 #' @param x = vector of flow dates in YYYYMMDD (known two days later)
-#' @param y = a string vector of factors to be computed, the last elements of which are the type of fund used
+#' @param y = a string vector of factors to be computed, #		:	the last elements of which are the type of fund used
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
 #' @param h = one or more breakdown filters (e.g. All/GeoId/DomicileId)
@@ -10124,7 +10121,7 @@ sql.1dFloMo.FI <- function (x = "Flow", y)
 #' sql.1dFloMo.filter
 #' 
 #' implements filters for 1dFloMo
-#' @param x = a string vector of factors to be computed, the last elements of which are the type of fund used
+#' @param x = a string vector of factors to be computed, the #		:	last elements of which are the type of fund used
 #' @param y = breakdown filter (e.g. All/GeoId/DomicileId)
 #' @keywords sql.1dFloMo.filter
 #' @export
@@ -10263,7 +10260,7 @@ sql.1dFloMo.select <- function (x)
 #' sql.1dFloMo.select.wrapper
 #' 
 #' Generates the SQL query to get the data for 1mFloMo for individual stocks
-#' @param x = a string vector of factors to be computed, the last elements of are the type of fund used
+#' @param x = a string vector of factors to be computed, the last elements of #		:	are the type of fund used
 #' @param y = T/F depending on whether you are checking ftp
 #' @param n = one or more breakdown filters (e.g. All/GeoId/DomicileId)
 #' @param w = T/F depending on whether ReportDate must be a column
@@ -10287,8 +10284,8 @@ sql.1dFloMo.select.wrapper <- function (x, y, n, w = F)
     z <- c(z, ifelse(y, "HSecurityId", "SecurityId"))
     for (i in x) {
         if (y & i == "FloDollar") {
-            z <- c(z, paste("CalculatedStockFlow", txt.right(sql.1dFloMo.select(i), 
-                nchar(sql.1dFloMo.select(i)) - nchar(i) - 1)))
+            z <- c(z, gsub(paste0("^", i), "CalculatedStockFlow", 
+                sql.1dFloMo.select(i)))
         }
         else {
             z <- c(z, sql.1dFloMo.select(i))
@@ -10436,9 +10433,9 @@ sql.1dFloTrend.Alloc.purge <- function (x, y)
 
 #' sql.1dFundCt
 #' 
-#' Generates FundCt, the ownership breadth measure set forth in Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
+#' Generates FundCt, the ownership breadth measure set forth in #		:	Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
 #' @param x = vector of flow dates in YYYYMMDD (known two days later)
-#' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
+#' @param y = a string vector of factors to be computed, #		:	the last element of which is the type of fund used.
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
 #' @param h = one or more breakdown filters (e.g. All/GeoId/DomicileId)
@@ -10498,9 +10495,9 @@ sql.1dFundCt <- function (x, y, n, w, h)
 
 #' sql.1mActWt
 #' 
-#' Generates the SQL query to get the following active weights: a) EqlAct = equal weight average (incl 0) less the benchmark b) CapAct = fund weight average (incl 0) less the benchmark c) PosAct = fund weight average (incl 0) less the benchmark (positive flows only) d) NegAct = fund weight average (incl 0) less the benchmark (negative flows only)
+#' Generates the SQL query to get the following active weights: #		:	a) EqlAct = equal weight average (incl 0) less the benchmark #		:	b) CapAct = fund weight average (incl 0) less the benchmark #		:	c) PosAct = fund weight average (incl 0) less the benchmark (positive flows only) #		:	d) NegAct = fund weight average (incl 0) less the benchmark (negative flows only)
 #' @param x = the YYYYMM for which you want data (known 24 days later)
-#' @param y = a string vector, the elements of which are: 1) FundId for the fund used as the benchmark 2) BenchIndexId of the benchmark
+#' @param y = a string vector, the elements of which are: #		:	1) FundId for the fund used as the benchmark #		:	2) BenchIndexId of the benchmark
 #' @keywords sql.1mActWt
 #' @export
 
@@ -10563,7 +10560,7 @@ sql.1mActWt.underlying <- function (x, y)
 #' 
 #' SQL query for 1mAllocD
 #' @param x = a YYYYMM or vector of flow dates (if u = "Flow")
-#' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
+#' @param y = a string vector of factors to be computed, #		:	the last element of which is the type of fund used.
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
 #' @param h = T/F depending on whether to account for price action
@@ -10773,7 +10770,7 @@ sql.1mAllocD.select <- function (x)
 #' 
 #' Generates the SQL query to get the data for 1mAllocTrend
 #' @param x = the YYYYMM for which you want data (known 26 days later)
-#' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
+#' @param y = a string vector of factors to be computed, #		:	the last element of which is the type of fund used.
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
 #' @param h = share-class filter (one of All/Inst/Retail)
@@ -10940,9 +10937,9 @@ sql.1mBullish.Final <- function (x, y)
 
 #' sql.1mChActWt
 #' 
-#' Generates the SQL query to get the following active weights: a) EqlChAct = equal weight average change in active weight b) BegChAct = beginning-of-period-asset weighted change in active weight c) EndChAct = end-of-period-asset weighted change in active weight d) BegPosChAct = beginning-of-period-asset weighted change in active weight (positive flows only) e) EndPosChAct = end-of-period-asset weighted change in active weight (positive flows only) f) BegNegChAct = beginning-of-period-asset weighted change in active weight (negative flows only) g) EndNegChAct = end-of-period-asset weighted change in active weight (negative flows only)
+#' Generates the SQL query to get the following active weights: #		:	a) EqlChAct = equal weight average change in active weight #		:	b) BegChAct = beginning-of-period-asset weighted change in active weight #		:	c) EndChAct = end-of-period-asset weighted change in active weight #		:	d) BegPosChAct = beginning-of-period-asset weighted change in active weight (positive flows only) #		:	e) EndPosChAct = end-of-period-asset weighted change in active weight (positive flows only) #		:	f) BegNegChAct = beginning-of-period-asset weighted change in active weight (negative flows only) #		:	g) EndNegChAct = end-of-period-asset weighted change in active weight (negative flows only)
 #' @param x = the YYYYMM for which you want data (known 24 days later)
-#' @param y = a string vector, the elements of which are: 1) FundId for the fund used as the benchmark 2) BenchIndexId of the benchmark
+#' @param y = a string vector, the elements of which are: #		:	1) FundId for the fund used as the benchmark #		:	2) BenchIndexId of the benchmark
 #' @keywords sql.1mChActWt
 #' @export
 
@@ -10972,9 +10969,9 @@ sql.1mChActWt <- function (x, y)
 
 #' sql.1mFundCt
 #' 
-#' Generates FundCt, the ownership breadth measure set forth in Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
+#' Generates FundCt, the ownership breadth measure set forth in #		:	Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
 #' @param x = the YYYYMM for which you want data (known 26 days later)
-#' @param y = a string vector of factors to be computed, the last elements of which are the types of fund used.
+#' @param y = a string vector of factors to be computed, #		:	the last elements of which are the types of fund used.
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
 #' @param h = breakdown filter (e.g. All/GeoId/DomicileId)
@@ -11051,7 +11048,7 @@ sql.1mFundCt <- function (x, y, n, w, h, u = 0, v = "All")
 #' 
 #' Total AUM of all funds owning a particular security
 #' @param x = the YYYYMM for which you want data (known 26 days later)
-#' @param y = a string vector of factors to be computed, the last elements of which are the types of fund used.
+#' @param y = a string vector of factors to be computed, #		:	the last elements of which are the types of fund used.
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
 #' @param h = breakdown filter (e.g. All/GeoId/DomicileId)
@@ -11121,7 +11118,7 @@ sql.1mHoldAum <- function (x, y, n, w, h)
 #' 
 #' Generates the SQL query to get the data for 1mSRIAdvisorPct
 #' @param x = the YYYYMM for which you want data (known 26 days later)
-#' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
+#' @param y = a string vector of factors to be computed, #		:	the last element of which is the type of fund used.
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
 #' @keywords sql.1mSRIAdvisorPct
@@ -11382,7 +11379,7 @@ sql.and <- function (x, y = "and")
 #' sql.arguments
 #' 
 #' splits <x> into factor and filters
-#' @param x = a string vector of variables to build with the last elements specifying the type of funds to use
+#' @param x = a string vector of variables to build with the last elements #		:	specifying the type of funds to use
 #' @keywords sql.arguments
 #' @export
 
@@ -11467,7 +11464,7 @@ sql.breakdown <- function (x)
 #' 
 #' SQL query for Bullish-sentiment factor
 #' @param x = the YYYYMM for which you want data (known 26 days later)
-#' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
+#' @param y = a string vector of factors to be computed, #		:	the last element of which is the type of fund used.
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
 #' @keywords sql.Bullish
@@ -11813,9 +11810,9 @@ sql.Diff <- function (x, y, n = "")
 
 #' sql.Dispersion
 #' 
-#' Generates the dispersion measure set forth in Jiang & Sun (2011) "Dispersion in beliefs among active mutual funds and the cross-section of stock returns"
+#' Generates the dispersion measure set forth in Jiang & Sun (2011) #		:	"Dispersion in beliefs among active mutual funds and the cross-section of stock returns"
 #' @param x = the YYYYMM for which you want data (known 26 days later)
-#' @param y = a string vector of factors to be computed, the last element of which is the type of fund used.
+#' @param y = a string vector of factors to be computed, #		:	the last element of which is the type of fund used.
 #' @param n = any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
 #' @keywords sql.Dispersion
@@ -12603,7 +12600,7 @@ sql.query <- function (x, y, n = T)
 
 #' sql.RDSuniv
 #' 
-#' Generates the SQL query to get the row space for a stock flows research data set
+#' Generates the SQL query to get the row space for a #		:	stock flows research data set
 #' @param x = any of StockFlows/China/Japan/CSI300/Energy
 #' @keywords sql.RDSuniv
 #' @export
@@ -12777,7 +12774,7 @@ sql.tbl.from <- function (x)
 #' 
 #' Generates the SQL query to get Active/Passive Top-Down Allocations
 #' @param x = the YYYYMM for which you want data (known 26 days later)
-#' @param y = a string vector of top-down allocations wanted, the last element of which is the type of fund to be used.
+#' @param y = a string vector of top-down allocations wanted, #		:	the last element of which is the type of fund to be used.
 #' @param n = any of StockFlows/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
 #' @param h = breakdown filter (e.g. All/GeoId/DomicileId)
@@ -12849,7 +12846,7 @@ sql.TopDownAllocs.items <- function (x, y = T)
 #' 
 #' Generates the SQL query to get Active/Passive Top-Down Allocations
 #' @param x = the YYYYMMDD for which you want data
-#' @param y = a string vector of top-down allocations wanted, the last element of which is the type of fund to be used.
+#' @param y = a string vector of top-down allocations wanted, #		:	the last element of which is the type of fund to be used.
 #' @param n = any of StockFlows/Japan/CSI300/Energy
 #' @param w = T/F depending on whether you are checking ftp
 #' @param h = breakdown filter (e.g. All/GeoId/DomicileId)
@@ -12909,8 +12906,8 @@ sql.TopDownAllocs.underlying <- function (x, y, n, w, h)
     if (length(y$factor) == 1) {
         if (w) {
             n <- sql.TopDownAllocs.items(y$factor)
-            n <- txt.right(n, nchar(n) - nchar(y$factor) - 1)
-            n <- paste("AverageAllocation", n)
+            n <- gsub(paste0("^", y$factor), "AverageAllocation", 
+                n)
             z <- c(z, n)
         }
         else {
@@ -12982,7 +12979,7 @@ sql.ui <- function ()
 sql.unbracket <- function (x) 
 {
     n <- length(x)
-    if (!grepl("^(", x[1]) | x[n] != ")") 
+    if (!grepl("^\\(", x[1]) | x[n] != ")") 
         stop("Can't unbracket!")
     x[1] <- gsub("^.", "", x[1])
     z <- x[-n]
@@ -13894,7 +13891,7 @@ txt.gunning <- function (x, y, n)
 
 #' txt.has
 #' 
-#' the elements of <x> that contain <y> if <n> is F or a logical vector otherwise
+#' the elements of <x> that contain <y> if <n> is F or a #		:	logical vector otherwise
 #' @param x = a vector of strings
 #' @param y = a single string
 #' @param n = T/F depending on whether a logical vector is desired
@@ -14809,7 +14806,7 @@ yyyymmdd.ex.txt <- function (x, y = "/", n = "MDY")
 #' 
 #' last/all weekdays in <x>
 #' @param x = a vector/single YYYYMM depending on if y is T/F
-#' @param y = T/F variable depending on whether the last or all trading days in that month are desired
+#' @param y = T/F variable depending on whether the last or #		:	all trading days in that month are desired
 #' @keywords yyyymmdd.ex.yyyymm
 #' @export
 
@@ -14876,7 +14873,7 @@ yyyymmdd.seq <- function (x, y, n = 1)
 
 #' yyyymmdd.to.AllocMo
 #' 
-#' Returns the month for which you need to get allocations Flows as of the 23rd of each month are known by the 24th. By this time allocations from the previous month are known
+#' Returns the month for which you need to get allocations Flows as of the 23rd of each month are known by the 24th. By this time allocations from #		:	the previous month are known
 #' @param x = the date for which you want flows (known one day later)
 #' @param y = calendar day in the next month when allocations are known (usually the 23rd)
 #' @keywords yyyymmdd.to.AllocMo

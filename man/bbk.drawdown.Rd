@@ -10,6 +10,6 @@ bbk.drawdown(x)
 \item{x}{= a numeric vector}
 }
 \description{
-returns a logical vector identifying the contiguous periods corresponding to max drawdown
+returns a logical vector identifying the contiguous periods #		:	corresponding to max drawdown
 }
 \keyword{bbk.drawdown}

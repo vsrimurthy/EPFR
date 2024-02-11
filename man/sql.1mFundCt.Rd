@@ -9,7 +9,7 @@ sql.1mFundCt(x, y, n, w, h, u = 0, v = "All")
 \arguments{
 \item{x}{= the YYYYMM for which you want data (known 26 days later)}
 
-\item{y}{= a string vector of factors to be computed, the last elements of which are the types of fund used.}
+\item{y}{= a string vector of factors to be computed, #        :    the last elements of which are the types of fund used.}
 
 \item{n}{= any of StockFlows/China/Japan/CSI300/Energy}
 
@@ -22,6 +22,6 @@ sql.1mFundCt(x, y, n, w, h, u = 0, v = "All")
 \item{v}{= share-class filter (one of All/Inst/Retail)}
 }
 \description{
-Generates FundCt, the ownership breadth measure set forth in Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
+Generates FundCt, the ownership breadth measure set forth in #		:	Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
 }
 \keyword{sql.1mFundCt}

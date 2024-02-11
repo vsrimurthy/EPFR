@@ -11,7 +11,7 @@ mk.Mem(x, y, n)
 
 \item{y}{= a vector of FundId}
 
-\item{n}{= list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect}
+\item{n}{= list object containing the following items: #        :    a) classif - classif file #        :    b) conn - a connection, the output of odbcDriverConnect}
 }
 \description{
 Returns a 1/0 membership vector

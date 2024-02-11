@@ -11,7 +11,7 @@ mk.vbl.chg(x, y, n)
 
 \item{y}{= variable name}
 
-\item{n}{= list object containing the following items: a) classif - classif file b) fldr - stock-flows folder}
+\item{n}{= list object containing the following items: #        :    a) classif - classif file #        :    b) fldr - stock-flows folder}
 }
 \description{
 Makes the MoM change in the variable

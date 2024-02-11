@@ -9,7 +9,7 @@ Ctry.msci.members(x, y)
 \arguments{
 \item{x}{= an index name such as ACWI/EAFE/EM}
 
-\item{y}{= one of the following: (a) a YYYYMM date (b) a YYYYMMDD date (c) "" for a static series}
+\item{y}{= one of the following: #        :    (a) a YYYYMM date #        :    (b) a YYYYMMDD date #        :    (c) "" for a static series}
 }
 \description{
 lists countries in an index at <y>

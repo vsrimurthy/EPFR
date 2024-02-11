@@ -10,6 +10,6 @@ find.gaps(x)
 \item{x}{= a logical vector}
 }
 \description{
-returns the position of the first and last true value of x together with the first positions of all gaps
+returns the position of the first and last true value of x #		:	together with the first positions of all gaps
 }
 \keyword{find.gaps}

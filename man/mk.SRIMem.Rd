@@ -11,7 +11,7 @@ mk.SRIMem(x, y, n)
 
 \item{y}{= a positive integer}
 
-\item{n}{= list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) DB - any of StockFlows/China/Japan/CSI300/Energy}
+\item{n}{= list object containing the following items: #        :    a) classif - classif file #        :    b) conn - a connection, the output of odbcDriverConnect #        :    c) DB - any of StockFlows/China/Japan/CSI300/Energy}
 }
 \description{
 1/0 depending on whether <y> or more SRI funds own the stock

@@ -10,6 +10,6 @@ knapsack.to.int(x)
 \item{x}{= a vector of non-negative integers}
 }
 \description{
-maps each particular way to subdivide <sum(x)> things amongst <length(x)> people to the number line
+maps each particular way to subdivide <sum(x)> things #		:	amongst <length(x)> people to the number line
 }
 \keyword{knapsack.to.int}

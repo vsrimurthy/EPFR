@@ -15,7 +15,7 @@ mk.1dFloMo.Sec(x, y, n, w, h, u = F, v = F)
 
 \item{w}{= frequency (T/F for daily/weekly or D/W/M)}
 
-\item{h}{= a list object with the following elements: Region - one of US/UK/JP/EM/Eurozone/All (full global) Filter - a vector of filters Group - allocation bulking group (e.g. GeographicFocus/BenchIndex)}
+\item{h}{= a list object with the following elements: #        :    Region - one of US/UK/JP/EM/Eurozone/All (full global) #        :    Filter - a vector of filters #        :    Group - allocation bulking group (e.g. GeographicFocus/BenchIndex)}
 
 \item{u}{= T/F to use foreign or all allocations}
 

@@ -9,7 +9,7 @@ sql.TopDownAllocs(x, y, n, w, h)
 \arguments{
 \item{x}{= the YYYYMM for which you want data (known 26 days later)}
 
-\item{y}{= a string vector of top-down allocations wanted, the last element of which is the type of fund to be used.}
+\item{y}{= a string vector of top-down allocations wanted, #        :    the last element of which is the type of fund to be used.}
 
 \item{n}{= any of StockFlows/Japan/CSI300/Energy}
 

@@ -9,13 +9,13 @@ sql.Dispersion(x, y, n, w)
 \arguments{
 \item{x}{= the YYYYMM for which you want data (known 26 days later)}
 
-\item{y}{= a string vector of factors to be computed, the last element of which is the type of fund used.}
+\item{y}{= a string vector of factors to be computed, #        :    the last element of which is the type of fund used.}
 
 \item{n}{= any of StockFlows/China/Japan/CSI300/Energy}
 
 \item{w}{= T/F depending on whether you are checking ftp}
 }
 \description{
-Generates the dispersion measure set forth in Jiang & Sun (2011) "Dispersion in beliefs among active mutual funds and the cross-section of stock returns"
+Generates the dispersion measure set forth in Jiang & Sun (2011) #		:	"Dispersion in beliefs among active mutual funds and the cross-section of stock returns"
 }
 \keyword{sql.Dispersion}

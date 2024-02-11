@@ -11,7 +11,7 @@ mk.SatoMem(x, y, n)
 
 \item{y}{= path to a file containing isin's}
 
-\item{n}{= list object containing the following items: a) classif - classif file}
+\item{n}{= list object containing the following items: #        :    a) classif - classif file}
 }
 \description{
 Returns a 1/0 membership vector

@@ -11,7 +11,7 @@ mk.Wt(x, y, n)
 
 \item{y}{= FundId of the fund of interest}
 
-\item{n}{= list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect}
+\item{n}{= list object containing the following items: #        :    a) classif - classif file #        :    b) conn - a connection, the output of odbcDriverConnect}
 }
 \description{
 Generates the SQL query to get monthly index weight for individual stocks

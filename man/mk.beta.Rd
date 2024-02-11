@@ -9,9 +9,9 @@ mk.beta(x, y, n)
 \arguments{
 \item{x}{= a single YYYYMM}
 
-\item{y}{= a string vector, the elements of which are: 1) benchmark (e.g. "Eafe") 2) number of trailing months of returns (e.g. 12)}
+\item{y}{= a string vector, the elements of which are: #        :    1) benchmark (e.g. "Eafe") #        :    2) number of trailing months of returns (e.g. 12)}
 
-\item{n}{= list object containing the following items: a) classif - classif file b) fldr - stock-flows folder}
+\item{n}{= list object containing the following items: #        :    a) classif - classif file #        :    b) fldr - stock-flows folder}
 }
 \description{
 Computes monthly beta versus relevant benchmark

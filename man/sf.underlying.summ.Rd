@@ -7,7 +7,7 @@
 sf.underlying.summ(x, y)
 }
 \arguments{
-\item{x}{= a matrix/df with the following columns: a) bin - bin memberships b) ret - forward returns c) mem - 1/0 universe memberships d) wgt - universe weights (optional)}
+\item{x}{= a matrix/df with the following columns: #        :    a) bin - bin memberships #        :    b) ret - forward returns #        :    c) mem - 1/0 universe memberships #        :    d) wgt - universe weights (optional)}
 
 \item{y}{= T/F variable controlling whether universe return is returned}
 }

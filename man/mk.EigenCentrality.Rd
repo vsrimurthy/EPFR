@@ -9,9 +9,9 @@ mk.EigenCentrality(x, y, n)
 \arguments{
 \item{x}{= a single YYYYMM}
 
-\item{y}{= a string vector of variables to build with the last elements specifying the type of funds to use}
+\item{y}{= a string vector of variables to build with the last elements #        :    specifying the type of funds to use}
 
-\item{n}{= list object containing the following items: a) classif - classif file b) conn - a connection, the output of odbcDriverConnect c) DB - any of StockFlows/China/Japan/CSI300/Energy}
+\item{n}{= list object containing the following items: #        :    a) classif - classif file #        :    b) conn - a connection, the output of odbcDriverConnect #        :    c) DB - any of StockFlows/China/Japan/CSI300/Energy}
 }
 \description{
 Returns EigenCentrality with the same row space as <n>

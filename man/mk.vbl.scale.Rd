@@ -9,11 +9,11 @@ mk.vbl.scale(x, y, n)
 \arguments{
 \item{x}{= a single YYYYMM}
 
-\item{y}{= a string vector, the elements of which are: 1) the variable to be scaled 2) the secondary variable 3) the universe within which to scale 4) the grouping within which to scale 5) scaling factor on top decile}
+\item{y}{= a string vector, the elements of which are: #        :    1) the variable to be scaled #        :    2) the secondary variable #        :    3) the universe within which to scale #        :    4) the grouping within which to scale #        :    5) scaling factor on top decile}
 
-\item{n}{= list object containing the following items: a) classif - classif file b) fldr - stock-flows folder}
+\item{n}{= list object containing the following items: #        :    a) classif - classif file #        :    b) fldr - stock-flows folder}
 }
 \description{
-Linearly scales the first variable based on percentiles of the second. Top decile goes to scaling factor. Bot decile is fixed.
+Linearly scales the first variable based on percentiles of the second. #		:	Top decile goes to scaling factor. Bot decile is fixed.
 }
 \keyword{mk.vbl.scale}

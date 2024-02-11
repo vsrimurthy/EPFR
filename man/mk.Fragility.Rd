@@ -9,11 +9,11 @@ mk.Fragility(x, y, n)
 \arguments{
 \item{x}{= a single YYYYMM}
 
-\item{y}{= vector containing the following items: a) folder - where the underlying data live b) trail - number of return periods to use c) factors - number of eigenvectors to use}
+\item{y}{= vector containing the following items: #        :    a) folder - where the underlying data live #        :    b) trail - number of return periods to use #        :    c) factors - number of eigenvectors to use}
 
-\item{n}{= list object containing the following items: a) classif - classif file b) fldr - stock-flows folder}
+\item{n}{= list object containing the following items: #        :    a) classif - classif file #        :    b) fldr - stock-flows folder}
 }
 \description{
-Generates the fragility measure set forth in Greenwood & Thesmar (2011) "Stock Price Fragility"
+Generates the fragility measure set forth in #		:	Greenwood & Thesmar (2011) "Stock Price Fragility"
 }
 \keyword{mk.Fragility}

@@ -9,7 +9,7 @@ sql.1dFundCt(x, y, n, w, h)
 \arguments{
 \item{x}{= vector of flow dates in YYYYMMDD (known two days later)}
 
-\item{y}{= a string vector of factors to be computed, the last element of which is the type of fund used.}
+\item{y}{= a string vector of factors to be computed, #        :    the last element of which is the type of fund used.}
 
 \item{n}{= any of StockFlows/China/Japan/CSI300/Energy}
 
@@ -18,6 +18,6 @@ sql.1dFundCt(x, y, n, w, h)
 \item{h}{= one or more breakdown filters (e.g. All/GeoId/DomicileId)}
 }
 \description{
-Generates FundCt, the ownership breadth measure set forth in Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
+Generates FundCt, the ownership breadth measure set forth in #		:	Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
 }
 \keyword{sql.1dFundCt}
