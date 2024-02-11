@@ -2040,8 +2040,8 @@ EHD <- function (x, y, n, w, h, u = NULL)
     u[["Beg"]] <- paste(n, ">=", wrap(w))
     u[["End"]] <- paste(n, "<=", wrap(h))
     if (grepl("%$", y)) {
-        y <- paste0("[", y, "] ", sql.Mo(txt.left(y, nchar(y) - 
-            1), "AssetsStart", NULL, T))
+        y <- paste0("[", y, "] ", sql.Mo(gsub(".$", "", y), "AssetsStart", 
+            NULL, T))
     }
     else {
         y <- paste0(y, " = sum(", y, ")")
@@ -2385,7 +2385,7 @@ fcn.comments.parse <- function (x)
             z$canonical <- F
         }
         else {
-            z$name <- txt.right(x[1], nchar(x[1]) - 10)
+            z$name <- gsub("^.{10}", "", x[1])
             x <- x[-1]
         }
     }
@@ -2395,7 +2395,7 @@ fcn.comments.parse <- function (x)
             z$canonical <- F
         }
         else {
-            z$author <- txt.right(x[1], nchar(x[1]) - 11)
+            z$author <- gsub("^.{11}", "", x[1])
             x <- x[-1]
         }
     }
@@ -2405,11 +2405,10 @@ fcn.comments.parse <- function (x)
             z$canonical <- F
         }
         else {
-            z$date <- txt.right(x[1], nchar(x[1]) - 10)
+            z$date <- gsub("^.{10}", "", x[1])
             x <- x[-1]
             while (length(x) > 0 & grepl("^#\t\t: ", x[1])) {
-                z$date <- paste0(z$date, txt.right(x[1], nchar(x[1]) - 
-                  5))
+                z$date <- paste0(z$date, gsub("^.{5}", "", x[1]))
                 x <- x[-1]
             }
         }
@@ -2422,8 +2421,8 @@ fcn.comments.parse <- function (x)
         else {
             z$detl.args <- x[1]
             x <- x[-1]
-            while (length(x) > 0 & any(txt.left(x[1], 5) == c("#\t\t: ", 
-                "#\t\t:\t"))) {
+            while (length(x) > 0 & grepl("^(#\t\t:\t|#\t\t: )", 
+                x[1])) {
                 z$detl.args <- c(z$detl.args, x[1])
                 x <- x[-1]
             }
@@ -2444,8 +2443,8 @@ fcn.comments.parse <- function (x)
         else {
             z$out <- x[1]
             x <- x[-1]
-            while (length(x) > 0 & any(txt.left(x[1], 5) == c("#\t\t: ", 
-                "#\t\t:\t"))) {
+            while (length(x) > 0 & grepl("^(#\t\t:\t|#\t\t: )", 
+                x[1])) {
                 z$out <- c(z$out, x[1])
                 x <- x[-1]
             }
@@ -2455,19 +2454,19 @@ fcn.comments.parse <- function (x)
     if (z$canonical & length(x) > 0) {
         if (grepl("^# Notes\t\t: ", x[1])) {
             x <- x[-1]
-            while (length(x) > 0 & any(txt.left(x[1], 5) == c("#\t\t: ", 
-                "#\t\t:\t"))) x <- x[-1]
+            while (length(x) > 0 & grepl("^(#\t\t:\t|#\t\t: )", 
+                x[1])) x <- x[-1]
         }
     }
     if (z$canonical & length(x) > 0) {
         if (grepl("^# Example\t: ", x[1])) {
-            z$example <- txt.right(x[1], nchar(x[1]) - 12)
+            z$example <- gsub("^.{12}", "", x[1])
             x <- x[-1]
         }
     }
     if (z$canonical & length(x) > 0) {
         if (grepl("^# Import\t: ", x[1])) {
-            z$import <- txt.right(x[1], nchar(x[1]) - 11)
+            z$import <- gsub("^.{11}", "", x[1])
             x <- x[-1]
         }
     }
@@ -2751,8 +2750,7 @@ fcn.lite <- function ()
     x <- vec.to.list(x, T)
     fcn <- function(x) paste(x, "<-", fcn.to.txt(x, T, F))
     x <- sapply(x, fcn)
-    y <- fcn.path()
-    y <- paste0(txt.left(y, nchar(y) - nchar(".r")), "-lite.r")
+    y <- paste0(gsub(".{2}$", "", fcn.path()), "-lite.r")
     writeLines(x, y)
     invisible()
 }
@@ -3698,8 +3696,7 @@ ftp.download <- function (x, y, n, w, h, u = "ftp", v)
     z <- do.call(ftp.all.files, z)
     w <- w[!is.element(names(w), c("x", "y"))]
     y <- paste0(y, "\\", dir.parent(z))
-    y <- ifelse(grepl("\\\\$", y), txt.left(y, nchar(y) - 1), 
-        y)
+    y <- ifelse(grepl("\\\\$", y), gsub(".$", "", y), y)
     dir.ensure(paste0(unique(y), "\\foo.txt"))
     z <- paste0(x, "/", z)
     for (j in seq_along(z)) {
@@ -5643,8 +5640,7 @@ maturity.bucket <- function (x)
     x <- x[order(x)]
     x <- vec.named(paste("v >=", x, "and v <", c(x[-1], "?")), 
         names(x))
-    x[length(x)] <- txt.left(x[length(x)], nchar(x[length(x)]) - 
-        nchar(" and v < ?"))
+    x[length(x)] <- gsub(".{10}$", "", x[length(x)])
     z <- txt.replace(x, "v", "datediff(day, @date, BondMaturity)")
     z
 }
@@ -6452,8 +6448,7 @@ mk.1wFloMo.CtryFlow.data <- function (x, y, n, w, h, u, v)
         n, "GeographicFocus", u, z))
     w[["CBF"]] <- lapply(w[["CBF"]], function(z) sql.query.underlying(z, 
         h$conn, F))
-    n <- txt.left(colnames(w$MAP)[2], nchar(colnames(w$MAP)[2]) - 
-        2)
+    n <- gsub(".{2}$", "", colnames(w$MAP)[2])
     z <- sql.CtryFlow.Alloc(w$MAP[, 2], y[1], s, n, v)
     z <- sql.query.underlying(z, h$conn, F)
     sql.close(h)
@@ -7691,7 +7686,7 @@ proc.count <- function (x = 10)
 {
     z <- shell("tasklist /FO LIST", intern = T)
     z <- z[seq(2, length(z), by = 6)]
-    z <- txt.right(z, nchar(z) - nchar("Image Name:"))
+    z <- gsub("^.{11}", "", z)
     z <- txt.trim(z)
     z <- vec.count(z)
     z <- z[order(z, decreasing = T)]
@@ -7806,7 +7801,7 @@ publications.data <- function (x, y, n, w)
     }
     h <- dir(n, "\\.csv$")
     if (length(h) > 0) {
-        h <- txt.left(h, nchar(h) - nchar(".csv"))
+        h <- gsub(".{4}$", "", h)
         x <- x[!is.element(x, h)]
     }
     if (length(x) > 0) {
@@ -10362,8 +10357,8 @@ sql.1dFloTrend.Alloc.fetch <- function (x, y, n, w, h)
         z <- sql.and(list(A = z, B = paste0(y, " in (", paste(n, 
             collapse = ", "), ")")))
     w <- ifelse(w, "Allocation = -Allocation", "Allocation")
-    z <- sql.Allocation(c("FundId", y, w), txt.left(y, nchar(y) - 
-        2), , , z)
+    z <- sql.Allocation(c("FundId", y, w), gsub(".{2}$", "", 
+        y), , , z)
     if (h) 
         z <- sql.unbracket(z)
     z
@@ -12989,7 +12984,7 @@ sql.unbracket <- function (x)
     n <- length(x)
     if (!grepl("^(", x[1]) | x[n] != ")") 
         stop("Can't unbracket!")
-    x[1] <- txt.right(x[1], nchar(x[1]) - 1)
+    x[1] <- gsub("^.", "", x[1])
     z <- x[-n]
     z
 }
@@ -13446,7 +13441,7 @@ stratrets.returns <- function (x)
         z <- z[x, ]
     }
     else {
-        x <- txt.right(x, nchar(x) - nchar("Sector"))
+        x <- gsub("^.{6}", "", x)
         y <- mat.read(parameters("classif-GSec"), "\t")
         if (any(colnames(y) == x)) {
             z <- paste0(fcn.dir(), "\\New Model Concept\\Sector\\FloMo\\csv")
@@ -13475,7 +13470,7 @@ stratrets.returns <- function (x)
 stratrets.subset <- function (x, y) 
 {
     if (grepl("FX$", y)) {
-        y <- txt.left(y, nchar(y) - nchar("FX"))
+        y <- gsub(".{2}$", "", y)
         z <- stratrets.subset.Ctry(x, y)
         z <- unique(Ctry.info(z, "Curr"))
         if (is.element(y, "EM")) 
@@ -13863,7 +13858,7 @@ txt.gunning <- function (x, y, n)
     x <- txt.replace(x, ".", " . ")
     x <- txt.itrim(txt.trim(x))
     if (grepl("\\.$", x)) 
-        x <- txt.left(x, nchar(x) - 1)
+        x <- gsub(".$", "", x)
     x <- txt.trim(x)
     if (missing(y)) 
         y <- txt.words()
