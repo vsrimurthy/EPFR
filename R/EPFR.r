@@ -13889,22 +13889,6 @@ txt.gunning <- function (x, y, n)
     z
 }
 
-#' txt.has
-#' 
-#' the elements of <x> that contain <y> if <n> is F or a #		:	logical vector otherwise
-#' @param x = a vector of strings
-#' @param y = a single string
-#' @param n = T/F depending on whether a logical vector is desired
-#' @keywords txt.has
-#' @export
-
-txt.has <- function (x, y, n = F) 
-{
-    if (n) 
-        grepl(y, x, fixed = T)
-    else grep(y, x, fixed = T, value = T)
-}
-
 #' txt.hdr
 #' 
 #' nice-looking header
