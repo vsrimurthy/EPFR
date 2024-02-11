@@ -2029,7 +2029,7 @@ EHD <- function (x, y, n, w, h, u = NULL)
 {
     z <- sql.Flow.tbl(n, T)
     n <- sql.Flow.tbl(n, F)
-    u <- split(u, ifelse(txt.has(u, "InstOrRetail", T), "ShareClass", 
+    u <- split(u, ifelse(grepl("InstOrRetail", u), "ShareClass", 
         "Fund"))
     if (any(names(u) == "ShareClass")) 
         u[["ShareClass"]] <- sql.in("SCId", sql.tbl("SCId", "ShareClass", 
@@ -2587,7 +2587,7 @@ fcn.extract.args <- function (x)
     n <- length(x)
     x <- gsub("^(# Args\t\t: |#\t\t: )", "", x)
     if (n > 1) {
-        w <- txt.has(x, "=", T)
+        w <- grepl("=", x)
         while (any(w[-n] & !w[-1])) {
             i <- 2:n - 1
             i <- i[w[-n] & !w[-1]][1]
@@ -2621,13 +2621,13 @@ fcn.extract.out <- function (x)
 #' fcn.has
 #' 
 #' Checks all functions are in standard form
-#' @param x = substring to be searched for
+#' @param x = regular expression to be searched for
 #' @keywords fcn.has
 #' @export
 
 fcn.has <- function (x) 
 {
-    fcn <- function(y) txt.has(fcn.to.txt(y, F), x, T)
+    fcn <- function(y) grepl(x, fcn.to.txt(y, F))
     z <- fcn.list()
     z <- z[sapply(vec.to.list(z), fcn)]
     z
@@ -3625,7 +3625,7 @@ ftp.dir.parse.ftp <- function (x)
     z <- data.frame(substring(x, 1, 8), substring(x, 18, 39), 
         substring(x, 40, nchar(x)), stringsAsFactors = F)
     names(z) <- c("yyyymmdd", "size", "file")
-    z[, "is.file"] <- !txt.has(x, " <DIR> ", T)
+    z[, "is.file"] <- !grepl(" <DIR> ", x)
     z[, "size"] <- ifelse(z[, "is.file"], z[, "size"], 0)
     z[, "size"] <- char.to.num(z[, "size"])/2^10
     z[, "yyyymmdd"] <- paste0("20", substring(z[, "yyyymmdd"], 
@@ -3661,7 +3661,7 @@ ftp.dir.parse.sftp <- function (x)
             5])/2^10
     }
     z$mm <- map.rname(vec.named(1:12, month.abb), z$mm)
-    z$yyyy <- ifelse(txt.has(z$yyyy, ":", T), yyyymm.to.yyyy(yyyymmdd.to.yyyymm(today())), 
+    z$yyyy <- ifelse(grepl(":", z$yyyy), yyyymm.to.yyyy(yyyymmdd.to.yyyymm(today())), 
         z$yyyy)
     z$yyyy <- char.to.num(z$yyyy)
     z[, "yyyymmdd"] <- as.character(10000 * z$yyyy + 100 * z$mm + 
