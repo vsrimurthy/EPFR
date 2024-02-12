@@ -7,7 +7,7 @@
 ftp.dir.parse.sftp(x)
 }
 \arguments{
-\item{x}{= string vector (raw output of ftp)}
+\item{x}{= a string vector (raw output of ftp)}
 }
 \description{
 data frame with ftp information

@@ -11,7 +11,7 @@ record.exists(x, y, n)
 
 \item{y}{= date for which you want to send the report}
 
-\item{n}{= file name}
+\item{n}{= a file}
 }
 \description{
 T/F depending on whether action already taken

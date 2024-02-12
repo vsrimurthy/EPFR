@@ -7,9 +7,9 @@
 rrw(x, y, n, w, h, u, v, g = NULL, r)
 }
 \arguments{
-\item{x}{= a first-return date in yyyymm format representing the first month of the backtest}
+\item{x}{= a YYYYMM, first-return date representing the first month of the backtest}
 
-\item{y}{= a first-return date in yyyymm format representing the last month of the backtest}
+\item{y}{= a YYYYMM, first-return date representing the last month of the backtest}
 
 \item{n}{= vector of variables against which return is to be regressed}
 

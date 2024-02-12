@@ -7,7 +7,7 @@
 ftp.del(x, y, n, w, h, u = "ftp")
 }
 \arguments{
-\item{x}{= remote folder/file (e.g. "/ftpdata" or "/ftpdata/foo.txt")}
+\item{x}{= a remote folder/file}
 
 \item{y}{= a SINGLE file (e.g. "foo.txt") or missing if <x> is a file}
 

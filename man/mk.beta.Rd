@@ -7,7 +7,7 @@
 mk.beta(x, y, n)
 }
 \arguments{
-\item{x}{= a single YYYYMM}
+\item{x}{= a YYYYMM}
 
 \item{y}{= a string vector, the elements of which are: #        :    1) benchmark (e.g. "Eafe") #        :    2) number of trailing months of returns (e.g. 12)}
 

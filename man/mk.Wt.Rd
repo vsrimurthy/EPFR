@@ -7,7 +7,7 @@
 mk.Wt(x, y, n)
 }
 \arguments{
-\item{x}{= a single YYYYMM}
+\item{x}{= a YYYYMM}
 
 \item{y}{= FundId of the fund of interest}
 

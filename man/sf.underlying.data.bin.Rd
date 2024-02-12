@@ -11,7 +11,7 @@ sf.underlying.data.bin(x, y, n, w)
 
 \item{y}{= number of bins or numeric vector with last element T/F for dependent/independent}
 
-\item{n}{= numeric vector of weighting factors}
+\item{n}{= a numeric vector of weighting factors}
 
 \item{w}{= vector of binning groups}
 }

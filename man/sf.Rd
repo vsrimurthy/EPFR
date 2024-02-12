@@ -7,7 +7,7 @@
 sf(fcn, x, y, n, w, h, u, v, g = 5, r, s = 1, b = F)
 }
 \arguments{
-\item{fcn}{= function that fetches data for the appropriate period and parameter}
+\item{fcn}{= a fetch function}
 
 \item{x}{= first-return date in YYYYMM}
 
@@ -19,7 +19,7 @@ sf(fcn, x, y, n, w, h, u, v, g = 5, r, s = 1, b = F)
 
 \item{h}{= return variable}
 
-\item{u}{= variable parameter}
+\item{u}{= a parameter}
 
 \item{v}{= data folder}
 

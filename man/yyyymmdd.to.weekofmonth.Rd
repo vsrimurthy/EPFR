@@ -7,7 +7,7 @@
 yyyymmdd.to.weekofmonth(x)
 }
 \arguments{
-\item{x}{= a vector of dates in yyyymmdd format}
+\item{x}{= a YYYYMMDD vector}
 }
 \description{
 returns 1 if the date fell in the first week of the month, 2 if it fell in the second, etc.

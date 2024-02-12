@@ -7,9 +7,9 @@
 yyyymmdd.seq(x, y, n = 1)
 }
 \arguments{
-\item{x}{= a single weekday}
+\item{x}{= a YYYYMMDD}
 
-\item{y}{= a single weekday}
+\item{y}{= a YYYYMMDD}
 
 \item{n}{= a positive integer}
 }

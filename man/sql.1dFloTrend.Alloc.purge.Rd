@@ -7,7 +7,7 @@
 sql.1dFloTrend.Alloc.purge(x, y)
 }
 \arguments{
-\item{x}{= temp table name (e.g. "#CTRY")}
+\item{x}{= a temp table}
 
 \item{y}{= identifier column (SectorId/CountryId)}
 }

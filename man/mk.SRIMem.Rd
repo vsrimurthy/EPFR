@@ -7,7 +7,7 @@
 mk.SRIMem(x, y, n)
 }
 \arguments{
-\item{x}{= a single YYYYMM}
+\item{x}{= a YYYYMM}
 
 \item{y}{= a positive integer}
 

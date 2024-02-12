@@ -7,7 +7,7 @@
 yyyymm.to.day(x)
 }
 \arguments{
-\item{x}{= a vector of months in yyyymm format}
+\item{x}{= a YYYYMM vector}
 }
 \description{
 Returns the last day in the month whether weekend or not.

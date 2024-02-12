@@ -7,7 +7,7 @@
 bbk.bin.rets.prd.summ(fcn, x, y, n)
 }
 \arguments{
-\item{fcn}{= function you use to summarize results}
+\item{fcn}{= a summary function}
 
 \item{x}{= a matrix/df with rows indexed by time and columns indexed by bins}
 

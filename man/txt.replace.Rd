@@ -7,7 +7,7 @@
 txt.replace(x, y, n)
 }
 \arguments{
-\item{x}{= a vector of strings}
+\item{x}{= a string vector}
 
 \item{y}{= a string to be swapped out}
 

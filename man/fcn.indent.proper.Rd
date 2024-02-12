@@ -7,7 +7,7 @@
 fcn.indent.proper(x)
 }
 \arguments{
-\item{x}{= a SINGLE function name}
+\item{x}{= a function name}
 }
 \description{
 T/F depending on whether the function is indented properly

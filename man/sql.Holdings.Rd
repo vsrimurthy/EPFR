@@ -11,7 +11,7 @@ sql.Holdings(x, y, n)
 
 \item{y}{= columns you want fetched}
 
-\item{n}{= the temp table for the output}
+\item{n}{= a temp table}
 }
 \description{
 query to access stock-holdings data

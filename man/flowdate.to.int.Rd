@@ -7,7 +7,7 @@
 flowdate.to.int(x)
 }
 \arguments{
-\item{x}{= a vector of flow dates in YYYYMMDD format}
+\item{x}{= a flowdate vector}
 }
 \description{
 number of daily flow-publication dates after Thursday, January 1, 1970

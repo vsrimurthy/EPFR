@@ -7,7 +7,7 @@
 mk.vbl.scale(x, y, n)
 }
 \arguments{
-\item{x}{= a single YYYYMM}
+\item{x}{= a YYYYMM}
 
 \item{y}{= a string vector, the elements of which are: #        :    1) the variable to be scaled #        :    2) the secondary variable #        :    3) the universe within which to scale #        :    4) the grouping within which to scale #        :    5) scaling factor on top decile}
 

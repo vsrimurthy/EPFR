@@ -7,7 +7,7 @@
 dir.make(x)
 }
 \arguments{
-\item{x}{= a vector of full folder paths}
+\item{x}{= a folder vector}
 }
 \description{
 creates folders <x>

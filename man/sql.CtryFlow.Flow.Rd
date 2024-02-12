@@ -7,7 +7,7 @@
 sql.CtryFlow.Flow(x, y, n, w, h)
 }
 \arguments{
-\item{x}{= YYYYMMDD}
+\item{x}{= a YYYYMMDD}
 
 \item{y}{= item(s) (any of Flow/AssetsStart/AssetsEnd)}
 

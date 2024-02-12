@@ -7,7 +7,7 @@
 bond.curve.expand(x)
 }
 \arguments{
-\item{x}{= named vector of interest rates}
+\item{x}{= a named vector of interest rates}
 }
 \description{
 full yield curve

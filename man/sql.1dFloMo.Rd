@@ -7,11 +7,11 @@
 sql.1dFloMo(x, y, n, w, h, u = "All")
 }
 \arguments{
-\item{x}{= vector of flow dates in YYYYMMDD (known two days later)}
+\item{x}{= a flowdate vector}
 
 \item{y}{= a string vector of factors to be computed, #        :    the last elements of which are the type of fund used}
 
-\item{n}{= any of StockFlows/China/Japan/CSI300/Energy}
+\item{n}{= DB - any of StockFlows/China/Japan/CSI300/Energy}
 
 \item{w}{= T/F depending on whether you are checking ftp}
 

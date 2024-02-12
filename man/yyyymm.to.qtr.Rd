@@ -7,7 +7,7 @@
 yyyymm.to.qtr(x)
 }
 \arguments{
-\item{x}{= a vector of yyyymm}
+\item{x}{= a YYYYMM vector}
 }
 \description{
 returns associated quarters

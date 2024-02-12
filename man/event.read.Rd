@@ -7,7 +7,7 @@
 event.read(x)
 }
 \arguments{
-\item{x}{= path to a text file of dates in dd/mm/yyyy format}
+\item{x}{= a file of dates in dd/mm/yyyy format}
 }
 \description{
 data frame with events sorted and numbered

@@ -7,7 +7,7 @@
 fcn.to.txt(x, y = F, n = F)
 }
 \arguments{
-\item{x}{= a SINGLE function name}
+\item{x}{= a function name}
 
 \item{y}{= T/F vbl controlling whether comments are returned}
 

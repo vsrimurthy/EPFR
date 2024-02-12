@@ -7,7 +7,7 @@
 dir.kill(x)
 }
 \arguments{
-\item{x}{= a vector of full folder paths}
+\item{x}{= a folder vector}
 }
 \description{
 removes <x>

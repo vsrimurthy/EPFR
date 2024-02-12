@@ -9,7 +9,7 @@ sql.1mBullish.Final(x, y)
 \arguments{
 \item{x}{= SectorId/CountryId}
 
-\item{y}{= name of SQL temp table}
+\item{y}{= a temp table}
 }
 \description{
 SQL query for monthly Bullish sector indicator

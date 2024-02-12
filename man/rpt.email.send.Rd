@@ -11,11 +11,11 @@ rpt.email.send(x, y, n, w, h)
 
 \item{y}{= the email address(es) of the recipient(s)}
 
-\item{n}{= flow date}
+\item{n}{= a flowdate}
 
 \item{w}{= T/F depending on whether you're sending the email or testing}
 
-\item{h}{= file(s) to email}
+\item{h}{= a file vector}
 }
 \description{
 emails report

@@ -7,7 +7,7 @@
 mk.EigenCentrality(x, y, n)
 }
 \arguments{
-\item{x}{= a single YYYYMM}
+\item{x}{= a YYYYMM}
 
 \item{y}{= a string vector of variables to build with the last elements #        :    specifying the type of funds to use}
 

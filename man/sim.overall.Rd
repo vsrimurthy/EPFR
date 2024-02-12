@@ -9,7 +9,7 @@ sim.overall(x, y, n)
 \arguments{
 \item{x}{= list object, elements are the output of <sim.optimal>}
 
-\item{y}{= named vector of turnover}
+\item{y}{= a named vector of turnover}
 
 \item{n}{= vector of group limits (names correspond to columns in elements of <x>)}
 }

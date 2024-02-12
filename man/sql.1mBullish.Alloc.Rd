@@ -11,7 +11,7 @@ sql.1mBullish.Alloc(x, y, n)
 
 \item{y}{= SectorId/CountryId}
 
-\item{n}{= name of SQL temp table}
+\item{n}{= a temp table}
 }
 \description{
 SQL query for monthly Bullish sector indicator

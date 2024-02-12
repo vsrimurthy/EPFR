@@ -7,9 +7,9 @@
 mk.vbl.chg(x, y, n)
 }
 \arguments{
-\item{x}{= a single YYYYMM}
+\item{x}{= a YYYYMM}
 
-\item{y}{= variable name}
+\item{y}{= a variable}
 
 \item{n}{= list object containing the following items: #        :    a) classif - classif file #        :    b) fldr - stock-flows folder}
 }

@@ -13,7 +13,7 @@ refresh.predictors.monthly(x, y, n, w, h)
 
 \item{n}{= last part of the query that goes after the date restriction}
 
-\item{w}{= one of StockFlows/Regular/Quant}
+\item{w}{= input to sql.connect}
 
 \item{h}{= when T, ignores the fact that data for the last row has changed}
 }

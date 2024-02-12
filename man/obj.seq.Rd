@@ -7,15 +7,15 @@
 obj.seq(x, y, n, w, h)
 }
 \arguments{
-\item{x}{= a SINGLE object}
+\item{x}{= an object}
 
-\item{y}{= a SINGLE object of the same type as <x>}
+\item{y}{= an object of the same type as <x>}
 
 \item{n}{= a function mapping these objects to the number line}
 
 \item{w}{= the bijective inverse of <n>}
 
-\item{h}{= a positive integer representing quantum size}
+\item{h}{= a positive integer}
 }
 \description{
 returns a sequence of objects between (and including) <x> and <y>

@@ -7,7 +7,7 @@
 txt.prepend(x, y, n)
 }
 \arguments{
-\item{x}{= a vector of strings}
+\item{x}{= a string vector}
 
 \item{y}{= number of times to add <n>}
 

@@ -7,7 +7,7 @@
 sql.ReportDate(x)
 }
 \arguments{
-\item{x}{= a YYYYMMDD date}
+\item{x}{= a YYYYMMDD}
 }
 \description{
 SQL select statement for constant date <x>

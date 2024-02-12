@@ -9,7 +9,7 @@ vec.read(x, y = ",")
 \arguments{
 \item{x}{= path to a vector}
 
-\item{y}{= separator (defaults to comma)}
+\item{y}{= the separator}
 }
 \description{
 reads into <x> a named vector

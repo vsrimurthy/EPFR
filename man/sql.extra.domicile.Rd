@@ -7,7 +7,7 @@
 sql.extra.domicile(x, y, n)
 }
 \arguments{
-\item{x}{= flowdate/YYYYMMDD depending on whether daily/weekly}
+\item{x}{= a flowdate/YYYYMMDD depending on whether daily/weekly}
 
 \item{y}{= column in classif-Ctry corresponding to names of <x>}
 

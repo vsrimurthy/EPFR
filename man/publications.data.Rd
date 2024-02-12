@@ -13,7 +13,7 @@ publications.data(x, y, n, w)
 
 \item{n}{= folder where the data live}
 
-\item{w}{= one of StockFlows/Regular/Quant}
+\item{w}{= input to sql.connect}
 }
 \description{
 additional data is got and stale data removed

@@ -7,9 +7,9 @@
 ftp.put(x, y, n, w, h, u = "ftp", v)
 }
 \arguments{
-\item{x}{= remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
+\item{x}{= a remote folder}
 
-\item{y}{= a vector of local file path(s) (e.g. "C:\\\\temp\\\\foo.txt")}
+\item{y}{= a file vector}
 
 \item{n}{= ftp site (defaults to standard)}
 

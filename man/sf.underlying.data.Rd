@@ -7,7 +7,7 @@
 sf.underlying.data(fcn, x, y, n, w, h, u, v, g, r, s)
 }
 \arguments{
-\item{fcn}{= function that fetches data for the appropriate period and parameter}
+\item{fcn}{= a fetch function}
 
 \item{x}{= the period for which you want returns}
 
@@ -19,7 +19,7 @@ sf.underlying.data(fcn, x, y, n, w, h, u, v, g, r, s)
 
 \item{h}{= return variable}
 
-\item{u}{= variable parameter}
+\item{u}{= a parameter}
 
 \item{v}{= data folder}
 

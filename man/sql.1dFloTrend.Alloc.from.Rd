@@ -7,9 +7,9 @@
 sql.1dFloTrend.Alloc.from(x, y, n, w, h)
 }
 \arguments{
-\item{x}{= flowdate/YYYYMMDD depending on whether daily/weekly}
+\item{x}{= a flowdate/YYYYMMDD depending on whether daily/weekly}
 
-\item{y}{= temp table name (e.g. "#CTRY")}
+\item{y}{= a temp table}
 
 \item{n}{= identifier column (SectorId/CountryId)}
 

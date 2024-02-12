@@ -7,7 +7,7 @@
 txt.ex.file(x)
 }
 \arguments{
-\item{x}{= path to a text file}
+\item{x}{= a file}
 }
 \description{
 reads in the file as a single string

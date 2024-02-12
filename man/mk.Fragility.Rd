@@ -7,7 +7,7 @@
 mk.Fragility(x, y, n)
 }
 \arguments{
-\item{x}{= a single YYYYMM}
+\item{x}{= a YYYYMM}
 
 \item{y}{= vector containing the following items: #        :    a) folder - where the underlying data live #        :    b) trail - number of return periods to use #        :    c) factors - number of eigenvectors to use}
 

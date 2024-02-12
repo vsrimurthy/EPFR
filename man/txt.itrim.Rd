@@ -7,7 +7,7 @@
 txt.itrim(x)
 }
 \arguments{
-\item{x}{= a vector of strings}
+\item{x}{= a string vector}
 }
 \description{
 replaces consecutive spaces by one

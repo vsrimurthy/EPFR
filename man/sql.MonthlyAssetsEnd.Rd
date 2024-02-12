@@ -7,7 +7,7 @@
 sql.MonthlyAssetsEnd(x, y = NULL, n = F, w = "All", h = "AssetsEnd")
 }
 \arguments{
-\item{x}{= a single YYYYMMDD or list (where clause)}
+\item{x}{= a YYYYMMDD or list (where clause)}
 
 \item{y}{= columns in addition to AssetsEnd}
 

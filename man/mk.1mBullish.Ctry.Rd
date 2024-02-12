@@ -7,7 +7,7 @@
 mk.1mBullish.Ctry(x, y)
 }
 \arguments{
-\item{x}{= YYYYMM month}
+\item{x}{= a YYYYMM}
 
 \item{y}{= input to or output of sql.connect}
 }

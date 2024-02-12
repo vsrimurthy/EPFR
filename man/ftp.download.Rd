@@ -7,7 +7,7 @@
 ftp.download(x, y, n, w, h, u = "ftp", v)
 }
 \arguments{
-\item{x}{= remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
+\item{x}{= a remote folder}
 
 \item{y}{= local folder (e.g. "C:\\\\temp\\\\mystuff")}
 

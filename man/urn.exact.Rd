@@ -7,7 +7,7 @@
 urn.exact(x, y)
 }
 \arguments{
-\item{x}{= a vector of integers}
+\item{x}{= an integer vector}
 
 \item{y}{= an isomekic vector of integers that is pointwise greater than or equal to <x>}
 }

@@ -9,9 +9,9 @@ load.dy.vbl.1obj(fcn, x, y, n, w, h, u)
 \arguments{
 \item{fcn}{= a function}
 
-\item{x}{= a single YYYYMMDD}
+\item{x}{= a YYYYMMDD}
 
-\item{y}{= a single YYYYMMDD}
+\item{y}{= a YYYYMMDD}
 
 \item{n}{= passed down to <mk.fcn>}
 

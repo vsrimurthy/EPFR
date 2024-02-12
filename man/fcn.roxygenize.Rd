@@ -7,7 +7,7 @@
 fcn.roxygenize(x, y, n)
 }
 \arguments{
-\item{x}{= function name}
+\item{x}{= a function name}
 
 \item{y}{= library to import}
 

@@ -9,7 +9,7 @@ ftp.sql.factor(x, y, n, w, h)
 \arguments{
 \item{x}{= factor}
 
-\item{y}{= flow date in YYYYMMDD format}
+\item{y}{= a flowdate}
 
 \item{n}{= fund filter (e.g. Aggregate/Active/Passive/ETF/Mutual)}
 

@@ -7,7 +7,7 @@
 multi.asset(x)
 }
 \arguments{
-\item{x}{= a vector of paths to files}
+\item{x}{= a file vector}
 }
 \description{
 Reads in data relevant to the multi-asset strategy

@@ -7,7 +7,7 @@
 num.exists(x, y)
 }
 \arguments{
-\item{x}{= string vector}
+\item{x}{= a string vector}
 
 \item{y}{= number type}
 }

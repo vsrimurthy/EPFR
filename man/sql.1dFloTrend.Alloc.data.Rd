@@ -9,7 +9,7 @@ sql.1dFloTrend.Alloc.data(x, y, n)
 \arguments{
 \item{x}{= SQL statement}
 
-\item{y}{= named vector of country/sector codes indexed by Id}
+\item{y}{= a named vector of country/sector codes indexed by Id}
 
 \item{n}{= input to or output of sql.connect}
 }

@@ -7,7 +7,7 @@
 sql.1dFloMo.aum(x, y)
 }
 \arguments{
-\item{x}{= month end in YYYYMMDD format}
+\item{x}{= a month end}
 
 \item{y}{= name of AssetEnd column (e.g. "PortVal")}
 }

@@ -7,9 +7,9 @@
 yyyymmdd.ex.txt(x, y = "/", n = "MDY")
 }
 \arguments{
-\item{x}{= a vector of dates in some format}
+\item{x}{= a string vector}
 
-\item{y}{= separators used within <x>}
+\item{y}{= the separator}
 
 \item{n}{= order in which month, day and year are represented}
 }

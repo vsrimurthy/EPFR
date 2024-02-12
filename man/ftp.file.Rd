@@ -7,7 +7,7 @@
 ftp.file(x)
 }
 \arguments{
-\item{x}{= a string of full paths}
+\item{x}{= a file vector}
 }
 \description{
 strips out parent directory, returning just the file name

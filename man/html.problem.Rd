@@ -9,7 +9,7 @@ html.problem(x, y, n)
 \arguments{
 \item{x}{= report names}
 
-\item{y}{= string vector}
+\item{y}{= a string vector}
 
 \item{n}{= logical vector (T = error, F = not, NA = no check)}
 }

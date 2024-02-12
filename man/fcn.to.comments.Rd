@@ -7,7 +7,7 @@
 fcn.to.comments(x)
 }
 \arguments{
-\item{x}{= a SINGLE function name}
+\item{x}{= a function name}
 }
 \description{
 returns the comment section

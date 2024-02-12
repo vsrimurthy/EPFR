@@ -9,9 +9,9 @@ sql.bcp(x, y, n = "Quant", w = "EPFRUI", h = "dbo")
 \arguments{
 \item{x}{= SQL table to perform the bulk copy from}
 
-\item{y}{= the location of the output file}
+\item{y}{= the output file}
 
-\item{n}{= One of "StockFlows", "Quant", "QuantSF" or "Regular"}
+\item{n}{= input to sql.connect}
 
 \item{w}{= the database on which <x> resides}
 

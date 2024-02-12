@@ -9,7 +9,7 @@ sf.subset(x, y, n, w)
 \arguments{
 \item{x}{= membership (e.g. "EafeMem" or c("GemMem", 1))}
 
-\item{y}{= a YYYYMM or YYYYMMDD}
+\item{y}{= a YYYYMM/YYYYMMDD}
 
 \item{n}{= folder in which to find the data}
 

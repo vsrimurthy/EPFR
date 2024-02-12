@@ -7,7 +7,7 @@
 txt.left(x, y)
 }
 \arguments{
-\item{x}{= a vector of string}
+\item{x}{= a string vector}
 
 \item{y}{= a positive integer}
 }

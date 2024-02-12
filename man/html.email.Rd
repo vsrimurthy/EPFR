@@ -7,7 +7,7 @@
 html.email(x, y = T)
 }
 \arguments{
-\item{x}{= a SINGLE flow date in YYYYMMDD format}
+\item{x}{= a flowdate}
 
 \item{y}{= T/F depending on whether this is for standard or Asia process}
 }

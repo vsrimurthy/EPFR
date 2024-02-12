@@ -9,7 +9,7 @@ sql.currprior(fcn, x, y, n, w)
 \arguments{
 \item{fcn}{= SQL-script generator}
 
-\item{x}{= a YYYYMM month}
+\item{x}{= a YYYYMM}
 
 \item{y}{= table names}
 

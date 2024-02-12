@@ -9,7 +9,7 @@ sql.SRI(x, y)
 \arguments{
 \item{x}{= the YYYYMM for which you want data (known 26 days later)}
 
-\item{y}{= any of StockFlows/Japan/CSI300/Energy}
+\item{y}{= DB - any of StockFlows/China/Japan/CSI300/Energy}
 }
 \description{
 number of SRI funds holding the stock at time <x>

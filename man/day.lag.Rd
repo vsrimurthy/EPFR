@@ -9,7 +9,7 @@ day.lag(x, y)
 \arguments{
 \item{x}{= a vector of calendar dates}
 
-\item{y}{= an integer or vector of integers (if <x> and <y> are vectors then <y> isomekic)}
+\item{y}{= an integer vector}
 }
 \description{
 lags <x> by <y> days.

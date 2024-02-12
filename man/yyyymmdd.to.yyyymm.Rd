@@ -7,7 +7,7 @@
 yyyymmdd.to.yyyymm(x, y = F)
 }
 \arguments{
-\item{x}{= a vector of dates in yyyymmdd format}
+\item{x}{= a YYYYMMDD vector}
 
 \item{y}{= if T then falls back one month}
 }

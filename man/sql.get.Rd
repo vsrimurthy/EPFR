@@ -7,11 +7,11 @@
 sql.get(fcn, x, y, n, w = NULL)
 }
 \arguments{
-\item{fcn}{= get function}
+\item{fcn}{= a fetch function}
 
-\item{x}{= list of vectors of flowdates}
+\item{x}{= a list of flowdate vectors}
 
-\item{y}{= name of an SQL connection (e.g. "StockFlows", "NEWUI" etc.)}
+\item{y}{= input to sql.connect}
 
 \item{n}{= maximum number of queries using the same connection}
 

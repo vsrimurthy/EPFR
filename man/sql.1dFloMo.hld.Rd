@@ -7,7 +7,7 @@
 sql.1dFloMo.hld(x, y, n = F)
 }
 \arguments{
-\item{x}{= month end in YYYYMMDD format}
+\item{x}{= a month end}
 
 \item{y}{= "" or the SQL query to subset to securities desired}
 

@@ -7,7 +7,7 @@
 sql.Overweight(x)
 }
 \arguments{
-\item{x}{= a YYYYMMDD date}
+\item{x}{= a YYYYMMDD}
 }
 \description{
 weight/shares normalized across stocks, then funds

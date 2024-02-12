@@ -7,7 +7,7 @@
 fcn.lines.code(x, y)
 }
 \arguments{
-\item{x}{= a SINGLE function name}
+\item{x}{= a function name}
 
 \item{y}{= T/F depending on whether internal comments count}
 }

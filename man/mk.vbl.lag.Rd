@@ -7,7 +7,7 @@
 mk.vbl.lag(x, y, n)
 }
 \arguments{
-\item{x}{= a single YYYYMM}
+\item{x}{= a YYYYMM}
 
 \item{y}{= a string vector, the elements of which are: #        :    1) the variable to be lagged #        :    2) the lag in months #        :    3) the sub-folder in which the variable lives}
 

@@ -7,9 +7,9 @@
 sql.MonthlyAlloc(x, y = "All", n = F, w = F)
 }
 \arguments{
-\item{x}{= YYYYMMDD for which you want allocations}
+\item{x}{= a YYYYMMDD for which you want allocations}
 
-\item{y}{= any of StockFlows/China/Japan/CSI300/Energy}
+\item{y}{= DB - any of StockFlows/China/Japan/CSI300/Energy}
 
 \item{n}{= T/F depending on SharesHeld/HoldingValue}
 

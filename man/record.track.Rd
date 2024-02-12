@@ -7,9 +7,9 @@
 record.track(x, y, n)
 }
 \arguments{
-\item{x}{= a SINGLE YYYYMMDD date}
+\item{x}{= a YYYYMMDD}
 
-\item{y}{= file name}
+\item{y}{= a file}
 
 \item{n}{= T/F depending on whether this is for standard or Asia process}
 }

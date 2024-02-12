@@ -7,9 +7,9 @@
 yyyymmdd.to.AllocMo(x, y = 23)
 }
 \arguments{
-\item{x}{= the date for which you want flows (known one day later)}
+\item{x}{= a YYYYMMDD}
 
-\item{y}{= calendar day in the next month when allocations are known (usually the 23rd)}
+\item{y}{= calendar day allocations are known the next month}
 }
 \description{
 Returns the month for which you need to get allocations Flows as of the 23rd of each month are known by the 24th. By this time allocations from #		:	the previous month are known

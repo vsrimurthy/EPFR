@@ -11,7 +11,7 @@ sql.Bullish(x, y, n, w)
 
 \item{y}{= a string vector of factors to be computed, #        :    the last element of which is the type of fund used.}
 
-\item{n}{= any of StockFlows/China/Japan/CSI300/Energy}
+\item{n}{= DB - any of StockFlows/China/Japan/CSI300/Energy}
 
 \item{w}{= T/F depending on whether you are checking ftp}
 }

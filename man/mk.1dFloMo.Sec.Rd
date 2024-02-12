@@ -7,7 +7,7 @@
 mk.1dFloMo.Sec(x, y, n, w, h, u = F, v = F)
 }
 \arguments{
-\item{x}{= flowdate/YYYYMMDD depending on whether daily/weekly}
+\item{x}{= a flowdate/YYYYMMDD depending on whether daily/weekly}
 
 \item{y}{= item (Flow/AssetsStart/AssetsEnd/PortfolioChange)}
 

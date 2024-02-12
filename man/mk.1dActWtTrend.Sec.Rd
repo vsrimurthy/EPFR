@@ -7,7 +7,7 @@
 mk.1dActWtTrend.Sec(x, y, n, w = "E")
 }
 \arguments{
-\item{x}{= flowdate}
+\item{x}{= a flowdate}
 
 \item{y}{= factor (one of ActWtTrend/ActWtDiff/ActWtDiff2)}
 

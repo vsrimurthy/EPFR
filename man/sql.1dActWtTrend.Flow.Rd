@@ -7,7 +7,7 @@
 sql.1dActWtTrend.Flow(x, y)
 }
 \arguments{
-\item{x}{= flowdate}
+\item{x}{= a flowdate}
 
 \item{y}{= vector of filters}
 }

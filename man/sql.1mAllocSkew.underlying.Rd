@@ -7,7 +7,7 @@
 sql.1mAllocSkew.underlying(x, y, n, w)
 }
 \arguments{
-\item{x}{= single YYYYMM or vector of flow dates in YYYYMMDD (known two days later)}
+\item{x}{= a YYYYMM or a flowdate vector}
 
 \item{y}{= the type of fund used in the computation}
 

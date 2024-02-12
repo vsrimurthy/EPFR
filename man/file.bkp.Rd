@@ -7,7 +7,7 @@
 file.bkp(x, y)
 }
 \arguments{
-\item{x}{= a string of full paths}
+\item{x}{= a file vector}
 
 \item{y}{= an isomekic string of full paths}
 }

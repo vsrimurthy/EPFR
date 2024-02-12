@@ -7,11 +7,11 @@
 txt.expand(x, y, n = "-", w = F)
 }
 \arguments{
-\item{x}{= a vector of strings}
+\item{x}{= a string vector}
 
-\item{y}{= a vector of strings}
+\item{y}{= a string vector}
 
-\item{n}{= paste separator}
+\item{n}{= the separator}
 
 \item{w}{= T/F variable controlling paste order}
 }

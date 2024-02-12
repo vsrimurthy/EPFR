@@ -7,7 +7,7 @@
 fcn.simple(x)
 }
 \arguments{
-\item{x}{= a SINGLE function name}
+\item{x}{= a function name}
 }
 \description{
 T/F depending on whether <x> has multi-line expressions

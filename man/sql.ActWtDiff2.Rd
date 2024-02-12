@@ -7,7 +7,7 @@
 sql.ActWtDiff2(x)
 }
 \arguments{
-\item{x}{= flow date}
+\item{x}{= a flowdate}
 }
 \description{
 ActWtDiff2 on R1 Materials for positioning

@@ -7,11 +7,11 @@
 qtr.seq(x, y, n = 1)
 }
 \arguments{
-\item{x}{= a QTR}
+\item{x}{= a qtr}
 
-\item{y}{= a QTR}
+\item{y}{= a qtr}
 
-\item{n}{= quantum size in QTR}
+\item{n}{= a positive integer}
 }
 \description{
 returns a sequence of QTR between (and including) x and y

@@ -7,7 +7,7 @@
 mk.1mBullish.Sec(x, y, n)
 }
 \arguments{
-\item{x}{= YYYYMM month}
+\item{x}{= a YYYYMM}
 
 \item{y}{= input to or output of sql.connect}
 

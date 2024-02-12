@@ -7,11 +7,11 @@
 yyyymm.seq(x, y, n = 1)
 }
 \arguments{
-\item{x}{= a YYYYMM or YYYYMMDD or YYYY}
+\item{x}{= a YYYY/YYYYMM/YYYYMMDD}
 
-\item{y}{= an isotypic element}
+\item{y}{= a YYYY/YYYYMM/YYYYMMDD}
 
-\item{n}{= quantum size in YYYYMM or YYYYMMDD or YYYY}
+\item{n}{= a positive integer}
 }
 \description{
 returns a sequence between (and including) x and y

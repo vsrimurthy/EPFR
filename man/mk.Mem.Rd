@@ -7,7 +7,7 @@
 mk.Mem(x, y, n)
 }
 \arguments{
-\item{x}{= a single YYYYMM}
+\item{x}{= a YYYYMM}
 
 \item{y}{= a vector of FundId}
 

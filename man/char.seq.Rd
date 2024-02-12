@@ -7,11 +7,11 @@
 char.seq(x, y, n = 1)
 }
 \arguments{
-\item{x}{= a SINGLE character}
+\item{x}{= a character}
 
-\item{y}{= a SINGLE character}
+\item{y}{= a character}
 
-\item{n}{= quantum size}
+\item{n}{= a positive integer}
 }
 \description{
 returns a sequence of ASCII characters between (and including) x and y

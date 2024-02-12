@@ -13,7 +13,7 @@ bbk.summ(x, y, n, w)
 
 \item{n}{= return window in days or months depending on whether <x> is YYYYMMDD or YYYYMM}
 
-\item{w}{= quantum size (<n> is made up of non-overlapping windows of size <w>)}
+\item{w}{= a positive integer}
 }
 \description{
 summarizes by year and overall

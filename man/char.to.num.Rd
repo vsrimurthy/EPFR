@@ -7,7 +7,7 @@
 char.to.num(x)
 }
 \arguments{
-\item{x}{= a vector of strings}
+\item{x}{= a string vector}
 }
 \description{
 coerces to numeric without generating warnings

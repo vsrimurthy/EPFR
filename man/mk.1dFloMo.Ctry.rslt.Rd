@@ -11,7 +11,7 @@ mk.1dFloMo.Ctry.rslt(x, y, n)
 
 \item{y}{= flow momentum output}
 
-\item{n}{= named vector of country codes indexed by CountryId}
+\item{n}{= a named vector of country codes indexed by CountryId}
 }
 \description{
 formats flow momentum output

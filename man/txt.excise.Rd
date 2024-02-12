@@ -7,9 +7,9 @@
 txt.excise(x, y)
 }
 \arguments{
-\item{x}{= a vector of string}
+\item{x}{= a string vector}
 
-\item{y}{= a vector of string}
+\item{y}{= a string vector}
 }
 \description{
 cuts first instance of each element of <y> from <x>

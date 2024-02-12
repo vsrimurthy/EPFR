@@ -7,7 +7,7 @@
 txt.ex.int.ordinal.wrapper(x)
 }
 \arguments{
-\item{x}{= a vector of integers}
+\item{x}{= an integer vector}
 }
 \description{
 a string vector describing <x> in words (cardinal numbers)

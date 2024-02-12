@@ -7,9 +7,9 @@
 sim.fetch(x, y, n, w, h = NULL)
 }
 \arguments{
-\item{x}{= YYYYMM representing period of interest}
+\item{x}{= a YYYYMM}
 
-\item{y}{= string representing variable name}
+\item{y}{= a variable}
 
 \item{n}{= string representing universe name}
 

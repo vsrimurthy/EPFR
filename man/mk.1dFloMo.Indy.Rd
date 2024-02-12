@@ -7,7 +7,7 @@
 mk.1dFloMo.Indy(x, y, n, w, h)
 }
 \arguments{
-\item{x}{= flowdate/YYYYMMDD depending on whether daily/weekly}
+\item{x}{= a flowdate/YYYYMMDD depending on whether daily/weekly}
 
 \item{y}{= item (one of Flow/AssetsStart/AssetsEnd)}
 

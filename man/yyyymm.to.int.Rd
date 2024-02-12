@@ -7,9 +7,9 @@
 yyyymm.to.int(x)
 }
 \arguments{
-\item{x}{= a vector of <yyyymm> months}
+\item{x}{= a YYYYMM vector}
 }
 \description{
-returns a vector of integers
+returns an integer vector
 }
 \keyword{yyyymm.to.int}

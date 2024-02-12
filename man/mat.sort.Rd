@@ -9,7 +9,7 @@ mat.sort(x, y, n)
 \arguments{
 \item{x}{= a matrix/df}
 
-\item{y}{= string vector of column names of <x>}
+\item{y}{= a string vector of column names of <x>}
 
 \item{n}{= logical vector of the same length as <y>}
 }

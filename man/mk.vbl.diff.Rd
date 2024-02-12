@@ -7,7 +7,7 @@
 mk.vbl.diff(x, y, n)
 }
 \arguments{
-\item{x}{= a single YYYYMM}
+\item{x}{= a YYYYMM}
 
 \item{y}{= a string vector, the elements of which are the variables #        :    being subtracted and subtracted from respectively.}
 

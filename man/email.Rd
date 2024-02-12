@@ -13,7 +13,7 @@ email(x, y, n, w = "", h = F, u, v)
 
 \item{n}{= text of the email}
 
-\item{w}{= a vector of paths to attachement}
+\item{w}{= a file vector}
 
 \item{h}{= T/F depending on whether you want to use html}
 

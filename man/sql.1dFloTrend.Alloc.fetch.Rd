@@ -7,7 +7,7 @@
 sql.1dFloTrend.Alloc.fetch(x, y, n, w, h)
 }
 \arguments{
-\item{x}{= YYYYMM month}
+\item{x}{= a YYYYMM}
 
 \item{y}{= identifier column (SectorId/CountryId)}
 

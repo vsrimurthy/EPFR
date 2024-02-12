@@ -7,7 +7,7 @@
 fcn.all.roxygenize(x)
 }
 \arguments{
-\item{x}{= path to output file}
+\item{x}{= the output file}
 }
 \description{
 roxygenizes all functions

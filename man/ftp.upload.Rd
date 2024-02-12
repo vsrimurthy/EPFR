@@ -7,7 +7,7 @@
 ftp.upload(x, y, n, w, h, u = "ftp", v)
 }
 \arguments{
-\item{x}{= empty remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
+\item{x}{= empty a remote folder}
 
 \item{y}{= local folder containing the data (e.g. "C:\\\\temp\\\\mystuff")}
 

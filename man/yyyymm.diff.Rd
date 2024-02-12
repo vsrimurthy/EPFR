@@ -7,7 +7,7 @@
 yyyymm.diff(x, y)
 }
 \arguments{
-\item{x}{= a vector of YYYYMM}
+\item{x}{= a YYYYMM vector}
 
 \item{y}{= an isomekic vector of YYYYMM}
 }

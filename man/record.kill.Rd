@@ -9,7 +9,7 @@ record.kill(x, y)
 \arguments{
 \item{x}{= report name}
 
-\item{y}{= file name}
+\item{y}{= a file}
 }
 \description{
 deletes entry <x> in the record <y>. Returns nothing.

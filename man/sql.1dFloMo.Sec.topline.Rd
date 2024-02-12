@@ -11,7 +11,7 @@ sql.1dFloMo.Sec.topline(x, y, n, w)
 
 \item{y}{= item (one of Flow/AssetsStart/AssetsEnd)}
 
-\item{n}{= name of SQL temp table (#SEC/#INDY)}
+\item{n}{= a temp table}
 
 \item{w}{= frequency (T/F for daily/weekly or D/W/M)}
 }

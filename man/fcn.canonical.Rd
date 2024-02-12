@@ -7,7 +7,7 @@
 fcn.canonical(x)
 }
 \arguments{
-\item{x}{= a SINGLE function name}
+\item{x}{= a function name}
 }
 \description{
 T/F depending on whether <x> is in standard form

@@ -9,7 +9,7 @@ stratrets.bbk(x, y)
 \arguments{
 \item{x}{= strategy}
 
-\item{y}{= variable being back-tested (e.g. FloPct/AIS)}
+\item{y}{= a variable}
 }
 \description{
 named vector of TxB return spreads indexed by BoP

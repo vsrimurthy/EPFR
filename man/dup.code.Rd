@@ -7,9 +7,9 @@
 dup.code(x, y)
 }
 \arguments{
-\item{x}{= string vector}
+\item{x}{= a string vector}
 
-\item{y}{= string vector of same length as <x>}
+\item{y}{= a string vector of same length as <x>}
 }
 \description{
 T/F depending on whether code is duplicated

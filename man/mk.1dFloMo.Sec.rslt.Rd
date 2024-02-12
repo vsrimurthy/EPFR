@@ -11,7 +11,7 @@ mk.1dFloMo.Sec.rslt(x, y, n, w, h)
 
 \item{y}{= flow momentum output}
 
-\item{n}{= named vector of sector codes indexed by SectorId}
+\item{n}{= a named vector of sector codes indexed by SectorId}
 
 \item{w}{= frequency (T/F for daily/weekly or D/W/M)}
 

@@ -13,7 +13,7 @@ sfpd.FloMo(x, y, n, w)
 
 \item{n}{= fund history file}
 
-\item{w}{= desired flow date to be reported}
+\item{w}{= a flowdate}
 }
 \description{
 FloMo factor

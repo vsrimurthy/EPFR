@@ -7,9 +7,9 @@
 qtr.to.int(x)
 }
 \arguments{
-\item{x}{= a vector of <qtr>}
+\item{x}{= a qtr vector}
 }
 \description{
-returns a vector of integers
+returns an integer vector
 }
 \keyword{qtr.to.int}

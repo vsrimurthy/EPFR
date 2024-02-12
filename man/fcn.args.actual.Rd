@@ -7,7 +7,7 @@
 fcn.args.actual(x)
 }
 \arguments{
-\item{x}{= a SINGLE function name}
+\item{x}{= a function name}
 }
 \description{
 list of actual arguments

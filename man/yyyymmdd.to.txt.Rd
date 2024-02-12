@@ -7,7 +7,7 @@
 yyyymmdd.to.txt(x)
 }
 \arguments{
-\item{x}{= a vector of YYYYMMDD}
+\item{x}{= a YYYYMMDD vector}
 }
 \description{
 Engineering date format

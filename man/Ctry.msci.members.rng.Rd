@@ -9,7 +9,7 @@ Ctry.msci.members.rng(x, y, n)
 \arguments{
 \item{x}{= an index name such as ACWI/EAFE/EM}
 
-\item{y}{= a YYYYMM or YYYYMMDD date}
+\item{y}{= a YYYYMM/YYYYMMDD date}
 
 \item{n}{= after <y> and of the same date type}
 }

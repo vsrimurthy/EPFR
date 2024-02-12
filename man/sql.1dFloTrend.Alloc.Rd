@@ -7,9 +7,9 @@
 sql.1dFloTrend.Alloc(x, y, n, w = NULL)
 }
 \arguments{
-\item{x}{= YYYYMM month}
+\item{x}{= a YYYYMM}
 
-\item{y}{= temp table name (e.g. "#CTRY")}
+\item{y}{= a temp table}
 
 \item{n}{= identifier column (SectorId/CountryId)}
 

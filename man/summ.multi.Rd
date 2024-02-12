@@ -7,7 +7,7 @@
 summ.multi(fcn, x, y)
 }
 \arguments{
-\item{fcn}{= a function that summarizes the data}
+\item{fcn}{= a summary function}
 
 \item{x}{= a df of bin returns indexed by time}
 

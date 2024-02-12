@@ -7,7 +7,7 @@
 fcn.lines.count(x, y = T)
 }
 \arguments{
-\item{x}{= a SINGLE function name}
+\item{x}{= a function name}
 
 \item{y}{= T/F depending on whether internal comments count}
 }

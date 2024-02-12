@@ -7,7 +7,7 @@
 rrw.underlying(x, y, n, w, h, u, v, g)
 }
 \arguments{
-\item{x}{= a first-return date in yyyymm format representing the return period of interest}
+\item{x}{= a YYYYMM, first-return date representing the return period of interest}
 
 \item{y}{= vector of variables against which return is to be regressed}
 

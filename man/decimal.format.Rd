@@ -7,9 +7,9 @@
 decimal.format(x, y)
 }
 \arguments{
-\item{x}{= numeric vector}
+\item{x}{= a numeric vector}
 
-\item{y}{= positive integer}
+\item{y}{= a positive integer}
 }
 \description{
 rounds <x> to <y> decimals and renders as nice character vector

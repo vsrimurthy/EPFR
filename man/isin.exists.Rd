@@ -7,7 +7,7 @@
 isin.exists(x)
 }
 \arguments{
-\item{x}{= string vector}
+\item{x}{= a string vector}
 }
 \description{
 T/F depending on whether each element is an isin

@@ -7,9 +7,9 @@
 sfpd.Holdings(x, y)
 }
 \arguments{
-\item{x}{= a single YYYYMM}
+\item{x}{= a YYYYMM}
 
-\item{y}{= input to or output of sql.connect (e.g. "SF2022")}
+\item{y}{= input to or output of sql.connect}
 }
 \description{
 Generates the SQL query to get weights for individual stocks

@@ -7,7 +7,7 @@
 dir.ensure(x)
 }
 \arguments{
-\item{x}{= a vector of full file paths}
+\item{x}{= a file vector}
 }
 \description{
 Creates necessary folders so files can be copied to <x>

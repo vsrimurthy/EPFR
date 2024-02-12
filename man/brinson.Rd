@@ -7,13 +7,13 @@
 brinson(x, y, n, w)
 }
 \arguments{
-\item{x}{= numeric vector of benchmark weights}
+\item{x}{= a numeric vector of benchmark weights}
 
-\item{y}{= numeric vector of active weights}
+\item{y}{= a numeric vector of active weights}
 
-\item{n}{= numeric vector of returns}
+\item{n}{= a numeric vector of returns}
 
-\item{w}{= numeric vector of group memberships}
+\item{w}{= a numeric vector of group memberships}
 }
 \description{
 performs a Brinson attribution

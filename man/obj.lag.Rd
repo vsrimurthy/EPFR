@@ -9,7 +9,7 @@ obj.lag(x, y, n, w)
 \arguments{
 \item{x}{= a vector of objects}
 
-\item{y}{= an integer or vector of integers (if <x> and <y> are vectors then <y> isomekic)}
+\item{y}{= an integer vector}
 
 \item{n}{= a function mapping these objects to the number line}
 

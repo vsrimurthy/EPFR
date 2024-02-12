@@ -7,11 +7,11 @@
 day.seq(x, y, n = 1)
 }
 \arguments{
-\item{x}{= a single calendar date}
+\item{x}{= a calendar date}
 
-\item{y}{= a single calendar date}
+\item{y}{= a calendar date}
 
-\item{n}{= quantum size in calendar date}
+\item{n}{= a positive integer}
 }
 \description{
 returns a sequence of calendar dates between (and including) x and y

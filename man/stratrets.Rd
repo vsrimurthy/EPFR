@@ -7,7 +7,7 @@
 stratrets(x)
 }
 \arguments{
-\item{x}{= variable being back-tested (e.g. FloPct/AIS)}
+\item{x}{= a variable}
 }
 \description{
 data frame of TxB return spreads

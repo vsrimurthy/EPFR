@@ -7,7 +7,7 @@
 day.ex.int(x)
 }
 \arguments{
-\item{x}{= an integer or vector of integers}
+\item{x}{= an integer vector}
 }
 \description{
 the <x>th day after Thursday, January 1, 1970

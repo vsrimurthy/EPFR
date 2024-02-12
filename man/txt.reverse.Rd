@@ -7,7 +7,7 @@
 txt.reverse(x)
 }
 \arguments{
-\item{x}{= vector of strings}
+\item{x}{= a string vector}
 }
 \description{
 reverses the constitutent characters of <x>

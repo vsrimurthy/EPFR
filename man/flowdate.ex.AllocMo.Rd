@@ -7,9 +7,9 @@
 flowdate.ex.AllocMo(x, y = 23)
 }
 \arguments{
-\item{x}{= a single yyyymm}
+\item{x}{= a YYYYMM}
 
-\item{y}{= calendar day in the next month when allocations are known (usually the 23rd)}
+\item{y}{= calendar day allocations are known the next month}
 }
 \description{
 Returns the flowdates corresponding to <x> (inverse of yyyymmdd.to.AllocMo)

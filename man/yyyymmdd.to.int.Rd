@@ -7,7 +7,7 @@
 yyyymmdd.to.int(x)
 }
 \arguments{
-\item{x}{= a vector of weekdays in YYYYMMDD format}
+\item{x}{= a YYYYMMDD vector}
 }
 \description{
 number of weekdays after Thursday, January 1, 1970

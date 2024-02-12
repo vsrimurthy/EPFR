@@ -7,7 +7,7 @@
 sql.declare(x, y, n)
 }
 \arguments{
-\item{x}{= variable names}
+\item{x}{= a variable vector}
 
 \item{y}{= variable types}
 

@@ -7,9 +7,9 @@
 yyyymm.lag(x, y = 1, n = T)
 }
 \arguments{
-\item{x}{= a vector of <yyyymm> months or <yyyymmdd> days}
+\item{x}{= a qtr/YYYYMM/flowdate vector}
 
-\item{y}{= an integer or an isomekic vector of integers}
+\item{y}{= an integer vector}
 
 \item{n}{= T/F depending on whether you wish to lag by yyyymmdd or flowdate}
 }

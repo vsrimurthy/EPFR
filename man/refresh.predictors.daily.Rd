@@ -13,7 +13,7 @@ refresh.predictors.daily(x, y, n, w, h = F)
 
 \item{n}{= last part of the query that goes after the date restriction}
 
-\item{w}{= one of StockFlows/Regular/Quant}
+\item{w}{= input to sql.connect}
 
 \item{h}{= T/F depending on whether you want changes in data to be ignored}
 }

@@ -7,7 +7,7 @@
 yyyymmdd.lag(x, y)
 }
 \arguments{
-\item{x}{= a vector of weekdays}
+\item{x}{= a YYYYMMDD vector}
 
 \item{y}{= an integer}
 }

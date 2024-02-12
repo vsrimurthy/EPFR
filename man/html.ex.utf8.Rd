@@ -7,7 +7,7 @@
 html.ex.utf8(x)
 }
 \arguments{
-\item{x}{= string vector}
+\item{x}{= a string vector}
 }
 \description{
 code to represent <x> in html

@@ -7,7 +7,7 @@
 ftp.all.files.underlying(x, y, n, w, h = "ftp", u, v)
 }
 \arguments{
-\item{x}{= remote folder on an ftp site (e.g. "/ftpdata/mystuff")}
+\item{x}{= a remote folder}
 
 \item{y}{= ftp site (defaults to standard)}
 

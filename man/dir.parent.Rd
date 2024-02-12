@@ -7,7 +7,7 @@
 dir.parent(x)
 }
 \arguments{
-\item{x}{= a string of full paths}
+\item{x}{= a file vector}
 }
 \description{
 returns paths to the parent directory

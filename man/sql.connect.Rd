@@ -7,7 +7,7 @@
 sql.connect(x)
 }
 \arguments{
-\item{x}{= One of "StockFlows", "Quant" or "Regular"}
+\item{x}{= input to sql.connect}
 }
 \description{
 Opens an SQL connection

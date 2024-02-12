@@ -7,7 +7,7 @@
 file.kill(x)
 }
 \arguments{
-\item{x}{= a string of full paths}
+\item{x}{= a file vector}
 }
 \description{
 Deletes designated files

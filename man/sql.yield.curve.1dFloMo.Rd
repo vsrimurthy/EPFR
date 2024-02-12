@@ -13,7 +13,7 @@ sql.yield.curve.1dFloMo(x, y, n, w)
 
 \item{n}{= value to match BondCurrency field}
 
-\item{w}{= vector of YYYYMMDD}
+\item{w}{= a YYYYMMDD vector}
 }
 \description{
 daily FloMo by yield-curve bucket

@@ -7,9 +7,9 @@
 flowdate.seq(x, y, n = 1)
 }
 \arguments{
-\item{x}{= a single daily flow-publication date}
+\item{x}{= a flowdate}
 
-\item{y}{= a single daily flow-publication date}
+\item{y}{= a flowdate}
 
 \item{n}{= a positive integer}
 }

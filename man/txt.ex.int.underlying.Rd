@@ -7,7 +7,7 @@
 txt.ex.int.underlying(x, y, n, w, h)
 }
 \arguments{
-\item{x}{= a vector of integers}
+\item{x}{= an integer vector}
 
 \item{y}{= odds & ends}
 

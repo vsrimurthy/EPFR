@@ -7,7 +7,7 @@
 mat.read(x = "C:\\\\temp\\\\write.csv", y = ",", n = 1, w = T, h = "")
 }
 \arguments{
-\item{x}{= a path to a text file}
+\item{x}{= a file}
 
 \item{y}{= the separator}
 

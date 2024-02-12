@@ -7,7 +7,7 @@
 int.format(x)
 }
 \arguments{
-\item{x}{= a vector of integers}
+\item{x}{= an integer vector}
 }
 \description{
 adds commas "1,234,567"

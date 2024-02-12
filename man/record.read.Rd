@@ -7,7 +7,7 @@
 record.read(x)
 }
 \arguments{
-\item{x}{= file name}
+\item{x}{= a file}
 }
 \description{
 named vector of records and sent dates

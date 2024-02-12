@@ -13,7 +13,7 @@ sfpd.FloTrend(x, y, n, w, h, u, v)
 
 \item{n}{= fund history file}
 
-\item{w}{= desired flow date to be reported}
+\item{w}{= a flowdate}
 
 \item{h}{= one of FloTrend/FloDiff/FloDiff2}
 

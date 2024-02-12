@@ -7,7 +7,7 @@
 sql.1wFlow.Corp(x)
 }
 \arguments{
-\item{x}{= YYYYMMDD from which flows are to be computed}
+\item{x}{= a YYYYMMDD from which flows are to be computed}
 }
 \description{
 Generates the SQL query to get weekly corporate flow ($MM)

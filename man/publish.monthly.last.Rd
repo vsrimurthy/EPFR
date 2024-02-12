@@ -7,9 +7,9 @@
 publish.monthly.last(x, y = 23, n = 0)
 }
 \arguments{
-\item{x}{= a YYYYMMDD date}
+\item{x}{= a YYYYMMDD}
 
-\item{y}{= calendar day in the next month when allocations are known (usually the 23rd)}
+\item{y}{= calendar day allocations are known the next month}
 
 \item{n}{= additional monthly lag (defaults to zero)}
 }

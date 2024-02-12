@@ -7,7 +7,7 @@
 fcn.direct.super(x)
 }
 \arguments{
-\item{x}{= a SINGLE function name}
+\item{x}{= a function name}
 }
 \description{
 names of all functions that directly depend on <x>

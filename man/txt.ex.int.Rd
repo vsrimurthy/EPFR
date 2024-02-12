@@ -7,7 +7,7 @@
 txt.ex.int(x, y = F)
 }
 \arguments{
-\item{x}{= a vector of integers}
+\item{x}{= an integer vector}
 
 \item{y}{= T/F depending on whether ordinal numbers are wanted}
 }

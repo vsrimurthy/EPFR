@@ -7,9 +7,9 @@
 sfpd.FloTrend.underlying(x, y, n)
 }
 \arguments{
-\item{x}{= data file}
+\item{x}{= a file}
 
-\item{y}{= desired flow date to be reported}
+\item{y}{= a flowdate}
 
 \item{n}{= factor name}
 }

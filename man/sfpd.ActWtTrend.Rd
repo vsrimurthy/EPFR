@@ -13,7 +13,7 @@ sfpd.ActWtTrend(x, y, n, w, h)
 
 \item{n}{= fund history file}
 
-\item{w}{= desired flow date to be reported}
+\item{w}{= a flowdate}
 
 \item{h}{= one of ActWtTrend/ActWtDiff/ActWtDiff2}
 }

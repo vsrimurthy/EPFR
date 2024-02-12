@@ -7,7 +7,7 @@
 yyyymm.ex.qtr(x, y = 3)
 }
 \arguments{
-\item{x}{= a vector of quarters}
+\item{x}{= a qtr vector}
 
 \item{y}{= month, in the quarter, to return (defaults to the third)}
 }

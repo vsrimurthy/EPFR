@@ -7,7 +7,7 @@
 fcn.extract.out(x)
 }
 \arguments{
-\item{x}{= string vector representing output section of comments}
+\item{x}{= a string vector representing output section of comments}
 }
 \description{
 extracts output

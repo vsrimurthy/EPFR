@@ -7,7 +7,7 @@
 txt.parse(x, y)
 }
 \arguments{
-\item{x}{= a vector of strings}
+\item{x}{= a string vector}
 
 \item{y}{= a string that serves as a delimiter}
 }

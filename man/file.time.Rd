@@ -7,7 +7,7 @@
 file.time(x)
 }
 \arguments{
-\item{x}{= a vector of full file paths}
+\item{x}{= a file vector}
 }
 \description{
 Returns the last modified date in yyyymmdd format

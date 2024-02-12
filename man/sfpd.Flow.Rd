@@ -9,7 +9,7 @@ sfpd.Flow(x, y, n, w = 1)
 \arguments{
 \item{x}{= premium daily file}
 
-\item{y}{= flow date}
+\item{y}{= a flowdate}
 
 \item{n}{= cutoff time (New York) (e.g. "07:00:00")}
 

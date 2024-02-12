@@ -9,7 +9,7 @@ sql.into(x, y)
 \arguments{
 \item{x}{= SQL statement}
 
-\item{y}{= the temp table for the output}
+\item{y}{= a temp table}
 }
 \description{
 unbrackets and selects into <y>

@@ -9,7 +9,7 @@ stratrets.data(x, y)
 \arguments{
 \item{x}{= strategy}
 
-\item{y}{= variable being back-tested (e.g. FloPct/AIS)}
+\item{y}{= a variable}
 }
 \description{
 list object containing arguments needed for function <bbk>

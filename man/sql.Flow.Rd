@@ -9,7 +9,7 @@ sql.Flow(x, y, n = "All", w = NULL, h = T, u, v)
 \arguments{
 \item{x}{= needed columns}
 
-\item{y}{= list of where clauses, first being the flow date restriction}
+\item{y}{= a list of where clauses, the first being a flowdate}
 
 \item{n}{= a vector of FundHistory filters}
 

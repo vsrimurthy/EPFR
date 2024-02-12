@@ -7,7 +7,7 @@
 mk.1mFloMo.Ctry(x, y, n, w, h = "E")
 }
 \arguments{
-\item{x}{= a YYYYMM month}
+\item{x}{= a YYYYMM}
 
 \item{y}{= item (one of Flow/AssetsStart/AssetsEnd)}
 

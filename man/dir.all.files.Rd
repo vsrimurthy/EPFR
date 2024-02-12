@@ -7,9 +7,9 @@
 dir.all.files(x, y)
 }
 \arguments{
-\item{x}{= a path such as "C:\\\\temp"}
+\item{x}{= a file}
 
-\item{y}{= a string such as "\\\\.txt"}
+\item{y}{= a regular expression}
 }
 \description{
 Returns all files in the folder including sub-directories

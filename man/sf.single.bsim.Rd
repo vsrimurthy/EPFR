@@ -8,7 +8,7 @@ sf.single.bsim(fcn, x, y, n, w, h, u, v, g = 5, r, s = 1, b = T,
   p = NULL)
 }
 \arguments{
-\item{fcn}{= function that fetches data for the appropriate period and parameter}
+\item{fcn}{= a fetch function}
 
 \item{x}{= first-return date in YYYYMM}
 
@@ -20,7 +20,7 @@ sf.single.bsim(fcn, x, y, n, w, h, u, v, g = 5, r, s = 1, b = T,
 
 \item{h}{= return variable}
 
-\item{u}{= variable parameter}
+\item{u}{= a parameter}
 
 \item{v}{= data folder}
 

@@ -7,7 +7,7 @@
 fcn.direct.sub(x)
 }
 \arguments{
-\item{x}{= a SINGLE function name}
+\item{x}{= a function name}
 }
 \description{
 a string vector of names of all direct sub-functions

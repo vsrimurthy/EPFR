@@ -7,7 +7,7 @@
 vec.to.list(x, y = F)
 }
 \arguments{
-\item{x}{= string vector}
+\item{x}{= a string vector}
 
 \item{y}{= T/F depending on whether to use <x> as group vector}
 }

@@ -7,7 +7,7 @@
 flowdate.lag(x, y)
 }
 \arguments{
-\item{x}{= a vector of daily flow-publication dates}
+\item{x}{= a flowdate vector}
 
 \item{y}{= an integer}
 }

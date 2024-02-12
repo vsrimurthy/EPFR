@@ -11,7 +11,7 @@ record.write(x, y, n)
 
 \item{y}{= date for which you sent the report}
 
-\item{n}{= file name}
+\item{n}{= a file}
 }
 \description{
 updates the record. Returns nothing.

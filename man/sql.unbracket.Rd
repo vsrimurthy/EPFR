@@ -7,7 +7,7 @@
 sql.unbracket(x)
 }
 \arguments{
-\item{x}{= string vector}
+\item{x}{= a string vector}
 }
 \description{
 removes brackets around an SQL block

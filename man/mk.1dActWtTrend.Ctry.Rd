@@ -7,7 +7,7 @@
 mk.1dActWtTrend.Ctry(x, y, n, w, h = "E")
 }
 \arguments{
-\item{x}{= flowdate}
+\item{x}{= a flowdate}
 
 \item{y}{= factor (one of ActWtTrend/ActWtDiff/ActWtDiff2)}
 

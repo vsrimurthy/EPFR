@@ -7,7 +7,7 @@
 fcn.indirect(fcn, x)
 }
 \arguments{
-\item{fcn}{= a function to apply}
+\item{fcn}{= a function}
 
 \item{x}{= vector of function names}
 }

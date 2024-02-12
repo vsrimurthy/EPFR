@@ -7,7 +7,7 @@
 yyyymmdd.to.AllocMo.unique(x, y, n)
 }
 \arguments{
-\item{x}{= the date(s) for which you want flows}
+\item{x}{= a YYYYMMDD vector}
 
 \item{y}{= calendar day allocations are known the next month}
 

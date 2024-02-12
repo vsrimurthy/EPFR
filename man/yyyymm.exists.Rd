@@ -7,7 +7,7 @@
 yyyymm.exists(x)
 }
 \arguments{
-\item{x}{= a vector of strings}
+\item{x}{= a string vector}
 }
 \description{
 T if <x> is a month expressed in YYYYMM format

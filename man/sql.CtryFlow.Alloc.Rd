@@ -11,7 +11,7 @@ sql.CtryFlow.Alloc(x, y, n, w, h)
 
 \item{y}{= FundType}
 
-\item{n}{= allocation month, in YYYYMMMDD format}
+\item{n}{= allocation month, in YYYYMMDD format}
 
 \item{w}{= one of Country/Sector/Industry}
 

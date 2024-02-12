@@ -7,7 +7,7 @@
 qtr.lag(x, y)
 }
 \arguments{
-\item{x}{= a vector of quarters}
+\item{x}{= a qtr vector}
 
 \item{y}{= a number}
 }

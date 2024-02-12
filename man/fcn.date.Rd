@@ -7,7 +7,7 @@
 fcn.date(x)
 }
 \arguments{
-\item{x}{= a SINGLE function name}
+\item{x}{= a function name}
 }
 \description{
 date of last modification

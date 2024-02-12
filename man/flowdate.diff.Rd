@@ -7,9 +7,9 @@
 flowdate.diff(x, y)
 }
 \arguments{
-\item{x}{= a vector of flow dates in YYYYMMDD format}
+\item{x}{= a flowdate vector}
 
-\item{y}{= an isomekic vector of flow dates in YYYYMMDD format}
+\item{y}{= a flowdate vector}
 }
 \description{
 returns <x - y> in terms of flowdates

@@ -7,7 +7,7 @@
 fcn.expressions.count(x)
 }
 \arguments{
-\item{x}{= a SINGLE function name}
+\item{x}{= a function name}
 }
 \description{
 number of expressions

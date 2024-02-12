@@ -7,7 +7,7 @@
 mk.Alpha.daily(x, y, n)
 }
 \arguments{
-\item{x}{= a single YYYYMMDD}
+\item{x}{= a YYYYMMDD}
 
 \item{y}{= a string vector, the first two elements of which are #        :    universe and group to zScore on and within. This is then followed by #        :    a list of variables which are, in turn, followed by weights to put on variables #        :    and a logical vector indicating whether the variables are daily.}
 

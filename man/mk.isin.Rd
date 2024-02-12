@@ -7,7 +7,7 @@
 mk.isin(x, y, n)
 }
 \arguments{
-\item{x}{= a single YYYYMM or YYYYMMDD}
+\item{x}{= a YYYYMM/YYYYMMDD}
 
 \item{y}{= a string vector, the elements of which are: #        :    1) an object name (preceded by #) or the path to a ".csv" file #        :    2) defaults to "isin"}
 

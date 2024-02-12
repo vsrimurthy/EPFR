@@ -7,7 +7,7 @@
 fcn.extract.args(x)
 }
 \arguments{
-\item{x}{= string vector representing argument section of comments}
+\item{x}{= a string vector representing argument section of comments}
 }
 \description{
 vector of arguments with explanations

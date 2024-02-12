@@ -7,7 +7,7 @@
 ftp.get(x, y, n, w, h, u = "ftp", v)
 }
 \arguments{
-\item{x}{= remote file on an ftp site (e.g. "/ftpdata/mystuff/foo.txt")}
+\item{x}{= a remote file}
 
 \item{y}{= local folder (e.g. "C:\\\\temp")}
 

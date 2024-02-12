@@ -7,11 +7,11 @@
 sql.TopDownAllocs.underlying(x, y, n, w, h)
 }
 \arguments{
-\item{x}{= the YYYYMMDD for which you want data}
+\item{x}{= a YYYYMMDD}
 
 \item{y}{= a string vector of top-down allocations wanted, #        :    the last element of which is the type of fund to be used.}
 
-\item{n}{= any of StockFlows/Japan/CSI300/Energy}
+\item{n}{= DB - any of StockFlows/China/Japan/CSI300/Energy}
 
 \item{w}{= T/F depending on whether you are checking ftp}
 

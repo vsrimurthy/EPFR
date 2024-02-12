@@ -9,9 +9,9 @@ load.mo.vbl(fcn, x, y, n, w, h, u)
 \arguments{
 \item{fcn}{= a function}
 
-\item{x}{= a single YYYYMM}
+\item{x}{= a YYYYMM}
 
-\item{y}{= a single YYYYMM}
+\item{y}{= a YYYYMM}
 
 \item{n}{= passed down to <fcn>}
 

@@ -11,7 +11,7 @@ sql.1dFloMo.CtrySG(x, y, n, w, h, u)
 
 \item{y}{= item (Flow/AssetsStart/AssetsEnd/PortfolioChange)}
 
-\item{n}{= named vector of group definitions}
+\item{n}{= a named vector of group definitions}
 
 \item{w}{= frequency (T/F for daily/weekly or D/W/M)}
 

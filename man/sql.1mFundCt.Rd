@@ -11,7 +11,7 @@ sql.1mFundCt(x, y, n, w, h, u = 0, v = "All")
 
 \item{y}{= a string vector of factors to be computed, #        :    the last elements of which are the types of fund used.}
 
-\item{n}{= any of StockFlows/China/Japan/CSI300/Energy}
+\item{n}{= DB - any of StockFlows/China/Japan/CSI300/Energy}
 
 \item{w}{= T/F depending on whether you are checking ftp}
 

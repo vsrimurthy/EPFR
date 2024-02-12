@@ -7,7 +7,7 @@
 fcn.has(x)
 }
 \arguments{
-\item{x}{= regular expression to be searched for}
+\item{x}{= a regular expression}
 }
 \description{
 Checks all functions are in standard form

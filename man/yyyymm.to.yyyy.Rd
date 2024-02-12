@@ -7,7 +7,7 @@
 yyyymm.to.yyyy(x)
 }
 \arguments{
-\item{x}{= a vector of dates in yyyymm format}
+\item{x}{= a YYYYMM vector}
 }
 \description{
 Converts to yyyy years

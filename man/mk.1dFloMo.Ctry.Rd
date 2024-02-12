@@ -7,7 +7,7 @@
 mk.1dFloMo.Ctry(x, y, n, w, h, u = "E", v = F, g = F)
 }
 \arguments{
-\item{x}{= flowdate/YYYYMMDD depending on whether daily/weekly}
+\item{x}{= a flowdate/YYYYMMDD depending on whether daily/weekly}
 
 \item{y}{= item (Flow/AssetsStart/AssetsEnd/PortfolioChange)}
 
