@@ -7,7 +7,7 @@
 shell.wrapper(x, y)
 }
 \arguments{
-\item{x}{= string to issue as command}
+\item{x}{= a string to issue as command}
 
 \item{y}{= timeout in seconds}
 }

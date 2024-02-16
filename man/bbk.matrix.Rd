@@ -4,35 +4,43 @@
 \alias{bbk.matrix}
 \title{bbk.matrix}
 \usage{
-bbk.matrix(x, y, floW, lag, item = "AnnMn", idx = NULL, retW = 5,
-  delay = 2, nBin = 5, doW = 5, sum.flows = F, sprds = F)
+bbk.matrix(x, y, n, w = 5, h = 5, u = 5, v = F, g = 0, r = 2,
+  s = NULL, b = F, p = "AnnMn")
 }
 \arguments{
-\item{x}{= predictor indexed by yyyymmdd or yyyymm}
+\item{x}{= a matrix/data frame (predictors)}
 
-\item{y}{= total return index indexed by the same date format as <x>}
+\item{y}{= a matrix/data frame (total return indices)}
 
-\item{floW}{= number of <prd.size>'s over which the predictor should be compounded/summed}
+\item{n}{= an integer (flow window in days/months)}
 
-\item{lag}{= predictor lag in days or months depending on whether <x> is YYYYMMDD or YYYYMM}
+\item{w}{= an integer (return window in days/months)}
 
-\item{item}{= data to output in the matrix from bbk summary (e.g. AnnMn, Sharpe)}
+\item{h}{= an integer (number of bins)}
 
-\item{idx}{= the index within which you are trading}
+\item{u}{= an integer (0 = Sun, 1 = Mon, etc., the day you trade)}
 
-\item{retW}{= return window in days or months depending on whether <x> is YYYYMMDD or YYYYMM}
+\item{v}{= a boolean (sum/compound)}
 
-\item{delay}{= delay in knowing data in days or months depending on whether <x> is YYYYMMDD or YYYYMM}
+\item{g}{= an integer (lag in days/months)}
 
-\item{nBin}{= number of bins to divide the variable into}
+\item{r}{= an integer (delay in days/months)}
 
-\item{doW}{= day of the week you will trade on (5 = Fri)}
+\item{s}{= a string (index within which you trade)}
 
-\item{sum.flows}{= T/F depending on whether <x> should be summed or compounded}
+\item{b}{= a boolean (spread changes/returns)}
 
-\item{sprds}{= T/F depending on whether spread changes, rather than returns, are needed}
+\item{p}{= a string (e.g. AnnMn, Sharpe)}
 }
 \description{
 standard model output summary value of <item> for "TxB" for various argument combinations
+}
+\seealso{
+Other bbk: \code{\link{bbk.bin.rets.prd.summ}},
+  \code{\link{bbk.bin.rets.summ}},
+  \code{\link{bbk.bin.xRet}}, \code{\link{bbk.data}},
+  \code{\link{bbk.drawdown}}, \code{\link{bbk.fwdRet}},
+  \code{\link{bbk.holidays}}, \code{\link{bbk.summ}},
+  \code{\link{bbk.turnover}}, \code{\link{bbk}}
 }
 \keyword{bbk.matrix}

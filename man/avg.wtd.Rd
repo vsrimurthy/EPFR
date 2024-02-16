@@ -9,9 +9,13 @@ avg.wtd(x, y)
 \arguments{
 \item{x}{= a numeric vector}
 
-\item{y}{= a numeric vector of weights}
+\item{y}{= a numeric vector (weights)}
 }
 \description{
 returns the weighted mean of <x> given weights <n>
+}
+\seealso{
+Other avg: \code{\link{avg.model}},
+  \code{\link{avg.winsorized}}
 }
 \keyword{avg.wtd}

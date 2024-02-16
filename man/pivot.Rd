@@ -11,9 +11,9 @@ pivot(fcn, x, y, n)
 
 \item{x}{= a numeric vector}
 
-\item{y}{= a grouping vector}
+\item{y}{= a numeric vector (groups)}
 
-\item{n}{= a grouping vector}
+\item{n}{= a numeric vector (groups)}
 }
 \description{
 returns a table, the rows and columns of which are unique members of rowIdx and colIdx The cells of the table are the <fcn> of <x> whenever <y> and <n> take on their respective values

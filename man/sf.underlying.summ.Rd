@@ -7,11 +7,18 @@
 sf.underlying.summ(x, y)
 }
 \arguments{
-\item{x}{= a matrix/df with the following columns: #        :    a) bin - bin memberships #        :    b) ret - forward returns #        :    c) mem - 1/0 universe memberships #        :    d) wgt - universe weights (optional)}
+\item{x}{= a matrix/data frame (columns bin/ret/mem/wgt)}
 
-\item{y}{= T/F variable controlling whether universe return is returned}
+\item{y}{= a boolean (report/ignore universe return)}
 }
 \description{
 Returns a named vector of bin returns
+}
+\seealso{
+Other sf: \code{\link{sf.bin.nms}}, \code{\link{sf.daily}},
+  \code{\link{sf.detail}}, \code{\link{sf.single.bsim}},
+  \code{\link{sf.subset}},
+  \code{\link{sf.underlying.data.bin}},
+  \code{\link{sf.underlying.data}}, \code{\link{sf}}
 }
 \keyword{sf.underlying.summ}

@@ -7,9 +7,9 @@
 parameters.ex.file(x, y)
 }
 \arguments{
-\item{x}{= folder paths}
+\item{x}{= a folder vector}
 
-\item{y}{= file names of the same length as <x>}
+\item{y}{= a string (file names)}
 }
 \description{
 path to function source file

@@ -7,25 +7,29 @@
 rrw(x, y, n, w, h, u, v, g = NULL, r)
 }
 \arguments{
-\item{x}{= a YYYYMM, first-return date representing the first month of the backtest}
+\item{x}{= a YYYYMM (first-return date, backtest start)}
 
-\item{y}{= a YYYYMM, first-return date representing the last month of the backtest}
+\item{y}{= a YYYYMM (first-return date, backtest end)}
 
-\item{n}{= vector of variables against which return is to be regressed}
+\item{n}{= a variable vector (to regress return against)}
 
-\item{w}{= universe (e.g. "R1Mem", or c("EafeMem", 1, "CountryCode", "JP"))}
+\item{w}{= a universe (e.g. "R1Mem", or c("EafeMem", 1, "CountryCode", "JP"))}
 
-\item{h}{= neutrality group (e.g. "GSec")}
+\item{h}{= a variable (neutrality group)}
 
-\item{u}{= return variable (e.g. "Ret")}
+\item{u}{= a variable (return)}
 
-\item{v}{= stock-flows folder}
+\item{v}{= a folder (must have sub-folders data/derived)}
 
-\item{g}{= factor to orthogonalize all variables to (e.g. "PrcMo")}
+\item{g}{= a variable (to orthogonalize against)}
 
 \item{r}{= classif file}
 }
 \description{
 regression results
+}
+\seealso{
+Other rrw: \code{\link{rrw.factors}},
+  \code{\link{rrw.underlying}}
 }
 \keyword{rrw}

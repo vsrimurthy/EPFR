@@ -12,4 +12,9 @@ combinations.to.int(x)
 \description{
 maps each particular way to choose <sum(x)> things #		:	amongst <length(x)> things to the number line
 }
+\seealso{
+Other combinations: \code{\link{combinations.ex.int}},
+  \code{\link{combinations.next}},
+  \code{\link{combinations}}
+}
 \keyword{combinations.to.int}

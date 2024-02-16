@@ -15,13 +15,30 @@ ftp.dir(x, y, n, w, h = F, u = "ftp", v)
 
 \item{w}{= password (defaults to standard)}
 
-\item{h}{= T/F depending on whether you want time stamps}
+\item{h}{= a boolean (do/don't report time stamps)}
 
-\item{u}{= protocol (either "ftp" or "sftp")}
+\item{u}{= a string (ftp/sftp)}
 
-\item{v}{= T/F flag for ftp.use.epsv argument of getURL}
+\item{v}{= a boolean (ftp.use.epsv argument of getURL)}
 }
 \description{
 logical or YYYYMMDD vector indexed by remote file names
+}
+\seealso{
+Other ftp: \code{\link{ftp.all.dir}},
+  \code{\link{ftp.all.files.underlying}},
+  \code{\link{ftp.all.files}},
+  \code{\link{ftp.credential}}, \code{\link{ftp.del}},
+  \code{\link{ftp.dir.parse.ftp}},
+  \code{\link{ftp.dir.parse.sftp}},
+  \code{\link{ftp.download}}, \code{\link{ftp.exists}},
+  \code{\link{ftp.file}}, \code{\link{ftp.get}},
+  \code{\link{ftp.info}}, \code{\link{ftp.kill}},
+  \code{\link{ftp.list}},
+  \code{\link{ftp.missing.underlying}},
+  \code{\link{ftp.missing}}, \code{\link{ftp.parent}},
+  \code{\link{ftp.put}}, \code{\link{ftp.record}},
+  \code{\link{ftp.rmdir}}, \code{\link{ftp.sql.factor}},
+  \code{\link{ftp.upload}}
 }
 \keyword{ftp.dir}

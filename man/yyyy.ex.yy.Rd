@@ -7,9 +7,13 @@
 yyyy.ex.yy(x)
 }
 \arguments{
-\item{x}{= a vector of non-negative integers}
+\item{x}{= an integer vector (non-negative!)}
 }
 \description{
-returns a vector of YYYY
+returns a numeric vector of YYYY
+}
+\seealso{
+Other yyyy: \code{\link{yyyy.ex.period}},
+  \code{\link{yyyy.periods.count}}
 }
 \keyword{yyyy.ex.yy}

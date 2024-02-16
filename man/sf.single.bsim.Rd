@@ -10,31 +10,38 @@ sf.single.bsim(fcn, x, y, n, w, h, u, v, g = 5, r, s = 1, b = T,
 \arguments{
 \item{fcn}{= a fetch function}
 
-\item{x}{= first-return date in YYYYMM}
+\item{x}{= a YYYYMM (first-return date, backtest start)}
 
-\item{y}{= first-return date in YYYYMM after <prdBeg>}
+\item{y}{= a YYYYMM (first-return date, backtest end) after <prdBeg>}
 
-\item{n}{= membership (e.g. "EafeMem" or c("GemMem", 1))}
+\item{n}{= a universe (e.g. "R1Mem", or c("EafeMem", 1, "CountryCode", "JP"))}
 
-\item{w}{= group within which binning is to be performed}
+\item{w}{= a variable (neutrality group)}
 
-\item{h}{= return variable}
+\item{h}{= a variable (return)}
 
-\item{u}{= a parameter}
+\item{u}{= a string (parameter)}
 
-\item{v}{= data folder}
+\item{v}{= a folder (must have sub-folders data/derived)}
 
-\item{g}{= number of bins or numeric vector with last element T/F for dependent/independent}
+\item{g}{= an integer vector (if vector, last element T/F for dep/indep binning))}
 
 \item{r}{= classif file}
 
-\item{s}{= forward return horizon in months}
+\item{s}{= an integer (forward return horizon)}
 
-\item{b}{= T/F depending on whether the equal-weight universe return is desired}
+\item{b}{= a boolean (equal/cap-weight universe return)}
 
-\item{p}{= factor you want to use for Cap-weighted back-tests (defaults to NULL)}
+\item{p}{= a variable (factor for cap weighting, defaults to NULL)}
 }
 \description{
 runs a single quintile simulation
+}
+\seealso{
+Other sf: \code{\link{sf.bin.nms}}, \code{\link{sf.daily}},
+  \code{\link{sf.detail}}, \code{\link{sf.subset}},
+  \code{\link{sf.underlying.data.bin}},
+  \code{\link{sf.underlying.data}},
+  \code{\link{sf.underlying.summ}}, \code{\link{sf}}
 }
 \keyword{sf.single.bsim}

@@ -7,9 +7,14 @@
 ret.to.log(x)
 }
 \arguments{
-\item{x}{= a vector of returns}
+\item{x}{= a numeric vector (returns)}
 }
 \description{
 converts to logarithmic return
+}
+\seealso{
+Other ret: \code{\link{ret.ex.idx}},
+  \code{\link{ret.idx.gaps.fix}},
+  \code{\link{ret.outliers}}, \code{\link{ret.to.idx}}
 }
 \keyword{ret.to.log}

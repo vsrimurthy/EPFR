@@ -7,13 +7,18 @@
 record.track(x, y, n)
 }
 \arguments{
-\item{x}{= a YYYYMMDD}
+\item{x}{= a flowdate}
 
 \item{y}{= a file}
 
-\item{n}{= T/F depending on whether this is for standard or Asia process}
+\item{n}{= a boolean (regular/Asia process)}
 }
 \description{
 writes report for date <x> and type <y>
+}
+\seealso{
+Other record: \code{\link{record.exists}},
+  \code{\link{record.kill}}, \code{\link{record.read}},
+  \code{\link{record.write}}
 }
 \keyword{record.track}

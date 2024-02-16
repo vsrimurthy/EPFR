@@ -9,9 +9,35 @@ txt.space(x, y = " ")
 \arguments{
 \item{x}{= an integer vector}
 
-\item{y}{= a SINGLE string}
+\item{y}{= a string}
 }
 \description{
 returns <x> iterations of <y> pasted together
+}
+\seealso{
+Other txt: \code{\link{txt.anagram.underlying}},
+  \code{\link{txt.anagram}}, \code{\link{txt.bracket}},
+  \code{\link{txt.core}}, \code{\link{txt.count}},
+  \code{\link{txt.ex.file}},
+  \code{\link{txt.ex.int.cardinal.wrapper}},
+  \code{\link{txt.ex.int.cardinal}},
+  \code{\link{txt.ex.int.ordinal.wrapper}},
+  \code{\link{txt.ex.int.ordinal}},
+  \code{\link{txt.ex.int.underlying}},
+  \code{\link{txt.ex.int}}, \code{\link{txt.excise}},
+  \code{\link{txt.expand}}, \code{\link{txt.first}},
+  \code{\link{txt.gunning}}, \code{\link{txt.hdr}},
+  \code{\link{txt.itrim}}, \code{\link{txt.left}},
+  \code{\link{txt.levenshtein}},
+  \code{\link{txt.name.format}}, \code{\link{txt.na}},
+  \code{\link{txt.parse.delimit}}, \code{\link{txt.parse}},
+  \code{\link{txt.prepend}}, \code{\link{txt.regexp}},
+  \code{\link{txt.regr}}, \code{\link{txt.replace}},
+  \code{\link{txt.reverse}}, \code{\link{txt.right}},
+  \code{\link{txt.subclass.underlying}},
+  \code{\link{txt.subclass}}, \code{\link{txt.to.char}},
+  \code{\link{txt.trim.left}},
+  \code{\link{txt.trim.right}}, \code{\link{txt.trim}},
+  \code{\link{txt.words}}
 }
 \keyword{txt.space}

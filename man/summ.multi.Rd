@@ -9,9 +9,9 @@ summ.multi(fcn, x, y)
 \arguments{
 \item{fcn}{= a summary function}
 
-\item{x}{= a df of bin returns indexed by time}
+\item{x}{= a data frame (bin returns)}
 
-\item{y}{= forward return horizon size}
+\item{y}{= an integer (return window in days/months)}
 }
 \description{
 summarizes the multi-period back test

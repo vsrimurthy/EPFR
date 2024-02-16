@@ -7,9 +7,9 @@
 best.linear.strategy.blend(x, y)
 }
 \arguments{
-\item{x}{= a return stream from a strategy}
+\item{x}{= a numeric vector (return)}
 
-\item{y}{= an isomekic return stream from a strategy}
+\item{y}{= a numeric vector (return)}
 }
 \description{
 Returns optimal weights to put on <x> and <y>

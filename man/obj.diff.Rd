@@ -9,11 +9,14 @@ obj.diff(fcn, x, y)
 \arguments{
 \item{fcn}{= a function mapping objects to the number line}
 
-\item{x}{= a vector}
+\item{x}{= an object vector}
 
-\item{y}{= an isomekic isotypic vector}
+\item{y}{= an object vector}
 }
 \description{
 returns <x - y>
+}
+\seealso{
+Other obj: \code{\link{obj.lag}}, \code{\link{obj.seq}}
 }
 \keyword{obj.diff}

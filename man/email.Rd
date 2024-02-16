@@ -15,7 +15,7 @@ email(x, y, n, w = "", h = F, u, v)
 
 \item{w}{= a file vector}
 
-\item{h}{= T/F depending on whether you want to use html}
+\item{h}{= a boolean (use html/text)}
 
 \item{u}{= the email address(es) being CC'ed}
 
@@ -23,5 +23,10 @@ email(x, y, n, w = "", h = F, u, v)
 }
 \description{
 emails <x>
+}
+\seealso{
+Other email: \code{\link{email.exists}},
+  \code{\link{email.kill}}, \code{\link{email.list}},
+  \code{\link{email.record}}
 }
 \keyword{email}

@@ -7,7 +7,7 @@
 wrap(x)
 }
 \arguments{
-\item{x}{= string}
+\item{x}{= a string vector}
 }
 \description{
 <x> wrapped in apostrophes

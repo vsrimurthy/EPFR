@@ -7,9 +7,12 @@
 reshape.wide(x)
 }
 \arguments{
-\item{x}{= a matrix/data-frame with last columns corresponding #        :    to the entries of the resulting array}
+\item{x}{= a matrix/data frame (last columns correspond to array entries)}
 }
 \description{
 converts <x> to an array
+}
+\seealso{
+Other reshape: \code{\link{reshape.long}}
 }
 \keyword{reshape.wide}

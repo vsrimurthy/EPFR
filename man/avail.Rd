@@ -7,7 +7,7 @@
 avail(x)
 }
 \arguments{
-\item{x}{= a matrix/data-frame}
+\item{x}{= a matrix/data frame}
 }
 \description{
 For each row, returns leftmost entry with data

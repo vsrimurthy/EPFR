@@ -7,7 +7,7 @@
 position.floPct(x, y, n)
 }
 \arguments{
-\item{x}{= strategy path}
+\item{x}{= a file (strategy)}
 
 \item{y}{= subset}
 

@@ -7,21 +7,60 @@
 mk.1dFloMo.Sec(x, y, n, w, h, u = F, v = F)
 }
 \arguments{
-\item{x}{= a flowdate/YYYYMMDD depending on whether daily/weekly}
+\item{x}{= a flowdate/YYYYMMDD (depending on whether daily/weekly)}
 
-\item{y}{= item (Flow/AssetsStart/AssetsEnd/PortfolioChange)}
+\item{y}{= a string (Flow/AssetsStart/AssetsEnd/PortfolioChange)}
 
-\item{n}{= input to or output of sql.connect}
+\item{n}{= a connection string/connection}
 
-\item{w}{= frequency (T/F for daily/weekly or D/W/M)}
+\item{w}{= a frequency (T/F for daily/weekly or D/W/M)}
 
-\item{h}{= a list object with the following elements: #        :    Region - one of US/UK/JP/EM/Eurozone/All (full global) #        :    Filter - a vector of filters #        :    Group - allocation bulking group (e.g. GeographicFocus/BenchIndex)}
+\item{h}{= a list (elements Region/Filter/Group)}
 
-\item{u}{= T/F to use foreign or all allocations}
+\item{u}{= a boolean (foreign/all allocations)}
 
-\item{v}{= T/F to use institutional or all share classes}
+\item{v}{= a boolean (institutional/all share classes)}
 }
 \description{
 SQL query for daily/weekly CBE flow momentum
+}
+\seealso{
+Other mk: \code{\link{mk.1dActWtTrend.Ctry}},
+  \code{\link{mk.1dActWtTrend.Sec}},
+  \code{\link{mk.1dFloMo.Ctry.data}},
+  \code{\link{mk.1dFloMo.Ctry.rslt}},
+  \code{\link{mk.1dFloMo.CtrySG}},
+  \code{\link{mk.1dFloMo.Ctry}},
+  \code{\link{mk.1dFloMo.FI}},
+  \code{\link{mk.1dFloMo.Indy}},
+  \code{\link{mk.1dFloMo.Rgn}},
+  \code{\link{mk.1dFloMo.Sec.rslt}},
+  \code{\link{mk.1dFloTrend.Ctry}},
+  \code{\link{mk.1dFloTrend.Sec}},
+  \code{\link{mk.1mActPas.Ctry}},
+  \code{\link{mk.1mActPas.Sec}},
+  \code{\link{mk.1mAllocMo}},
+  \code{\link{mk.1mBullish.Ctry}},
+  \code{\link{mk.1mBullish.Sec}},
+  \code{\link{mk.1mBullish.rslt}},
+  \code{\link{mk.1mFloMo.Ctry}},
+  \code{\link{mk.1wFloMo.CtryFlow.data}},
+  \code{\link{mk.1wFloMo.CtryFlow.local}},
+  \code{\link{mk.1wFloMo.CtryFlow.rslt}},
+  \code{\link{mk.1wFloMo.CtryFlow}},
+  \code{\link{mk.1wFloMo.IndyFlow}},
+  \code{\link{mk.ActWt}}, \code{\link{mk.Alpha.daily}},
+  \code{\link{mk.Alpha}}, \code{\link{mk.EigenCentrality}},
+  \code{\link{mk.FloBeta}}, \code{\link{mk.Fragility}},
+  \code{\link{mk.Mem}}, \code{\link{mk.SRIMem}},
+  \code{\link{mk.SatoMem}}, \code{\link{mk.Wt}},
+  \code{\link{mk.avail}}, \code{\link{mk.beta}},
+  \code{\link{mk.isin}}, \code{\link{mk.sf.daily}},
+  \code{\link{mk.sqlDump}}, \code{\link{mk.vbl.chg}},
+  \code{\link{mk.vbl.diff}}, \code{\link{mk.vbl.lag}},
+  \code{\link{mk.vbl.max}}, \code{\link{mk.vbl.ratio}},
+  \code{\link{mk.vbl.scale}}, \code{\link{mk.vbl.sum}},
+  \code{\link{mk.vbl.trail.fetch}},
+  \code{\link{mk.vbl.trail.sum}}, \code{\link{mk.vbl.vol}}
 }
 \keyword{mk.1dFloMo.Sec}

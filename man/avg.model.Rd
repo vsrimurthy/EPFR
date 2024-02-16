@@ -7,9 +7,13 @@
 avg.model(x)
 }
 \arguments{
-\item{x}{= vector of results}
+\item{x}{= a numeric vector (results)}
 }
 \description{
 constant-only (zero-variable) regression model
+}
+\seealso{
+Other avg: \code{\link{avg.winsorized}},
+  \code{\link{avg.wtd}}
 }
 \keyword{avg.model}

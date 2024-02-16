@@ -12,4 +12,8 @@ qtr.ex.int(x)
 \description{
 returns = a YYYYMM vector
 }
+\seealso{
+Other qtr: \code{\link{qtr.lag}}, \code{\link{qtr.seq}},
+  \code{\link{qtr.to.int}}
+}
 \keyword{qtr.ex.int}

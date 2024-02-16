@@ -7,9 +7,16 @@
 Ctry.msci(x)
 }
 \arguments{
-\item{x}{= an index name such as ACWI/EAFE/EM}
+\item{x}{= a string (index like ACWI/EAFE/EM)}
 }
 \description{
 Countries added or removed from the index in ascending order
+}
+\seealso{
+Other Ctry: \code{\link{Ctry.info}},
+  \code{\link{Ctry.msci.index.changes}},
+  \code{\link{Ctry.msci.members.rng}},
+  \code{\link{Ctry.msci.members}},
+  \code{\link{Ctry.to.CtryGrp}}
 }
 \keyword{Ctry.msci}

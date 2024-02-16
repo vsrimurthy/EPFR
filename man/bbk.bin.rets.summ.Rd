@@ -7,13 +7,21 @@
 bbk.bin.rets.summ(x, y, n = F)
 }
 \arguments{
-\item{x}{= a matrix/df with rows indexed by time and columns indexed by bins}
+\item{x}{= a matrix/data frame (rows indexed by time and columns indexed by bins)}
 
 \item{y}{= number of rows of <x> needed to cover an entire calendar year}
 
-\item{n}{= T/F depending on if you want to count number of periods}
+\item{n}{= a boolean (report/ignore period count)}
 }
 \description{
 Summarizes bin excess returns arithmetically
+}
+\seealso{
+Other bbk: \code{\link{bbk.bin.rets.prd.summ}},
+  \code{\link{bbk.bin.xRet}}, \code{\link{bbk.data}},
+  \code{\link{bbk.drawdown}}, \code{\link{bbk.fwdRet}},
+  \code{\link{bbk.holidays}}, \code{\link{bbk.matrix}},
+  \code{\link{bbk.summ}}, \code{\link{bbk.turnover}},
+  \code{\link{bbk}}
 }
 \keyword{bbk.bin.rets.summ}

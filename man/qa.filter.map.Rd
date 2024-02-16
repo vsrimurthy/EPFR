@@ -7,9 +7,12 @@
 qa.filter.map(x)
 }
 \arguments{
-\item{x}{= filter (e.g. Aggregate/Active/Passive/ETF/Mutual)}
+\item{x}{= a filter (e.g. Aggregate/Active/Passive/ETF/Mutual)}
 }
 \description{
 maps to appropriate code on the R side
+}
+\seealso{
+Other qa: \code{\link{qa.mat.read}}
 }
 \keyword{qa.filter.map}

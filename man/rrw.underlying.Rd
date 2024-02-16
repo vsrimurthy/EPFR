@@ -7,23 +7,26 @@
 rrw.underlying(x, y, n, w, h, u, v, g)
 }
 \arguments{
-\item{x}{= a YYYYMM, first-return date representing the return period of interest}
+\item{x}{= a YYYYMM (first-return date)}
 
-\item{y}{= vector of variables against which return is to be regressed}
+\item{y}{= a variable vector}
 
-\item{n}{= universe (e.g. "R1Mem", or c("EafeMem", 1, "CountryCode", "JP"))}
+\item{n}{= a universe (e.g. "R1Mem"/c("EafeMem", 1, "CountryCode", "JP"))}
 
-\item{w}{= neutrality group (e.g. "GSec")}
+\item{w}{= a variable (neutrality group)}
 
-\item{h}{= return variable (e.g. "Ret")}
+\item{h}{= a variable (return)}
 
-\item{u}{= parent directory containing derived/data}
+\item{u}{= a folder (has subfolders derived/data)}
 
-\item{v}{= factor to orthogonalize all variables to (e.g. "PrcMo")}
+\item{v}{= a variable (to orthogonalize against)}
 
 \item{g}{= classif file}
 }
 \description{
 Runs regressions
+}
+\seealso{
+Other rrw: \code{\link{rrw.factors}}, \code{\link{rrw}}
 }
 \keyword{rrw.underlying}

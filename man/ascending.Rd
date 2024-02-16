@@ -7,7 +7,7 @@
 ascending(x)
 }
 \arguments{
-\item{x}{= a vector}
+\item{x}{= a numeric vector}
 }
 \description{
 T/F depending on whether <x> is ascending

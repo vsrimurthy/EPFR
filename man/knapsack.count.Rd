@@ -14,4 +14,9 @@ knapsack.count(x, y)
 \description{
 number of ways to subdivide <x> things amongst <y> people
 }
+\seealso{
+Other knapsack: \code{\link{knapsack.ex.int}},
+  \code{\link{knapsack.next}}, \code{\link{knapsack.prev}},
+  \code{\link{knapsack.to.int}}
+}
 \keyword{knapsack.count}

@@ -7,15 +7,24 @@
 stratrets.beta(x, y, n, w)
 }
 \arguments{
-\item{x}{= indicators}
+\item{x}{= a matrix/data frame (predictors)}
 
-\item{y}{= total return indices}
+\item{y}{= a matrix/data frame (total return indices)}
 
-\item{n}{= benchmark (e.g. "ACWorld")}
+\item{n}{= a string (benchmark like "ACWorld")}
 
-\item{w}{= lookback over which beta is computed}
+\item{w}{= an integer (lookback in days)}
 }
 \description{
 beta-adjusted indicator
+}
+\seealso{
+Other stratrets: \code{\link{stratrets.bbk}},
+  \code{\link{stratrets.data}},
+  \code{\link{stratrets.indicator}},
+  \code{\link{stratrets.path}},
+  \code{\link{stratrets.returns}},
+  \code{\link{stratrets.subset.Ctry}},
+  \code{\link{stratrets.subset}}, \code{\link{stratrets}}
 }
 \keyword{stratrets.beta}

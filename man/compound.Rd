@@ -7,9 +7,13 @@
 compound(x)
 }
 \arguments{
-\item{x}{= a vector of percentage returns}
+\item{x}{= a numeric vector (percentage returns)}
 }
 \description{
 Outputs the compounded return
+}
+\seealso{
+Other compound: \code{\link{compound.flows}},
+  \code{\link{compound.sf}}
 }
 \keyword{compound}

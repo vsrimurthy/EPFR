@@ -7,7 +7,7 @@
 nonneg(x)
 }
 \arguments{
-\item{x}{= a vector/matrix/dataframe}
+\item{x}{= a numeric vector/matrix/data frame}
 }
 \description{
 returns <x> if non-negative or NA otherwise

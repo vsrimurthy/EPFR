@@ -7,7 +7,7 @@
 map.classif(x, y, n)
 }
 \arguments{
-\item{x}{= a named vector}
+\item{x}{= a numeric vector}
 
 \item{y}{= <classif>}
 
@@ -15,5 +15,8 @@ map.classif(x, y, n)
 }
 \description{
 Maps data to the row space of <y>
+}
+\seealso{
+Other map: \code{\link{map.rname}}
 }
 \keyword{map.classif}

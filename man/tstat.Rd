@@ -7,9 +7,9 @@
 tstat(x, y)
 }
 \arguments{
-\item{x}{= a matrix/data-frame}
+\item{x}{= a matrix/data frame}
 
-\item{y}{= a vector corresponding to the columns of <x>}
+\item{y}{= a string vector (corresponds to columns of <x>)}
 }
 \description{
 t-statistic associated with the regression of each row of <x> on <y>

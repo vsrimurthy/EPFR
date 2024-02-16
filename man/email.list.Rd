@@ -9,4 +9,9 @@ email.list()
 \description{
 named vector of emails and sent dates
 }
+\seealso{
+Other email: \code{\link{email.exists}},
+  \code{\link{email.kill}}, \code{\link{email.record}},
+  \code{\link{email}}
+}
 \keyword{email.list}

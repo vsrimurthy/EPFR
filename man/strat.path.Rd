@@ -7,11 +7,15 @@
 strat.path(x, y)
 }
 \arguments{
-\item{x}{= name of the strategy (e.g. "FX" or "FloPctCtry")}
+\item{x}{= a string (strategy name like FX/FloPctCtry)}
 
-\item{y}{= frequency (e.g. "daily", "weekly" or "monthly")}
+\item{y}{= a frequency (e.g. "daily", "weekly" or "monthly")}
 }
 \description{
 Returns the full path to the factor file
+}
+\seealso{
+Other strat: \code{\link{strat.dir}},
+  \code{\link{strat.email}}, \code{\link{strat.file}}
 }
 \keyword{strat.path}

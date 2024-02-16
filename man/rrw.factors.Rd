@@ -7,9 +7,12 @@
 rrw.factors(x)
 }
 \arguments{
-\item{x}{= a data frame, the first column of which has returns}
+\item{x}{= a data frame (returns in the first column)}
 }
 \description{
 Returns the t-values of factors that best predict return
+}
+\seealso{
+Other rrw: \code{\link{rrw.underlying}}, \code{\link{rrw}}
 }
 \keyword{rrw.factors}

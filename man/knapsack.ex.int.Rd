@@ -16,4 +16,9 @@ knapsack.ex.int(x, y, n)
 \description{
 inverse of knapsack.to.int; returns a vector of length <n>, #		:	the elements of which sum to <y>
 }
+\seealso{
+Other knapsack: \code{\link{knapsack.count}},
+  \code{\link{knapsack.next}}, \code{\link{knapsack.prev}},
+  \code{\link{knapsack.to.int}}
+}
 \keyword{knapsack.ex.int}

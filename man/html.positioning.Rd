@@ -7,11 +7,22 @@
 html.positioning(x, y)
 }
 \arguments{
-\item{x}{= matrix of indicator values}
+\item{x}{= a matrix (predictors)}
 
 \item{y}{= security names (corresponding to columns of <x>)}
 }
 \description{
 writes a positioning report
+}
+\seealso{
+Other html: \code{\link{html.and}},
+  \code{\link{html.email}}, \code{\link{html.ex.utf8}},
+  \code{\link{html.flow.breakdown}},
+  \code{\link{html.flow.english}},
+  \code{\link{html.flow.underlying}},
+  \code{\link{html.image}}, \code{\link{html.list}},
+  \code{\link{html.problem.underlying}},
+  \code{\link{html.problem}}, \code{\link{html.signature}},
+  \code{\link{html.tbl}}, \code{\link{html.tenure}}
 }
 \keyword{html.positioning}

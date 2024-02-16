@@ -7,11 +7,11 @@
 nameTo(x, y)
 }
 \arguments{
-\item{x}{= a logical vector/matrix/dataframe without NA's}
+\item{x}{= a numeric vector/matrix/data frame (no NA's)}
 
-\item{y}{= a logical value, isomekic vector or isomekic isoplatic matrix/df without NA's}
+\item{y}{= a numeric vector/matrix/data frame (no NA's)}
 }
 \description{
-pct name turnover between <x> and <y> if <x> is a vector or their rows otherwise
+pct name turnover between <x> and <y> if <x> is a numeric vector or their rows otherwise
 }
 \keyword{nameTo}

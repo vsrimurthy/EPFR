@@ -7,15 +7,23 @@
 bbk.summ(x, y, n, w)
 }
 \arguments{
-\item{x}{= bin returns}
+\item{x}{= a matrix/data frame (bin returns)}
 
-\item{y}{= bin memberships}
+\item{y}{= a matrix/data frame (bin memberships)}
 
-\item{n}{= return window in days or months depending on whether <x> is YYYYMMDD or YYYYMM}
+\item{n}{= an integer (return window in days/months)}
 
 \item{w}{= a positive integer}
 }
 \description{
 summarizes by year and overall
+}
+\seealso{
+Other bbk: \code{\link{bbk.bin.rets.prd.summ}},
+  \code{\link{bbk.bin.rets.summ}},
+  \code{\link{bbk.bin.xRet}}, \code{\link{bbk.data}},
+  \code{\link{bbk.drawdown}}, \code{\link{bbk.fwdRet}},
+  \code{\link{bbk.holidays}}, \code{\link{bbk.matrix}},
+  \code{\link{bbk.turnover}}, \code{\link{bbk}}
 }
 \keyword{bbk.summ}

@@ -9,11 +9,50 @@ mk.1mBullish.Sec(x, y, n)
 \arguments{
 \item{x}{= a YYYYMM}
 
-\item{y}{= input to or output of sql.connect}
+\item{y}{= a connection string/connection}
 
 \item{n}{= one of US/UK/JP/EM/Eurozone}
 }
 \description{
 SQL query for monthly Bullish sector indicator
+}
+\seealso{
+Other mk: \code{\link{mk.1dActWtTrend.Ctry}},
+  \code{\link{mk.1dActWtTrend.Sec}},
+  \code{\link{mk.1dFloMo.Ctry.data}},
+  \code{\link{mk.1dFloMo.Ctry.rslt}},
+  \code{\link{mk.1dFloMo.CtrySG}},
+  \code{\link{mk.1dFloMo.Ctry}},
+  \code{\link{mk.1dFloMo.FI}},
+  \code{\link{mk.1dFloMo.Indy}},
+  \code{\link{mk.1dFloMo.Rgn}},
+  \code{\link{mk.1dFloMo.Sec.rslt}},
+  \code{\link{mk.1dFloMo.Sec}},
+  \code{\link{mk.1dFloTrend.Ctry}},
+  \code{\link{mk.1dFloTrend.Sec}},
+  \code{\link{mk.1mActPas.Ctry}},
+  \code{\link{mk.1mActPas.Sec}},
+  \code{\link{mk.1mAllocMo}},
+  \code{\link{mk.1mBullish.Ctry}},
+  \code{\link{mk.1mBullish.rslt}},
+  \code{\link{mk.1mFloMo.Ctry}},
+  \code{\link{mk.1wFloMo.CtryFlow.data}},
+  \code{\link{mk.1wFloMo.CtryFlow.local}},
+  \code{\link{mk.1wFloMo.CtryFlow.rslt}},
+  \code{\link{mk.1wFloMo.CtryFlow}},
+  \code{\link{mk.1wFloMo.IndyFlow}},
+  \code{\link{mk.ActWt}}, \code{\link{mk.Alpha.daily}},
+  \code{\link{mk.Alpha}}, \code{\link{mk.EigenCentrality}},
+  \code{\link{mk.FloBeta}}, \code{\link{mk.Fragility}},
+  \code{\link{mk.Mem}}, \code{\link{mk.SRIMem}},
+  \code{\link{mk.SatoMem}}, \code{\link{mk.Wt}},
+  \code{\link{mk.avail}}, \code{\link{mk.beta}},
+  \code{\link{mk.isin}}, \code{\link{mk.sf.daily}},
+  \code{\link{mk.sqlDump}}, \code{\link{mk.vbl.chg}},
+  \code{\link{mk.vbl.diff}}, \code{\link{mk.vbl.lag}},
+  \code{\link{mk.vbl.max}}, \code{\link{mk.vbl.ratio}},
+  \code{\link{mk.vbl.scale}}, \code{\link{mk.vbl.sum}},
+  \code{\link{mk.vbl.trail.fetch}},
+  \code{\link{mk.vbl.trail.sum}}, \code{\link{mk.vbl.vol}}
 }
 \keyword{mk.1mBullish.Sec}

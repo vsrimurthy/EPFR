@@ -7,9 +7,13 @@
 int.random(x = 5)
 }
 \arguments{
-\item{x}{= a natural number}
+\item{x}{= a positive integer}
 }
 \description{
 random integer between 1 and <x>
+}
+\seealso{
+Other int: \code{\link{int.format}},
+  \code{\link{int.to.prime}}
 }
 \keyword{int.random}

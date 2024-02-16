@@ -7,13 +7,29 @@
 ftp.credential(x, y = "ftp", n = F)
 }
 \arguments{
-\item{x}{= one of ftp/user/pwd}
+\item{x}{= a string (ftp/user/pwd)}
 
-\item{y}{= one of ftp/sftp}
+\item{y}{= a string (ftp/sftp)}
 
-\item{n}{= T/F flag for ftp.use.epsv argument of getCurlHandle}
+\item{n}{= a boolean (ftp.use.epsv argument of getCurlHandle)}
 }
 \description{
 relevant ftp credential
+}
+\seealso{
+Other ftp: \code{\link{ftp.all.dir}},
+  \code{\link{ftp.all.files.underlying}},
+  \code{\link{ftp.all.files}}, \code{\link{ftp.del}},
+  \code{\link{ftp.dir.parse.ftp}},
+  \code{\link{ftp.dir.parse.sftp}}, \code{\link{ftp.dir}},
+  \code{\link{ftp.download}}, \code{\link{ftp.exists}},
+  \code{\link{ftp.file}}, \code{\link{ftp.get}},
+  \code{\link{ftp.info}}, \code{\link{ftp.kill}},
+  \code{\link{ftp.list}},
+  \code{\link{ftp.missing.underlying}},
+  \code{\link{ftp.missing}}, \code{\link{ftp.parent}},
+  \code{\link{ftp.put}}, \code{\link{ftp.record}},
+  \code{\link{ftp.rmdir}}, \code{\link{ftp.sql.factor}},
+  \code{\link{ftp.upload}}
 }
 \keyword{ftp.credential}

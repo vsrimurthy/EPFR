@@ -7,9 +7,15 @@
 day.to.date(x)
 }
 \arguments{
-\item{x}{= a vector of calendar dates}
+\item{x}{= a calendar date vector}
 }
 \description{
 converts to an R date
+}
+\seealso{
+Other day: \code{\link{day.ex.date}},
+  \code{\link{day.ex.int}}, \code{\link{day.lag}},
+  \code{\link{day.seq}}, \code{\link{day.to.int}},
+  \code{\link{day.to.weekday}}, \code{\link{day.to.week}}
 }
 \keyword{day.to.date}

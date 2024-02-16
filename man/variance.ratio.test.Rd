@@ -9,7 +9,7 @@ variance.ratio.test(x, y)
 \arguments{
 \item{x}{= vector}
 
-\item{y}{= an integer greater than 1}
+\item{y}{= an integer (greater than 1)}
 }
 \description{
 tests whether <x> follows a random walk (i.e. <x> independent of prior values)

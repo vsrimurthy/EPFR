@@ -10,6 +10,6 @@ renorm(x)
 \item{x}{= a numeric vector}
 }
 \description{
-renormalizes, so the absolute weights sum to 100, <x>, if a vector, or the rows of <x> otherwise
+renormalizes, so the absolute weights sum to 100, <x>, if a numeric vector, or the rows of <x> otherwise
 }
 \keyword{renorm}

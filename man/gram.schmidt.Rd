@@ -9,7 +9,7 @@ gram.schmidt(x, y)
 \arguments{
 \item{x}{= a numeric vector/matrix/data frame}
 
-\item{y}{= a numeric isomekic vector}
+\item{y}{= a numeric vector}
 }
 \description{
 Gram-Schmidt orthogonalization of <x> to <y>

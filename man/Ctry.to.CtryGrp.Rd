@@ -7,9 +7,15 @@
 Ctry.to.CtryGrp(x)
 }
 \arguments{
-\item{x}{= a vector of country codes}
+\item{x}{= a country code vector}
 }
 \description{
 makes Country groups
+}
+\seealso{
+Other Ctry: \code{\link{Ctry.info}},
+  \code{\link{Ctry.msci.index.changes}},
+  \code{\link{Ctry.msci.members.rng}},
+  \code{\link{Ctry.msci.members}}, \code{\link{Ctry.msci}}
 }
 \keyword{Ctry.to.CtryGrp}

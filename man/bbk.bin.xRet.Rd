@@ -7,17 +7,25 @@
 bbk.bin.xRet(x, y, n = 5, w = F, h = F)
 }
 \arguments{
-\item{x}{= a matrix/df of predictors, the rows of which are indexed by time}
+\item{x}{= a matrix/data frame (predictors)}
 
-\item{y}{= a matrix/df of the same dimensions as <x> containing associated forward returns}
+\item{y}{= a matrix/data frame (forward returns)}
 
-\item{n}{= number of desired bins}
+\item{n}{= an integer (number of bins)}
 
-\item{w}{= T/F depending on whether universe return is desired}
+\item{w}{= a boolean (report/ignore universe return)}
 
-\item{h}{= T/F depending on whether full detail or bin returns are needed}
+\item{h}{= a boolean (do/don't provide detail)}
 }
 \description{
 Returns equal weight bin returns through time
+}
+\seealso{
+Other bbk: \code{\link{bbk.bin.rets.prd.summ}},
+  \code{\link{bbk.bin.rets.summ}}, \code{\link{bbk.data}},
+  \code{\link{bbk.drawdown}}, \code{\link{bbk.fwdRet}},
+  \code{\link{bbk.holidays}}, \code{\link{bbk.matrix}},
+  \code{\link{bbk.summ}}, \code{\link{bbk.turnover}},
+  \code{\link{bbk}}
 }
 \keyword{bbk.bin.xRet}

@@ -7,25 +7,33 @@
 sf.daily(x, y, n, w, h, u, v, g = 5, r)
 }
 \arguments{
-\item{x}{= first-return date in YYYYMMDD}
+\item{x}{= a flowdate (first-return date, backtest start)}
 
-\item{y}{= first-return date in YYYYMMDD after <prdBeg>}
+\item{y}{= a flowdate (first-return date, backtest end)}
 
-\item{n}{= membership (e.g. "R2Mem")}
+\item{n}{= a universe (e.g. "R1Mem", or c("EafeMem", 1, "CountryCode", "JP"))}
 
-\item{w}{= binning group (e.g. "GSec")}
+\item{w}{= a variable (neutrality group)}
 
-\item{h}{= return variable}
+\item{h}{= a variable (return)}
 
 \item{u}{= variable & lookback (e.g. c("1dFloMo", 3))}
 
-\item{v}{= data folder}
+\item{v}{= a folder (data)}
 
-\item{g}{= number of bins}
+\item{g}{= an integer (number of bins)}
 
 \item{r}{= classif file}
 }
 \description{
 runs a daily stock-flows simulation FAST
+}
+\seealso{
+Other sf: \code{\link{sf.bin.nms}},
+  \code{\link{sf.detail}}, \code{\link{sf.single.bsim}},
+  \code{\link{sf.subset}},
+  \code{\link{sf.underlying.data.bin}},
+  \code{\link{sf.underlying.data}},
+  \code{\link{sf.underlying.summ}}, \code{\link{sf}}
 }
 \keyword{sf.daily}

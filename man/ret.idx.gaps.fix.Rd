@@ -7,9 +7,14 @@
 ret.idx.gaps.fix(x)
 }
 \arguments{
-\item{x}{= a file of total return indices indexed by <yyyymmdd> dates so that time runs forward}
+\item{x}{= a matrix/data frame (indexed by YYYYMMDD)}
 }
 \description{
 replaces NA's by latest available total return index (i.e. zero return over that period)
+}
+\seealso{
+Other ret: \code{\link{ret.ex.idx}},
+  \code{\link{ret.outliers}}, \code{\link{ret.to.idx}},
+  \code{\link{ret.to.log}}
 }
 \keyword{ret.idx.gaps.fix}

@@ -7,11 +7,16 @@
 ret.outliers(x, y = 1.5)
 }
 \arguments{
-\item{x}{= a vector of returns}
+\item{x}{= a numeric vector (returns)}
 
 \item{y}{= outlier threshold}
 }
 \description{
 Sets big ones to NA (a way to control for splits)
+}
+\seealso{
+Other ret: \code{\link{ret.ex.idx}},
+  \code{\link{ret.idx.gaps.fix}}, \code{\link{ret.to.idx}},
+  \code{\link{ret.to.log}}
 }
 \keyword{ret.outliers}

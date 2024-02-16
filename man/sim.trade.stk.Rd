@@ -7,15 +7,23 @@
 sim.trade.stk(x, y, n, w)
 }
 \arguments{
-\item{x}{= a data frame, the output of <sim.fetch>}
+\item{x}{= a data frame}
 
-\item{y}{= T/F depending on whether you buy/sell}
+\item{y}{= a boolean (buy/sell)}
 
-\item{n}{= percentage single-stock active-weight name limit}
+\item{n}{= an integer (name active limit)}
 
-\item{w}{= T/F depending on whether you're fully investing the portfolio}
+\item{w}{= a boolean (do/don't fully invest)}
 }
 \description{
 max you can trade without breaching name limits
+}
+\seealso{
+Other sim: \code{\link{sim.direction.buy}},
+  \code{\link{sim.direction.sell}},
+  \code{\link{sim.direction}}, \code{\link{sim.fetch}},
+  \code{\link{sim.limits}}, \code{\link{sim.optimal}},
+  \code{\link{sim.overall}}, \code{\link{sim.seed}},
+  \code{\link{sim.summ}}, \code{\link{sim.trade.grp}}
 }
 \keyword{sim.trade.stk}

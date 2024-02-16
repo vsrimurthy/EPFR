@@ -7,11 +7,36 @@
 fcn.nonNA(fcn, x)
 }
 \arguments{
-\item{fcn}{= a function that maps a vector to a vector}
+\item{fcn}{= a function that maps a numeric vector to a numeric vector}
 
-\item{x}{= a vector}
+\item{x}{= a numeric vector}
 }
 \description{
 applies <fcn> to the non-NA values of <x>
+}
+\seealso{
+Other fcn: \code{\link{fcn.all.canonical}},
+  \code{\link{fcn.all.roxygenize}},
+  \code{\link{fcn.all.sub}}, \code{\link{fcn.all.super}},
+  \code{\link{fcn.args.actual}},
+  \code{\link{fcn.args.comment}},
+  \code{\link{fcn.canonical}},
+  \code{\link{fcn.comments.parse}},
+  \code{\link{fcn.dates.parse}}, \code{\link{fcn.date}},
+  \code{\link{fcn.direct.sub}},
+  \code{\link{fcn.direct.super}}, \code{\link{fcn.dir}},
+  \code{\link{fcn.expressions.count}},
+  \code{\link{fcn.extract.args}},
+  \code{\link{fcn.extract.out}}, \code{\link{fcn.has}},
+  \code{\link{fcn.indent.proper}},
+  \code{\link{fcn.indirect}}, \code{\link{fcn.lines.code}},
+  \code{\link{fcn.lines.count}}, \code{\link{fcn.list}},
+  \code{\link{fcn.lite}}, \code{\link{fcn.mat.col}},
+  \code{\link{fcn.mat.num}}, \code{\link{fcn.mat.vec}},
+  \code{\link{fcn.num.nonNA}}, \code{\link{fcn.order}},
+  \code{\link{fcn.path}}, \code{\link{fcn.roxygenize}},
+  \code{\link{fcn.sho}}, \code{\link{fcn.simple}},
+  \code{\link{fcn.to.comments}}, \code{\link{fcn.to.txt}},
+  \code{\link{fcn.vec.grp}}, \code{\link{fcn.vec.num}}
 }
 \keyword{fcn.nonNA}

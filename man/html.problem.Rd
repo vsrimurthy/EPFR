@@ -7,13 +7,25 @@
 html.problem(x, y, n)
 }
 \arguments{
-\item{x}{= report names}
+\item{x}{= a string (report name)s}
 
 \item{y}{= a string vector}
 
-\item{n}{= logical vector (T = error, F = not, NA = no check)}
+\item{n}{= a boolean vector (error/no error, NA = no check)}
 }
 \description{
 problem report
+}
+\seealso{
+Other html: \code{\link{html.and}},
+  \code{\link{html.email}}, \code{\link{html.ex.utf8}},
+  \code{\link{html.flow.breakdown}},
+  \code{\link{html.flow.english}},
+  \code{\link{html.flow.underlying}},
+  \code{\link{html.image}}, \code{\link{html.list}},
+  \code{\link{html.positioning}},
+  \code{\link{html.problem.underlying}},
+  \code{\link{html.signature}}, \code{\link{html.tbl}},
+  \code{\link{html.tenure}}
 }
 \keyword{html.problem}

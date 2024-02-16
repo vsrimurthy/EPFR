@@ -7,13 +7,19 @@
 Ctry.msci.members.rng(x, y, n)
 }
 \arguments{
-\item{x}{= an index name such as ACWI/EAFE/EM}
+\item{x}{= a string (index like ACWI/EAFE/EM)}
 
-\item{y}{= a YYYYMM/YYYYMMDD date}
+\item{y}{= a YYYYMM/YYYYMMDD}
 
 \item{n}{= after <y> and of the same date type}
 }
 \description{
 lists countries that were ever in an index between <y> and <n>
+}
+\seealso{
+Other Ctry: \code{\link{Ctry.info}},
+  \code{\link{Ctry.msci.index.changes}},
+  \code{\link{Ctry.msci.members}}, \code{\link{Ctry.msci}},
+  \code{\link{Ctry.to.CtryGrp}}
 }
 \keyword{Ctry.msci.members.rng}

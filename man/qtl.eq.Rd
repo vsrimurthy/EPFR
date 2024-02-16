@@ -7,11 +7,15 @@
 qtl.eq(x, y = 5)
 }
 \arguments{
-\item{x}{= a vector/matrix/data-frame}
+\item{x}{= a numeric vector/matrix/data frame}
 
-\item{y}{= number of desired bins}
+\item{y}{= an integer (number of bins)}
 }
 \description{
-performs an equal-weight binning on <x> if <x> is a vector or the rows of <x> otherwise
+performs an equal-weight binning on <x> if <x> is a numeric vector or the rows of <x> otherwise
+}
+\seealso{
+Other qtl: \code{\link{qtl.fast}},
+  \code{\link{qtl.single.grp}}, \code{\link{qtl}}
 }
 \keyword{qtl.eq}

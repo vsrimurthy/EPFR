@@ -7,17 +7,26 @@
 stratrets.path(x, y, n, w, h)
 }
 \arguments{
-\item{x}{= indicator type (e.g. Ctry/FX/SectorUK/Rgn/FI)}
+\item{x}{= a string (e.g. Ctry/FX/SectorUK/Rgn/FI)}
 
 \item{y}{= FundType (e.g. E/B)}
 
-\item{n}{= filter (e.g. Aggregate, Act, SRI. etc.)}
+\item{n}{= a filter (e.g. Aggregate, Act, SRI. etc.)}
 
-\item{w}{= item (e.g. Flow/AssetsStart/Result)}
+\item{w}{= a string (Flow/AssetsStart/Result)}
 
 \item{h}{= variant (e.g. CB/SG/CBSG)}
 }
 \description{
 path to strategy indicators
+}
+\seealso{
+Other stratrets: \code{\link{stratrets.bbk}},
+  \code{\link{stratrets.beta}},
+  \code{\link{stratrets.data}},
+  \code{\link{stratrets.indicator}},
+  \code{\link{stratrets.returns}},
+  \code{\link{stratrets.subset.Ctry}},
+  \code{\link{stratrets.subset}}, \code{\link{stratrets}}
 }
 \keyword{stratrets.path}

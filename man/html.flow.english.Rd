@@ -7,9 +7,9 @@
 html.flow.english(x, y, n, w)
 }
 \arguments{
-\item{x}{= a named vector of integers (numbers need to be rounded)}
+\item{x}{= an integer vector}
 
-\item{y}{= a named text vector}
+\item{y}{= a string vector}
 
 \item{n}{= line number(s) at which to insert a statement}
 
@@ -17,5 +17,16 @@ html.flow.english(x, y, n, w)
 }
 \description{
 writes a flow report in English
+}
+\seealso{
+Other html: \code{\link{html.and}},
+  \code{\link{html.email}}, \code{\link{html.ex.utf8}},
+  \code{\link{html.flow.breakdown}},
+  \code{\link{html.flow.underlying}},
+  \code{\link{html.image}}, \code{\link{html.list}},
+  \code{\link{html.positioning}},
+  \code{\link{html.problem.underlying}},
+  \code{\link{html.problem}}, \code{\link{html.signature}},
+  \code{\link{html.tbl}}, \code{\link{html.tenure}}
 }
 \keyword{html.flow.english}

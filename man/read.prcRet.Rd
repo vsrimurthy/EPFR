@@ -7,9 +7,12 @@
 read.prcRet(x)
 }
 \arguments{
-\item{x}{= an object name (preceded by #) or the path to a ".csv" file}
+\item{x}{= a string (object name preceded by # or a file)}
 }
 \description{
 returns the contents of the file
+}
+\seealso{
+Other read: \code{\link{read.EPFR}}
 }
 \keyword{read.prcRet}

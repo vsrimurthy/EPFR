@@ -7,25 +7,28 @@
 fwd.probs(x, y, n, w, h, u, v, g, r)
 }
 \arguments{
-\item{x}{= predictor indexed by yyyymmdd or yyyymm}
+\item{x}{= a matrix/data frame (predictors)}
 
-\item{y}{= total return index indexed by yyyymmdd or yyyymm}
+\item{y}{= a matrix/data frame (total return indices)}
 
-\item{n}{= flow window in days}
+\item{n}{= an integer (flow window in days/months)}
 
-\item{w}{= T/F depending on whether the predictor is to be summed or compounded}
+\item{w}{= a boolean (sum/compound)}
 
-\item{h}{= number of periods to lag the predictor}
+\item{h}{= an integer (lag in days/months)}
 
-\item{u}{= delay in knowing data}
+\item{u}{= an integer (delay in days/months)}
 
-\item{v}{= day of the week you will trade on (5 = Fri, NULL for monthlies)}
+\item{v}{= an integer (0 = Sun, 1 = Mon, etc., the day you trade)}
 
-\item{g}{= size of forward return horizon}
+\item{g}{= an integer (return window in days/months)}
 
-\item{r}{= the index within which you trade}
+\item{r}{= a string (index within which you trade)}
 }
 \description{
 probability that forward return is positive given predictor is positive
+}
+\seealso{
+Other fwd: \code{\link{fwd.probs.wrapper}}
 }
 \keyword{fwd.probs}

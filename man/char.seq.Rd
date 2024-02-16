@@ -16,4 +16,9 @@ char.seq(x, y, n = 1)
 \description{
 returns a sequence of ASCII characters between (and including) x and y
 }
+\seealso{
+Other char: \code{\link{char.ex.int}},
+  \code{\link{char.lag}}, \code{\link{char.to.int}},
+  \code{\link{char.to.num}}
+}
 \keyword{char.seq}

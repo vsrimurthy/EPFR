@@ -15,13 +15,18 @@ load.mo.vbl.1obj(fcn, x, y, n, w, h, u)
 
 \item{n}{= passed down to <mk.fcn>}
 
-\item{w}{= name under which the variable is to be stored}
+\item{w}{= a string (name to store variable under)}
 
 \item{h}{= the period for which the object is to be made}
 
-\item{u}{= stock-flows environment}
+\item{u}{= a StockFlows environment}
 }
 \description{
 Loads a monthly variable
+}
+\seealso{
+Other load: \code{\link{load.dy.vbl.1obj}},
+  \code{\link{load.dy.vbl}}, \code{\link{load.mo.vbl}},
+  \code{\link{load.vbl.underlying}}
 }
 \keyword{load.mo.vbl.1obj}

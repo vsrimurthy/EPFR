@@ -7,19 +7,27 @@
 sim.optimal(x, y, n, w, h, u)
 }
 \arguments{
-\item{x}{= a data frame with columns Alp/Bmk/Sec/Ctry}
+\item{x}{= a data frame (with columns Alp/Bmk/Sec/Ctry)}
 
-\item{y}{= initial portfolio weight}
+\item{y}{= a numeric vector (initial weight)}
 
-\item{n}{= percentage single-stock active-weight name limit}
+\item{n}{= an integer (name active limit)}
 
-\item{w}{= vector of group limits (names correspond to columns in <x>)}
+\item{w}{= an integer vector (group limits, names correspond to columns in <x>)}
 
-\item{h}{= quintile to sell (stocks in bin <h> and higher are flushed)}
+\item{h}{= an integer (quintile to sell, stocks in bin <h> and higher are flushed)}
 
-\item{u}{= integer between 0 and 100}
+\item{u}{= an integer (between 0 and 100)}
 }
 \description{
 returns named vector of optimal portfolio weights
+}
+\seealso{
+Other sim: \code{\link{sim.direction.buy}},
+  \code{\link{sim.direction.sell}},
+  \code{\link{sim.direction}}, \code{\link{sim.fetch}},
+  \code{\link{sim.limits}}, \code{\link{sim.overall}},
+  \code{\link{sim.seed}}, \code{\link{sim.summ}},
+  \code{\link{sim.trade.grp}}, \code{\link{sim.trade.stk}}
 }
 \keyword{sim.optimal}

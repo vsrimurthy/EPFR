@@ -9,11 +9,36 @@ fcn.vec.grp(fcn, x, y)
 \arguments{
 \item{fcn}{= function to be applied within groups}
 
-\item{x}{= a vector/matrix/dataframe}
+\item{x}{= a numeric vector/matrix/data frame}
 
-\item{y}{= a vector of groups (e.g. GSec)}
+\item{y}{= a numeric vector (groups)}
 }
 \description{
 applies <fcn> to <x> within groups <y>
+}
+\seealso{
+Other fcn: \code{\link{fcn.all.canonical}},
+  \code{\link{fcn.all.roxygenize}},
+  \code{\link{fcn.all.sub}}, \code{\link{fcn.all.super}},
+  \code{\link{fcn.args.actual}},
+  \code{\link{fcn.args.comment}},
+  \code{\link{fcn.canonical}},
+  \code{\link{fcn.comments.parse}},
+  \code{\link{fcn.dates.parse}}, \code{\link{fcn.date}},
+  \code{\link{fcn.direct.sub}},
+  \code{\link{fcn.direct.super}}, \code{\link{fcn.dir}},
+  \code{\link{fcn.expressions.count}},
+  \code{\link{fcn.extract.args}},
+  \code{\link{fcn.extract.out}}, \code{\link{fcn.has}},
+  \code{\link{fcn.indent.proper}},
+  \code{\link{fcn.indirect}}, \code{\link{fcn.lines.code}},
+  \code{\link{fcn.lines.count}}, \code{\link{fcn.list}},
+  \code{\link{fcn.lite}}, \code{\link{fcn.mat.col}},
+  \code{\link{fcn.mat.num}}, \code{\link{fcn.mat.vec}},
+  \code{\link{fcn.nonNA}}, \code{\link{fcn.num.nonNA}},
+  \code{\link{fcn.order}}, \code{\link{fcn.path}},
+  \code{\link{fcn.roxygenize}}, \code{\link{fcn.sho}},
+  \code{\link{fcn.simple}}, \code{\link{fcn.to.comments}},
+  \code{\link{fcn.to.txt}}, \code{\link{fcn.vec.num}}
 }
 \keyword{fcn.vec.grp}

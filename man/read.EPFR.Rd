@@ -7,9 +7,12 @@
 read.EPFR(x)
 }
 \arguments{
-\item{x}{= a path to a file written by the dev team}
+\item{x}{= a file}
 }
 \description{
 reads in the file
+}
+\seealso{
+Other read: \code{\link{read.prcRet}}
 }
 \keyword{read.EPFR}

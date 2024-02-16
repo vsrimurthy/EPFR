@@ -7,11 +7,15 @@
 principal.components.covar(x, y)
 }
 \arguments{
-\item{x}{= a matrix/df}
+\item{x}{= a matrix/data frame}
 
-\item{y}{= number of principal components considered important}
+\item{y}{= an integer (num. important principal components)}
 }
 \description{
 covariance using first <y> components as factors
+}
+\seealso{
+Other principal: \code{\link{principal.components.underlying}},
+  \code{\link{principal.components}}
 }
 \keyword{principal.components.covar}

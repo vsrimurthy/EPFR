@@ -9,9 +9,12 @@ find.data(x, y = T)
 \arguments{
 \item{x}{= a logical vector}
 
-\item{y}{= T/F depending on whether the position of the first/last true value of x is desired}
+\item{y}{= a boolean (position of first/last true value)}
 }
 \description{
 returns the position of the first/last true value of x
+}
+\seealso{
+Other find: \code{\link{find.gaps}}
 }
 \keyword{find.data}

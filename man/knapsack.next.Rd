@@ -7,9 +7,15 @@
 knapsack.next(x)
 }
 \arguments{
-\item{x}{= a vector of non-negative integers}
+\item{x}{= an integer vector (non-negative!)}
 }
 \description{
 next way to subdivide <sum(x)> things amongst <length(x)> people
+}
+\seealso{
+Other knapsack: \code{\link{knapsack.count}},
+  \code{\link{knapsack.ex.int}},
+  \code{\link{knapsack.prev}},
+  \code{\link{knapsack.to.int}}
 }
 \keyword{knapsack.next}

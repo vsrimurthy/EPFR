@@ -7,9 +7,14 @@
 email.kill(x)
 }
 \arguments{
-\item{x}{= report name}
+\item{x}{= a string (report name)}
 }
 \description{
 deletes entry <x> in the email record. Returns nothing.
+}
+\seealso{
+Other email: \code{\link{email.exists}},
+  \code{\link{email.list}}, \code{\link{email.record}},
+  \code{\link{email}}
 }
 \keyword{email.kill}

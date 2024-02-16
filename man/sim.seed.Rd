@@ -7,13 +7,21 @@
 sim.seed(x, y, n)
 }
 \arguments{
-\item{x}{= a data frame, the output of <sim.fetch>}
+\item{x}{= a data frame}
 
-\item{y}{= percentage single-stock active-weight name limit}
+\item{y}{= an integer (name active limit)}
 
-\item{n}{= vector of group limits (names correspond to columns in <x>)}
+\item{n}{= an integer vector (group limits, names correspond to columns in <x>)}
 }
 \description{
 initial portfolio satisfying limits prioritizing earlier records of <x>
+}
+\seealso{
+Other sim: \code{\link{sim.direction.buy}},
+  \code{\link{sim.direction.sell}},
+  \code{\link{sim.direction}}, \code{\link{sim.fetch}},
+  \code{\link{sim.limits}}, \code{\link{sim.optimal}},
+  \code{\link{sim.overall}}, \code{\link{sim.summ}},
+  \code{\link{sim.trade.grp}}, \code{\link{sim.trade.stk}}
 }
 \keyword{sim.seed}

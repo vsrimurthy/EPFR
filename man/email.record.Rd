@@ -7,11 +7,16 @@
 email.record(x, y)
 }
 \arguments{
-\item{x}{= report name}
+\item{x}{= a string (report name)}
 
 \item{y}{= date for which you sent the report}
 }
 \description{
 updates the email record. Returns nothing.
+}
+\seealso{
+Other email: \code{\link{email.exists}},
+  \code{\link{email.kill}}, \code{\link{email.list}},
+  \code{\link{email}}
 }
 \keyword{email.record}

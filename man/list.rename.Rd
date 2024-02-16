@@ -9,9 +9,9 @@ list.rename(x, y, n)
 \arguments{
 \item{x}{= list}
 
-\item{y}{= old names}
+\item{y}{= a string vector (old names)}
 
-\item{n}{= new names}
+\item{n}{= a string vector (new names)}
 }
 \description{
 renamed list

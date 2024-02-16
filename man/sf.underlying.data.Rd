@@ -9,27 +9,34 @@ sf.underlying.data(fcn, x, y, n, w, h, u, v, g, r, s)
 \arguments{
 \item{fcn}{= a fetch function}
 
-\item{x}{= the period for which you want returns}
+\item{x}{= a YYYYMM/flowdate (period for which you want returns)}
 
-\item{y}{= factor you want to use for Cap-weighted back-tests}
+\item{y}{= a variable (factor for cap weighting)}
 
-\item{n}{= membership (e.g. "EafeMem" or c("GemMem", 1))}
+\item{n}{= a universe (e.g. "EafeMem" or c("GemMem", 1))}
 
-\item{w}{= group within which binning is to be performed}
+\item{w}{= a variable (neutrality group)}
 
-\item{h}{= return variable}
+\item{h}{= a variable (return)}
 
-\item{u}{= a parameter}
+\item{u}{= a string (parameter)}
 
-\item{v}{= data folder}
+\item{v}{= a folder (data)}
 
-\item{g}{= number of bins or numeric vector with last element T/F for dependent/independent}
+\item{g}{= an integer vector (if vector, last element T/F for dep/indep binning))}
 
 \item{r}{= classif file}
 
-\item{s}{= forward return horizon in months}
+\item{s}{= an integer (return window)}
 }
 \description{
 Gets data needed to back-test a single period
+}
+\seealso{
+Other sf: \code{\link{sf.bin.nms}}, \code{\link{sf.daily}},
+  \code{\link{sf.detail}}, \code{\link{sf.single.bsim}},
+  \code{\link{sf.subset}},
+  \code{\link{sf.underlying.data.bin}},
+  \code{\link{sf.underlying.summ}}, \code{\link{sf}}
 }
 \keyword{sf.underlying.data}

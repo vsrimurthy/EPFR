@@ -7,11 +7,15 @@
 col.lag(x, y)
 }
 \arguments{
-\item{x}{= string representation of an excel column}
+\item{x}{= a string (excel column)}
 
-\item{y}{= an integer representing the desired column lag}
+\item{y}{= an integer vector}
 }
 \description{
 Lags <x> by <y> columns
+}
+\seealso{
+Other col: \code{\link{col.ex.int}},
+  \code{\link{col.to.int}}
 }
 \keyword{col.lag}

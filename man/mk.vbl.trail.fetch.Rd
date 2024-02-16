@@ -9,11 +9,50 @@ mk.vbl.trail.fetch(x, y, n)
 \arguments{
 \item{x}{= a YYYYMM/YYYYMMDD}
 
-\item{y}{= a string vector, the elements of which are: #        :    1) variable to fetch (e.g. "AllocMo"/"AllocDiff"/"AllocTrend"/"Ret") #        :    2) number of trailing periods to use (e.g. "11") #        :    3) number of periods to lag (defaults to "0") #        :    4) sub-folder to fetch basic variable from (defaults to "derived") #        :    5) T/F depending on whether the compounded variable is daily (defaults to F, matters only if <x> is monthly)}
+\item{y}{= a string vector (elements are: #        :    1) variable to fetch (e.g. "AllocMo"/"AllocDiff"/"AllocTrend"/"Ret") #        :    2) number of trailing periods to use (e.g. "11") #        :    3) number of periods to lag (defaults to "0") #        :    4) sub-folder to fetch basic variable from (defaults to "derived") #        :    5) T/F depending on whether the compounded) variable is daily (defaults to F, matters only if <x> is monthly)}
 
-\item{n}{= list object containing the following items: #        :    a) classif - classif file #        :    b) fldr - stock-flows folder}
+\item{n}{= a StockFlows environment}
 }
 \description{
 compounded variable over some trailing window
+}
+\seealso{
+Other mk: \code{\link{mk.1dActWtTrend.Ctry}},
+  \code{\link{mk.1dActWtTrend.Sec}},
+  \code{\link{mk.1dFloMo.Ctry.data}},
+  \code{\link{mk.1dFloMo.Ctry.rslt}},
+  \code{\link{mk.1dFloMo.CtrySG}},
+  \code{\link{mk.1dFloMo.Ctry}},
+  \code{\link{mk.1dFloMo.FI}},
+  \code{\link{mk.1dFloMo.Indy}},
+  \code{\link{mk.1dFloMo.Rgn}},
+  \code{\link{mk.1dFloMo.Sec.rslt}},
+  \code{\link{mk.1dFloMo.Sec}},
+  \code{\link{mk.1dFloTrend.Ctry}},
+  \code{\link{mk.1dFloTrend.Sec}},
+  \code{\link{mk.1mActPas.Ctry}},
+  \code{\link{mk.1mActPas.Sec}},
+  \code{\link{mk.1mAllocMo}},
+  \code{\link{mk.1mBullish.Ctry}},
+  \code{\link{mk.1mBullish.Sec}},
+  \code{\link{mk.1mBullish.rslt}},
+  \code{\link{mk.1mFloMo.Ctry}},
+  \code{\link{mk.1wFloMo.CtryFlow.data}},
+  \code{\link{mk.1wFloMo.CtryFlow.local}},
+  \code{\link{mk.1wFloMo.CtryFlow.rslt}},
+  \code{\link{mk.1wFloMo.CtryFlow}},
+  \code{\link{mk.1wFloMo.IndyFlow}},
+  \code{\link{mk.ActWt}}, \code{\link{mk.Alpha.daily}},
+  \code{\link{mk.Alpha}}, \code{\link{mk.EigenCentrality}},
+  \code{\link{mk.FloBeta}}, \code{\link{mk.Fragility}},
+  \code{\link{mk.Mem}}, \code{\link{mk.SRIMem}},
+  \code{\link{mk.SatoMem}}, \code{\link{mk.Wt}},
+  \code{\link{mk.avail}}, \code{\link{mk.beta}},
+  \code{\link{mk.isin}}, \code{\link{mk.sf.daily}},
+  \code{\link{mk.sqlDump}}, \code{\link{mk.vbl.chg}},
+  \code{\link{mk.vbl.diff}}, \code{\link{mk.vbl.lag}},
+  \code{\link{mk.vbl.max}}, \code{\link{mk.vbl.ratio}},
+  \code{\link{mk.vbl.scale}}, \code{\link{mk.vbl.sum}},
+  \code{\link{mk.vbl.trail.sum}}, \code{\link{mk.vbl.vol}}
 }
 \keyword{mk.vbl.trail.fetch}

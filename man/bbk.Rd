@@ -4,33 +4,41 @@
 \alias{bbk}
 \title{bbk}
 \usage{
-bbk(x, y, floW = 1, retW = 5, nBin = 5, doW = NULL, sum.flows = F,
-  lag = 0, delay = 2, idx = NULL, sprds = F)
+bbk(x, y, n = 1, w = 5, h = 5, u = NULL, v = F, g = 0, r = 2,
+  s = NULL, b = F)
 }
 \arguments{
-\item{x}{= predictor indexed by yyyymmdd or yyyymm}
+\item{x}{= a matrix/data frame (predictors)}
 
-\item{y}{= total return index indexed by the same date format as <x>}
+\item{y}{= a matrix/data frame (total return indices)}
 
-\item{floW}{= number of <prd.size>'s over which the predictor should be compounded/summed}
+\item{n}{= an integer (flow window in days/months)}
 
-\item{retW}{= return window in days or months depending on whether <x> is YYYYMMDD or YYYYMM}
+\item{w}{= an integer (return window in days/months)}
 
-\item{nBin}{= number of bins to divide the variable into}
+\item{h}{= an integer (number of bins)}
 
-\item{doW}{= day of the week you will trade on (5 = Fri)}
+\item{u}{= an integer (0 = Sun, 1 = Mon, etc., the day you trade)}
 
-\item{sum.flows}{= T/F depending on whether <x> should be summed or compounded}
+\item{v}{= a boolean (sum/compound)}
 
-\item{lag}{= predictor lag in days or months depending on whether <x> is YYYYMMDD or YYYYMM}
+\item{g}{= an integer (lag in days/months)}
 
-\item{delay}{= delay in knowing data in days or months depending on whether <x> is YYYYMMDD or YYYYMM}
+\item{r}{= an integer (delay in days/months)}
 
-\item{idx}{= the index within which you are trading}
+\item{s}{= a string (index within which you trade)}
 
-\item{sprds}{= T/F depending on whether spread changes, rather than returns, are needed}
+\item{b}{= a boolean (spread changes/returns)}
 }
 \description{
 standard model output
+}
+\seealso{
+Other bbk: \code{\link{bbk.bin.rets.prd.summ}},
+  \code{\link{bbk.bin.rets.summ}},
+  \code{\link{bbk.bin.xRet}}, \code{\link{bbk.data}},
+  \code{\link{bbk.drawdown}}, \code{\link{bbk.fwdRet}},
+  \code{\link{bbk.holidays}}, \code{\link{bbk.matrix}},
+  \code{\link{bbk.summ}}, \code{\link{bbk.turnover}}
 }
 \keyword{bbk}

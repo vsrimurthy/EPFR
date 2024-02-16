@@ -7,15 +7,22 @@
 refresh.predictors.append(x, y, n = F, w = F)
 }
 \arguments{
-\item{x}{= old data}
+\item{x}{= a matrix/data frame}
 
-\item{y}{= new data (must be a data-frame, cannot be a matrix)}
+\item{y}{= a data frame}
 
-\item{n}{= T/F depending on whether you want changes in data to be ignored}
+\item{n}{= a boolean (ignore/note data changes)}
 
-\item{w}{= T/F depending on whether the data already have row names}
+\item{w}{= a boolean (are/aren't row names)}
 }
 \description{
 Appends new to old data after performing checks
+}
+\seealso{
+Other refresh: \code{\link{refresh.predictors.daily}},
+  \code{\link{refresh.predictors.monthly}},
+  \code{\link{refresh.predictors.script}},
+  \code{\link{refresh.predictors.weekly}},
+  \code{\link{refresh.predictors}}
 }
 \keyword{refresh.predictors.append}

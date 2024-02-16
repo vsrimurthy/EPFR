@@ -7,9 +7,9 @@
 common.fund.flow.shock(x, y, n)
 }
 \arguments{
-\item{x}{= ending month in YYYYMM format}
+\item{x}{= a YYYYMM}
 
-\item{y}{= One of "NEWUI" or "NEWQT2"}
+\item{y}{= a connection string}
 
 \item{n}{= number of months}
 }

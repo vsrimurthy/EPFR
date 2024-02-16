@@ -7,9 +7,12 @@
 recipient.exists(x)
 }
 \arguments{
-\item{x}{= report name}
+\item{x}{= a string (report name)}
 }
 \description{
 T/F depending on whether recipient list exists
+}
+\seealso{
+Other recipient: \code{\link{recipient.read}}
 }
 \keyword{recipient.exists}

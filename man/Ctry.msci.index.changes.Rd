@@ -7,11 +7,17 @@
 Ctry.msci.index.changes(x, y)
 }
 \arguments{
-\item{x}{= a matrix/df of total returns indexed by the beginning #        :    of the period (trade date in yyyymmdd format)}
+\item{x}{= a matrix/data frame (total return indices indexed by trade date)}
 
-\item{y}{= an MSCI index such as ACWI/EAFE/EM}
+\item{y}{= a string (MSCI index like ACWI/EAFE/EM)}
 }
 \description{
 handles the addition and removal of countries from an index
+}
+\seealso{
+Other Ctry: \code{\link{Ctry.info}},
+  \code{\link{Ctry.msci.members.rng}},
+  \code{\link{Ctry.msci.members}}, \code{\link{Ctry.msci}},
+  \code{\link{Ctry.to.CtryGrp}}
 }
 \keyword{Ctry.msci.index.changes}

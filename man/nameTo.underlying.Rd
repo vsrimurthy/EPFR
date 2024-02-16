@@ -7,11 +7,11 @@
 nameTo.underlying(x, y, n)
 }
 \arguments{
-\item{x}{= a vector of counts over the current period}
+\item{x}{= an integer vector (counts over the current period)}
 
-\item{y}{= a vector of counts over the previous period}
+\item{y}{= an integer vector (counts over the prior period)}
 
-\item{n}{= a vector of numbers of names common between current and previous periods}
+\item{n}{= an integer vector (count of common names)}
 }
 \description{
 percent name turnover

@@ -7,11 +7,14 @@
 base.to.int(x, y = 26)
 }
 \arguments{
-\item{x}{= a vector of positive integers}
+\item{x}{= a positive integer vector}
 
 \item{y}{= a positive integer}
 }
 \description{
 Evaluates the base <y> number <x>
+}
+\seealso{
+Other base: \code{\link{base.ex.int}}
 }
 \keyword{base.to.int}

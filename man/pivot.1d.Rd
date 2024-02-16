@@ -9,9 +9,9 @@ pivot.1d(fcn, x, y)
 \arguments{
 \item{fcn}{= a summary function}
 
-\item{x}{= a grouping vector}
+\item{x}{= a numeric vector (groups)}
 
-\item{y}{= a numeric vector/matrix/data-frame}
+\item{y}{= a numeric vector/matrix/data frame}
 }
 \description{
 returns a table, having the same column space of <x>, the rows of which are unique members of <grp> The cells of the table are the summ.fcn of <x> whenever <grp> takes on its respective value

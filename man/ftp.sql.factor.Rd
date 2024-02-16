@@ -11,13 +11,29 @@ ftp.sql.factor(x, y, n, w, h)
 
 \item{y}{= a flowdate}
 
-\item{n}{= fund filter (e.g. Aggregate/Active/Passive/ETF/Mutual)}
+\item{n}{= a filter (e.g. Aggregate/Active/Passive/ETF/Mutual)}
 
-\item{w}{= stock filter (e.g. All/China/Japan)}
+\item{w}{= DB - any of StockFlows/China/Japan/CSI300/Energy}
 
-\item{h}{= breakdown filter (e.g. All/GeoId/DomicileId)}
+\item{h}{= a breakdown filter (e.g. All/GeoId/DomicileId)}
 }
 \description{
 SQL code to validate <x> flows at the <y> level
+}
+\seealso{
+Other ftp: \code{\link{ftp.all.dir}},
+  \code{\link{ftp.all.files.underlying}},
+  \code{\link{ftp.all.files}},
+  \code{\link{ftp.credential}}, \code{\link{ftp.del}},
+  \code{\link{ftp.dir.parse.ftp}},
+  \code{\link{ftp.dir.parse.sftp}}, \code{\link{ftp.dir}},
+  \code{\link{ftp.download}}, \code{\link{ftp.exists}},
+  \code{\link{ftp.file}}, \code{\link{ftp.get}},
+  \code{\link{ftp.info}}, \code{\link{ftp.kill}},
+  \code{\link{ftp.list}},
+  \code{\link{ftp.missing.underlying}},
+  \code{\link{ftp.missing}}, \code{\link{ftp.parent}},
+  \code{\link{ftp.put}}, \code{\link{ftp.record}},
+  \code{\link{ftp.rmdir}}, \code{\link{ftp.upload}}
 }
 \keyword{ftp.sql.factor}

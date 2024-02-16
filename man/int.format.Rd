@@ -12,4 +12,8 @@ int.format(x)
 \description{
 adds commas "1,234,567"
 }
+\seealso{
+Other int: \code{\link{int.random}},
+  \code{\link{int.to.prime}}
+}
 \keyword{int.format}

@@ -9,7 +9,7 @@ urn.exact(x, y)
 \arguments{
 \item{x}{= an integer vector}
 
-\item{y}{= an isomekic vector of integers that is pointwise greater than or equal to <x>}
+\item{y}{= an integer vector (pointwise >= <x>)}
 }
 \description{
 probability of drawing precisely <x> balls from an urn containing <y> balls

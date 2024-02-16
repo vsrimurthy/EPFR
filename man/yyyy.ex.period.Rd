@@ -7,11 +7,15 @@
 yyyy.ex.period(x, y)
 }
 \arguments{
-\item{x}{= vector of trade dates}
+\item{x}{= a numeric vector (trade dates)}
 
-\item{y}{= return window in days or months depending on whether <x> is YYYYMMDD or YYYYMM}
+\item{y}{= an integer (return window in days/months)}
 }
 \description{
 the year in which the return window ends
+}
+\seealso{
+Other yyyy: \code{\link{yyyy.ex.yy}},
+  \code{\link{yyyy.periods.count}}
 }
 \keyword{yyyy.ex.period}

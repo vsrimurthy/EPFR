@@ -7,15 +7,22 @@
 sf.subset(x, y, n, w)
 }
 \arguments{
-\item{x}{= membership (e.g. "EafeMem" or c("GemMem", 1))}
+\item{x}{= a universe (e.g. "R1Mem", or c("EafeMem", 1, "CountryCode", "JP"))}
 
 \item{y}{= a YYYYMM/YYYYMMDD}
 
-\item{n}{= folder in which to find the data}
+\item{n}{= a folder}
 
 \item{w}{= classif file}
 }
 \description{
 Returns a 1/0 mem vector
+}
+\seealso{
+Other sf: \code{\link{sf.bin.nms}}, \code{\link{sf.daily}},
+  \code{\link{sf.detail}}, \code{\link{sf.single.bsim}},
+  \code{\link{sf.underlying.data.bin}},
+  \code{\link{sf.underlying.data}},
+  \code{\link{sf.underlying.summ}}, \code{\link{sf}}
 }
 \keyword{sf.subset}

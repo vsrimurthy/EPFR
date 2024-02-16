@@ -7,13 +7,30 @@
 mat.ex.vec(x, y, n = T)
 }
 \arguments{
-\item{x}{= a numeric or character vector}
+\item{x}{= a numeric vector}
 
-\item{y}{= an isomekic vector of associated values}
+\item{y}{= a numeric vector}
 
-\item{n}{= T/F depending on whether "Q" is to be appended to column headers}
+\item{n}{= a boolean (do/don't append "Q" to column headers)}
 }
 \description{
 transforms into a 1/0 matrix of bin memberships if <y> is missing or the values of <y> otherwise
+}
+\seealso{
+Other mat: \code{\link{mat.compound}},
+  \code{\link{mat.correl}}, \code{\link{mat.count}},
+  \code{\link{mat.daily.to.monthly}},
+  \code{\link{mat.daily.to.weekly}},
+  \code{\link{mat.diff}}, \code{\link{mat.ex.array}},
+  \code{\link{mat.ex.list}}, \code{\link{mat.ex.matrix}},
+  \code{\link{mat.index}}, \code{\link{mat.lag}},
+  \code{\link{mat.last.to.first}}, \code{\link{mat.rank}},
+  \code{\link{mat.read}}, \code{\link{mat.reverse}},
+  \code{\link{mat.rollsum}}, \code{\link{mat.same}},
+  \code{\link{mat.sort}}, \code{\link{mat.subset}},
+  \code{\link{mat.to.last.Idx}}, \code{\link{mat.to.obs}},
+  \code{\link{mat.to.xlModel}},
+  \code{\link{mat.weekly.to.daily}},
+  \code{\link{mat.write}}, \code{\link{mat.zScore}}
 }
 \keyword{mat.ex.vec}

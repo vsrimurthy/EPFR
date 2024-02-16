@@ -7,9 +7,9 @@
 run.cs.reg(x, y)
 }
 \arguments{
-\item{x}{= a matrix of n columns (usually stocks go down and returns go across)}
+\item{x}{= a matrix (usually stocks go down and returns go across)}
 
-\item{y}{= a matrix of n rows (whatever vectors you're regressing on)}
+\item{y}{= a matrix (whatever vectors you're regressing on)}
 }
 \description{
 regresses each row of <x> on design matrix <y>

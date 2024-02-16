@@ -7,11 +7,14 @@
 extract.AnnMn.sf(x, y)
 }
 \arguments{
-\item{x}{= a 3D object. The first dimension has AnnMn/AnnSd/Sharp/HitRate The second dimension has bins Q1/Q2/Qna/Q3/Q4/Q5 The third dimension is some kind of parameter}
+\item{x}{= array (3D items/bins/parameters)}
 
 \item{y}{= a string which must be one of AnnMn/AnnSd/Sharp/HitRate}
 }
 \description{
 Subsets to "AnnMn" and re-labels columns
+}
+\seealso{
+Other extract: \code{\link{extract.AnnMn.sf.wrapper}}
 }
 \keyword{extract.AnnMn.sf}

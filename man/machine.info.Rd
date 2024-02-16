@@ -7,7 +7,7 @@
 machine.info(x)
 }
 \arguments{
-\item{x}{= a column in the classif-Machines file}
+\item{x}{= a string (column in classif-Machines)}
 }
 \description{
 folder of function source file

@@ -7,14 +7,20 @@
 Ctry.info(x, y)
 }
 \arguments{
-\item{x}{= a vector of country codes}
+\item{x}{= a country code vector}
 
-\item{y}{= a column in the classif-ctry file}
+\item{y}{= a string (column in classif-Ctry)}
 }
 \description{
 handles the addition and removal of countries from an index
 }
 \examples{
 Ctry.info("PK", "CtryNm")
+}
+\seealso{
+Other Ctry: \code{\link{Ctry.msci.index.changes}},
+  \code{\link{Ctry.msci.members.rng}},
+  \code{\link{Ctry.msci.members}}, \code{\link{Ctry.msci}},
+  \code{\link{Ctry.to.CtryGrp}}
 }
 \keyword{Ctry.info}

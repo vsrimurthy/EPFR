@@ -7,9 +7,12 @@
 bond.curve.expand(x)
 }
 \arguments{
-\item{x}{= a named vector of interest rates}
+\item{x}{= a numeric vector (interest rates)}
 }
 \description{
 full yield curve
+}
+\seealso{
+Other bond: \code{\link{bond.price}}
 }
 \keyword{bond.curve.expand}

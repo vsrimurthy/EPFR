@@ -7,11 +7,18 @@
 sf.bin.nms(x, y)
 }
 \arguments{
-\item{x}{= number of bins}
+\item{x}{= an integer (number of bins)}
 
-\item{y}{= T/F depending on whether you want universe returns returned}
+\item{y}{= a boolean (report/ignore universe return)}
 }
 \description{
 returns bin names
+}
+\seealso{
+Other sf: \code{\link{sf.daily}}, \code{\link{sf.detail}},
+  \code{\link{sf.single.bsim}}, \code{\link{sf.subset}},
+  \code{\link{sf.underlying.data.bin}},
+  \code{\link{sf.underlying.data}},
+  \code{\link{sf.underlying.summ}}, \code{\link{sf}}
 }
 \keyword{sf.bin.nms}

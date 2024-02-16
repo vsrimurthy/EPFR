@@ -7,11 +7,19 @@
 bbk.holidays(x, y)
 }
 \arguments{
-\item{x}{= a matrix/df of predictors, the rows of which are indexed by time}
+\item{x}{= a matrix/data frame (predictors)}
 
-\item{y}{= a matrix/df of the same dimensions as <x> containing associated forward returns}
+\item{y}{= a matrix/data frame (forward returns)}
 }
 \description{
 Sets <x> to NA whenever <y> is NA
+}
+\seealso{
+Other bbk: \code{\link{bbk.bin.rets.prd.summ}},
+  \code{\link{bbk.bin.rets.summ}},
+  \code{\link{bbk.bin.xRet}}, \code{\link{bbk.data}},
+  \code{\link{bbk.drawdown}}, \code{\link{bbk.fwdRet}},
+  \code{\link{bbk.matrix}}, \code{\link{bbk.summ}},
+  \code{\link{bbk.turnover}}, \code{\link{bbk}}
 }
 \keyword{bbk.holidays}

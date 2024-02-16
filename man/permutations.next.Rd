@@ -7,7 +7,7 @@
 permutations.next(x)
 }
 \arguments{
-\item{x}{= an integer vector 1:length(<x>) in some order}
+\item{x}{= an integer vector (seq_along(<x>) in some order)}
 }
 \description{
 returns the next permutation in dictionary order

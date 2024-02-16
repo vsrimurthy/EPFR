@@ -7,9 +7,12 @@
 recipient.read(x)
 }
 \arguments{
-\item{x}{= report name}
+\item{x}{= a string (report name)}
 }
 \description{
 vector of recipient tranches
+}
+\seealso{
+Other recipient: \code{\link{recipient.exists}}
 }
 \keyword{recipient.read}

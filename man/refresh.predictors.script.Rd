@@ -11,11 +11,18 @@ refresh.predictors.script(x, y, n, w)
 
 \item{y}{= last part of the query that goes after the date restriction}
 
-\item{n}{= column corresponding to date in relevant sql table}
+\item{n}{= a column (corresponds to date in relevant SQL table)}
 
 \item{w}{= last date for which you already have data}
 }
 \description{
 generates the SQL script to refresh predictors
+}
+\seealso{
+Other refresh: \code{\link{refresh.predictors.append}},
+  \code{\link{refresh.predictors.daily}},
+  \code{\link{refresh.predictors.monthly}},
+  \code{\link{refresh.predictors.weekly}},
+  \code{\link{refresh.predictors}}
 }
 \keyword{refresh.predictors.script}

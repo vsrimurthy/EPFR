@@ -7,17 +7,20 @@
 rpt.email.send(x, y, n, w, h)
 }
 \arguments{
-\item{x}{= report name}
+\item{x}{= a string (report name)}
 
 \item{y}{= the email address(es) of the recipient(s)}
 
 \item{n}{= a flowdate}
 
-\item{w}{= T/F depending on whether you're sending the email or testing}
+\item{w}{= a boolean (live/test)}
 
 \item{h}{= a file vector}
 }
 \description{
 emails report
+}
+\seealso{
+Other rpt: \code{\link{rpt.email}}
 }
 \keyword{rpt.email.send}

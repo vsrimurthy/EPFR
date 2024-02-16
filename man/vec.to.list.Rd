@@ -4,14 +4,25 @@
 \alias{vec.to.list}
 \title{vec.to.list}
 \usage{
-vec.to.list(x, y = F)
+vec.to.list(x, y = F, n = F)
 }
 \arguments{
 \item{x}{= a string vector}
 
-\item{y}{= T/F depending on whether to use <x> as group vector}
+\item{y}{= a boolean (names are <x>/seq_along(<x>))}
+
+\item{n}{= a boolean (preserve/ignore original order)}
 }
 \description{
 list object
+}
+\seealso{
+Other vec: \code{\link{vec.cat}}, \code{\link{vec.count}},
+  \code{\link{vec.cum}}, \code{\link{vec.diff}},
+  \code{\link{vec.ex.filters}}, \code{\link{vec.lag}},
+  \code{\link{vec.max}}, \code{\link{vec.min}},
+  \code{\link{vec.named}}, \code{\link{vec.read}},
+  \code{\link{vec.same}}, \code{\link{vec.swap}},
+  \code{\link{vec.unique}}
 }
 \keyword{vec.to.list}

@@ -17,11 +17,14 @@ qa.mat.read(x, y, n, w, h, u, v)
 
 \item{h}{= password (defaults to standard)}
 
-\item{u}{= protocol (either "ftp" or "sftp")}
+\item{u}{= a string (ftp/sftp)}
 
-\item{v}{= T/F flag for ftp.use.epsv argument of getCurlHandle}
+\item{v}{= a boolean (ftp.use.epsv argument of getCurlHandle)}
 }
 \description{
 contents of <x> as a data frame
+}
+\seealso{
+Other qa: \code{\link{qa.filter.map}}
 }
 \keyword{qa.mat.read}

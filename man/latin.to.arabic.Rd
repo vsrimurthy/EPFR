@@ -7,9 +7,12 @@
 latin.to.arabic(x)
 }
 \arguments{
-\item{x}{= a character vector of latin numerals}
+\item{x}{= a character vector}
 }
 \description{
 <x> expressed as an arabic integer
+}
+\seealso{
+Other latin: \code{\link{latin.ex.arabic}}
 }
 \keyword{latin.to.arabic}

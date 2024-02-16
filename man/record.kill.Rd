@@ -7,11 +7,16 @@
 record.kill(x, y)
 }
 \arguments{
-\item{x}{= report name}
+\item{x}{= a string (report name)}
 
 \item{y}{= a file}
 }
 \description{
 deletes entry <x> in the record <y>. Returns nothing.
+}
+\seealso{
+Other record: \code{\link{record.exists}},
+  \code{\link{record.read}}, \code{\link{record.track}},
+  \code{\link{record.write}}
 }
 \keyword{record.kill}

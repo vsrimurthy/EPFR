@@ -9,9 +9,21 @@ html.email(x, y = T)
 \arguments{
 \item{x}{= a flowdate}
 
-\item{y}{= T/F depending on whether this is for standard or Asia process}
+\item{y}{= a boolean (regular/Asia process)}
 }
 \description{
 writes outgoing email report for <x>
+}
+\seealso{
+Other html: \code{\link{html.and}},
+  \code{\link{html.ex.utf8}},
+  \code{\link{html.flow.breakdown}},
+  \code{\link{html.flow.english}},
+  \code{\link{html.flow.underlying}},
+  \code{\link{html.image}}, \code{\link{html.list}},
+  \code{\link{html.positioning}},
+  \code{\link{html.problem.underlying}},
+  \code{\link{html.problem}}, \code{\link{html.signature}},
+  \code{\link{html.tbl}}, \code{\link{html.tenure}}
 }
 \keyword{html.email}

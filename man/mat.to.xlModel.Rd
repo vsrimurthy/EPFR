@@ -7,15 +7,32 @@
 mat.to.xlModel(x, y = 2, n = 5, w = F)
 }
 \arguments{
-\item{x}{= a data frame indexed by data dates or trade open dates}
+\item{x}{= a data frame (indexed by trade open date)}
 
-\item{y}{= number of days needed for flow data to be known}
+\item{y}{= an integer (delay in days)}
 
 \item{n}{= return horizon in weekdays}
 
-\item{w}{= T/F depending on whether the index is data or trade-open date}
+\item{w}{= a boolean (index by data/trade-open date)}
 }
 \description{
 prepends the trade open and close dates and re-indexes by data date (as needed)
+}
+\seealso{
+Other mat: \code{\link{mat.compound}},
+  \code{\link{mat.correl}}, \code{\link{mat.count}},
+  \code{\link{mat.daily.to.monthly}},
+  \code{\link{mat.daily.to.weekly}},
+  \code{\link{mat.diff}}, \code{\link{mat.ex.array}},
+  \code{\link{mat.ex.list}}, \code{\link{mat.ex.matrix}},
+  \code{\link{mat.ex.vec}}, \code{\link{mat.index}},
+  \code{\link{mat.lag}}, \code{\link{mat.last.to.first}},
+  \code{\link{mat.rank}}, \code{\link{mat.read}},
+  \code{\link{mat.reverse}}, \code{\link{mat.rollsum}},
+  \code{\link{mat.same}}, \code{\link{mat.sort}},
+  \code{\link{mat.subset}}, \code{\link{mat.to.last.Idx}},
+  \code{\link{mat.to.obs}},
+  \code{\link{mat.weekly.to.daily}},
+  \code{\link{mat.write}}, \code{\link{mat.zScore}}
 }
 \keyword{mat.to.xlModel}

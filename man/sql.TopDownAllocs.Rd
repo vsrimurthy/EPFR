@@ -7,17 +7,112 @@
 sql.TopDownAllocs(x, y, n, w, h)
 }
 \arguments{
-\item{x}{= the YYYYMM for which you want data (known 26 days later)}
+\item{x}{= a YYYYMM}
 
-\item{y}{= a string vector of top-down allocations wanted, #        :    the last element of which is the type of fund to be used.}
+\item{y}{= factors and filters}
 
 \item{n}{= DB - any of StockFlows/China/Japan/CSI300/Energy}
 
-\item{w}{= T/F depending on whether you are checking ftp}
+\item{w}{= a boolean (index by HSecurityId/SecurityId)}
 
-\item{h}{= breakdown filter (e.g. All/GeoId/DomicileId)}
+\item{h}{= a breakdown filter (e.g. All/GeoId/DomicileId)}
 }
 \description{
 Generates the SQL query to get Active/Passive Top-Down Allocations
+}
+\seealso{
+Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
+  \code{\link{sql.1dActWtTrend.Final}},
+  \code{\link{sql.1dActWtTrend.Flow}},
+  \code{\link{sql.1dActWtTrend.select}},
+  \code{\link{sql.1dFloMo.CountryId.List}},
+  \code{\link{sql.1dFloMo.CtrySG}},
+  \code{\link{sql.1dFloMo.FI}},
+  \code{\link{sql.1dFloMo.Rgn}},
+  \code{\link{sql.1dFloMo.Sec.topline}},
+  \code{\link{sql.1dFloMo.aum}},
+  \code{\link{sql.1dFloMo.filter}},
+  \code{\link{sql.1dFloMo.grp}},
+  \code{\link{sql.1dFloMo.hld}},
+  \code{\link{sql.1dFloMo.select.wrapper}},
+  \code{\link{sql.1dFloMo.select}},
+  \code{\link{sql.1dFloMo}},
+  \code{\link{sql.1dFloTrend.Alloc.data}},
+  \code{\link{sql.1dFloTrend.Alloc.fetch}},
+  \code{\link{sql.1dFloTrend.Alloc.final}},
+  \code{\link{sql.1dFloTrend.Alloc.from}},
+  \code{\link{sql.1dFloTrend.Alloc.purge}},
+  \code{\link{sql.1dFloTrend.Alloc}},
+  \code{\link{sql.1dFundCt}},
+  \code{\link{sql.1mActWt.underlying}},
+  \code{\link{sql.1mActWt}},
+  \code{\link{sql.1mAllocD.data.underlying}},
+  \code{\link{sql.1mAllocD.data}},
+  \code{\link{sql.1mAllocD.select}},
+  \code{\link{sql.1mAllocD}},
+  \code{\link{sql.1mAllocSkew.topline.from}},
+  \code{\link{sql.1mAllocSkew.topline}},
+  \code{\link{sql.1mAllocSkew.underlying.basic}},
+  \code{\link{sql.1mAllocSkew.underlying}},
+  \code{\link{sql.1mAllocSkew}},
+  \code{\link{sql.1mBullish.Alloc}},
+  \code{\link{sql.1mBullish.Final}},
+  \code{\link{sql.1mChActWt}}, \code{\link{sql.1mFundCt}},
+  \code{\link{sql.1mHoldAum}},
+  \code{\link{sql.1mSRIAdvisorPct}},
+  \code{\link{sql.1wFlow.Corp}},
+  \code{\link{sql.ActWtDiff2}},
+  \code{\link{sql.Allocation.Sec.FinsExREst}},
+  \code{\link{sql.Allocation.Sec}},
+  \code{\link{sql.Allocations.bulk.EqWtAvg}},
+  \code{\link{sql.Allocations.bulk.Single}},
+  \code{\link{sql.Allocation}},
+  \code{\link{sql.BenchIndex.duplication}},
+  \code{\link{sql.Bullish}},
+  \code{\link{sql.CtryFlow.Alloc}},
+  \code{\link{sql.CtryFlow.Flow}},
+  \code{\link{sql.DailyFlo}}, \code{\link{sql.Diff}},
+  \code{\link{sql.Dispersion}}, \code{\link{sql.Flow.tbl}},
+  \code{\link{sql.Flow}}, \code{\link{sql.Foreign}},
+  \code{\link{sql.FundHistory.macro}},
+  \code{\link{sql.FundHistory.sf}},
+  \code{\link{sql.FundHistory}},
+  \code{\link{sql.Holdings}},
+  \code{\link{sql.MonthlyAlloc}},
+  \code{\link{sql.MonthlyAssetsEnd}}, \code{\link{sql.Mo}},
+  \code{\link{sql.Overweight}}, \code{\link{sql.RDSuniv}},
+  \code{\link{sql.ReportDate}}, \code{\link{sql.SRI}},
+  \code{\link{sql.ShareClass}},
+  \code{\link{sql.TopDownAllocs.items}},
+  \code{\link{sql.TopDownAllocs.underlying}},
+  \code{\link{sql.Trend}}, \code{\link{sql.and}},
+  \code{\link{sql.arguments}}, \code{\link{sql.bcp}},
+  \code{\link{sql.breakdown}}, \code{\link{sql.case}},
+  \code{\link{sql.close}}, \code{\link{sql.common}},
+  \code{\link{sql.connect.wrapper}},
+  \code{\link{sql.connect}},
+  \code{\link{sql.cross.border}},
+  \code{\link{sql.currprior}}, \code{\link{sql.datediff}},
+  \code{\link{sql.declare}}, \code{\link{sql.delete}},
+  \code{\link{sql.drop}}, \code{\link{sql.exists}},
+  \code{\link{sql.extra.domicile}}, \code{\link{sql.get}},
+  \code{\link{sql.index}}, \code{\link{sql.into}},
+  \code{\link{sql.in}}, \code{\link{sql.label}},
+  \code{\link{sql.map.classif}},
+  \code{\link{sql.mat.cofactor}},
+  \code{\link{sql.mat.crossprod.vector}},
+  \code{\link{sql.mat.crossprod}},
+  \code{\link{sql.mat.determinant}},
+  \code{\link{sql.mat.flip}},
+  \code{\link{sql.mat.multiply}}, \code{\link{sql.median}},
+  \code{\link{sql.nonneg}},
+  \code{\link{sql.query.underlying}},
+  \code{\link{sql.query}}, \code{\link{sql.regr}},
+  \code{\link{sql.tbl.from}}, \code{\link{sql.tbl}},
+  \code{\link{sql.ui}}, \code{\link{sql.unbracket}},
+  \code{\link{sql.update}},
+  \code{\link{sql.yield.curve.1dFloMo}},
+  \code{\link{sql.yield.curve}},
+  \code{\link{sql.yyyymmdd}}, \code{\link{sql.yyyymm}}
 }
 \keyword{sql.TopDownAllocs}

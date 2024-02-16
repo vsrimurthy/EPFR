@@ -7,7 +7,7 @@
 excise.zeroes(x)
 }
 \arguments{
-\item{x}{= a vector/matrix/dataframe}
+\item{x}{= a numeric vector/matrix/data frame}
 }
 \description{
 Coverts zeroes to NA

@@ -7,11 +7,26 @@
 yyyymmdd.ex.yyyymm(x, y = T)
 }
 \arguments{
-\item{x}{= a vector/single YYYYMM depending on if y is T/F}
+\item{x}{= a YYYYMM vector}
 
-\item{y}{= T/F variable depending on whether the last or #        :    all trading days in that month are desired}
+\item{y}{= a boolean (last/all weekdays)}
 }
 \description{
 last/all weekdays in <x>
+}
+\seealso{
+Other yyyymmdd: \code{\link{yyyymmdd.bulk}},
+  \code{\link{yyyymmdd.diff}},
+  \code{\link{yyyymmdd.ex.day}},
+  \code{\link{yyyymmdd.ex.int}},
+  \code{\link{yyyymmdd.ex.txt}},
+  \code{\link{yyyymmdd.exists}},
+  \code{\link{yyyymmdd.lag}}, \code{\link{yyyymmdd.seq}},
+  \code{\link{yyyymmdd.to.AllocMo.unique}},
+  \code{\link{yyyymmdd.to.AllocMo}},
+  \code{\link{yyyymmdd.to.int}},
+  \code{\link{yyyymmdd.to.txt}},
+  \code{\link{yyyymmdd.to.weekofmonth}},
+  \code{\link{yyyymmdd.to.yyyymm}}
 }
 \keyword{yyyymmdd.ex.yyyymm}

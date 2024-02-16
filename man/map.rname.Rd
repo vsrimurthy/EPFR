@@ -7,11 +7,14 @@
 map.rname(x, y)
 }
 \arguments{
-\item{x}{= a vector/matrix/data-frame}
+\item{x}{= a string vector/matrix/data frame}
 
-\item{y}{= a vector (usually string)}
+\item{y}{= a string vector}
 }
 \description{
-returns a matrix/df, the row names of which match up with <y>
+returns a matrix/data frame, the row names of which match up with <y>
+}
+\seealso{
+Other map: \code{\link{map.classif}}
 }
 \keyword{map.rname}

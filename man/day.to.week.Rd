@@ -7,11 +7,17 @@
 day.to.week(x, y)
 }
 \arguments{
-\item{x}{= a vector of calendar dates}
+\item{x}{= a calendar date vector}
 
-\item{y}{= an integer representing the day the week ends on #        :    0 is Sun, 1 is Mon, .., 6 is Sat}
+\item{y}{= an integer (0 = Sun, 1 = Mon, etc., the day each week ends)}
 }
 \description{
 maps days to weeks
+}
+\seealso{
+Other day: \code{\link{day.ex.date}},
+  \code{\link{day.ex.int}}, \code{\link{day.lag}},
+  \code{\link{day.seq}}, \code{\link{day.to.date}},
+  \code{\link{day.to.int}}, \code{\link{day.to.weekday}}
 }
 \keyword{day.to.week}

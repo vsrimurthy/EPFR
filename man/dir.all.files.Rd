@@ -7,11 +7,18 @@
 dir.all.files(x, y)
 }
 \arguments{
-\item{x}{= a file}
+\item{x}{= a folder}
 
 \item{y}{= a regular expression}
 }
 \description{
 Returns all files in the folder including sub-directories
+}
+\seealso{
+Other dir: \code{\link{dir.clear}},
+  \code{\link{dir.ensure}}, \code{\link{dir.kill}},
+  \code{\link{dir.make}}, \code{\link{dir.parameters}},
+  \code{\link{dir.parent}}, \code{\link{dir.publications}},
+  \code{\link{dir.size}}
 }
 \keyword{dir.all.files}

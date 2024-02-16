@@ -7,15 +7,18 @@
 reshape.long(x, y, n = "id", w = "val")
 }
 \arguments{
-\item{x}{= a data-frame (can't be a matrix)}
+\item{x}{= a data frame}
 
-\item{y}{= column names to be compressed}
+\item{y}{= a string vector (columns to be compressed)}
 
-\item{n}{= name of the new column created for identifiers}
+\item{n}{= a string (name for identifier column)}
 
-\item{w}{= name of the new column created for values}
+\item{w}{= a string (name for values column)}
 }
 \description{
 <x> in long format
+}
+\seealso{
+Other reshape: \code{\link{reshape.wide}}
 }
 \keyword{reshape.long}

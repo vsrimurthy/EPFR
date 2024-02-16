@@ -7,9 +7,14 @@
 knapsack.to.int(x)
 }
 \arguments{
-\item{x}{= a vector of non-negative integers}
+\item{x}{= an integer vector (non-negative!)}
 }
 \description{
 maps each particular way to subdivide <sum(x)> things #		:	amongst <length(x)> people to the number line
+}
+\seealso{
+Other knapsack: \code{\link{knapsack.count}},
+  \code{\link{knapsack.ex.int}},
+  \code{\link{knapsack.next}}, \code{\link{knapsack.prev}}
 }
 \keyword{knapsack.to.int}

@@ -7,17 +7,21 @@
 britten.jones.data.stack(x, y, n, w, h)
 }
 \arguments{
-\item{x}{=}
+\item{x}{= a matrix/data frame}
 
-\item{y}{=}
+\item{y}{= an integer (return window)}
 
 \item{n}{=}
 
-\item{w}{=}
+\item{w}{= an integer}
 
 \item{h}{=}
 }
 \description{
 applies the Britten-Jones transformation to a subset and then stacks
+}
+\seealso{
+Other britten: \code{\link{britten.jones.data}},
+  \code{\link{britten.jones}}
 }
 \keyword{britten.jones.data.stack}

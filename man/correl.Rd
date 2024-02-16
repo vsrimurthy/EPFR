@@ -9,9 +9,9 @@ correl(x, y, n = T)
 \arguments{
 \item{x}{= a numeric vector/matrix/data frame}
 
-\item{y}{= either missing or a numeric isomekic vector}
+\item{y}{= a numeric vector}
 
-\item{n}{= T/F depending on whether rank correlations are desired}
+\item{n}{= a boolean (rank/regular correlations)}
 }
 \description{
 the estimated correlation between <x> and <y> or the columns of <x>

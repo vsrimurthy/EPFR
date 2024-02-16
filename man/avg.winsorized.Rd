@@ -9,9 +9,12 @@ avg.winsorized(x, y = 100)
 \arguments{
 \item{x}{= a numeric vector}
 
-\item{y}{= number of quantiles}
+\item{y}{= an integer (number of bins)}
 }
 \description{
 mean is computed over the quantiles 2 through <y> - 1
+}
+\seealso{
+Other avg: \code{\link{avg.model}}, \code{\link{avg.wtd}}
 }
 \keyword{avg.winsorized}

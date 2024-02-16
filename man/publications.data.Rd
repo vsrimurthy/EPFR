@@ -7,13 +7,13 @@
 publications.data(x, y, n, w)
 }
 \arguments{
-\item{x}{= a vector of desired dates}
+\item{x}{= a flowdate vector}
 
-\item{y}{= SQL query OR a function taking a date as argument}
+\item{y}{= a SQL query/function}
 
-\item{n}{= folder where the data live}
+\item{n}{= a folder}
 
-\item{w}{= input to sql.connect}
+\item{w}{= a connection string}
 }
 \description{
 additional data is got and stale data removed

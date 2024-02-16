@@ -7,9 +7,9 @@
 rgb.diff(x, y)
 }
 \arguments{
-\item{x}{= a vector of length three containing numbers between 0 and 256}
+\item{x}{= an integer vector (length three, elements between 0 and 256)}
 
-\item{y}{= a vector of length three containing numbers between 0 and 256}
+\item{y}{= an integer vector (length three, elements between 0 and 256)}
 }
 \description{
 distance between RGB colours <x> and <y>

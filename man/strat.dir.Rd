@@ -7,9 +7,13 @@
 strat.dir(x)
 }
 \arguments{
-\item{x}{= frequency (e.g. "daily", "weekly" or "monthly")}
+\item{x}{= a frequency (e.g. "daily", "weekly" or "monthly")}
 }
 \description{
 the folder where <x> factors live
+}
+\seealso{
+Other strat: \code{\link{strat.email}},
+  \code{\link{strat.file}}, \code{\link{strat.path}}
 }
 \keyword{strat.dir}

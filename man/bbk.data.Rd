@@ -7,27 +7,35 @@
 bbk.data(x, y, n, w, h, u, v, g, r, s)
 }
 \arguments{
-\item{x}{= predictor indexed by yyyymmdd or yyyymm}
+\item{x}{= a matrix/data frame (predictors)}
 
-\item{y}{= total return index indexed by the same date format as <x>}
+\item{y}{= a matrix/data frame (total return indices)}
 
-\item{n}{= number of <prd.size>'s over which the predictor should be compounded/summed}
+\item{n}{= an integer (flow window in days/months)}
 
-\item{w}{= T/F depending on whether <x> should be summed or compounded}
+\item{w}{= a boolean (sum/compound)}
 
-\item{h}{= predictor lag in days or months depending on whether <x> is YYYYMMDD or YYYYMM}
+\item{h}{= an integer (lag in days/months)}
 
-\item{u}{= delay in knowing data in days or months depending on whether <x> is YYYYMMDD or YYYYMM}
+\item{u}{= an integer (delay in days/months)}
 
-\item{v}{= day of the week you will trade on (5 = Fri)}
+\item{v}{= an integer (0 = Sun, 1 = Mon, etc., the day you trade)}
 
-\item{g}{= return window in days or months depending on whether <x> is YYYYMMDD or YYYYMM}
+\item{g}{= an integer (return window in days/months)}
 
-\item{r}{= the index within which you are trading}
+\item{r}{= a string (index within which you trade)}
 
-\item{s}{= T/F depending on whether spread changes, rather than returns, are needed}
+\item{s}{= a boolean (spread changes/returns)}
 }
 \description{
 fetches data required to compute standard model output
+}
+\seealso{
+Other bbk: \code{\link{bbk.bin.rets.prd.summ}},
+  \code{\link{bbk.bin.rets.summ}},
+  \code{\link{bbk.bin.xRet}}, \code{\link{bbk.drawdown}},
+  \code{\link{bbk.fwdRet}}, \code{\link{bbk.holidays}},
+  \code{\link{bbk.matrix}}, \code{\link{bbk.summ}},
+  \code{\link{bbk.turnover}}, \code{\link{bbk}}
 }
 \keyword{bbk.data}

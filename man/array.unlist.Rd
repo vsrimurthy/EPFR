@@ -7,9 +7,9 @@
 array.unlist(x, y)
 }
 \arguments{
-\item{x}{= any numerical array}
+\item{x}{= an array}
 
-\item{y}{= a vector of names for the columns of the output corresponding to the dimensions of <x>}
+\item{y}{= a string vector (output column names)}
 }
 \description{
 unlists the contents of an array

@@ -7,11 +7,15 @@
 principal.components(x, y = 2)
 }
 \arguments{
-\item{x}{= a matrix/df}
+\item{x}{= a matrix/data frame}
 
-\item{y}{= number of principal components desired}
+\item{y}{= an integer (num. princ. comp. wanted)}
 }
 \description{
 first <y> principal components
+}
+\seealso{
+Other principal: \code{\link{principal.components.covar}},
+  \code{\link{principal.components.underlying}}
 }
 \keyword{principal.components}

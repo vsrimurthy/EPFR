@@ -7,7 +7,7 @@
 zScore.underlying(x)
 }
 \arguments{
-\item{x}{= a vector/matrix/data-frame. The first columns are numeric while the last column is logical without NA's}
+\item{x}{= a matrix/data frame (last column is boolean without NA's)}
 }
 \description{
 zScores the first columns of <x> using the last column as weight

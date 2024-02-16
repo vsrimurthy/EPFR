@@ -9,7 +9,7 @@ classification.threshold(x, y)
 \arguments{
 \item{x}{= a 1/0 vector}
 
-\item{y}{= a vector of predictors of the same length as <x>}
+\item{y}{= a numeric vector (predictors)}
 }
 \description{
 threshold value that causes fewest classification errors

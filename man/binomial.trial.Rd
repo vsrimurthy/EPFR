@@ -13,7 +13,7 @@ binomial.trial(x, y, n, w)
 
 \item{n}{= number of heads}
 
-\item{w}{= T/F variable depending on which tail you want}
+\item{w}{= a boolean (upper/lower tail)}
 }
 \description{
 returns the likelihood of getting <n> or more/fewer heads depending on whether <w> is T/F

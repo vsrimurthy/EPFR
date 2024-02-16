@@ -7,15 +7,22 @@
 sf.underlying.data.bin(x, y, n, w)
 }
 \arguments{
-\item{x}{= either vector or list of vectors}
+\item{x}{= a numeric vector (or vector list)}
 
-\item{y}{= number of bins or numeric vector with last element T/F for dependent/independent}
+\item{y}{= an integer vector (if vector, last element T/F for dep/indep binning)}
 
-\item{n}{= a numeric vector of weighting factors}
+\item{n}{= a numeric vector (weights)}
 
-\item{w}{= vector of binning groups}
+\item{w}{= a numeric vector (groups)}
 }
 \description{
 character vector of bin memberships
+}
+\seealso{
+Other sf: \code{\link{sf.bin.nms}}, \code{\link{sf.daily}},
+  \code{\link{sf.detail}}, \code{\link{sf.single.bsim}},
+  \code{\link{sf.subset}},
+  \code{\link{sf.underlying.data}},
+  \code{\link{sf.underlying.summ}}, \code{\link{sf}}
 }
 \keyword{sf.underlying.data.bin}

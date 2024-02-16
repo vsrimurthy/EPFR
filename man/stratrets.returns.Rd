@@ -12,4 +12,13 @@ stratrets.returns(x)
 \description{
 data frame of daily returns
 }
+\seealso{
+Other stratrets: \code{\link{stratrets.bbk}},
+  \code{\link{stratrets.beta}},
+  \code{\link{stratrets.data}},
+  \code{\link{stratrets.indicator}},
+  \code{\link{stratrets.path}},
+  \code{\link{stratrets.subset.Ctry}},
+  \code{\link{stratrets.subset}}, \code{\link{stratrets}}
+}
 \keyword{stratrets.returns}

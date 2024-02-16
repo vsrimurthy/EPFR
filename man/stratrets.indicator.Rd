@@ -7,17 +7,26 @@
 stratrets.indicator(x, y, n, w, h)
 }
 \arguments{
-\item{x}{= paths to strategy files}
+\item{x}{= a file vector (strategies)}
 
-\item{y}{= lookback}
+\item{y}{= an integer (lookback)}
 
-\item{n}{= if T, flows get summed. Otherwise they get compounded}
+\item{n}{= a boolean (sum/compound)}
 
 \item{w}{= if T, sector-adjustment is performed}
 
-\item{h}{= delay in knowing data (only used when <w>)}
+\item{h}{= an integer (delay, only used when <w>)}
 }
 \description{
 data frame compounded across <y>
+}
+\seealso{
+Other stratrets: \code{\link{stratrets.bbk}},
+  \code{\link{stratrets.beta}},
+  \code{\link{stratrets.data}},
+  \code{\link{stratrets.path}},
+  \code{\link{stratrets.returns}},
+  \code{\link{stratrets.subset.Ctry}},
+  \code{\link{stratrets.subset}}, \code{\link{stratrets}}
 }
 \keyword{stratrets.indicator}

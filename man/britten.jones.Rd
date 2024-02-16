@@ -7,11 +7,15 @@
 britten.jones(x, y)
 }
 \arguments{
-\item{x}{= design matrix of a regression with 1st column assumed to be dependent}
+\item{x}{= a matrix}
 
 \item{y}{= constitutent lagged returns that go into the first period}
 }
 \description{
 transforms the design matrix as set out in Britten-Jones, M., Neuberger  , A., & Nolte, I. (2011). Improved inference in regression with overlapping  observations. Journal of Business Finance & Accounting, 38(5-6), 657-683.
+}
+\seealso{
+Other britten: \code{\link{britten.jones.data.stack}},
+  \code{\link{britten.jones.data}}
 }
 \keyword{britten.jones}

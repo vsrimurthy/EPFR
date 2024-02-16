@@ -7,11 +7,14 @@
 portfolio.residual(x, y)
 }
 \arguments{
-\item{x}{= a matrix/df}
+\item{x}{= a matrix/data frame}
 
-\item{y}{= a matrix/df of the same dimensions as <x>}
+\item{y}{= a matrix/data frame}
 }
 \description{
 residual of <x> after factoring out <y> for each row
+}
+\seealso{
+Other portfolio: \code{\link{portfolio.beta.wrapper}}
 }
 \keyword{portfolio.residual}

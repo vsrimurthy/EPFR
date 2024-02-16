@@ -11,9 +11,13 @@ publish.monthly.last(x, y = 23, n = 0)
 
 \item{y}{= calendar day allocations are known the next month}
 
-\item{n}{= additional monthly lag (defaults to zero)}
+\item{n}{= an integer}
 }
 \description{
 date of last monthly publication
+}
+\seealso{
+Other publish: \code{\link{publish.daily.last}},
+  \code{\link{publish.weekly.last}}
 }
 \keyword{publish.monthly.last}

@@ -7,11 +7,17 @@
 Ctry.msci.members(x, y)
 }
 \arguments{
-\item{x}{= an index name such as ACWI/EAFE/EM}
+\item{x}{= a string (index like ACWI/EAFE/EM)}
 
-\item{y}{= one of the following: #        :    (a) a YYYYMM date #        :    (b) a YYYYMMDD #        :    (c) "" for a static series}
+\item{y}{= a YYYYMM/YYYYMMDD ("" for static series)}
 }
 \description{
 lists countries in an index at <y>
+}
+\seealso{
+Other Ctry: \code{\link{Ctry.info}},
+  \code{\link{Ctry.msci.index.changes}},
+  \code{\link{Ctry.msci.members.rng}},
+  \code{\link{Ctry.msci}}, \code{\link{Ctry.to.CtryGrp}}
 }
 \keyword{Ctry.msci.members}

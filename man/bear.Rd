@@ -7,7 +7,7 @@
 bear(x)
 }
 \arguments{
-\item{x}{= vector of returns of the form log(1 + r/100)}
+\item{x}{= a numeric vector (log returns)}
 }
 \description{
 T/F depending on whether period fell in a bear market

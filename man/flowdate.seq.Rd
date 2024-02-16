@@ -16,4 +16,12 @@ flowdate.seq(x, y, n = 1)
 \description{
 a sequence of dly flow-pub dates starting at <x> and, if possible, ending at <y>
 }
+\seealso{
+Other flowdate: \code{\link{flowdate.diff}},
+  \code{\link{flowdate.ex.AllocMo}},
+  \code{\link{flowdate.ex.int}},
+  \code{\link{flowdate.ex.yyyymm}},
+  \code{\link{flowdate.exists}},
+  \code{\link{flowdate.lag}}, \code{\link{flowdate.to.int}}
+}
 \keyword{flowdate.seq}

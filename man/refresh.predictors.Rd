@@ -9,19 +9,26 @@ refresh.predictors(fcn, x, y, n, w, h, u)
 \arguments{
 \item{fcn}{= a function that returns the last complete publication period}
 
-\item{x}{= csv file containing the predictors}
+\item{x}{= a file (predictors)}
 
 \item{y}{= query needed to get full history}
 
 \item{n}{= last part of the query that goes after the date restriction}
 
-\item{w}{= input to sql.connect}
+\item{w}{= a connection string}
 
-\item{h}{= T/F depending on whether you want changes in data to be ignored}
+\item{h}{= a boolean (ignore/note data changes)}
 
-\item{u}{= column corresponding to date in relevant sql table}
+\item{u}{= a column (corresponds to date in relevant SQL table)}
 }
 \description{
 refreshes the text file contains flows data from SQL
+}
+\seealso{
+Other refresh: \code{\link{refresh.predictors.append}},
+  \code{\link{refresh.predictors.daily}},
+  \code{\link{refresh.predictors.monthly}},
+  \code{\link{refresh.predictors.script}},
+  \code{\link{refresh.predictors.weekly}}
 }
 \keyword{refresh.predictors}

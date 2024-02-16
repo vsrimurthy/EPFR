@@ -7,9 +7,9 @@
 production.write(x, y)
 }
 \arguments{
-\item{x}{= latest output}
+\item{x}{= a matrix/data frame}
 
-\item{y}{= path to output}
+\item{y}{= a file (output)}
 }
 \description{
 Writes production output if warranted

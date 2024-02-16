@@ -12,4 +12,13 @@ vec.ex.filters(x)
 \description{
 SQL query where clauses associated with filters
 }
+\seealso{
+Other vec: \code{\link{vec.cat}}, \code{\link{vec.count}},
+  \code{\link{vec.cum}}, \code{\link{vec.diff}},
+  \code{\link{vec.lag}}, \code{\link{vec.max}},
+  \code{\link{vec.min}}, \code{\link{vec.named}},
+  \code{\link{vec.read}}, \code{\link{vec.same}},
+  \code{\link{vec.swap}}, \code{\link{vec.to.list}},
+  \code{\link{vec.unique}}
+}
 \keyword{vec.ex.filters}

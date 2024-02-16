@@ -12,4 +12,8 @@ yyyy.periods.count(x)
 \description{
 the number of periods that typically fall in a year
 }
+\seealso{
+Other yyyy: \code{\link{yyyy.ex.period}},
+  \code{\link{yyyy.ex.yy}}
+}
 \keyword{yyyy.periods.count}

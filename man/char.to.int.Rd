@@ -12,4 +12,9 @@ char.to.int(x)
 \description{
 ascii values
 }
+\seealso{
+Other char: \code{\link{char.ex.int}},
+  \code{\link{char.lag}}, \code{\link{char.seq}},
+  \code{\link{char.to.num}}
+}
 \keyword{char.to.int}

@@ -7,21 +7,24 @@
 rpt.email(x, y, n, w, h, u, v)
 }
 \arguments{
-\item{x}{= folder where the report is generated}
+\item{x}{= a folder}
 
 \item{y}{= output type (".csv", ".pdf", etc.)}
 
-\item{n}{= T/F depending on whether you're checking latest}
+\item{n}{= a boolean (do/don't check if latest)}
 
-\item{w}{= T/F depending on whether you're sending the email or testing}
+\item{w}{= a boolean (live/test)}
 
 \item{h}{= the email address(es) of the recipient(s)}
 
 \item{u}{= path to log file}
 
-\item{v}{= report name(s)}
+\item{v}{= a string vector (report names)}
 }
 \description{
 emails report
+}
+\seealso{
+Other rpt: \code{\link{rpt.email.send}}
 }
 \keyword{rpt.email}

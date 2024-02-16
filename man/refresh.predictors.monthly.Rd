@@ -7,17 +7,24 @@
 refresh.predictors.monthly(x, y, n, w, h)
 }
 \arguments{
-\item{x}{= csv file containing the predictors}
+\item{x}{= a file (predictors)}
 
 \item{y}{= query needed to get full history}
 
 \item{n}{= last part of the query that goes after the date restriction}
 
-\item{w}{= input to sql.connect}
+\item{w}{= a connection string}
 
-\item{h}{= when T, ignores the fact that data for the last row has changed}
+\item{h}{= a boolean (ignore/report the fact last row has changed)}
 }
 \description{
 refreshes the text file contains flows data from SQL
+}
+\seealso{
+Other refresh: \code{\link{refresh.predictors.append}},
+  \code{\link{refresh.predictors.daily}},
+  \code{\link{refresh.predictors.script}},
+  \code{\link{refresh.predictors.weekly}},
+  \code{\link{refresh.predictors}}
 }
 \keyword{refresh.predictors.monthly}

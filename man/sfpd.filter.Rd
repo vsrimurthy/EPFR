@@ -7,11 +7,21 @@
 sfpd.filter(x, y)
 }
 \arguments{
-\item{x}{= fund history file}
+\item{x}{= a matrix/data frame (FundHistory)}
 
-\item{y}{= filter (one of All/Act/Pas/Etf/Mutual)}
+\item{y}{= a filter (one of All/Act/Pas/Etf/Mutual)}
 }
 \description{
 T/F depending on whether records of <x> pass filter <y>
+}
+\seealso{
+Other sfpd: \code{\link{sfpd.ActWtTrend}},
+  \code{\link{sfpd.FloDollar}},
+  \code{\link{sfpd.FloMo.underlying}},
+  \code{\link{sfpd.FloMo}},
+  \code{\link{sfpd.FloTrend.underlying}},
+  \code{\link{sfpd.FloTrend}}, \code{\link{sfpd.Flow}},
+  \code{\link{sfpd.Holdings}}, \code{\link{sfpd.ION}},
+  \code{\link{sfpd.Wt}}
 }
 \keyword{sfpd.filter}

@@ -7,11 +7,23 @@
 html.tbl(x, y)
 }
 \arguments{
-\item{x}{= matrix/data-frame}
+\item{x}{= a matrix/data frame}
 
-\item{y}{= T/F depending on whether integer format is to be applied}
+\item{y}{= a boolean (do/don't format integers)}
 }
 \description{
 renders <x> in html
+}
+\seealso{
+Other html: \code{\link{html.and}},
+  \code{\link{html.email}}, \code{\link{html.ex.utf8}},
+  \code{\link{html.flow.breakdown}},
+  \code{\link{html.flow.english}},
+  \code{\link{html.flow.underlying}},
+  \code{\link{html.image}}, \code{\link{html.list}},
+  \code{\link{html.positioning}},
+  \code{\link{html.problem.underlying}},
+  \code{\link{html.problem}}, \code{\link{html.signature}},
+  \code{\link{html.tenure}}
 }
 \keyword{html.tbl}

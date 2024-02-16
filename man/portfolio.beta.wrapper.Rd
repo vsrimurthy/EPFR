@@ -7,13 +7,16 @@
 portfolio.beta.wrapper(x, y, n)
 }
 \arguments{
-\item{x}{= a file of total return indices indexed so that time runs forward}
+\item{x}{= a matrix/data frame (total return indices)}
 
-\item{y}{= the name of the benchmark w.r.t. which beta is to be computed (e.g. "ACWorld")}
+\item{y}{= a string (benchmark like "ACWorld")}
 
-\item{n}{= the window in days over which beta is to be computed}
+\item{n}{= an integer (lookback in days)}
 }
 \description{
 <n> day beta of columns of <x> with respect to benchmark <y>
+}
+\seealso{
+Other portfolio: \code{\link{portfolio.residual}}
 }
 \keyword{portfolio.beta.wrapper}

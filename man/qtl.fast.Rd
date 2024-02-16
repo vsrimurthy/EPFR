@@ -7,11 +7,15 @@
 qtl.fast(x, y = 5)
 }
 \arguments{
-\item{x}{= a vector}
+\item{x}{= a numeric vector}
 
-\item{y}{= number of desired bins}
+\item{y}{= an integer (number of bins)}
 }
 \description{
 performs a FAST equal-weight binning on <x>. Can't handle NAs.
+}
+\seealso{
+Other qtl: \code{\link{qtl.eq}},
+  \code{\link{qtl.single.grp}}, \code{\link{qtl}}
 }
 \keyword{qtl.fast}

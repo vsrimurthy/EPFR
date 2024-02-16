@@ -7,9 +7,9 @@
 strat.email(x, y, n, w = "All")
 }
 \arguments{
-\item{x}{= vector of strategy names (e.g. "FX" or "FloPctCtry")}
+\item{x}{= a string vector (strategy names like FX/FloPctCtry)}
 
-\item{y}{= frequency (e.g. "daily", "weekly" or "monthly")}
+\item{y}{= a frequency (e.g. "daily", "weekly" or "monthly")}
 
 \item{n}{= the email address(es) of the recipient(s)}
 
@@ -17,5 +17,9 @@ strat.email(x, y, n, w = "All")
 }
 \description{
 emails strategies <x> of frequency <y>
+}
+\seealso{
+Other strat: \code{\link{strat.dir}},
+  \code{\link{strat.file}}, \code{\link{strat.path}}
 }
 \keyword{strat.email}

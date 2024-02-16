@@ -7,11 +7,14 @@
 cpt.RgnSec(x, y)
 }
 \arguments{
-\item{x}{= a vector of Sectors}
+\item{x}{= an integer vector (sectors)}
 
-\item{y}{= a vector of country codes}
+\item{y}{= a country code vector}
 }
 \description{
 makes Region-Sector groupings
+}
+\seealso{
+Other cpt: \code{\link{cpt.RgnSecJP}}
 }
 \keyword{cpt.RgnSec}

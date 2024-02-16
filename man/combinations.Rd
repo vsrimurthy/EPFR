@@ -7,11 +7,16 @@
 combinations(x, y)
 }
 \arguments{
-\item{x}{= a vector}
+\item{x}{= a numeric vector}
 
 \item{y}{= an integer between 1 and <length(x)>}
 }
 \description{
 returns all possible combinations of <y> values of <x>
+}
+\seealso{
+Other combinations: \code{\link{combinations.ex.int}},
+  \code{\link{combinations.next}},
+  \code{\link{combinations.to.int}}
 }
 \keyword{combinations}

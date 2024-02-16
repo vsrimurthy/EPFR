@@ -11,13 +11,21 @@ sim.fetch(x, y, n, w, h = NULL)
 
 \item{y}{= a variable}
 
-\item{n}{= string representing universe name}
+\item{n}{= a string representing universe name}
 
-\item{w}{= stock-flow environment}
+\item{w}{= a StockFlows environment}
 
-\item{h}{= risk factors}
+\item{h}{= a variable vector (risk factors)}
 }
 \description{
 data needed to run simulation
+}
+\seealso{
+Other sim: \code{\link{sim.direction.buy}},
+  \code{\link{sim.direction.sell}},
+  \code{\link{sim.direction}}, \code{\link{sim.limits}},
+  \code{\link{sim.optimal}}, \code{\link{sim.overall}},
+  \code{\link{sim.seed}}, \code{\link{sim.summ}},
+  \code{\link{sim.trade.grp}}, \code{\link{sim.trade.stk}}
 }
 \keyword{sim.fetch}

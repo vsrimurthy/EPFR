@@ -7,11 +7,16 @@
 char.lag(x, y)
 }
 \arguments{
-\item{x}{= a vector of characters}
+\item{x}{= a character vector}
 
-\item{y}{= a number}
+\item{y}{= an integer vector}
 }
 \description{
 lags <x> by <y>
+}
+\seealso{
+Other char: \code{\link{char.ex.int}},
+  \code{\link{char.seq}}, \code{\link{char.to.int}},
+  \code{\link{char.to.num}}
 }
 \keyword{char.lag}

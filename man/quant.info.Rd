@@ -9,7 +9,7 @@ quant.info(x, y)
 \arguments{
 \item{x}{= unique identifier of the quant}
 
-\item{y}{= a column in the classif-Quants file}
+\item{y}{= a string (column in classif-Quants)}
 }
 \description{
 folder of function source file

@@ -7,11 +7,15 @@
 strat.file(x, y)
 }
 \arguments{
-\item{x}{= vector of strategy names (e.g. "FX" or "FloPctCtry")}
+\item{x}{= a string vector (strategy names like FX/FloPctCtry)}
 
-\item{y}{= frequency (e.g. "daily", "weekly" or "monthly")}
+\item{y}{= a frequency (e.g. "daily", "weekly" or "monthly")}
 }
 \description{
 the path to the factor file
+}
+\seealso{
+Other strat: \code{\link{strat.dir}},
+  \code{\link{strat.email}}, \code{\link{strat.path}}
 }
 \keyword{strat.file}

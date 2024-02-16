@@ -7,11 +7,11 @@
 fetch(x, y, n, w, h)
 }
 \arguments{
-\item{x}{= either a single variable or a vector of variable names}
+\item{x}{= a variable vector}
 
-\item{y}{= the YYYYMM or YYYYMMDD for which you want data}
+\item{y}{= a YYYYMM/flowdate}
 
-\item{n}{= number of daily/monthly trailing periods}
+\item{n}{= an integer (lookback)}
 
 \item{w}{= R-object folder}
 

@@ -7,11 +7,11 @@
 array.ex.list(x, y, n)
 }
 \arguments{
-\item{x}{= a list of mat objects or named vectors}
+\item{x}{= a numeric vector/matrix/data frame list}
 
-\item{y}{= T/F depending on whether you want union of rows}
+\item{y}{= a boolean (row union/intersection)}
 
-\item{n}{= T/F depending on whether you want union of columns}
+\item{n}{= a boolean (column union/intersection)}
 }
 \description{
 array

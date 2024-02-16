@@ -9,13 +9,21 @@ bbk.bin.rets.prd.summ(fcn, x, y, n)
 \arguments{
 \item{fcn}{= a summary function}
 
-\item{x}{= a matrix/df with rows indexed by time and columns indexed by bins}
+\item{x}{= a matrix/data frame (rows indexed by time and columns indexed by bins)}
 
-\item{y}{= a vector corresponding to the rows of <x> that maps each row to a sub-period of interest (e.g. calendar year)}
+\item{y}{= a numeric vector corresponding to the rows of <x> that maps each row to a sub-period of interest (e.g. calendar year)}
 
 \item{n}{= number of rows of <x> needed to cover an entire calendar year}
 }
 \description{
 Summarizes bin excess returns by sub-periods of interest (as defined by <y>)
+}
+\seealso{
+Other bbk: \code{\link{bbk.bin.rets.summ}},
+  \code{\link{bbk.bin.xRet}}, \code{\link{bbk.data}},
+  \code{\link{bbk.drawdown}}, \code{\link{bbk.fwdRet}},
+  \code{\link{bbk.holidays}}, \code{\link{bbk.matrix}},
+  \code{\link{bbk.summ}}, \code{\link{bbk.turnover}},
+  \code{\link{bbk}}
 }
 \keyword{bbk.bin.rets.prd.summ}

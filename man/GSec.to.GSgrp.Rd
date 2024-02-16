@@ -7,7 +7,7 @@
 GSec.to.GSgrp(x)
 }
 \arguments{
-\item{x}{= a vector of sectors}
+\item{x}{= an integer vector (sectors)}
 }
 \description{
 makes Sector groups

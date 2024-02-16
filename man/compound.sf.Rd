@@ -7,11 +7,15 @@
 compound.sf(x, y)
 }
 \arguments{
-\item{x}{= a matrix/data-frame of percentage flows}
+\item{x}{= a matrix/data frame}
 
-\item{y}{= if T, flows get summed. Otherwise they get compounded.}
+\item{y}{= a boolean (sum/compound)}
 }
 \description{
 compounds flows
+}
+\seealso{
+Other compound: \code{\link{compound.flows}},
+  \code{\link{compound}}
 }
 \keyword{compound.sf}

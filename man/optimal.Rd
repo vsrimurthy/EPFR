@@ -7,11 +7,11 @@
 optimal(x, y, n, w)
 }
 \arguments{
-\item{x}{= a matrix/df of indicators}
+\item{x}{= a matrix/data frame (indicators)}
 
-\item{y}{= an isomekic isoplatic matrix/df containing associated forward returns}
+\item{y}{= a matrix/data frame (forward returns)}
 
-\item{n}{= an isoplatic matrix/df of daily returns on which to train the risk model}
+\item{n}{= a matrix/data frame (daily returns to train the risk model on)}
 
 \item{w}{= a numeric vector, the elements of which are: #        :    1) number of trailing days to train the risk model on #        :    2) number of principal components (when 0 raw return matrix is used) #        :    3) number of bins (when 0, indicator is ptiled) #        :    4) forward return window in days or months depending on the row space of <x>}
 }

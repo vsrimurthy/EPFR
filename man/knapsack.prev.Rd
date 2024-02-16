@@ -7,9 +7,15 @@
 knapsack.prev(x)
 }
 \arguments{
-\item{x}{= a vector of non-negative integers}
+\item{x}{= an integer vector (non-negative!)}
 }
 \description{
 inverse of knapsack.next
+}
+\seealso{
+Other knapsack: \code{\link{knapsack.count}},
+  \code{\link{knapsack.ex.int}},
+  \code{\link{knapsack.next}},
+  \code{\link{knapsack.to.int}}
 }
 \keyword{knapsack.prev}

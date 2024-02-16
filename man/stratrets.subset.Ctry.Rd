@@ -9,9 +9,18 @@ stratrets.subset.Ctry(x, y)
 \arguments{
 \item{x}{= indicators}
 
-\item{y}{= index to subset to}
+\item{y}{= a string (index within which you trade)}
 }
 \description{
 determine which countries to subset to
+}
+\seealso{
+Other stratrets: \code{\link{stratrets.bbk}},
+  \code{\link{stratrets.beta}},
+  \code{\link{stratrets.data}},
+  \code{\link{stratrets.indicator}},
+  \code{\link{stratrets.path}},
+  \code{\link{stratrets.returns}},
+  \code{\link{stratrets.subset}}, \code{\link{stratrets}}
 }
 \keyword{stratrets.subset.Ctry}

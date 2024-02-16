@@ -7,15 +7,24 @@
 sfpd.FloMo(x, y, n, w)
 }
 \arguments{
-\item{x}{= flows file}
+\item{x}{= a matrix/data frame (flows)}
 
-\item{y}{= holdings file}
+\item{y}{= a matrix/data frame (holdings)}
 
-\item{n}{= fund history file}
+\item{n}{= a matrix/data frame (FundHistory)}
 
 \item{w}{= a flowdate}
 }
 \description{
 FloMo factor
+}
+\seealso{
+Other sfpd: \code{\link{sfpd.ActWtTrend}},
+  \code{\link{sfpd.FloDollar}},
+  \code{\link{sfpd.FloMo.underlying}},
+  \code{\link{sfpd.FloTrend.underlying}},
+  \code{\link{sfpd.FloTrend}}, \code{\link{sfpd.Flow}},
+  \code{\link{sfpd.Holdings}}, \code{\link{sfpd.ION}},
+  \code{\link{sfpd.Wt}}, \code{\link{sfpd.filter}}
 }
 \keyword{sfpd.FloMo}

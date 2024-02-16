@@ -7,9 +7,9 @@
 plurality.map(x, y)
 }
 \arguments{
-\item{x}{= a vector}
+\item{x}{= a numeric vector}
 
-\item{y}{= an isomekic vector}
+\item{y}{= a numeric vector}
 }
 \description{
 returns a map from <x> to <y>

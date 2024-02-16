@@ -7,17 +7,17 @@
 EHD(x, y, n, w, h, u = NULL)
 }
 \arguments{
-\item{x}{= input to or output of sql.connect}
+\item{x}{= a connection string/connection}
 
-\item{y}{= item (Flow/AssetsStart/AssetsEnd)}
+\item{y}{= a string (Flow/AssetsStart/AssetsEnd/PortfolioChange)}
 
-\item{n}{= frequency (T/F for daily/weekly or D/W/M)}
+\item{n}{= a frequency (T/F for daily/weekly or D/W/M)}
 
-\item{w}{= begin date in YYYYMMDD}
+\item{w}{= a YYYYMMDD (begin date)}
 
-\item{h}{= end date in YYYYMMDD}
+\item{h}{= a YYYYMMDD (end date)}
 
-\item{u}{= vector of filters}
+\item{u}{= a filter vector}
 }
 \description{
 named vector of item between <w> and <h> sorted ascending

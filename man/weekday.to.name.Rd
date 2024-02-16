@@ -7,7 +7,7 @@
 weekday.to.name(x)
 }
 \arguments{
-\item{x}{= a vector of numbers between 0 and 6}
+\item{x}{= an integer vector (entries must be 0-6)}
 }
 \description{
 Converts to 0 = Sun, 1 = Mon, .., 6 = Sat

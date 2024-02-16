@@ -7,11 +7,19 @@
 flowdate.ex.yyyymm(x, y = T)
 }
 \arguments{
-\item{x}{= a vector/single YYYYMM depending on if y is T/F}
+\item{x}{= a numeric vector/YYYYMM (depending on if y is T/F)}
 
-\item{y}{= T/F variable depending on whether the last or all #        :    daily flow-publication dates in <x> are desired}
+\item{y}{= a boolean (return last/all flowdates)}
 }
 \description{
 last/all trading days daily flow-publication dates in <x>
+}
+\seealso{
+Other flowdate: \code{\link{flowdate.diff}},
+  \code{\link{flowdate.ex.AllocMo}},
+  \code{\link{flowdate.ex.int}},
+  \code{\link{flowdate.exists}},
+  \code{\link{flowdate.lag}}, \code{\link{flowdate.seq}},
+  \code{\link{flowdate.to.int}}
 }
 \keyword{flowdate.ex.yyyymm}

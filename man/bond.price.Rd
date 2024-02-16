@@ -7,13 +7,16 @@
 bond.price(x, y, n)
 }
 \arguments{
-\item{x}{= a numeric vector representing annual coupon rates}
+\item{x}{= a numeric vector (annual coupon rates)}
 
-\item{y}{= an integer vector representing years to maturity}
+\item{y}{= an integer vector (years to maturity)}
 
-\item{n}{= a named vector of interest rates}
+\item{n}{= a numeric vector (interest rates)}
 }
 \description{
 bond prices
+}
+\seealso{
+Other bond: \code{\link{bond.curve.expand}}
 }
 \keyword{bond.price}

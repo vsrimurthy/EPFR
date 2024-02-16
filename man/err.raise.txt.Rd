@@ -7,13 +7,16 @@
 err.raise.txt(x, y, n)
 }
 \arguments{
-\item{x}{= a vector}
+\item{x}{= a numeric vector}
 
-\item{y}{= T/F depending on whether output goes on many lines}
+\item{y}{= a boolean (output many lines/one line)}
 
-\item{n}{= main line of error message}
+\item{n}{= a string (main line of error message)}
 }
 \description{
 error message
+}
+\seealso{
+Other err: \code{\link{err.raise}}
 }
 \keyword{err.raise.txt}

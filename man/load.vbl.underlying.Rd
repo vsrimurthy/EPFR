@@ -9,21 +9,26 @@ load.vbl.underlying(fcn, x, y, n, w, h, u, v)
 \arguments{
 \item{fcn}{= a function}
 
-\item{x}{= a YYYYMMDD}
+\item{x}{= a YYYYMM/YYYYMMDD}
 
-\item{y}{= a YYYYMMDD}
+\item{y}{= a YYYYMM/YYYYMMDD}
 
-\item{n}{= passed down to <fcn>}
+\item{n}{= a string vector (passed down to <fcn>)}
 
-\item{w}{= name under which the variable is to be stored}
+\item{w}{= a string (name to store variable under)}
 
 \item{h}{= R-object folder}
 
-\item{u}{= stock-flows environment}
+\item{u}{= a StockFlows environment}
 
-\item{v}{= T/F depending on daily/monthly}
+\item{v}{= a boolean (daily/monthly)}
 }
 \description{
 Loads a variable
+}
+\seealso{
+Other load: \code{\link{load.dy.vbl.1obj}},
+  \code{\link{load.dy.vbl}},
+  \code{\link{load.mo.vbl.1obj}}, \code{\link{load.mo.vbl}}
 }
 \keyword{load.vbl.underlying}

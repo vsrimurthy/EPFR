@@ -10,6 +10,10 @@ qtr.to.int(x)
 \item{x}{= a qtr vector}
 }
 \description{
-returns an integer vector
+returns integers
+}
+\seealso{
+Other qtr: \code{\link{qtr.ex.int}}, \code{\link{qtr.lag}},
+  \code{\link{qtr.seq}}
 }
 \keyword{qtr.to.int}

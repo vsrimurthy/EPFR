@@ -7,7 +7,7 @@
 record.exists(x, y, n)
 }
 \arguments{
-\item{x}{= report name}
+\item{x}{= a string (report name)}
 
 \item{y}{= date for which you want to send the report}
 
@@ -15,5 +15,10 @@ record.exists(x, y, n)
 }
 \description{
 T/F depending on whether action already taken
+}
+\seealso{
+Other record: \code{\link{record.kill}},
+  \code{\link{record.read}}, \code{\link{record.track}},
+  \code{\link{record.write}}
 }
 \keyword{record.exists}

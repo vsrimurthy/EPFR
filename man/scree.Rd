@@ -7,7 +7,7 @@
 scree(x)
 }
 \arguments{
-\item{x}{= a decreasing numerical vector}
+\item{x}{= a numeric vector (desecending order)}
 }
 \description{
 number of eigenvectors to use (by looking at the "kink")

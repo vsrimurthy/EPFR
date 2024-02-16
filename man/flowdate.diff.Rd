@@ -14,4 +14,12 @@ flowdate.diff(x, y)
 \description{
 returns <x - y> in terms of flowdates
 }
+\seealso{
+Other flowdate: \code{\link{flowdate.ex.AllocMo}},
+  \code{\link{flowdate.ex.int}},
+  \code{\link{flowdate.ex.yyyymm}},
+  \code{\link{flowdate.exists}},
+  \code{\link{flowdate.lag}}, \code{\link{flowdate.seq}},
+  \code{\link{flowdate.to.int}}
+}
 \keyword{flowdate.diff}

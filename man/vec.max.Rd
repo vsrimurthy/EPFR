@@ -7,11 +7,20 @@
 vec.max(x, y)
 }
 \arguments{
-\item{x}{= a vector/matrix/dataframe}
+\item{x}{= a numeric vector/matrix/data frame}
 
-\item{y}{= a number/vector or matrix/dataframe with the same dimensions as <x>}
+\item{y}{= a numeric vector/matrix/data frame}
 }
 \description{
 Returns the piecewise maximum of <x> and <y>
+}
+\seealso{
+Other vec: \code{\link{vec.cat}}, \code{\link{vec.count}},
+  \code{\link{vec.cum}}, \code{\link{vec.diff}},
+  \code{\link{vec.ex.filters}}, \code{\link{vec.lag}},
+  \code{\link{vec.min}}, \code{\link{vec.named}},
+  \code{\link{vec.read}}, \code{\link{vec.same}},
+  \code{\link{vec.swap}}, \code{\link{vec.to.list}},
+  \code{\link{vec.unique}}
 }
 \keyword{vec.max}

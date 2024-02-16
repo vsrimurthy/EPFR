@@ -9,7 +9,7 @@ farben(x, y)
 \arguments{
 \item{x}{= number of colours needed}
 
-\item{y}{= T/F depending on whether fill or border is wanted}
+\item{y}{= a boolean (fill/border)}
 }
 \description{
 vector of R colours

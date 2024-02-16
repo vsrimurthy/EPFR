@@ -7,15 +7,19 @@
 qtl(x, y, n, w)
 }
 \arguments{
-\item{x}{= a vector}
+\item{x}{= a numeric vector}
 
-\item{y}{= number of desired bins}
+\item{y}{= an integer (number of bins)}
 
-\item{n}{= a weight vector}
+\item{n}{= a numeric vector (weights)}
 
-\item{w}{= a vector of groups (e.g. GSec)}
+\item{w}{= a numeric vector (groups)}
 }
 \description{
 performs an equal-weight binning on <x> so that the members of <mem> are divided into <n> equal bins within each group <w>
+}
+\seealso{
+Other qtl: \code{\link{qtl.eq}}, \code{\link{qtl.fast}},
+  \code{\link{qtl.single.grp}}
 }
 \keyword{qtl}

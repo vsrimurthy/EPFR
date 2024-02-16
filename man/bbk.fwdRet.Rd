@@ -7,15 +7,23 @@
 bbk.fwdRet(x, y, n, w)
 }
 \arguments{
-\item{x}{= a matrix/data frame of predictors}
+\item{x}{= a matrix/data frame (predictors)}
 
-\item{y}{= a matrix/data frame of total return indices}
+\item{y}{= a matrix/data frame (total return indices)}
 
-\item{n}{= the number of days in the return window}
+\item{n}{= an integer (return window in days)}
 
-\item{w}{= T/F depending on whether returns or spread changes are needed}
+\item{w}{= a boolean (returns/spread changes)}
 }
 \description{
 returns a matrix/data frame of the same dimensions as <x>
+}
+\seealso{
+Other bbk: \code{\link{bbk.bin.rets.prd.summ}},
+  \code{\link{bbk.bin.rets.summ}},
+  \code{\link{bbk.bin.xRet}}, \code{\link{bbk.data}},
+  \code{\link{bbk.drawdown}}, \code{\link{bbk.holidays}},
+  \code{\link{bbk.matrix}}, \code{\link{bbk.summ}},
+  \code{\link{bbk.turnover}}, \code{\link{bbk}}
 }
 \keyword{bbk.fwdRet}

@@ -7,15 +7,19 @@
 britten.jones.data(x, y, n, w = NULL)
 }
 \arguments{
-\item{x}{= a data frame of predictors}
+\item{x}{= a matrix/data frame (predictors)}
 
-\item{y}{= total return index of the same size as <x>}
+\item{y}{= a matrix/data frame (total return indices)}
 
-\item{n}{= number of periods of forward returns used}
+\item{n}{= an integer (return window)}
 
-\item{w}{= the index within which you are trading}
+\item{w}{= a string (index within which you trade)}
 }
 \description{
 returns data needed for a Britten-Jones analysis
+}
+\seealso{
+Other britten: \code{\link{britten.jones.data.stack}},
+  \code{\link{britten.jones}}
 }
 \keyword{britten.jones.data}

@@ -9,29 +9,37 @@ sf(fcn, x, y, n, w, h, u, v, g = 5, r, s = 1, b = F)
 \arguments{
 \item{fcn}{= a fetch function}
 
-\item{x}{= first-return date in YYYYMM}
+\item{x}{= a YYYYMM (first-return date, backtest start)}
 
-\item{y}{= first-return date in YYYYMM after <prdBeg>}
+\item{y}{= a YYYYMM (first-return date, backtest end)}
 
-\item{n}{= membership (e.g. "EafeMem" or c("GemMem", 1))}
+\item{n}{= a universe (e.g. "R1Mem", or c("EafeMem", 1, "CountryCode", "JP"))}
 
-\item{w}{= group within which binning is to be performed}
+\item{w}{= a variable (neutrality group)}
 
-\item{h}{= return variable}
+\item{h}{= a variable (return)}
 
-\item{u}{= a parameter}
+\item{u}{= a string (parameter)}
 
-\item{v}{= data folder}
+\item{v}{= a folder (must have sub-folders data/derived)}
 
-\item{g}{= number of bins}
+\item{g}{= an integer (number of bins)}
 
 \item{r}{= classif file}
 
-\item{s}{= forward return horizon in months}
+\item{s}{= an integer (forward return horizon)}
 
-\item{b}{= T/F depending on whether excess return summary is geometric or arithmetic}
+\item{b}{= a boolean (geometric/artihmetic returns)}
 }
 \description{
 runs a stock-flows simulation
+}
+\seealso{
+Other sf: \code{\link{sf.bin.nms}}, \code{\link{sf.daily}},
+  \code{\link{sf.detail}}, \code{\link{sf.single.bsim}},
+  \code{\link{sf.subset}},
+  \code{\link{sf.underlying.data.bin}},
+  \code{\link{sf.underlying.data}},
+  \code{\link{sf.underlying.summ}}
 }
 \keyword{sf}

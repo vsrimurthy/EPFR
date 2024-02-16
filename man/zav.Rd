@@ -7,9 +7,9 @@
 zav(x, y = 0)
 }
 \arguments{
-\item{x}{= a vector/matrix/dataframe}
+\item{x}{= a numeric vector/matrix/data frame}
 
-\item{y}{= value for NA's (defaults to zero)}
+\item{y}{= a string (value for NA's)}
 }
 \description{
 Coverts NA's to <y>

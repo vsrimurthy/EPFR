@@ -14,4 +14,19 @@ yyyymmdd.to.yyyymm(x, y = F)
 \description{
 Converts to yyyymm format
 }
+\seealso{
+Other yyyymmdd: \code{\link{yyyymmdd.bulk}},
+  \code{\link{yyyymmdd.diff}},
+  \code{\link{yyyymmdd.ex.day}},
+  \code{\link{yyyymmdd.ex.int}},
+  \code{\link{yyyymmdd.ex.txt}},
+  \code{\link{yyyymmdd.ex.yyyymm}},
+  \code{\link{yyyymmdd.exists}},
+  \code{\link{yyyymmdd.lag}}, \code{\link{yyyymmdd.seq}},
+  \code{\link{yyyymmdd.to.AllocMo.unique}},
+  \code{\link{yyyymmdd.to.AllocMo}},
+  \code{\link{yyyymmdd.to.int}},
+  \code{\link{yyyymmdd.to.txt}},
+  \code{\link{yyyymmdd.to.weekofmonth}}
+}
 \keyword{yyyymmdd.to.yyyymm}

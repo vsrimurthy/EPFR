@@ -7,7 +7,7 @@
 acronymize.wrapper(x)
 }
 \arguments{
-\item{x}{= string}
+\item{x}{= a string}
 }
 \description{
 randomly acronymnizes

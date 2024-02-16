@@ -7,9 +7,18 @@
 vec.unique(x)
 }
 \arguments{
-\item{x}{= a numeric vector}
+\item{x}{= a string vector/matrix/data frame}
 }
 \description{
 returns unique values of <x> in ascending order
+}
+\seealso{
+Other vec: \code{\link{vec.cat}}, \code{\link{vec.count}},
+  \code{\link{vec.cum}}, \code{\link{vec.diff}},
+  \code{\link{vec.ex.filters}}, \code{\link{vec.lag}},
+  \code{\link{vec.max}}, \code{\link{vec.min}},
+  \code{\link{vec.named}}, \code{\link{vec.read}},
+  \code{\link{vec.same}}, \code{\link{vec.swap}},
+  \code{\link{vec.to.list}}
 }
 \keyword{vec.unique}

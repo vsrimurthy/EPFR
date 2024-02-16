@@ -9,17 +9,56 @@ mk.1wFloMo.CtryFlow.local(x, y, n, w, h, u = T)
 \arguments{
 \item{x}{= a YYYYMMDD}
 
-\item{y}{= a vector of FundHistory filters (first element MUST BE FundType)}
+\item{y}{= a filter vector (first element MUST BE FundType)}
 
-\item{n}{= item(s) (any of Flow/AssetsStart/AssetsEnd)}
+\item{n}{= a string vector (Flow/AssetsStart/AssetsEnd/PortfolioChange)}
 
-\item{w}{= country list (one of Ctry/LatAm)}
+\item{w}{= a string (one of Ctry/LatAm)}
 
-\item{h}{= input to or output of sql.connect}
+\item{h}{= a connection string/connection}
 
-\item{u}{= T/F depending on whether weekly or daily data needed}
+\item{u}{= a boolean (weekly/daily)}
 }
 \description{
 Country flows using locally-domiciled funds only
+}
+\seealso{
+Other mk: \code{\link{mk.1dActWtTrend.Ctry}},
+  \code{\link{mk.1dActWtTrend.Sec}},
+  \code{\link{mk.1dFloMo.Ctry.data}},
+  \code{\link{mk.1dFloMo.Ctry.rslt}},
+  \code{\link{mk.1dFloMo.CtrySG}},
+  \code{\link{mk.1dFloMo.Ctry}},
+  \code{\link{mk.1dFloMo.FI}},
+  \code{\link{mk.1dFloMo.Indy}},
+  \code{\link{mk.1dFloMo.Rgn}},
+  \code{\link{mk.1dFloMo.Sec.rslt}},
+  \code{\link{mk.1dFloMo.Sec}},
+  \code{\link{mk.1dFloTrend.Ctry}},
+  \code{\link{mk.1dFloTrend.Sec}},
+  \code{\link{mk.1mActPas.Ctry}},
+  \code{\link{mk.1mActPas.Sec}},
+  \code{\link{mk.1mAllocMo}},
+  \code{\link{mk.1mBullish.Ctry}},
+  \code{\link{mk.1mBullish.Sec}},
+  \code{\link{mk.1mBullish.rslt}},
+  \code{\link{mk.1mFloMo.Ctry}},
+  \code{\link{mk.1wFloMo.CtryFlow.data}},
+  \code{\link{mk.1wFloMo.CtryFlow.rslt}},
+  \code{\link{mk.1wFloMo.CtryFlow}},
+  \code{\link{mk.1wFloMo.IndyFlow}},
+  \code{\link{mk.ActWt}}, \code{\link{mk.Alpha.daily}},
+  \code{\link{mk.Alpha}}, \code{\link{mk.EigenCentrality}},
+  \code{\link{mk.FloBeta}}, \code{\link{mk.Fragility}},
+  \code{\link{mk.Mem}}, \code{\link{mk.SRIMem}},
+  \code{\link{mk.SatoMem}}, \code{\link{mk.Wt}},
+  \code{\link{mk.avail}}, \code{\link{mk.beta}},
+  \code{\link{mk.isin}}, \code{\link{mk.sf.daily}},
+  \code{\link{mk.sqlDump}}, \code{\link{mk.vbl.chg}},
+  \code{\link{mk.vbl.diff}}, \code{\link{mk.vbl.lag}},
+  \code{\link{mk.vbl.max}}, \code{\link{mk.vbl.ratio}},
+  \code{\link{mk.vbl.scale}}, \code{\link{mk.vbl.sum}},
+  \code{\link{mk.vbl.trail.fetch}},
+  \code{\link{mk.vbl.trail.sum}}, \code{\link{mk.vbl.vol}}
 }
 \keyword{mk.1wFloMo.CtryFlow.local}

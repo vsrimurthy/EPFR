@@ -7,9 +7,16 @@
 dir.publications(x)
 }
 \arguments{
-\item{x}{= desired sub-folder}
+\item{x}{= a string}
 }
 \description{
 desired output directory for relevant publication
+}
+\seealso{
+Other dir: \code{\link{dir.all.files}},
+  \code{\link{dir.clear}}, \code{\link{dir.ensure}},
+  \code{\link{dir.kill}}, \code{\link{dir.make}},
+  \code{\link{dir.parameters}}, \code{\link{dir.parent}},
+  \code{\link{dir.size}}
 }
 \keyword{dir.publications}

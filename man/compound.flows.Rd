@@ -7,13 +7,17 @@
 compound.flows(x, y, n = F)
 }
 \arguments{
-\item{x}{= a matrix/data-frame of percentage flows}
+\item{x}{= a matrix/data frame}
 
-\item{y}{= number of trailing rows to compound/sum}
+\item{y}{= an integer (number of rows to compound/sum)}
 
-\item{n}{= if T, flows get summed. Otherwise they get compounded.}
+\item{n}{= a boolean (sum/compound)}
 }
 \description{
 compounded flows over <n> trailing periods indexed by last day in the flow window
+}
+\seealso{
+Other compound: \code{\link{compound.sf}},
+  \code{\link{compound}}
 }
 \keyword{compound.flows}

@@ -7,15 +7,20 @@
 ret.ex.idx(x, y, n, w)
 }
 \arguments{
-\item{x}{= a file of total return indices indexed so that time runs forward}
+\item{x}{= a matrix/data frame (total return indices)}
 
-\item{y}{= number of rows over which the return is computed}
+\item{y}{= an integer (return window)}
 
-\item{n}{= if T the result is labelled by the beginning of the period, else by the end.}
+\item{n}{= a boolean (label returns by beginning/end of the period)}
 
-\item{w}{= T/F depending on whether returns or spread changes are needed}
+\item{w}{= a boolean (returns/spread changes)}
 }
 \description{
 computes return
+}
+\seealso{
+Other ret: \code{\link{ret.idx.gaps.fix}},
+  \code{\link{ret.outliers}}, \code{\link{ret.to.idx}},
+  \code{\link{ret.to.log}}
 }
 \keyword{ret.ex.idx}
