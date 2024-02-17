@@ -9306,9 +9306,11 @@ sf.daily <- function (x, y, n, w, h, u, v, g = 5, r, s = NULL, b)
             stop(x, " is not a flowdate!")
         if (!flowdate.exists(y)) 
             stop(y, " is not a flowdate!")
-        z <- flowdate.diff(y, x) + 1
-        if (z%%b != 0) 
-            stop("Lose ", z%%b, " flowdates!")
+        z <- flowdate.seq(x, y)
+        j <- sum(!is.element(z, nyse.holidays()))%%b
+        if (j != 0) 
+            stop("Lose ", j, " flowdates!")
+        z <- length(z)
     }
     else {
         if (b%%5 != 0) 
@@ -9345,15 +9347,17 @@ sf.daily <- function (x, y, n, w, h, u, v, g = 5, r, s = NULL, b)
     for (j in names(y)) z[!is.element(u[, j], 1), y[[j]]] <- NA
     z <- z[, !is.element(colnames(z), nyse.holidays())]
     x <- x[, colnames(z)]
+    x <- t(x)
+    z <- t(z)
     if (!is.null(s)) {
-        x <- t(mat.daily.to.weekly(vec.first, t(x), s))
-        z <- t(mat.daily.to.weekly(compound, t(z), s))
+        x <- mat.daily.to.weekly(vec.first, x, s)
+        z <- mat.daily.to.weekly(compound, z, s)
     }
     if (b > 1) {
-        x <- t(mat.periodic(vec.first, t(x), b, F))
-        z <- t(mat.periodic(compound, t(z), b, F))
+        x <- mat.periodic(vec.first, x, b, F)
+        z <- mat.periodic(compound, z, b, F)
     }
-    x <- bbk.bin.xRet(t(x), t(z), g, T, F, r[, w])
+    x <- bbk.bin.xRet(x, z, g, T, F, r[, w])
     s <- ifelse(is.null(s), 250, 52)
     z <- list(summ = bbk.bin.rets.summ(x, s), rets = x)
     z
