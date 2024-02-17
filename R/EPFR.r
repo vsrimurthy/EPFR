@@ -9319,13 +9319,12 @@ sf.daily <- function (x, y, n, w, h, u, v, g = 5, r, s = NULL, b)
             stop(x, " is not the end of the week!")
         if (!is.element(day.to.weekday(y), s)) 
             stop(y, " is not the end of the week!")
-        z <- yyyymmdd.seq(yyyymmdd.lag(x, 4), y)
-        z <- z[flowdate.exists(z)]
-        x <- z[1]
-        y <- rev(z)[1]
+        x <- yyyymmdd.lag(x, 4)
+        z <- unique(day.to.week(yyyymmdd.seq(x, y), s))
         z <- length(z)
         if (z%%b != 0) 
             stop("Lose ", z%%b, " weeks!")
+        z <- yyyymmdd.diff(y, x) + 1
     }
     z <- fetch(h, y, z, paste0(v, "\\data"), r)
     colnames(z) <- flowdate.seq(x, y)
