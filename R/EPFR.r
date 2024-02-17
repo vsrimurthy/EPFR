@@ -557,16 +557,20 @@ bbk.bin.rets.summ <- function (x, y, n = F)
 #' @param n = an integer (number of bins)
 #' @param w = a boolean (report/ignore universe return)
 #' @param h = a boolean (do/don't provide detail)
+#' @param u = a string vector (groups)
 #' @keywords bbk.bin.xRet
 #' @export
 #' @family bbk
 
-bbk.bin.xRet <- function (x, y, n = 5, w = F, h = F) 
+bbk.bin.xRet <- function (x, y, n = 5, w = F, h = F, u) 
 {
     if (h) 
         rslt <- list(raw.fwd.rets = y, raw = x)
     x <- bbk.holidays(x, y)
-    x <- qtl.eq(x, n)
+    if (!missing(u)) {
+        x <- fcn.mat.vec(function(x) qtl(x, n, , u), x, , F)
+    }
+    else x <- qtl.eq(x, n)
     if (h) 
         rslt[["bins"]] <- x
     uRetVec <- rowMeans(y, na.rm = T)
@@ -686,9 +690,7 @@ bbk.fwdRet <- function (x, y, n, w)
 
 bbk.holidays <- function (x, y) 
 {
-    fcn <- function(z, l) ifelse(is.na(l), NA, z)
-    z <- fcn.mat.vec(fcn, x, y, T)
-    z
+    x * nonneg(mat.to.obs(y))
 }
 
 #' bbk.matrix
@@ -5706,20 +5708,6 @@ mat.rollsum <- function (x, y)
     z
 }
 
-#' mat.same
-#' 
-#' T/F depending on whether <x> and <y> are identical
-#' @param x = a matrix/data frame
-#' @param y = a matrix/data frame
-#' @keywords mat.same
-#' @export
-#' @family mat
-
-mat.same <- function (x, y) 
-{
-    all(fcn.mat.num(vec.same, x, y, T))
-}
-
 #' mat.sort
 #' 
 #' sorts <x> by <y> in decreasing order if <n> is T
@@ -7912,7 +7900,7 @@ portfolio.beta.wrapper <- function (x, y, n)
 
 portfolio.residual <- function (x, y) 
 {
-    y <- y * nonneg(mat.to.obs(x))
+    y <- bbk.holidays(y, x)
     x <- x - rowMeans(x, na.rm = T)
     y <- y - rowMeans(y, na.rm = T)
     z <- x - y * rowSums(x * y, na.rm = T)/nonneg(rowSums(y^2, 
@@ -8275,11 +8263,11 @@ qa.mat.read <- function (x, y, n, w, h, u, v)
 
 #' qtl
 #' 
-#' performs an equal-weight binning on <x> so that the members of <mem> are divided into <n> equal bins within each group <w>
+#' <x> bucketed into <y> bins within groups <w> having equal weights <n>
 #' @param x = a numeric vector
 #' @param y = an integer (number of bins)
 #' @param n = a numeric vector (weights)
-#' @param w = a numeric vector (groups)
+#' @param w = a string vector (groups)
 #' @keywords qtl
 #' @export
 #' @family qtl
@@ -9357,8 +9345,6 @@ sf.daily <- function (x, y, n, w, h, u, v, g = 5, r, s = NULL, b)
     for (j in names(y)) z[!is.element(u[, j], 1), y[[j]]] <- NA
     z <- z[, !is.element(colnames(z), nyse.holidays())]
     x <- x[, colnames(z)]
-    x <- x * nonneg(mat.to.obs(z))
-    x <- zav(apply(x, 2, function(x) qtl(x, g, , r[, w])))
     if (!is.null(s)) {
         x <- t(mat.daily.to.weekly(vec.first, t(x), s))
         z <- t(mat.daily.to.weekly(compound, t(z), s))
@@ -9367,23 +9353,9 @@ sf.daily <- function (x, y, n, w, h, u, v, g = 5, r, s = NULL, b)
         x <- t(mat.periodic(vec.first, t(x), b, F))
         z <- t(mat.periodic(compound, t(z), b, F))
     }
-    u <- apply(z, 2, mean, na.rm = T)
-    z <- z - matrix(u, dim(z)[1], dim(z)[2], T)
-    x <- rbind(z, x)
-    fcn <- function(z) {
-        z <- matrix(z, length(z)/2, 2, F)
-        map.rname(pivot.1d(mean, z[!is.na(z[, 1]), 2], z[!is.na(z[, 
-            1]), 1]), 0:g)
-    }
-    x <- apply(x, 2, fcn)
-    rownames(x) <- paste0("Q", c("na", 1:g))
-    x <- t(map.rname(x, sf.bin.nms(g, T)))
-    x[, "uRet"] <- u
-    x <- mat.ex.matrix(x)
-    x[, "TxB"] <- x[, "Q1"] - x[, paste0("Q", g)]
+    x <- bbk.bin.xRet(t(x), t(z), g, T, F, r[, w])
     s <- ifelse(is.null(s), 250, 52)
-    z <- bbk.bin.rets.summ(x, s)
-    z <- list(summ = z, rets = x)
+    z <- list(summ = bbk.bin.rets.summ(x, s), rets = x)
     z
 }
 

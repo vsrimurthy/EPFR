@@ -13,10 +13,10 @@ qtl(x, y, n, w)
 
 \item{n}{= a numeric vector (weights)}
 
-\item{w}{= a numeric vector (groups)}
+\item{w}{= a string vector (groups)}
 }
 \description{
-performs an equal-weight binning on <x> so that the members of <mem> are divided into <n> equal bins within each group <w>
+<x> bucketed into <y> bins within groups <w> having equal weights <n>
 }
 \seealso{
 Other qtl: \code{\link{qtl.eq}}, \code{\link{qtl.fast}},

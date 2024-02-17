@@ -4,7 +4,7 @@
 \alias{bbk.bin.xRet}
 \title{bbk.bin.xRet}
 \usage{
-bbk.bin.xRet(x, y, n = 5, w = F, h = F)
+bbk.bin.xRet(x, y, n = 5, w = F, h = F, u)
 }
 \arguments{
 \item{x}{= a matrix/data frame (predictors)}
@@ -16,6 +16,8 @@ bbk.bin.xRet(x, y, n = 5, w = F, h = F)
 \item{w}{= a boolean (report/ignore universe return)}
 
 \item{h}{= a boolean (do/don't provide detail)}
+
+\item{u}{= a string vector (groups)}
 }
 \description{
 Returns equal weight bin returns through time
