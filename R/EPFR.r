@@ -564,13 +564,12 @@ bbk.bin.rets.summ <- function (x, y, n = F)
 
 bbk.bin.xRet <- function (x, y, n = 5, w = F, h = F, u) 
 {
+    if (missing(u)) 
+        u <- rep(1, dim(x)[2])
     if (h) 
         rslt <- list(raw.fwd.rets = y, raw = x)
     x <- bbk.holidays(x, y)
-    if (!missing(u)) {
-        x <- fcn.mat.vec(function(x) qtl(x, n, , u), x, , F)
-    }
-    else x <- qtl.eq(x, n)
+    x <- fcn.mat.vec(function(z) qtl(z, n, , u), x, , F)
     if (h) 
         rslt[["bins"]] <- x
     uRetVec <- rowMeans(y, na.rm = T)
