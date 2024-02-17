@@ -4,7 +4,7 @@
 \alias{sf.daily}
 \title{sf.daily}
 \usage{
-sf.daily(x, y, n, w, h, u, v, g = 5, r)
+sf.daily(x, y, n, w, h, u, v, g = 5, r, s = NULL, b)
 }
 \arguments{
 \item{x}{= a flowdate (first-return date, backtest start)}
@@ -24,6 +24,10 @@ sf.daily(x, y, n, w, h, u, v, g = 5, r)
 \item{g}{= an integer (number of bins)}
 
 \item{r}{= classif file}
+
+\item{s}{= an integer (NULL for daily or the day you trade, 0 = Sun, 1 = Mon, etc.)}
+
+\item{b}{= an integer (return window in days, can be missing)}
 }
 \description{
 runs a daily stock-flows simulation FAST

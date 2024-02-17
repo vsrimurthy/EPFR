@@ -4,15 +4,17 @@
 \alias{mat.daily.to.weekly}
 \title{mat.daily.to.weekly}
 \usage{
-mat.daily.to.weekly(x, y)
+mat.daily.to.weekly(fcn, x, y)
 }
 \arguments{
+\item{fcn}{= a function (converts vector to a number)}
+
 \item{x}{= a matrix/data frame (daily data)}
 
 \item{y}{= an integer (0 = Sun, 1 = Mon, etc., the day each week ends)}
 }
 \description{
-returns latest data in each week in ascending order
+returns weekly data
 }
 \seealso{
 Other mat: \code{\link{mat.compound}},
@@ -22,11 +24,12 @@ Other mat: \code{\link{mat.compound}},
   \code{\link{mat.ex.list}}, \code{\link{mat.ex.matrix}},
   \code{\link{mat.ex.vec}}, \code{\link{mat.index}},
   \code{\link{mat.lag}}, \code{\link{mat.last.to.first}},
-  \code{\link{mat.rank}}, \code{\link{mat.read}},
-  \code{\link{mat.reverse}}, \code{\link{mat.rollsum}},
-  \code{\link{mat.same}}, \code{\link{mat.sort}},
-  \code{\link{mat.subset}}, \code{\link{mat.to.last.Idx}},
-  \code{\link{mat.to.obs}}, \code{\link{mat.to.xlModel}},
+  \code{\link{mat.periodic}}, \code{\link{mat.rank}},
+  \code{\link{mat.read}}, \code{\link{mat.reverse}},
+  \code{\link{mat.rollsum}}, \code{\link{mat.same}},
+  \code{\link{mat.sort}}, \code{\link{mat.subset}},
+  \code{\link{mat.to.last.Idx}}, \code{\link{mat.to.obs}},
+  \code{\link{mat.to.xlModel}},
   \code{\link{mat.weekly.to.daily}},
   \code{\link{mat.write}}, \code{\link{mat.zScore}}
 }

@@ -17,7 +17,8 @@ simple positional lag of <x> by <y> periods
 \seealso{
 Other vec: \code{\link{vec.cat}}, \code{\link{vec.count}},
   \code{\link{vec.cum}}, \code{\link{vec.diff}},
-  \code{\link{vec.ex.filters}}, \code{\link{vec.max}},
+  \code{\link{vec.ex.filters}}, \code{\link{vec.first}},
+  \code{\link{vec.last}}, \code{\link{vec.max}},
   \code{\link{vec.min}}, \code{\link{vec.named}},
   \code{\link{vec.read}}, \code{\link{vec.same}},
   \code{\link{vec.swap}}, \code{\link{vec.to.list}},

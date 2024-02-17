@@ -621,7 +621,7 @@ bbk.data <- function (x, y, n, w, h, u, v, g, r, s)
         x <- compound.flows(x, n, w)
     x <- mat.lag(x, h + u)
     if (!is.null(v)) 
-        x <- mat.daily.to.weekly(x, v)
+        x <- mat.daily.to.weekly(vec.last, x, v)
     y <- bbk.fwdRet(x, y, g, !s)
     if (!is.null(r)) 
         y <- Ctry.msci.index.changes(y, r)
@@ -5477,20 +5477,17 @@ mat.daily.to.monthly <- function (x, y = F)
 
 #' mat.daily.to.weekly
 #' 
-#' returns latest data in each week in ascending order
+#' returns weekly data
+#' @param fcn = a function (converts vector to a number)
 #' @param x = a matrix/data frame (daily data)
 #' @param y = an integer (0 = Sun, 1 = Mon, etc., the day each week ends)
 #' @keywords mat.daily.to.weekly
 #' @export
 #' @family mat
 
-mat.daily.to.weekly <- function (x, y) 
+mat.daily.to.weekly <- function (fcn, x, y) 
 {
-    z <- x[order(rownames(x), decreasing = T), ]
-    z <- z[!duplicated(day.to.week(rownames(z), y)), ]
-    rownames(z) <- day.to.week(rownames(z), y)
-    z <- mat.reverse(z)
-    z
+    pivot.1d(fcn, day.to.week(rownames(x), y), x)
 }
 
 #' mat.diff
@@ -5641,6 +5638,28 @@ mat.lag <- function (x, y)
 mat.last.to.first <- function (x, y = 1) 
 {
     x[, order((1:dim(x)[2] + y - 1)%%dim(x)[2])]
+}
+
+#' mat.periodic
+#' 
+#' returns weekly data
+#' @param fcn = a function (converts vector to a number)
+#' @param x = a matrix/data frame
+#' @param y = an integer
+#' @param n = a boolean (label returns by beginning/end of the period)
+#' @keywords mat.periodic
+#' @export
+#' @family mat
+
+mat.periodic <- function (fcn, x, y, n) 
+{
+    if (n) 
+        z <- (ceiling(1:dim(x)[1]/y) - 1) * y + 1
+    if (!n) 
+        z <- ceiling(1:dim(x)[1]/y) * y
+    z <- rownames(x)[z]
+    z <- pivot.1d(fcn, z, x)
+    z
 }
 
 #' mat.rank
@@ -9284,13 +9303,41 @@ sf.bin.nms <- function (x, y)
 #' @param v = a folder (data)
 #' @param g = an integer (number of bins)
 #' @param r = classif file
+#' @param s = an integer (NULL for daily or the day you trade, 0 = Sun, 1 = Mon, etc.)
+#' @param b = an integer (return window in days, can be missing)
 #' @keywords sf.daily
 #' @export
 #' @family sf
 
-sf.daily <- function (x, y, n, w, h, u, v, g = 5, r) 
+sf.daily <- function (x, y, n, w, h, u, v, g = 5, r, s = NULL, b) 
 {
-    z <- flowdate.diff(y, x) + 1
+    if (missing(b)) 
+        b <- ifelse(is.null(s), 1, 5)
+    if (is.null(s)) {
+        if (!flowdate.exists(x)) 
+            stop(x, " is not a flowdate!")
+        if (!flowdate.exists(y)) 
+            stop(y, " is not a flowdate!")
+        z <- flowdate.diff(y, x) + 1
+        if (z%%b != 0) 
+            stop("Lose ", z%%b, " flowdates!")
+    }
+    else {
+        if (b%%5 != 0) 
+            stop("<b> must be a multiple of 5!")
+        b <- b/5
+        if (!is.element(day.to.weekday(x), s)) 
+            stop(x, " is not the end of the week!")
+        if (!is.element(day.to.weekday(y), s)) 
+            stop(y, " is not the end of the week!")
+        z <- yyyymmdd.seq(yyyymmdd.lag(x, 4), y)
+        z <- z[flowdate.exists(z)]
+        x <- z[1]
+        y <- rev(z)[1]
+        z <- length(z)
+        if (z%%b != 0) 
+            stop("Lose ", z%%b, " weeks!")
+    }
     z <- fetch(h, y, z, paste0(v, "\\data"), r)
     colnames(z) <- flowdate.seq(x, y)
     x <- dim(z)[2] + as.numeric(u[2]) - 1
@@ -9312,6 +9359,14 @@ sf.daily <- function (x, y, n, w, h, u, v, g = 5, r)
     x <- x[, colnames(z)]
     x <- x * nonneg(mat.to.obs(z))
     x <- zav(apply(x, 2, function(x) qtl(x, g, , r[, w])))
+    if (!is.null(s)) {
+        x <- t(mat.daily.to.weekly(vec.first, t(x), s))
+        z <- t(mat.daily.to.weekly(compound, t(z), s))
+    }
+    if (b > 1) {
+        x <- t(mat.periodic(vec.first, t(x), b, F))
+        z <- t(mat.periodic(compound, t(z), b, F))
+    }
     u <- apply(z, 2, mean, na.rm = T)
     z <- z - matrix(u, dim(z)[1], dim(z)[2], T)
     x <- rbind(z, x)
@@ -9326,7 +9381,8 @@ sf.daily <- function (x, y, n, w, h, u, v, g = 5, r)
     x[, "uRet"] <- u
     x <- mat.ex.matrix(x)
     x[, "TxB"] <- x[, "Q1"] - x[, paste0("Q", g)]
-    z <- bbk.bin.rets.summ(x, 250)
+    s <- ifelse(is.null(s), 250, 52)
+    z <- bbk.bin.rets.summ(x, s)
     z <- list(summ = z, rets = x)
     z
 }
@@ -15032,6 +15088,19 @@ vec.ex.filters <- function (x)
     z
 }
 
+#' vec.first
+#' 
+#' latest element of a vector
+#' @param x = a string vector
+#' @keywords vec.first
+#' @export
+#' @family vec
+
+vec.first <- function (x) 
+{
+    x[1]
+}
+
 #' vec.lag
 #' 
 #' simple positional lag of <x> by <y> periods
@@ -15044,6 +15113,19 @@ vec.ex.filters <- function (x)
 vec.lag <- function (x, y) 
 {
     x[nonneg(seq_along(x) - y)]
+}
+
+#' vec.last
+#' 
+#' latest element of a vector
+#' @param x = a string vector
+#' @keywords vec.last
+#' @export
+#' @family vec
+
+vec.last <- function (x) 
+{
+    tail(x, 1)
 }
 
 #' vec.max
