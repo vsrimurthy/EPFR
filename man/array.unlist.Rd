@@ -9,7 +9,7 @@ array.unlist(x, y)
 \arguments{
 \item{x}{= an array}
 
-\item{y}{= a string vector (output column names)}
+\item{y}{= a string vector (output column names, can be missing)}
 }
 \description{
 unlists the contents of an array

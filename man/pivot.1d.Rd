@@ -7,7 +7,7 @@
 pivot.1d(fcn, x, y)
 }
 \arguments{
-\item{fcn}{= a summary function}
+\item{fcn}{= a function (summary)}
 
 \item{x}{= a numeric vector (groups)}
 

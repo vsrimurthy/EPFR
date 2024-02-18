@@ -17,7 +17,7 @@ bbk.bin.xRet(x, y, n = 5, w = F, h = F, u)
 
 \item{h}{= a boolean (do/don't provide detail)}
 
-\item{u}{= a string vector (groups)}
+\item{u}{= a string vector (binning groups, can be missing)}
 }
 \description{
 Returns equal weight bin returns through time

@@ -11,11 +11,11 @@ ftp.del(x, y, n, w, h, u = "ftp")
 
 \item{y}{= a SINGLE file (e.g. "foo.txt") or missing if <x> is a file}
 
-\item{n}{= ftp site (defaults to standard)}
+\item{n}{= ftp site (can be missing)}
 
-\item{w}{= user id (defaults to standard)}
+\item{w}{= user id (can be missing)}
 
-\item{h}{= password (defaults to standard)}
+\item{h}{= password (can be missing)}
 
 \item{u}{= a string (ftp/sftp)}
 }

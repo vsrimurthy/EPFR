@@ -11,11 +11,11 @@ ftp.put(x, y, n, w, h, u = "ftp", v)
 
 \item{y}{= a file vector}
 
-\item{n}{= ftp site (defaults to standard)}
+\item{n}{= ftp site (can be missing)}
 
-\item{w}{= user id (defaults to standard)}
+\item{w}{= user id (can be missing)}
 
-\item{h}{= password (defaults to standard)}
+\item{h}{= password (can be missing)}
 
 \item{u}{= a string (ftp/sftp)}
 

@@ -7,7 +7,7 @@
 pivot(fcn, x, y, n)
 }
 \arguments{
-\item{fcn}{= a summary function}
+\item{fcn}{= a function (summary)}
 
 \item{x}{= a numeric vector}
 

@@ -9,7 +9,7 @@ correl(x, y, n = T)
 \arguments{
 \item{x}{= a numeric vector/matrix/data frame}
 
-\item{y}{= a numeric vector}
+\item{y}{= a numeric vector (can be missing)}
 
 \item{n}{= a boolean (rank/regular correlations)}
 }

@@ -7,7 +7,7 @@
 publish.daily.last(x)
 }
 \arguments{
-\item{x}{= a YYYYMMDD}
+\item{x}{= a YYYYMMDD (can be missing)}
 }
 \description{
 last daily flow-publication date

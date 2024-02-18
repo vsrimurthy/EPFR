@@ -9,7 +9,7 @@ yyyymm.ex.qtr(x, y = 3)
 \arguments{
 \item{x}{= a qtr vector}
 
-\item{y}{= month, in the quarter, to return (defaults to the third)}
+\item{y}{= month, in the quarter, to return}
 }
 \description{
 returns a specific yyyymm within the quarter

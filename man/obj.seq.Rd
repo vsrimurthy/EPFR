@@ -11,9 +11,9 @@ obj.seq(x, y, n, w, h)
 
 \item{y}{= an object}
 
-\item{n}{= a function mapping these objects to the number line}
+\item{n}{= a function (vector to integer vector)}
 
-\item{w}{= the bijective inverse of <n>}
+\item{w}{= a function (bijective inverse of <n>)}
 
 \item{h}{= a positive integer}
 }

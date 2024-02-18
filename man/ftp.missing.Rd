@@ -7,9 +7,9 @@
 ftp.missing(x, y)
 }
 \arguments{
-\item{x}{= arguments from higher function}
+\item{x}{= a list (arguments from higher function)}
 
-\item{y}{= argument names}
+\item{y}{= a string (argument names)}
 }
 \description{
 supplies missing arguments

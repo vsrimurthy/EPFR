@@ -7,7 +7,7 @@
 vec.named(x, y)
 }
 \arguments{
-\item{x}{= a numeric vector}
+\item{x}{= a numeric vector (can be missing)}
 
 \item{y}{= a string vector}
 }

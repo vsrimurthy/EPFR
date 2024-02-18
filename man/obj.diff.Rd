@@ -7,7 +7,7 @@
 obj.diff(fcn, x, y)
 }
 \arguments{
-\item{fcn}{= a function mapping objects to the number line}
+\item{fcn}{= a function (vector to integer vector)}
 
 \item{x}{= an object vector}
 

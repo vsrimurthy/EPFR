@@ -27,7 +27,7 @@ sf.detail(fcn, x, y, n, w, h, u, v, g = 5, r, s = NULL)
 
 \item{r}{= classif file}
 
-\item{s}{= a variable (factor for cap weighting, defaults to NULL)}
+\item{s}{= a variable (cap-weighting factor)}
 }
 \description{
 runs a stock-flows simulation

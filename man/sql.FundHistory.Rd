@@ -11,7 +11,7 @@ sql.FundHistory(x, y, n)
 
 \item{y}{= a boolean (StockFlows/Macro)}
 
-\item{n}{= a column vector (besides HFundId)}
+\item{n}{= a column vector (besides HFundId, can be missing)}
 }
 \description{
 SQL query to restrict to Global and Regional equity funds

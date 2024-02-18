@@ -7,7 +7,7 @@
 summ.multi(fcn, x, y)
 }
 \arguments{
-\item{fcn}{= a summary function}
+\item{fcn}{= a function (summary)}
 
 \item{x}{= a data frame (bin returns)}
 

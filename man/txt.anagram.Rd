@@ -9,7 +9,7 @@ txt.anagram(x, y, n = 0)
 \arguments{
 \item{x}{= a string}
 
-\item{y}{= a file of potentially-usable capitalized words}
+\item{y}{= a file (usable capitalized words, can be missing)}
 
 \item{n}{= an integer vector (minimum number of characters)}
 }

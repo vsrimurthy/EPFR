@@ -9,7 +9,7 @@ sql.yyyymm(x, y)
 \arguments{
 \item{x}{= a column (datetime field)}
 
-\item{y}{= label after conversion (defaults to <x> if missing)}
+\item{y}{= a string (post-conversion label, can be missing)}
 }
 \description{
 SQL code to convert to YYYYMM

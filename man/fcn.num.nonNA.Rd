@@ -7,11 +7,11 @@
 fcn.num.nonNA(fcn, x, y, n)
 }
 \arguments{
-\item{fcn}{= a function (maps a numeric vector to a number)}
+\item{fcn}{= a function (vector to value)}
 
 \item{x}{= a numeric vector}
 
-\item{y}{= a numeric vector}
+\item{y}{= a numeric vector (can be missing)}
 
 \item{n}{= a boolean (do/don't rank)}
 }

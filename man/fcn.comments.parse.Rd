@@ -7,7 +7,7 @@
 fcn.comments.parse(x)
 }
 \arguments{
-\item{x}{= comments section of a function}
+\item{x}{= a string vector (comments section of a function)}
 }
 \description{
 extracts information from the comments

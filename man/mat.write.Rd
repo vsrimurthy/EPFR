@@ -9,7 +9,7 @@ mat.write(x, y, n = ",", w = T)
 \arguments{
 \item{x}{= a numeric vector/matrix/data frame}
 
-\item{y}{= a file (output)}
+\item{y}{= a file (output, can be missing)}
 
 \item{n}{= the separator}
 

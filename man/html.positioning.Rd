@@ -9,7 +9,7 @@ html.positioning(x, y)
 \arguments{
 \item{x}{= a matrix (predictors)}
 
-\item{y}{= security names (corresponding to columns of <x>)}
+\item{y}{= security names (correspond to columns of <x>, can be missing)}
 }
 \description{
 writes a positioning report

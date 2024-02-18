@@ -7,7 +7,7 @@
 fcn.mat.vec(fcn, x, y, n)
 }
 \arguments{
-\item{fcn}{= function mapping vector(s) to an isomekic vector}
+\item{fcn}{= a function (vector to vector)}
 
 \item{x}{= a numeric vector/matrix/data frame}
 

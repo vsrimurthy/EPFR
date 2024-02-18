@@ -9,11 +9,11 @@ ftp.all.files.underlying(x, y, n, w, h = "ftp", u, v)
 \arguments{
 \item{x}{= a remote folder}
 
-\item{y}{= ftp site (defaults to standard)}
+\item{y}{= ftp site (can be missing)}
 
-\item{n}{= user id (defaults to standard)}
+\item{n}{= user id (can be missing)}
 
-\item{w}{= password (defaults to standard)}
+\item{w}{= password (can be missing)}
 
 \item{h}{= a string (ftp/sftp)}
 

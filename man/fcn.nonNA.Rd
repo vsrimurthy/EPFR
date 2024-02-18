@@ -7,7 +7,7 @@
 fcn.nonNA(fcn, x)
 }
 \arguments{
-\item{fcn}{= a function that maps a numeric vector to a numeric vector}
+\item{fcn}{= a function (vector to vector)}
 
 \item{x}{= a numeric vector}
 }

@@ -13,9 +13,9 @@ sql.currprior(fcn, x, y, n, w)
 
 \item{y}{= a SQL table vector}
 
-\item{n}{= parameter (primary)}
+\item{n}{= parameter (primary, can be missing)}
 
-\item{w}{= parameter (secondary)}
+\item{w}{= parameter (secondary, can be missing)}
 }
 \description{
 SQL query for current & prior allocations

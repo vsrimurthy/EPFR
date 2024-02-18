@@ -9,9 +9,9 @@ mat.zScore(x, y, n)
 \arguments{
 \item{x}{= a numeric vector/matrix/data frame}
 
-\item{y}{= a 1/0 membership vector}
+\item{y}{= a membership vector (can be missing)}
 
-\item{n}{= a numeric vector (groups)}
+\item{n}{= a numeric vector (groups, can be missing)}
 }
 \description{
 zScores <x> within groups <n> using weights <y>

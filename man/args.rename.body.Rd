@@ -16,6 +16,8 @@ relabels arguments <y> by <n>
 }
 \seealso{
 Other args: \code{\link{args.canonical}},
-  \code{\link{args.rename}}
+  \code{\link{args.comment}},
+  \code{\link{args.missing.bad}},
+  \code{\link{args.missing}}, \code{\link{args.rename}}
 }
 \keyword{args.rename.body}

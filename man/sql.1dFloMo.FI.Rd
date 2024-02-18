@@ -7,7 +7,7 @@
 sql.1dFloMo.FI(x = "Flow", y)
 }
 \arguments{
-\item{x}{= a column (defaults to "Flow")}
+\item{x}{= a column}
 
 \item{y}{= a flowdate (can be missing)}
 }

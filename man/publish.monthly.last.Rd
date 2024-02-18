@@ -7,7 +7,7 @@
 publish.monthly.last(x, y = 23, n = 0)
 }
 \arguments{
-\item{x}{= a YYYYMMDD}
+\item{x}{= a YYYYMMDD (can be missing)}
 
 \item{y}{= calendar day allocations are known the next month}
 

@@ -32,7 +32,7 @@ sf.single.bsim(fcn, x, y, n, w, h, u, v, g = 5, r, s = 1, b = T,
 
 \item{b}{= a boolean (equal/cap-weight universe return)}
 
-\item{p}{= a variable (factor for cap weighting, defaults to NULL)}
+\item{p}{= a variable (cap-weighting factor)}
 }
 \description{
 runs a single quintile simulation

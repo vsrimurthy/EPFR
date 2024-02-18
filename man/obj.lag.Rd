@@ -11,9 +11,9 @@ obj.lag(x, y, n, w)
 
 \item{y}{= an integer vector}
 
-\item{n}{= a function mapping these objects to the number line}
+\item{n}{= a function (object to value)}
 
-\item{w}{= the bijective inverse of <n>}
+\item{w}{= a function (bijective inverse of <n>)}
 }
 \description{
 lags <x> by <y>

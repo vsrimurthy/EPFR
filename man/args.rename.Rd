@@ -16,6 +16,9 @@ relabels arguments
 }
 \seealso{
 Other args: \code{\link{args.canonical}},
+  \code{\link{args.comment}},
+  \code{\link{args.missing.bad}},
+  \code{\link{args.missing}},
   \code{\link{args.rename.body}}
 }
 \keyword{args.rename}

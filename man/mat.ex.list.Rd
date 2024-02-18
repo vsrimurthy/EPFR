@@ -4,12 +4,12 @@
 \alias{mat.ex.list}
 \title{mat.ex.list}
 \usage{
-mat.ex.list(x, y = "yyyymmdd")
+mat.ex.list(x, y)
 }
 \arguments{
-\item{x}{= a data frame list}
+\item{x}{= a string vector/matrix/data frame list}
 
-\item{y}{= a string (column name for names of <x>)}
+\item{y}{= a string vector (additional columns, can be missing)}
 }
 \description{
 rbinds elements of <x> with added column <y>

@@ -15,7 +15,7 @@ ftp.sql.factor(x, y, n, w, h)
 
 \item{w}{= DB - any of StockFlows/China/Japan/CSI300/Energy}
 
-\item{h}{= a breakdown filter (e.g. All/GeoId/DomicileId)}
+\item{h}{= a breakdown filter (All/GeoId/DomicileId, can be missing)}
 }
 \description{
 SQL code to validate <x> flows at the <y> level

@@ -7,7 +7,7 @@
 refresh.predictors(fcn, x, y, n, w, h, u)
 }
 \arguments{
-\item{fcn}{= a function that returns the last complete publication period}
+\item{fcn}{= a function (last complete publication period)}
 
 \item{x}{= a file (predictors)}
 

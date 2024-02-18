@@ -9,7 +9,7 @@ sql.yyyymmdd(x, y, n = F)
 \arguments{
 \item{x}{= a column (datetime field)}
 
-\item{y}{= label after conversion (defaults to <x> if missing)}
+\item{y}{= a string (post-conversion label, can be missing)}
 
 \item{n}{= a boolean (index by HSecurityId/SecurityId)}
 }

@@ -7,11 +7,11 @@
 fcn.mat.num(fcn, x, y, n)
 }
 \arguments{
-\item{fcn}{= function mapping vector(s) to a single value}
+\item{fcn}{= a function (vector to value)}
 
 \item{x}{= a numeric vector/matrix/data frame}
 
-\item{y}{= a numeric vector/matrix/data frame}
+\item{y}{= a numeric vector/matrix/data frame (can be missing)}
 
 \item{n}{= a boolean (apply to columns/rows)}
 }

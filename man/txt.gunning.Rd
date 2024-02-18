@@ -9,9 +9,9 @@ txt.gunning(x, y, n)
 \arguments{
 \item{x}{= a string (representing a text passage)}
 
-\item{y}{= a file of potentially-usable capitalized words}
+\item{y}{= a file (capitalized words, can be missing)}
 
-\item{n}{= a file of potentially-usable capitalized words considered "simple"}
+\item{n}{= a file (simple capitalized words, can be missing)}
 }
 \description{
 the Gunning fog index measuring the number of years of  schooling beyond kindergarten needed to comprehend <x>

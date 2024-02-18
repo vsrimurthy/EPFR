@@ -7,7 +7,7 @@
 publish.weekly.last(x)
 }
 \arguments{
-\item{x}{= a YYYYMMDD}
+\item{x}{= a YYYYMMDD (can be missing)}
 }
 \description{
 date of last weekly publication

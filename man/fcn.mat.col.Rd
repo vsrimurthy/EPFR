@@ -7,11 +7,11 @@
 fcn.mat.col(fcn, x, y, n)
 }
 \arguments{
-\item{fcn}{= function (maps two vectors to a single value)}
+\item{fcn}{= a function (maps two vectors to a single value)}
 
 \item{x}{= a numeric vector/matrix/data frame}
 
-\item{y}{= a numeric vector}
+\item{y}{= a numeric vector (can be missing)}
 
 \item{n}{= a boolean (do/don't rank)}
 }

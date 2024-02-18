@@ -3,7 +3,7 @@
 #' 
 #' reads the file into data frame
 #' @param x = a file
-#' @param y = the separator
+#' @param y = the separator (can be missing)
 #' @param n = a column (contains row names, can be NULL)
 #' @param w = a boolean (there is/isn't a header)
 #' @param h = the set of quoting characters. Defaults to no quoting altogether
@@ -12,7 +12,7 @@
 #' @family mat
 #' @import utils
 
-mat.read <- function (x = "C:\\temp\\write.csv", y = ",", n = 1, w = T, h = "") 
+mat.read <- function (x = "C:\\temp\\write.csv", y, n = 1, w = T, h = "") 
 {
     if (missing(y)) 
         y <- c("\t", ",")
@@ -110,9 +110,9 @@ email <- function (x, y, n, w = "", h = F, u, v)
 #' 
 #' logical or YYYYMMDD vector indexed by remote file names
 #' @param x = a remote folder
-#' @param y = ftp site (defaults to standard)
-#' @param n = user id (defaults to standard)
-#' @param w = password (defaults to standard)
+#' @param y = ftp site (can be missing)
+#' @param n = user id (can be missing)
+#' @param w = password (can be missing)
 #' @param h = a boolean (do/don't report time stamps)
 #' @param u = a string (ftp/sftp)
 #' @param v = a boolean (ftp.use.epsv argument of getURL)
@@ -221,6 +221,71 @@ args.canonical <- function (x = T)
     z
 }
 
+#' args.comment
+#' 
+#' functions, arguments and comments
+#' @keywords args.comment
+#' @export
+#' @family args
+
+args.comment <- function () 
+{
+    x <- vec.to.list(fcn.list(), T)
+    x <- lapply(x, fcn.args.comment)
+    x <- lapply(x, function(x) matrix(c(names(x), x), length(x), 
+        2, F))
+    x <- lapply(x, mat.ex.matrix)
+    x <- mat.ex.list(x, "fcn")
+    names(x)[1:2] <- c("arg", "comment")
+    z <- x[, c("fcn", "arg", "comment")]
+    z
+}
+
+#' args.missing
+#' 
+#' arguments that can be missing
+#' @keywords args.missing
+#' @export
+#' @family args
+
+args.missing <- function () 
+{
+    x <- vec.to.list(fcn.list(), T)
+    w <- sapply(x, function(z) any(grepl("if \\(missing\\(", 
+        fcn.to.txt(z, F, T))))
+    x <- x[w]
+    x <- lapply(x, function(z) fcn.to.txt(z, F, T))
+    x <- lapply(x, function(z) z[grepl("if \\(missing\\(", z)])
+    x <- lapply(x, function(z) gsub("^(.*if \\(missing\\()(.+)(\\)\\) .*)$", 
+        "\\2", z))
+    z <- mat.ex.list(x, c("arg", "fcn"))
+    z
+}
+
+#' args.missing.bad
+#' 
+#' improperly commented arguments that can be missing
+#' @keywords args.missing.bad
+#' @export
+#' @family args
+
+args.missing.bad <- function () 
+{
+    z <- merge(args.comment(), args.missing())
+    w <- !grepl("can be missing\\)$", z[, "comment"])
+    if (any(w)) {
+        z <- z[w, ]
+        x <- args.canonical()
+        x <- vec.named(seq_along(x), x)
+        z <- z[order(map.rname(x, z[, "arg"])), ]
+        z <- z[order(z[, "fcn"]), c("fcn", "arg")]
+    }
+    if (any(w)) {
+        err.raise(do.call(paste, z), T, "Following improperly-commented arguments found")
+    }
+    invisible()
+}
+
 #' args.rename
 #' 
 #' relabels arguments
@@ -320,7 +385,7 @@ array.ex.list <- function (x, y, n)
 #' 
 #' unlists the contents of an array
 #' @param x = an array
-#' @param y = a string vector (output column names)
+#' @param y = a string vector (output column names, can be missing)
 #' @keywords array.unlist
 #' @export
 #' @family array
@@ -478,7 +543,7 @@ bbk <- function (x, y, n = 1, w = 5, h = 5, u = NULL, v = F, g = 0,
 #' bbk.bin.rets.prd.summ
 #' 
 #' Summarizes bin excess returns by sub-periods of interest (as defined by <y>)
-#' @param fcn = a summary function
+#' @param fcn = a function (summary)
 #' @param x = a matrix/data frame (rows indexed by time and columns indexed by bins)
 #' @param y = a numeric vector corresponding to the rows of <x> that maps each row to a sub-period of interest (e.g. calendar year)
 #' @param n = number of rows of <x> needed to cover an entire calendar year
@@ -557,7 +622,7 @@ bbk.bin.rets.summ <- function (x, y, n = F)
 #' @param n = an integer (number of bins)
 #' @param w = a boolean (report/ignore universe return)
 #' @param h = a boolean (do/don't provide detail)
-#' @param u = a string vector (groups)
+#' @param u = a string vector (binning groups, can be missing)
 #' @keywords bbk.bin.xRet
 #' @export
 #' @family bbk
@@ -1500,7 +1565,7 @@ compound.sf <- function (x, y)
 #' 
 #' the estimated correlation between <x> and <y> or the columns of <x>
 #' @param x = a numeric vector/matrix/data frame
-#' @param y = a numeric vector
+#' @param y = a numeric vector (can be missing)
 #' @param n = a boolean (rank/regular correlations)
 #' @keywords correl
 #' @export
@@ -2523,7 +2588,7 @@ fcn.canonical <- function (x)
 #' fcn.comments.parse
 #' 
 #' extracts information from the comments
-#' @param x = comments section of a function
+#' @param x = a string vector (comments section of a function)
 #' @keywords fcn.comments.parse
 #' @export
 #' @family fcn
@@ -2922,9 +2987,9 @@ fcn.lite <- function ()
 #' fcn.mat.col
 #' 
 #' applies <fcn> to the columns of <x> pairwise
-#' @param fcn = function (maps two vectors to a single value)
+#' @param fcn = a function (maps two vectors to a single value)
 #' @param x = a numeric vector/matrix/data frame
-#' @param y = a numeric vector
+#' @param y = a numeric vector (can be missing)
 #' @param n = a boolean (do/don't rank)
 #' @keywords fcn.mat.col
 #' @export
@@ -2952,9 +3017,9 @@ fcn.mat.col <- function (fcn, x, y, n)
 #' fcn.mat.num
 #' 
 #' applies <fcn> to <x> if a numeric vector or the columns/rows of <x> otherwise
-#' @param fcn = function mapping vector(s) to a single value
+#' @param fcn = a function (vector to value)
 #' @param x = a numeric vector/matrix/data frame
-#' @param y = a numeric vector/matrix/data frame
+#' @param y = a numeric vector/matrix/data frame (can be missing)
 #' @param n = a boolean (apply to columns/rows)
 #' @keywords fcn.mat.num
 #' @export
@@ -2988,7 +3053,7 @@ fcn.mat.num <- function (fcn, x, y, n)
 #' fcn.mat.vec
 #' 
 #' applies <fcn> to <x> if a numeric vector or the columns/rows of <x> otherwise
-#' @param fcn = function mapping vector(s) to an isomekic vector
+#' @param fcn = a function (vector to vector)
 #' @param x = a numeric vector/matrix/data frame
 #' @param y = a numeric vector/matrix/data frame
 #' @param n = a boolean (apply to columns/rows)
@@ -3036,7 +3101,7 @@ fcn.mat.vec <- function (fcn, x, y, n)
 #' fcn.nonNA
 #' 
 #' applies <fcn> to the non-NA values of <x>
-#' @param fcn = a function that maps a numeric vector to a numeric vector
+#' @param fcn = a function (vector to vector)
 #' @param x = a numeric vector
 #' @keywords fcn.nonNA
 #' @export
@@ -3054,9 +3119,9 @@ fcn.nonNA <- function (fcn, x)
 #' fcn.num.nonNA
 #' 
 #' applies <fcn> to the non-NA values of <x> and <y>
-#' @param fcn = a function (maps a numeric vector to a number)
+#' @param fcn = a function (vector to value)
 #' @param x = a numeric vector
-#' @param y = a numeric vector
+#' @param y = a numeric vector (can be missing)
 #' @param n = a boolean (do/don't rank)
 #' @keywords fcn.num.nonNA
 #' @export
@@ -3255,7 +3320,7 @@ fcn.to.txt <- function (x, y = F, n = F)
 #' fcn.vec.grp
 #' 
 #' applies <fcn> to <x> within groups <y>
-#' @param fcn = function to be applied within groups
+#' @param fcn = a function (to be apply within groups)
 #' @param x = a numeric vector/matrix/data frame
 #' @param y = a numeric vector (groups)
 #' @keywords fcn.vec.grp
@@ -3273,7 +3338,7 @@ fcn.vec.grp <- function (fcn, x, y)
 #' fcn.vec.num
 #' 
 #' applies <fcn> to <x>
-#' @param fcn = function mapping elements to elements
+#' @param fcn = a function (element to element)
 #' @param x = a numeric vector
 #' @param y = a numeric vector
 #' @keywords fcn.vec.num
@@ -3687,9 +3752,9 @@ flowdate.to.int <- function (x)
 #' 
 #' remote-site directory listing of all sub-folders
 #' @param x = a remote folder
-#' @param y = ftp site (defaults to standard)
-#' @param n = user id (defaults to standard)
-#' @param w = password (defaults to standard)
+#' @param y = ftp site (can be missing)
+#' @param n = user id (can be missing)
+#' @param w = password (can be missing)
 #' @param h = a string (ftp/sftp)
 #' @param u = a boolean (ftp.use.epsv argument of getCurlHandle)
 #' @keywords ftp.all.dir
@@ -3710,9 +3775,9 @@ ftp.all.dir <- function (x, y, n, w, h, u)
 #' 
 #' remote-site directory listing of files (incl. sub-folders)
 #' @param x = a remote folder
-#' @param y = ftp site (defaults to standard)
-#' @param n = user id (defaults to standard)
-#' @param w = password (defaults to standard)
+#' @param y = ftp site (can be missing)
+#' @param n = user id (can be missing)
+#' @param w = password (can be missing)
 #' @param h = a string (ftp/sftp)
 #' @param u = a boolean (ftp.use.epsv argument of getCurlHandle)
 #' @keywords ftp.all.files
@@ -3735,9 +3800,9 @@ ftp.all.files <- function (x, y, n, w, h, u)
 #' 
 #' remote-site directory listing of files or folders
 #' @param x = a remote folder
-#' @param y = ftp site (defaults to standard)
-#' @param n = user id (defaults to standard)
-#' @param w = password (defaults to standard)
+#' @param y = ftp site (can be missing)
+#' @param n = user id (can be missing)
+#' @param w = password (can be missing)
 #' @param h = a string (ftp/sftp)
 #' @param u = a boolean (ftp.use.epsv argument of getCurlHandle)
 #' @param v = a boolean (files/folders)
@@ -3794,9 +3859,9 @@ ftp.credential <- function (x, y = "ftp", n = F)
 #' deletes file <x> or file <y> on remote folder <x>
 #' @param x = a remote folder/file
 #' @param y = a SINGLE file (e.g. "foo.txt") or missing if <x> is a file
-#' @param n = ftp site (defaults to standard)
-#' @param w = user id (defaults to standard)
-#' @param h = password (defaults to standard)
+#' @param n = ftp site (can be missing)
+#' @param w = user id (can be missing)
+#' @param h = password (can be missing)
 #' @param u = a string (ftp/sftp)
 #' @keywords ftp.del
 #' @export
@@ -3881,9 +3946,9 @@ ftp.dir.parse.sftp <- function (x)
 #' replicates <x> in folder <y>
 #' @param x = a remote folder
 #' @param y = local folder (e.g. "C:\\\\temp\\\\mystuff")
-#' @param n = ftp site (defaults to standard)
-#' @param w = user id (defaults to standard)
-#' @param h = password (defaults to standard)
+#' @param n = ftp site (can be missing)
+#' @param w = user id (can be missing)
+#' @param h = password (can be missing)
 #' @param u = a string (ftp/sftp)
 #' @param v = a boolean (ftp.use.epsv argument of getCurlHandle)
 #' @keywords ftp.download
@@ -3941,9 +4006,9 @@ ftp.file <- function (x)
 #' file <x> from remote site
 #' @param x = a remote file
 #' @param y = local folder (e.g. "C:\\\\temp")
-#' @param n = ftp site (defaults to standard)
-#' @param w = user id (defaults to standard)
-#' @param h = password (defaults to standard)
+#' @param n = ftp site (can be missing)
+#' @param w = user id (can be missing)
+#' @param h = password (can be missing)
 #' @param u = a string (ftp/sftp)
 #' @param v = a boolean (ftp.use.epsv argument of getCurlHandle)
 #' @keywords ftp.get
@@ -4006,8 +4071,8 @@ ftp.list <- function ()
 #' ftp.missing
 #' 
 #' supplies missing arguments
-#' @param x = arguments from higher function
-#' @param y = argument names
+#' @param x = a list (arguments from higher function)
+#' @param y = a string (argument names)
 #' @keywords ftp.missing
 #' @export
 #' @family ftp
@@ -4024,11 +4089,11 @@ ftp.missing <- function (x, y)
 #' ftp.missing.underlying
 #' 
 #' logical or YYYYMMDD vector indexed by remote file names
-#' @param x = ftp site (defaults to standard)
-#' @param y = user id (defaults to standard)
-#' @param n = password (defaults to standard)
+#' @param x = ftp site (can be missing)
+#' @param y = user id (can be missing)
+#' @param n = password (can be missing)
 #' @param w = a string (ftp/sftp)
-#' @param h = a boolean (ftp.use.epsv argument of getURL)
+#' @param h = a boolean (ftp.use.epsv argument of getURL, can be missing)
 #' @keywords ftp.missing.underlying
 #' @export
 #' @family ftp
@@ -4069,9 +4134,9 @@ ftp.parent <- function (x)
 #' puts file <y> to remote site <x>, creating folders as needed
 #' @param x = a remote folder
 #' @param y = a file vector
-#' @param n = ftp site (defaults to standard)
-#' @param w = user id (defaults to standard)
-#' @param h = password (defaults to standard)
+#' @param n = ftp site (can be missing)
+#' @param w = user id (can be missing)
+#' @param h = password (can be missing)
 #' @param u = a string (ftp/sftp)
 #' @param v = a boolean (ftp.use.epsv argument of getCurlHandle)
 #' @keywords ftp.put
@@ -4116,9 +4181,9 @@ ftp.record <- function (x, y)
 #' 
 #' removes directory <x> (e.g. "mystuff")
 #' @param x = a remote folder
-#' @param y = ftp site (defaults to standard)
-#' @param n = user id (defaults to standard)
-#' @param w = password (defaults to standard)
+#' @param y = ftp site (can be missing)
+#' @param n = user id (can be missing)
+#' @param w = password (can be missing)
 #' @param h = a string (ftp/sftp)
 #' @keywords ftp.rmdir
 #' @export
@@ -4142,7 +4207,7 @@ ftp.rmdir <- function (x, y, n, w, h = "ftp")
 #' @param y = a flowdate
 #' @param n = a filter (e.g. Aggregate/Active/Passive/ETF/Mutual)
 #' @param w = DB - any of StockFlows/China/Japan/CSI300/Energy
-#' @param h = a breakdown filter (e.g. All/GeoId/DomicileId)
+#' @param h = a breakdown filter (All/GeoId/DomicileId, can be missing)
 #' @keywords ftp.sql.factor
 #' @export
 #' @family ftp
@@ -4253,9 +4318,9 @@ ftp.sql.factor <- function (x, y, n, w, h)
 #' Copies up files from the local machine
 #' @param x = empty a remote folder
 #' @param y = a folder (e.g. "C:\\\\temp\\\\mystuff")
-#' @param n = ftp site (defaults to standard)
-#' @param w = user id (defaults to standard)
-#' @param h = password (defaults to standard)
+#' @param n = ftp site (can be missing)
+#' @param w = user id (can be missing)
+#' @param h = password (can be missing)
 #' @param u = a string (ftp/sftp)
 #' @param v = a boolean (ftp.use.epsv argument of getCurlHandle)
 #' @keywords ftp.upload
@@ -4422,7 +4487,7 @@ html.and <- function (x)
 #' html.email
 #' 
 #' writes outgoing email report for <x>
-#' @param x = a flowdate
+#' @param x = a flowdate (can be missing)
 #' @param y = a boolean (regular/Asia process)
 #' @keywords html.email
 #' @export
@@ -4753,7 +4818,7 @@ html.list <- function (x)
 #' 
 #' writes a positioning report
 #' @param x = a matrix (predictors)
-#' @param y = security names (corresponding to columns of <x>)
+#' @param y = security names (correspond to columns of <x>, can be missing)
 #' @keywords html.positioning
 #' @export
 #' @family html
@@ -5521,18 +5586,32 @@ mat.ex.array <- function (x)
 #' mat.ex.list
 #' 
 #' rbinds elements of <x> with added column <y>
-#' @param x = a data frame list
-#' @param y = a string (column name for names of <x>)
+#' @param x = a string vector/matrix/data frame list
+#' @param y = a string vector (additional columns, can be missing)
 #' @keywords mat.ex.list
 #' @export
 #' @family mat
 
-mat.ex.list <- function (x, y = "yyyymmdd") 
+mat.ex.list <- function (x, y) 
 {
-    z <- sapply(x, function(x) dim(x)[1])
-    x <- Reduce(rbind, x)
-    x[, y] <- rep(names(z), z)
-    z <- x
+    h <- is.null(dim(x[[1]]))
+    if (missing(y)) 
+        if (h) 
+            y <- c("x", "y")
+        else y <- "yyyymmdd"
+    if (h) {
+        z <- sapply(x, length)
+        x <- Reduce(c, x)
+        z <- rep(names(z), z)
+        z <- data.frame(x, z, stringsAsFactors = F)
+        names(z) <- y
+    }
+    else {
+        z <- sapply(x, function(z) dim(z)[1])
+        x <- Reduce(rbind, x)
+        x[, y] <- rep(names(z), z)
+        z <- x
+    }
     z
 }
 
@@ -5540,7 +5619,7 @@ mat.ex.list <- function (x, y = "yyyymmdd")
 #' 
 #' converts into a data frame
 #' @param x = a matrix/data frame
-#' @param y = a string vector (defaults to NULL)
+#' @param y = a string vector
 #' @keywords mat.ex.matrix
 #' @export
 #' @family mat
@@ -5842,7 +5921,7 @@ mat.weekly.to.daily <- function (x)
 #' 
 #' Writes <x> as a <n>-separated file to <y>
 #' @param x = a numeric vector/matrix/data frame
-#' @param y = a file (output)
+#' @param y = a file (output, can be missing)
 #' @param n = the separator
 #' @param w = a boolean (do/don't write row names)
 #' @keywords mat.write
@@ -5874,8 +5953,8 @@ mat.write <- function (x, y, n = ",", w = T)
 #' 
 #' zScores <x> within groups <n> using weights <y>
 #' @param x = a numeric vector/matrix/data frame
-#' @param y = a 1/0 membership vector
-#' @param n = a numeric vector (groups)
+#' @param y = a membership vector (can be missing)
+#' @param n = a numeric vector (groups, can be missing)
 #' @keywords mat.zScore
 #' @export
 #' @family mat
@@ -7624,7 +7703,7 @@ nyse.holidays <- function (x = "yyyymmdd")
 #' obj.diff
 #' 
 #' returns <x - y>
-#' @param fcn = a function mapping objects to the number line
+#' @param fcn = a function (vector to integer vector)
 #' @param x = an object vector
 #' @param y = an object vector
 #' @keywords obj.diff
@@ -7641,8 +7720,8 @@ obj.diff <- function (fcn, x, y)
 #' lags <x> by <y>
 #' @param x = an object vector
 #' @param y = an integer vector
-#' @param n = a function mapping these objects to the number line
-#' @param w = the bijective inverse of <n>
+#' @param n = a function (object to value)
+#' @param w = a function (bijective inverse of <n>)
 #' @keywords obj.lag
 #' @export
 #' @family obj
@@ -7657,8 +7736,8 @@ obj.lag <- function (x, y, n, w)
 #' returns a sequence of objects between (and including) <x> and <y>
 #' @param x = an object
 #' @param y = an object
-#' @param n = a function mapping these objects to the number line
-#' @param w = the bijective inverse of <n>
+#' @param n = a function (vector to integer vector)
+#' @param w = a function (bijective inverse of <n>)
 #' @param h = a positive integer
 #' @keywords obj.seq
 #' @export
@@ -7811,7 +7890,7 @@ permutations.next <- function (x)
 #' pivot
 #' 
 #' returns a table, the rows and columns of which are unique members of rowIdx and colIdx The cells of the table are the <fcn> of <x> whenever <y> and <n> take on their respective values
-#' @param fcn = a summary function
+#' @param fcn = a function (summary)
 #' @param x = a numeric vector
 #' @param y = a numeric vector (groups)
 #' @param n = a numeric vector (groups)
@@ -7828,7 +7907,7 @@ pivot <- function (fcn, x, y, n)
 #' pivot.1d
 #' 
 #' returns a table, having the same column space of <x>, the rows of which are unique members of <grp> The cells of the table are the summ.fcn of <x> whenever <grp> takes on its respective value
-#' @param fcn = a summary function
+#' @param fcn = a function (summary)
 #' @param x = a numeric vector (groups)
 #' @param y = a numeric vector/matrix/data frame
 #' @keywords pivot.1d
@@ -7911,7 +7990,7 @@ portfolio.residual <- function (x, y)
 #' 
 #' Latest four-week flow percentage
 #' @param x = a file (strategy)
-#' @param y = subset
+#' @param y = subset (can be missing)
 #' @param n = last publication date
 #' @keywords position.floPct
 #' @export
@@ -8163,7 +8242,7 @@ publications.data <- function (x, y, n, w)
 #' publish.daily.last
 #' 
 #' last daily flow-publication date
-#' @param x = a YYYYMMDD
+#' @param x = a YYYYMMDD (can be missing)
 #' @keywords publish.daily.last
 #' @export
 #' @family publish
@@ -8179,7 +8258,7 @@ publish.daily.last <- function (x)
 #' publish.monthly.last
 #' 
 #' date of last monthly publication
-#' @param x = a YYYYMMDD
+#' @param x = a YYYYMMDD (can be missing)
 #' @param y = calendar day allocations are known the next month
 #' @param n = an integer
 #' @keywords publish.monthly.last
@@ -8200,7 +8279,7 @@ publish.monthly.last <- function (x, y = 23, n = 0)
 #' publish.weekly.last
 #' 
 #' date of last weekly publication
-#' @param x = a YYYYMMDD
+#' @param x = a YYYYMMDD (can be missing)
 #' @keywords publish.weekly.last
 #' @export
 #' @family publish
@@ -8236,9 +8315,9 @@ qa.filter.map <- function (x)
 #' contents of <x> as a data frame
 #' @param x = a remote file
 #' @param y = local folder (e.g. "C:\\\\temp")
-#' @param n = ftp site (defaults to standard)
-#' @param w = user id (defaults to standard)
-#' @param h = password (defaults to standard)
+#' @param n = ftp site (can be missing)
+#' @param w = user id (can be missing)
+#' @param h = password (can be missing)
 #' @param u = a string (ftp/sftp)
 #' @param v = a boolean (ftp.use.epsv argument of getCurlHandle)
 #' @keywords qa.mat.read
@@ -8265,8 +8344,8 @@ qa.mat.read <- function (x, y, n, w, h, u, v)
 #' <x> bucketed into <y> bins within groups <w> having equal weights <n>
 #' @param x = a numeric vector
 #' @param y = an integer (number of bins)
-#' @param n = a numeric vector (weights)
-#' @param w = a string vector (groups)
+#' @param n = a numeric vector (weights, can be missing)
+#' @param w = a string vector (binning groups, can be missing)
 #' @keywords qtl
 #' @export
 #' @family qtl
@@ -8618,7 +8697,7 @@ record.write <- function (x, y, n)
 #' refresh.predictors
 #' 
 #' refreshes the text file contains flows data from SQL
-#' @param fcn = a function that returns the last complete publication period
+#' @param fcn = a function (last complete publication period)
 #' @param x = a file (predictors)
 #' @param y = query needed to get full history
 #' @param n = last part of the query that goes after the date restriction
@@ -8909,9 +8988,9 @@ rgb.diff <- function (x, y)
 #' @param y = output type (".csv", ".pdf", etc.)
 #' @param n = a boolean (do/don't check if latest)
 #' @param w = a boolean (live/test)
-#' @param h = the email address(es) of the recipient(s)
-#' @param u = path to log file
-#' @param v = a string vector (report names)
+#' @param h = a string (recipient email, can be missing)
+#' @param u = a file (log, can be missing)
+#' @param v = a string vector (report names, can be missing)
 #' @keywords rpt.email
 #' @export
 #' @family rpt
@@ -9376,7 +9455,7 @@ sf.daily <- function (x, y, n, w, h, u, v, g = 5, r, s = NULL, b)
 #' @param v = a folder (must have sub-folders data/derived)
 #' @param g = an integer vector (if vector, last element T/F for dep/indep binning))
 #' @param r = classif file
-#' @param s = a variable (factor for cap weighting, defaults to NULL)
+#' @param s = a variable (cap-weighting factor)
 #' @keywords sf.detail
 #' @export
 #' @family sf
@@ -9414,7 +9493,7 @@ sf.detail <- function (fcn, x, y, n, w, h, u, v, g = 5, r, s = NULL)
 #' @param r = classif file
 #' @param s = an integer (forward return horizon)
 #' @param b = a boolean (equal/cap-weight universe return)
-#' @param p = a variable (factor for cap weighting, defaults to NULL)
+#' @param p = a variable (cap-weighting factor)
 #' @keywords sf.single.bsim
 #' @export
 #' @family sf
@@ -10528,7 +10607,7 @@ sql.1dFloMo.CtrySG <- function (x, y, n, w, h, u)
 #' sql.1dFloMo.FI
 #' 
 #' SQL query to get daily 1dFloMo for fixed income
-#' @param x = a column (defaults to "Flow")
+#' @param x = a column
 #' @param y = a flowdate (can be missing)
 #' @keywords sql.1dFloMo.FI
 #' @export
@@ -12181,8 +12260,8 @@ sql.CtryFlow.Flow <- function (x, y, n, w, h)
 #' @param fcn = SQL-script generator
 #' @param x = a YYYYMM
 #' @param y = a SQL table vector
-#' @param n = parameter (primary)
-#' @param w = parameter (secondary)
+#' @param n = parameter (primary, can be missing)
+#' @param w = parameter (secondary, can be missing)
 #' @keywords sql.currprior
 #' @export
 #' @family sql
@@ -12543,7 +12622,7 @@ sql.Foreign <- function ()
 #' SQL query to restrict to Global and Regional equity funds
 #' @param x = a filter vector
 #' @param y = a boolean (StockFlows/Macro)
-#' @param n = a column vector (besides HFundId)
+#' @param n = a column vector (besides HFundId, can be missing)
 #' @keywords sql.FundHistory
 #' @export
 #' @family sql
@@ -13623,7 +13702,7 @@ sql.yield.curve.1dFloMo <- function (x, y, n, w)
 #' 
 #' SQL code to convert to YYYYMM
 #' @param x = a column (datetime field)
-#' @param y = label after conversion (defaults to <x> if missing)
+#' @param y = a string (post-conversion label, can be missing)
 #' @keywords sql.yyyymm
 #' @export
 #' @family sql
@@ -13641,7 +13720,7 @@ sql.yyyymm <- function (x, y)
 #' 
 #' SQL code to convert to YYYYMMDD
 #' @param x = a column (datetime field)
-#' @param y = label after conversion (defaults to <x> if missing)
+#' @param y = a string (post-conversion label, can be missing)
 #' @param n = a boolean (index by HSecurityId/SecurityId)
 #' @keywords sql.yyyymmdd
 #' @export
@@ -14068,7 +14147,7 @@ stratrets.subset.Ctry <- function (x, y)
 #' summ.multi
 #' 
 #' summarizes the multi-period back test
-#' @param fcn = a summary function
+#' @param fcn = a function (summary)
 #' @param x = a data frame (bin returns)
 #' @param y = an integer (return window in days/months)
 #' @keywords summ.multi
@@ -14124,7 +14203,7 @@ tstat <- function (x, y)
 #' 
 #' all possible anagrams
 #' @param x = a string
-#' @param y = a file of potentially-usable capitalized words
+#' @param y = a file (usable capitalized words, can be missing)
 #' @param n = an integer vector (minimum number of characters)
 #' @keywords txt.anagram
 #' @export
@@ -14447,8 +14526,8 @@ txt.first <- function (x, y)
 #' 
 #' the Gunning fog index measuring the number of years of  schooling beyond kindergarten needed to comprehend <x>
 #' @param x = a string (representing a text passage)
-#' @param y = a file of potentially-usable capitalized words
-#' @param n = a file of potentially-usable capitalized words considered "simple"
+#' @param y = a file (capitalized words, can be missing)
+#' @param n = a file (simple capitalized words, can be missing)
 #' @keywords txt.gunning
 #' @export
 #' @family txt
@@ -15137,7 +15216,7 @@ vec.min <- function (x, y)
 #' vec.named
 #' 
 #' Returns a numeric vector with values <x> and names <y>
-#' @param x = a numeric vector
+#' @param x = a numeric vector (can be missing)
 #' @param y = a string vector
 #' @keywords vec.named
 #' @export
@@ -15360,7 +15439,7 @@ yyyymm.ex.int <- function (x)
 #' 
 #' returns a specific yyyymm within the quarter
 #' @param x = a qtr vector
-#' @param y = month, in the quarter, to return (defaults to the third)
+#' @param y = month, in the quarter, to return
 #' @keywords yyyymm.ex.qtr
 #' @export
 #' @family yyyymm

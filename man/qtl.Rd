@@ -11,9 +11,9 @@ qtl(x, y, n, w)
 
 \item{y}{= an integer (number of bins)}
 
-\item{n}{= a numeric vector (weights)}
+\item{n}{= a numeric vector (weights, can be missing)}
 
-\item{w}{= a string vector (groups)}
+\item{w}{= a string vector (binning groups, can be missing)}
 }
 \description{
 <x> bucketed into <y> bins within groups <w> having equal weights <n>

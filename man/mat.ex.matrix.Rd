@@ -9,7 +9,7 @@ mat.ex.matrix(x, y = NULL)
 \arguments{
 \item{x}{= a matrix/data frame}
 
-\item{y}{= a string vector (defaults to NULL)}
+\item{y}{= a string vector}
 }
 \description{
 converts into a data frame

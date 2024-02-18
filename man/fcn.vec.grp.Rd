@@ -7,7 +7,7 @@
 fcn.vec.grp(fcn, x, y)
 }
 \arguments{
-\item{fcn}{= function to be applied within groups}
+\item{fcn}{= a function (to be apply within groups)}
 
 \item{x}{= a numeric vector/matrix/data frame}
 

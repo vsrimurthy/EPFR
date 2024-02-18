@@ -4,12 +4,12 @@
 \alias{mat.read}
 \title{mat.read}
 \usage{
-mat.read(x = "C:\\\\temp\\\\write.csv", y = ",", n = 1, w = T, h = "")
+mat.read(x = "C:\\\\temp\\\\write.csv", y, n = 1, w = T, h = "")
 }
 \arguments{
 \item{x}{= a file}
 
-\item{y}{= the separator}
+\item{y}{= the separator (can be missing)}
 
 \item{n}{= a column (contains row names, can be NULL)}
 

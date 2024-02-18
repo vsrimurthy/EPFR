@@ -7,15 +7,15 @@
 ftp.missing.underlying(x, y, n, w, h)
 }
 \arguments{
-\item{x}{= ftp site (defaults to standard)}
+\item{x}{= ftp site (can be missing)}
 
-\item{y}{= user id (defaults to standard)}
+\item{y}{= user id (can be missing)}
 
-\item{n}{= password (defaults to standard)}
+\item{n}{= password (can be missing)}
 
 \item{w}{= a string (ftp/sftp)}
 
-\item{h}{= a boolean (ftp.use.epsv argument of getURL)}
+\item{h}{= a boolean (ftp.use.epsv argument of getURL, can be missing)}
 }
 \description{
 logical or YYYYMMDD vector indexed by remote file names

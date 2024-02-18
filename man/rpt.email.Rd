@@ -15,11 +15,11 @@ rpt.email(x, y, n, w, h, u, v)
 
 \item{w}{= a boolean (live/test)}
 
-\item{h}{= the email address(es) of the recipient(s)}
+\item{h}{= a string (recipient email, can be missing)}
 
-\item{u}{= path to log file}
+\item{u}{= a file (log, can be missing)}
 
-\item{v}{= a string vector (report names)}
+\item{v}{= a string vector (report names, can be missing)}
 }
 \description{
 emails report
