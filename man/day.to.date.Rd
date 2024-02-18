@@ -7,7 +7,7 @@
 day.to.date(x)
 }
 \arguments{
-\item{x}{= a calendar date vector}
+\item{x}{= a string vector}
 }
 \description{
 converts to an R date

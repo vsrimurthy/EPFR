@@ -11,7 +11,7 @@ sql.CtryFlow.Flow(x, y, n, w, h)
 
 \item{y}{= a string vector (Flow/AssetsStart/AssetsEnd/PortfolioChange)}
 
-\item{n}{= a string vector (characteristics)}
+\item{n}{= a column vector (must be in FundHistory!)}
 
 \item{w}{= a frequency (T/F for daily/weekly or D/W/M)}
 

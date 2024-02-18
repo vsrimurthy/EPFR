@@ -27,7 +27,7 @@ sf.daily(x, y, n, w, h, u, v, g = 5, r, s = NULL, b)
 
 \item{s}{= an integer (NULL for daily or the day you trade, 0 = Sun, 1 = Mon, etc.)}
 
-\item{b}{= an integer (return window in days, can be missing)}
+\item{b}{= a positive integer (return window in days, can be missing)}
 }
 \description{
 runs a daily stock-flows simulation FAST

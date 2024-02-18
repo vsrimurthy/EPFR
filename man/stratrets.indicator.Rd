@@ -9,13 +9,13 @@ stratrets.indicator(x, y, n, w, h)
 \arguments{
 \item{x}{= a file vector (strategies)}
 
-\item{y}{= an integer (lookback)}
+\item{y}{= a positive integer (lookback)}
 
 \item{n}{= a boolean (sum/compound)}
 
 \item{w}{= if T, sector-adjustment is performed}
 
-\item{h}{= an integer (delay, only used when <w>)}
+\item{h}{= a non-negative integer (delay, only used when <w>)}
 }
 \description{
 data frame compounded across <y>

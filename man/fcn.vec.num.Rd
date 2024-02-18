@@ -7,11 +7,11 @@
 fcn.vec.num(fcn, x, y)
 }
 \arguments{
-\item{fcn}{= a function (element to element)}
+\item{fcn}{= a function (vector to vector)}
 
-\item{x}{= a numeric vector}
+\item{x}{= a string vector}
 
-\item{y}{= a numeric vector}
+\item{y}{= a string vector}
 }
 \description{
 applies <fcn> to <x>

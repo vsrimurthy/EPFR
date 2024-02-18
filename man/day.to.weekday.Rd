@@ -7,7 +7,7 @@
 day.to.weekday(x)
 }
 \arguments{
-\item{x}{= a YYYYMMDD vector}
+\item{x}{= a string vector}
 }
 \description{
 Converts to 0 = Sun, 1 = Mon, .., 6 = Sat

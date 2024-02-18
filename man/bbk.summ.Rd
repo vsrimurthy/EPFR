@@ -11,7 +11,7 @@ bbk.summ(x, y, n, w)
 
 \item{y}{= a matrix/data frame (bin memberships)}
 
-\item{n}{= an integer (return window in days/months)}
+\item{n}{= a positive integer (return window in days/months)}
 
 \item{w}{= a positive integer}
 }

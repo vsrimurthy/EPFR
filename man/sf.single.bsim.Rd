@@ -28,7 +28,7 @@ sf.single.bsim(fcn, x, y, n, w, h, u, v, g = 5, r, s = 1, b = T,
 
 \item{r}{= classif file}
 
-\item{s}{= an integer (forward return horizon)}
+\item{s}{= a positive integer (return window)}
 
 \item{b}{= a boolean (equal/cap-weight universe return)}
 

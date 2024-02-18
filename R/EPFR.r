@@ -55,7 +55,7 @@ ret.outliers <- function (x, y = 1.5)
 #' sql.query.underlying
 #' 
 #' opens a connection, executes sql query, then closes the connection
-#' @param x = a string (update query)
+#' @param x = a SQL query vector
 #' @param y = a connection, the output of odbcDriverConnect
 #' @param n = a boolean (report/ignore record count)
 #' @keywords sql.query.underlying
@@ -232,7 +232,7 @@ args.comment <- function ()
 {
     x <- vec.to.list(fcn.list(), T)
     x <- lapply(x, fcn.args.comment)
-    x <- lapply(x, function(x) matrix(c(names(x), x), length(x), 
+    x <- lapply(x, function(z) matrix(c(names(z), z), length(z), 
         2, F))
     x <- lapply(x, mat.ex.matrix)
     x <- mat.ex.list(x, "fcn")
@@ -303,7 +303,7 @@ args.rename <- function (fcn, x = T)
     x <- vec.named(x[seq_along(y)], y)
     body(z) <- args.rename.body(body(z), x)
     x <- vec.to.list(x, T, T)
-    formals(z) <- lapply(x, function(x) bquote())
+    formals(z) <- lapply(x, function(z) bquote())
     z
 }
 
@@ -369,13 +369,13 @@ array.ex.list <- function (x, y, n)
         fcn <- rownames
     else fcn <- names
     y <- Reduce(y, lapply(x, fcn))
-    x <- lapply(x, function(x) map.rname(x, y))
+    x <- lapply(x, function(z) map.rname(z, y))
     if (w) {
         if (n) 
             n <- union
         else n <- intersect
         n <- Reduce(n, lapply(x, colnames))
-        x <- lapply(x, function(x) t(map.rname(t(x), n)))
+        x <- lapply(x, function(z) t(map.rname(t(z), n)))
     }
     z <- simplify2array(x)
     z
@@ -517,13 +517,13 @@ base.to.int <- function (x, y = 26)
 #' standard model output
 #' @param x = a matrix/data frame (predictors)
 #' @param y = a matrix/data frame (total return indices)
-#' @param n = an integer (flow window in days/months)
-#' @param w = an integer (return window in days/months)
-#' @param h = an integer (number of bins)
-#' @param u = an integer (0 = Sun, 1 = Mon, etc., the day you trade)
+#' @param n = a positive integer (flow window in days/months)
+#' @param w = a positive integer (return window in days/months)
+#' @param h = a positive integer (number of bins)
+#' @param u = a non-negative integer (0 = Sun, 1 = Mon, etc., the day you trade)
 #' @param v = a boolean (sum/compound)
-#' @param g = an integer (lag in days/months)
-#' @param r = an integer (delay in days/months)
+#' @param g = a non-negative integer (lag in days/months)
+#' @param r = a non-negative integer (delay in days/months)
 #' @param s = a string (index within which you trade)
 #' @param b = a boolean (spread changes/returns)
 #' @keywords bbk
@@ -660,12 +660,12 @@ bbk.bin.xRet <- function (x, y, n = 5, w = F, h = F, u)
 #' fetches data required to compute standard model output
 #' @param x = a matrix/data frame (predictors)
 #' @param y = a matrix/data frame (total return indices)
-#' @param n = an integer (flow window in days/months)
+#' @param n = a positive integer (flow window in days/months)
 #' @param w = a boolean (sum/compound)
-#' @param h = an integer (lag in days/months)
-#' @param u = an integer (delay in days/months)
-#' @param v = an integer (0 = Sun, 1 = Mon, etc., the day you trade)
-#' @param g = an integer (return window in days/months)
+#' @param h = a non-negative integer (lag in days/months)
+#' @param u = a non-negative integer (delay in days/months)
+#' @param v = a non-negative integer (0 = Sun, 1 = Mon, etc., the day you trade)
+#' @param g = a positive integer (return window in days/months)
 #' @param r = a string (index within which you trade)
 #' @param s = a boolean (spread changes/returns)
 #' @keywords bbk.data
@@ -725,7 +725,7 @@ bbk.drawdown <- function (x)
 #' returns a matrix/data frame of the same dimensions as <x>
 #' @param x = a matrix/data frame (predictors)
 #' @param y = a matrix/data frame (total return indices)
-#' @param n = an integer (return window in days)
+#' @param n = a positive integer (return window in days)
 #' @param w = a boolean (returns/spread changes)
 #' @keywords bbk.fwdRet
 #' @export
@@ -762,13 +762,13 @@ bbk.holidays <- function (x, y)
 #' standard model output summary value of <item> for "TxB" for various argument combinations
 #' @param x = a matrix/data frame (predictors)
 #' @param y = a matrix/data frame (total return indices)
-#' @param n = an integer (flow window in days/months)
-#' @param w = an integer (return window in days/months)
+#' @param n = a positive integer (flow window in days/months)
+#' @param w = a positive integer (return window in days/months)
 #' @param h = an integer (number of bins)
 #' @param u = an integer (0 = Sun, 1 = Mon, etc., the day you trade)
 #' @param v = a boolean (sum/compound)
-#' @param g = an integer (lag in days/months)
-#' @param r = an integer (delay in days/months)
+#' @param g = a non-negative integer (lag in days/months)
+#' @param r = a non-negative integer (delay in days/months)
 #' @param s = a string (index within which you trade)
 #' @param b = a boolean (spread changes/returns)
 #' @param p = a string (e.g. AnnMn, Sharpe)
@@ -781,12 +781,12 @@ bbk.matrix <- function (x, y, n, w = 5, h = 5, u = 5, v = F, g = 0, r = 2,
 {
     z <- x <- as.list(environment())
     z <- z[!is.element(names(z), c("x", "y", "p"))]
-    z <- z[sapply(z, function(x) length(x) > 1)]
+    z <- z[sapply(z, function(z) length(z) > 1)]
     x <- x[!is.element(names(x), c(names(z), "p"))]
     z <- expand.grid(z)
     z[, p] <- rep(NA, dim(z)[1])
     for (j in 1:dim(z)[1]) {
-        y <- lapply(z[, -dim(z)[2]], function(x) x[j])
+        y <- lapply(z[, -dim(z)[2]], function(z) z[j])
         cat("\t", paste(paste(names(y), "=", unlist(y)), collapse = ", "), 
             "..\n")
         z[j, p] <- do.call(bbk, c(y, x))[["summ"]][p, "TxB"]
@@ -800,7 +800,7 @@ bbk.matrix <- function (x, y, n, w = 5, h = 5, u = 5, v = F, g = 0, r = 2,
 #' summarizes by year and overall
 #' @param x = a matrix/data frame (bin returns)
 #' @param y = a matrix/data frame (bin memberships)
-#' @param n = an integer (return window in days/months)
+#' @param n = a positive integer (return window in days/months)
 #' @param w = a positive integer
 #' @keywords bbk.summ
 #' @export
@@ -894,8 +894,8 @@ bear <- function (x)
 best.linear.strategy.blend <- function (x, y) 
 {
     x <- as.list(environment())
-    w <- Reduce("&", lapply(x, function(x) !is.na(x)))
-    x <- lapply(x, function(x) x[w])
+    w <- Reduce("&", lapply(x, function(z) !is.na(z)))
+    x <- lapply(x, function(z) z[w])
     avg <- sapply(x, mean)
     std <- sapply(x, sd)
     gm <- Reduce(correl, x)
@@ -988,7 +988,7 @@ brinson <- function (x, y, n, w)
     z[["BmkRet"]] <- pivot.1d(sum, w, x * n)
     z[["PorRet"]] <- pivot.1d(sum, w, (x + y) * n)
     w <- unique(w)
-    w <- sapply(z, function(x) map.rname(x, w))
+    w <- sapply(z, function(z) map.rname(z, w))
     w[, "BmkRet"] <- w[, "BmkRet"]/nonneg(w[, "BmkWgt"])
     w[, "PorRet"] <- w[, "PorRet"]/nonneg(rowSums(w[, c("BmkWgt", 
         "ActWgt")]))
@@ -1034,7 +1034,7 @@ britten.jones <- function (x, y)
 #' returns data needed for a Britten-Jones analysis
 #' @param x = a matrix/data frame (predictors)
 #' @param y = a matrix/data frame (total return indices)
-#' @param n = an integer (return window)
+#' @param n = a positive integer (return window)
 #' @param w = a string (index within which you trade)
 #' @keywords britten.jones.data
 #' @export
@@ -1138,7 +1138,7 @@ britten.jones.data <- function (x, y, n, w = NULL)
 #' 
 #' applies the Britten-Jones transformation to a subset and then stacks
 #' @param x = a matrix/data frame
-#' @param y = an integer (return window)
+#' @param y = a positive integer (return window)
 #' @param n =
 #' @param w = an integer
 #' @param h =
@@ -1321,7 +1321,7 @@ col.lag <- function (x, y)
 col.to.int <- function (x) 
 {
     z <- lapply(vec.to.list(x), txt.to.char)
-    z <- lapply(z, function(x) char.to.int(x) - 64)
+    z <- lapply(z, function(z) char.to.int(z) - 64)
     z <- char.to.num(sapply(z, base.to.int))
     z
 }
@@ -1482,8 +1482,8 @@ common.fund.flow.shock <- function (x, y, n)
     x <- as.matrix(x)
     z <- split(z[, colnames(z) != "FundId"], z[, "FundId"])
     z <- lapply(z, mat.index)
-    z <- lapply(z, function(x) summary(lm(txt.regr(colnames(x)), 
-        x))[["residuals"]])
+    z <- lapply(z, function(z) summary(lm(txt.regr(colnames(z)), 
+        z))[["residuals"]])
     z <- simplify2array(z)
     z <- z[rownames(x), colnames(x)]
     w <- qtl.eq(x)
@@ -1522,7 +1522,7 @@ compound <- function (x)
 #' 
 #' compounded flows over <n> trailing periods indexed by last day in the flow window
 #' @param x = a matrix/data frame
-#' @param y = an integer (number of rows to compound/sum)
+#' @param y = a positive integer (number of rows to compound/sum)
 #' @param n = a boolean (sum/compound)
 #' @keywords compound.flows
 #' @export
@@ -1898,7 +1898,7 @@ day.seq <- function (x, y, n = 1)
 #' day.to.date
 #' 
 #' converts to an R date
-#' @param x = a calendar date vector
+#' @param x = a string vector
 #' @keywords day.to.date
 #' @export
 #' @family day
@@ -1940,7 +1940,7 @@ day.to.week <- function (x, y)
 #' day.to.weekday
 #' 
 #' Converts to 0 = Sun, 1 = Mon, .., 6 = Sat
-#' @param x = a YYYYMMDD vector
+#' @param x = a string vector
 #' @keywords day.to.weekday
 #' @export
 #' @family day
@@ -2168,7 +2168,7 @@ dtw <- function (x, y)
 dup.code <- function (x, y) 
 {
     z <- list(A = x, B = y)
-    z <- lapply(z, function(z) tryCatch(parse(text = z), error = function(e) {
+    z <- lapply(z, function(z) tryCatch(parse(text = z), error = function(z) {
         NULL
     }))
     halt <- all(!sapply(z, is.null))
@@ -2313,7 +2313,7 @@ err.raise <- function (x, y, n)
 #' err.raise.txt
 #' 
 #' error message
-#' @param x = a numeric vector
+#' @param x = a string vector
 #' @param y = a boolean (output many lines/one line)
 #' @param n = a string (main line of error message)
 #' @keywords err.raise.txt
@@ -2426,7 +2426,7 @@ farben <- function (x, y)
     if (length(z) == 1) 
         z <- list(One = h[, z])
     else z <- h[, z]
-    z <- lapply(z, function(x) paste(txt.right(paste0("0", as.hexmode(x)), 
+    z <- lapply(z, function(z) paste(txt.right(paste0("0", as.hexmode(z)), 
         2), collapse = ""))
     z <- paste0("#", toupper(as.character(unlist(z))))
     z
@@ -2777,7 +2777,7 @@ fcn.direct.super <- function (x)
 {
     z <- vec.to.list(fcn.list(), T)
     z <- lapply(z, fcn.direct.sub)
-    z <- sapply(z, function(y) any(is.element(y, x)))
+    z <- sapply(z, function(z) any(is.element(z, x)))
     z <- names(z)[z]
     z
 }
@@ -3338,9 +3338,9 @@ fcn.vec.grp <- function (fcn, x, y)
 #' fcn.vec.num
 #' 
 #' applies <fcn> to <x>
-#' @param fcn = a function (element to element)
-#' @param x = a numeric vector
-#' @param y = a numeric vector
+#' @param fcn = a function (vector to vector)
+#' @param x = a string vector
+#' @param y = a string vector
 #' @keywords fcn.vec.num
 #' @export
 #' @family fcn
@@ -3875,7 +3875,7 @@ ftp.del <- function (x, y, n, w, h, u = "ftp")
     z <- paste0(w[["ftp"]], x)
     u <- ifelse(w[["protocol"]] == "ftp", "DELE", "RM")
     tryCatch(curlPerform(url = z, quote = paste(u, x), userpwd = w[["userpwd"]]), 
-        error = function(e) {
+        error = function(z) {
             NULL
         })
     invisible()
@@ -3915,7 +3915,7 @@ ftp.dir.parse.ftp <- function (x)
 ftp.dir.parse.sftp <- function (x) 
 {
     n <- split(paste0(" ", month.abb, " "), month.abb)
-    n <- avail(lapply(n, function(y) txt.first(x, y)))
+    n <- avail(lapply(n, function(z) txt.first(x, z)))
     z <- substring(x, n + 1, nchar(x))
     z <- data.frame(substring(z, 1, 3), char.to.num(substring(z, 
         5, 6)), substring(z, 7, 12), substring(z, 13, nchar(z)), 
@@ -4154,7 +4154,7 @@ ftp.put <- function (x, y, n, w, h, u = "ftp", v)
         z <- getCurlHandle(ftp.use.epsv = w[["epsv"]], userpwd = w[["userpwd"]])
         z <- tryCatch(ftpUpload(y, paste0(w[["ftp"]], x, "/", 
             ftp.file(y)), curl = z, ftp.create.missing.dirs = T), 
-            error = function(e) {
+            error = function(z) {
                 NULL
             })
         ctr <- ctr - 1
@@ -4194,7 +4194,7 @@ ftp.rmdir <- function (x, y, n, w, h = "ftp")
     w <- ftp.missing(as.list(environment()), "ynwhu")
     z <- paste0(w[["ftp"]], x, "/")
     tryCatch(curlPerform(url = z, quote = paste0("RMD ", x, "/"), 
-        userpwd = w[["userpwd"]]), error = function(e) {
+        userpwd = w[["userpwd"]]), error = function(z) {
         NULL
     })
     invisible()
@@ -4357,12 +4357,12 @@ ftp.upload <- function (x, y, n, w, h, u = "ftp", v)
 #' probability that forward return is positive given predictor is positive
 #' @param x = a matrix/data frame (predictors)
 #' @param y = a matrix/data frame (total return indices)
-#' @param n = an integer (flow window in days/months)
+#' @param n = a positive integer (flow window in days/months)
 #' @param w = a boolean (sum/compound)
-#' @param h = an integer (lag in days/months)
-#' @param u = an integer (delay in days/months)
-#' @param v = an integer (0 = Sun, 1 = Mon, etc., the day you trade)
-#' @param g = an integer (return window in days/months)
+#' @param h = a non-negative integer (lag in days/months)
+#' @param u = a non-negative integer (delay in days/months)
+#' @param v = a non-negative integer (0 = Sun, 1 = Mon, etc., the day you trade)
+#' @param g = a positive integer (return window in days/months)
 #' @param r = a string (index within which you trade)
 #' @keywords fwd.probs
 #' @export
@@ -4393,12 +4393,12 @@ fwd.probs <- function (x, y, n, w, h, u, v, g, r)
 #' probability that forward return is positive given predictor is positive
 #' @param x = a matrix/data frame (predictors)
 #' @param y = a matrix/data frame (total return indices)
-#' @param n = an integer (flow window in days/months)
+#' @param n = a positive integer (flow window in days/months)
 #' @param w = a boolean (sum/compound)
-#' @param h = an integer (lag in days/months)
-#' @param u = an integer (delay in days/months)
-#' @param v = an integer (0 = Sun, 1 = Mon, etc., the day you trade)
-#' @param g = an integer (return window in days/months)
+#' @param h = a non-negative integer (lag in days/months)
+#' @param u = a non-negative integer (delay in days/months)
+#' @param v = a non-negative integer (0 = Sun, 1 = Mon, etc., the day you trade)
+#' @param g = a positive integer (return window in days/months)
 #' @param r = a string (index within which you trade)
 #' @keywords fwd.probs.wrapper
 #' @export
@@ -5567,7 +5567,7 @@ mat.daily.to.weekly <- function (fcn, x, y)
 
 mat.diff <- function (x, y) 
 {
-    fcn.mat.vec(function(x) vec.diff(x, y), x, , T)
+    fcn.mat.vec(function(z) vec.diff(z, y), x, , T)
 }
 
 #' mat.ex.array
@@ -5580,7 +5580,7 @@ mat.diff <- function (x, y)
 
 mat.ex.array <- function (x) 
 {
-    apply(x, 1, function(x) mat.index(array.unlist(x), length(dim(x)):1))
+    apply(x, 1, function(z) mat.index(array.unlist(z), length(dim(z)):1))
 }
 
 #' mat.ex.list
@@ -5867,8 +5867,8 @@ mat.to.obs <- function (x)
 #' 
 #' prepends the trade open and close dates and re-indexes by data date (as needed)
 #' @param x = a data frame (indexed by trade open date)
-#' @param y = an integer (delay in days)
-#' @param n = return horizon in weekdays
+#' @param y = a non-negative integer (delay in days)
+#' @param n = a positive integer (return window in weekdays)
 #' @param w = a boolean (index by data/trade-open date)
 #' @keywords mat.to.xlModel
 #' @export
@@ -6184,9 +6184,9 @@ mk.1dFloMo.CtrySG <- function (x, y, n, w, h, u = "E", v = F)
         stop("Can't handle this ..\n")
     }
     z <- split(names(z), z)
-    z <- sapply(z, function(x) if (length(x) == 1) 
-        paste("GeographicFocus =", x)
-    else paste0("GeographicFocus in (", paste(x, collapse = ", "), 
+    z <- sapply(z, function(z) if (length(z) == 1) 
+        paste("GeographicFocus =", z)
+    else paste0("GeographicFocus in (", paste(z, collapse = ", "), 
         ")"))
     z <- sql.1dFloMo.CtrySG(x, y, z, h, u, v)
     z <- sql.query(z, w)
@@ -6819,13 +6819,13 @@ mk.1wFloMo.CtryFlow.data <- function (x, y, n, w, h, u, v)
     w[["SCF"]] <- vec.to.list(x, T)
     z <- paste(w$MAP[!is.na(w$MAP[, 1]), 1], collapse = ", ")
     z <- c(y, paste0(colnames(w$MAP)[1], " in (", z, ")"), "UI")
-    w[["SCF"]] <- lapply(w[["SCF"]], function(x) sql.CtryFlow.Flow(x, 
+    w[["SCF"]] <- lapply(w[["SCF"]], function(l) sql.CtryFlow.Flow(l, 
         n, colnames(w$MAP)[1], u, z))
     w[["SCF"]] <- lapply(w[["SCF"]], function(z) sql.query.underlying(z, 
         h$conn, F))
     w[["CBF"]] <- vec.to.list(x, T)
     z <- c(y, v, "UI")
-    w[["CBF"]] <- lapply(w[["CBF"]], function(x) sql.CtryFlow.Flow(x, 
+    w[["CBF"]] <- lapply(w[["CBF"]], function(l) sql.CtryFlow.Flow(l, 
         n, "GeographicFocus", u, z))
     w[["CBF"]] <- lapply(w[["CBF"]], function(z) sql.query.underlying(z, 
         h$conn, F))
@@ -7160,7 +7160,7 @@ mk.EigenCentrality <- function (x, y, n)
         ]
     x <- split(x[, "HFundId"], x[, "SecurityId"])
     w <- Reduce(union, x)
-    x <- sapply(x, function(x) is.element(w, x))
+    x <- sapply(x, function(z) is.element(w, z))
     rownames(x) <- w
     x <- crossprod(x)
     w <- diag(x) > 9
@@ -7335,7 +7335,7 @@ mk.SatoMem <- function (x, y, n)
 
 mk.sf.daily <- function (fcn, x, y, n, w) 
 {
-    sql.get(function(x, y, n) sql.query(fcn(x, y), n, F), x, 
+    sql.get(function(z, l, k) sql.query(fcn(z, l), k, F), x, 
         y, n, w)
 }
 
@@ -7606,7 +7606,7 @@ mk.Wt <- function (x, y, n)
 multi.asset <- function (x) 
 {
     x <- lapply(vec.to.list(x), mat.read)
-    z <- Reduce(function(x, y) mat.index(merge(x, y, by = 0)), 
+    z <- Reduce(function(z, l) mat.index(merge(z, l, by = 0)), 
         x)
     z
 }
@@ -7932,8 +7932,8 @@ plurality.map <- function (x, y)
 {
     x <- list(x = x, y = y, obs = rep(1, length(x)), pct = rep(1, 
         length(x)))
-    w <- Reduce("&", lapply(x, function(x) !is.na(x)))
-    x <- lapply(x, function(x) x[w])
+    w <- Reduce("&", lapply(x, function(z) !is.na(z)))
+    x <- lapply(x, function(z) z[w])
     z <- aggregate(obs ~ x + y, data = x, sum)
     x <- aggregate(pct ~ x, data = x, sum)
     z <- z[order(z[, "obs"], decreasing = T), ]
@@ -7949,7 +7949,7 @@ plurality.map <- function (x, y)
 #' <n> day beta of columns of <x> with respect to benchmark <y>
 #' @param x = a matrix/data frame (total return indices)
 #' @param y = a string (benchmark like "ACWorld")
-#' @param n = an integer (lookback in days)
+#' @param n = a positive integer (lookback in days)
 #' @keywords portfolio.beta.wrapper
 #' @export
 #' @family portfolio
@@ -7961,7 +7961,7 @@ portfolio.beta.wrapper <- function (x, y, n)
     x[, "Benchmark"] <- y
     z <- mat.ex.matrix(ret.ex.idx(x, 1, F, T))[-1, ]
     z <- list(x = z, xy = z * z[, "Benchmark"])
-    z <- lapply(z, function(x) mat.rollsum(x, n))
+    z <- lapply(z, function(z) mat.rollsum(z, n))
     z <- z[["xy"]]/n - z[["x"]] * z[["x"]][, "Benchmark"]/n^2
     z <- z[, colnames(z) != "Benchmark"]/nonneg(z[, "Benchmark"])
     z
@@ -8227,10 +8227,10 @@ publications.data <- function (x, y, n, w)
         cat("Updating", n, "for the following periods:\n")
         x <- vec.to.list(x, T)
         if (is.function(y)) {
-            h <- function(i, j) y(i)
+            h <- function(z, l) y(z)
         }
         else {
-            h <- function(i, j) txt.replace(y, "YYYYMMDD", i)
+            h <- function(z, l) txt.replace(y, "YYYYMMDD", z)
         }
         x <- mk.sf.daily(h, x, w, 12, "All")
         for (i in names(x)) mat.write(x[[i]], paste0(n, "\\", 
@@ -8558,12 +8558,12 @@ recipient.read <- function (x)
     z <- mat.read(parameters("classif-recipient"), "\t", NULL)
     z <- z[is.element(z[, "email"], x), ]
     z <- split(z$recipient, z$tranche)
-    w <- sapply(z, function(x) any(x == "ALLES"))
+    w <- sapply(z, function(z) any(z == "ALLES"))
     for (j in names(z)[w]) {
         z[[j]] <- setdiff(z[[j]], "ALLES")
         z[[j]] <- c(z[[j]], recipient.read("ALLES"))
     }
-    z <- sapply(z, function(x) paste(x, collapse = "; "))
+    z <- sapply(z, function(z) paste(z, collapse = "; "))
     z
 }
 
@@ -8891,7 +8891,7 @@ reshape.wide <- function (x)
 #' 
 #' computes return
 #' @param x = a matrix/data frame (total return indices)
-#' @param y = an integer (return window)
+#' @param y = a positive integer (return window)
 #' @param n = a boolean (label returns by beginning/end of the period)
 #' @param w = a boolean (returns/spread changes)
 #' @keywords ret.ex.idx
@@ -9309,7 +9309,7 @@ separating.hyperplane <- function (x, y)
 #' @param v = a folder (must have sub-folders data/derived)
 #' @param g = an integer (number of bins)
 #' @param r = classif file
-#' @param s = an integer (forward return horizon)
+#' @param s = a positive integer (return window)
 #' @param b = a boolean (geometric/artihmetic returns)
 #' @keywords sf
 #' @export
@@ -9370,7 +9370,7 @@ sf.bin.nms <- function (x, y)
 #' @param g = an integer (number of bins)
 #' @param r = classif file
 #' @param s = an integer (NULL for daily or the day you trade, 0 = Sun, 1 = Mon, etc.)
-#' @param b = an integer (return window in days, can be missing)
+#' @param b = a positive integer (return window in days, can be missing)
 #' @keywords sf.daily
 #' @export
 #' @family sf
@@ -9491,7 +9491,7 @@ sf.detail <- function (fcn, x, y, n, w, h, u, v, g = 5, r, s = NULL)
 #' @param v = a folder (must have sub-folders data/derived)
 #' @param g = an integer vector (if vector, last element T/F for dep/indep binning))
 #' @param r = classif file
-#' @param s = an integer (forward return horizon)
+#' @param s = a positive integer (return window)
 #' @param b = a boolean (equal/cap-weight universe return)
 #' @param p = a variable (cap-weighting factor)
 #' @keywords sf.single.bsim
@@ -9504,7 +9504,7 @@ sf.single.bsim <- function (fcn, x, y, n, w, h, u, v, g = 5, r, s = 1, b = T, p 
     z <- vec.to.list(yyyymm.seq(x, y), T)
     if (nchar(x) == 8) 
         z <- z[!is.element(names(z), nyse.holidays())]
-    z <- lapply(z, function(x) sf.underlying.data(fcn, x, p, 
+    z <- lapply(z, function(z) sf.underlying.data(fcn, z, p, 
         n, w, h, u, v, g, r, s))
     fcn <- function(z) {
         l <- ifelse(is.na(z[, "ret"]), 0, z[, "mem"])
@@ -9515,7 +9515,7 @@ sf.single.bsim <- function (fcn, x, y, n, w, h, u, v, g = 5, r, s = 1, b = T, p 
     if (length(g) == 1) 
         h <- map.rname(h, sf.bin.nms(g, b))
     h <- t(h)
-    z <- lapply(z, function(x) sf.underlying.summ(x, b))
+    z <- lapply(z, function(z) sf.underlying.summ(z, b))
     z <- array.ex.list(z, T)
     if (length(g) == 1) 
         z <- map.rname(z, sf.bin.nms(g, b))
@@ -9564,7 +9564,7 @@ sf.subset <- function (x, y, n, w)
 #' @param v = a folder (data)
 #' @param g = an integer vector (if vector, last element T/F for dep/indep binning))
 #' @param r = classif file
-#' @param s = an integer (return window)
+#' @param s = a positive integer (return window)
 #' @keywords sf.underlying.data
 #' @export
 #' @family sf
@@ -9955,7 +9955,7 @@ sfpd.Wt <- function (x)
 shell.wrapper <- function (x, y) 
 {
     setTimeLimit(elapsed = y, transient = T)
-    z <- tryCatch(shell(x, intern = T), error = function(e) {
+    z <- tryCatch(shell(x, intern = T), error = function(z) {
         NULL
     })
     z
@@ -10117,7 +10117,7 @@ sim.optimal <- function (x, y, n, w, h, u)
         if (u > 0) {
             vec <- list(A = apply(x[, c("Grp", "Stk")], 1, min), 
                 B = sign(h) * x[, "Ret"])
-            vec <- sapply(vec, function(x) x/sqrt(sum(x^2)), 
+            vec <- sapply(vec, function(z) z/sqrt(sum(z^2)), 
                 simplify = "array")
             x <- x[order((vec %*% c(100 - u, u))[, 1], decreasing = T), 
                 ]
@@ -10147,7 +10147,7 @@ sim.optimal <- function (x, y, n, w, h, u)
 
 sim.overall <- function (x, y, n) 
 {
-    x <- mat.ex.matrix(t(sapply(x, function(x) sim.summ(x, n))))
+    x <- mat.ex.matrix(t(sapply(x, function(z) sim.summ(z, n))))
     x$to <- y
     z <- c("to", "Names", "Act", txt.expand(names(n), c("Selec", 
         "Alloc", "Intcn"), ""))
@@ -10427,7 +10427,7 @@ sql.1dActWtTrend.select <- function (x)
 #' @param n = DB - any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = a boolean (index by HSecurityId/SecurityId)
 #' @param h = a breakdown filter vector (e.g. All/GeoId/DomicileId)
-#' @param u = ShareClass filter (one of All/Inst/Retail)
+#' @param u = a ShareClass filter (All/Inst/Retail)
 #' @keywords sql.1dFloMo
 #' @export
 #' @family sql
@@ -10851,7 +10851,7 @@ sql.1dFloTrend.Alloc <- function (x, y, n, w = NULL)
 #' sql.1dFloTrend.Alloc.data
 #' 
 #' gets data for FloTrend
-#' @param x = a string (SQL statement)
+#' @param x = a SQL query
 #' @param y = a country-code/sector-code vector (indexed by Id)
 #' @param n = a connection string/connection
 #' @keywords sql.1dFloTrend.Alloc.data
@@ -10959,8 +10959,8 @@ sql.1dFloTrend.Alloc.purge <- function (x, y)
 {
     h <- c("FundId", y)
     z <- sql.tbl(h, x, , paste(h, collapse = ", "), "not count(Allocation) = 2")
-    h <- lapply(split(h, h), function(h) paste0(x, ".", h, " = t.", 
-        h))
+    h <- lapply(split(h, h), function(z) paste0(x, ".", z, " = t.", 
+        z))
     z <- sql.tbl(c("FundId", y), sql.label(z, "t"), sql.and(h))
     z <- sql.delete(x, sql.exists(z))
     z
@@ -11104,7 +11104,7 @@ sql.1mActWt.underlying <- function (x, y)
 #' @param h = a boolean (account for/ignore price action)
 #' @param u = one of AssetsStart/Flow/NULL
 #' @param v = a boolean (chuck/keep securities held by just one fund)
-#' @param g = ShareClass filter (one of All/Inst/Retail) (x not monthly!)
+#' @param g = a ShareClass filter (All/Inst/Retail, x not monthly!)
 #' @keywords sql.1mAllocD
 #' @export
 #' @family sql
@@ -11315,7 +11315,7 @@ sql.1mAllocD.select <- function (x)
 #' @param y = factors and filters
 #' @param n = DB - any of StockFlows/China/Japan/CSI300/Energy
 #' @param w = a boolean (index by HSecurityId/SecurityId)
-#' @param h = ShareClass filter (one of All/Inst/Retail)
+#' @param h = a ShareClass filter (All/Inst/Retail)
 #' @keywords sql.1mAllocSkew
 #' @export
 #' @family sql
@@ -11384,7 +11384,7 @@ sql.1mAllocSkew.topline.from <- function (x, y)
 #' @param x = a YYYYMM/flowdate vector
 #' @param y = a filter vector
 #' @param n = a string ("" or SQL query)
-#' @param w = ShareClass filter (one of All/Inst/Retail)
+#' @param w = a ShareClass filter (All/Inst/Retail)
 #' @keywords sql.1mAllocSkew.underlying
 #' @export
 #' @family sql
@@ -11526,7 +11526,7 @@ sql.1mChActWt <- function (x, y)
 #' @param w = a boolean (index by HSecurityId/SecurityId)
 #' @param h = a breakdown filter (e.g. All/GeoId/DomicileId)
 #' @param u = an integer (count only that many funds unless zero)
-#' @param v = ShareClass filter (one of All/Inst/Retail)
+#' @param v = a ShareClass filter (All/Inst/Retail)
 #' @keywords sql.1mFundCt
 #' @export
 #' @family sql
@@ -12238,7 +12238,7 @@ sql.CtryFlow.Alloc <- function (x, y, n, w, h)
 #' SQL query for single-group flows
 #' @param x = a YYYYMMDD
 #' @param y = a string vector (Flow/AssetsStart/AssetsEnd/PortfolioChange)
-#' @param n = a string vector (characteristics)
+#' @param n = a column vector (must be in FundHistory!)
 #' @param w = a frequency (T/F for daily/weekly or D/W/M)
 #' @param h = a filter vector
 #' @keywords sql.CtryFlow.Flow
@@ -12291,7 +12291,7 @@ sql.currprior <- function (fcn, x, y, n, w)
 #' @param x = a flowdate vector
 #' @param y = a boolean (group by HFundId/FundId)
 #' @param n = a boolean (StockFlows/Macro)
-#' @param w = ShareClass filter (one of All/Inst/Retail)
+#' @param w = a ShareClass filter (All/Inst/Retail)
 #' @param h = a boolean (do/don't report AssetsEnd)
 #' @keywords sql.DailyFlo
 #' @export
@@ -12536,7 +12536,7 @@ sql.extra.domicile <- function (x, y, n)
 #' sql.Flow
 #' 
 #' SQL query to fetch daily/weekly/monthly flows
-#' @param x = a column vector
+#' @param x = a string vector
 #' @param y = a where clause vector (the first is a flowdate)
 #' @param n = a filter vector
 #' @param w = a column vector (must be in FundHistory!)
@@ -12604,7 +12604,7 @@ sql.Flow.tbl <- function (x, y)
 sql.Foreign <- function () 
 {
     x <- mat.read(parameters("classif-Ctry"))[, c("GeoId", "DomicileId")]
-    x <- x[apply(x, 1, function(x) sum(!is.na(x))) == 2, ]
+    x <- x[apply(x, 1, function(z) sum(!is.na(z))) == 2, ]
     x[, "DomicileId"] <- paste0("Domicile = '", x[, "DomicileId"], 
         "'")
     x[, "DomicileId"] <- paste("Domicile is not NULL and", x[, 
@@ -13116,7 +13116,7 @@ sql.MonthlyAlloc <- function (x, y = "All", n = F, w = F)
 #' @param x = a YYYYMMDD or list (where clause)
 #' @param y = a column vector (besides AssetsEnd)
 #' @param n = a boolean (data are indexed by FundId/HFundId)
-#' @param w = ShareClass filter (one of All/Inst/Retail)
+#' @param w = a ShareClass filter (All/Inst/Retail)
 #' @param h = a column (name for AssetsEnd like "PortVal")
 #' @keywords sql.MonthlyAssetsEnd
 #' @export
@@ -13139,7 +13139,7 @@ sql.MonthlyAssetsEnd <- function (x, y = NULL, n = F, w = "All", h = "AssetsEnd"
         else x <- sql.ShareClass(paste("ReportDate =", x), w)
     u <- c("AssetsEnd", "AssetsStart")
     u <- vec.to.list(intersect(u, y), T)
-    u <- sql.and(lapply(u, function(x) paste0("sum(", x, ") > 0")))
+    u <- sql.and(lapply(u, function(z) paste0("sum(", z, ") > 0")))
     y <- "MonthlyData"
     if (n == "FundId") 
         y <- c(sql.label(y, "t1"), "inner join", "FundHistory t2 on t2.HFundId = t1.HFundId")
@@ -13192,7 +13192,7 @@ sql.Overweight <- function (x)
 #' sql.query
 #' 
 #' opens a connection, executes sql query, then closes the connection
-#' @param x = a string (update query)
+#' @param x = a SQL query vector
 #' @param y = a connection string/connection
 #' @param n = a boolean (report/ignore record count)
 #' @keywords sql.query
@@ -13224,7 +13224,7 @@ sql.RDSuniv <- function (x)
     colnames(u[["U"]]) <- c("Univ", "RDS")
     u[["U"]] <- Reduce(merge, u)
     u[["F"]][, "RDS"] <- u[["F"]][, "Univ"]
-    u <- Reduce(rbind, lapply(u, function(x) x[, names(u[["F"]])]))
+    u <- Reduce(rbind, lapply(u, function(z) z[, names(u[["F"]])]))
     if (any(x == u[, "RDS"])) {
         u <- vec.named(u[u[, "RDS"] == x, "Univ"], u[u[, "RDS"] == 
             x, "FundId"])
@@ -13299,7 +13299,7 @@ sql.ReportDate <- function (x)
 #' 
 #' Generates where clause for share-class filter
 #' @param x = date restriction
-#' @param y = ShareClass filter (one of All/Inst/Retail)
+#' @param y = a ShareClass filter (All/Inst/Retail)
 #' @keywords sql.ShareClass
 #' @export
 #' @family sql
@@ -13842,7 +13842,7 @@ stratrets <- function (x)
     y <- mat.read(parameters("classif-strat"), "\t", NULL)
     y <- y[is.element(y[, "vbl"], x), ]
     z <- vec.to.list(y[, "strat"], T)
-    z <- lapply(z, function(y) stratrets.bbk(y, x))
+    z <- lapply(z, function(z) stratrets.bbk(z, x))
     z <- array.ex.list(z, T, T)
     z <- z[order(rownames(z)), y[, "strat"]]
     if (nchar(rownames(z)[1]) == 6) {
@@ -13852,8 +13852,8 @@ stratrets <- function (x)
         rownames(z) <- day.lag(rownames(z), -7)
     }
     z <- mat.ex.matrix(z)
-    x <- min(sapply(z, function(x) find.data(!is.na(x), T)))
-    x <- c(x, max(sapply(z, function(x) find.data(!is.na(x), 
+    x <- min(sapply(z, function(z) find.data(!is.na(z), T)))
+    x <- c(x, max(sapply(z, function(z) find.data(!is.na(z), 
         F))))
     z <- z[seq(x[1], x[2]), ]
     z
@@ -13886,7 +13886,7 @@ stratrets.bbk <- function (x, y)
 #' @param x = a matrix/data frame (predictors)
 #' @param y = a matrix/data frame (total return indices)
 #' @param n = a string (benchmark like "ACWorld")
-#' @param w = an integer (lookback in days)
+#' @param w = a positive integer (lookback in days)
 #' @keywords stratrets.beta
 #' @export
 #' @family stratrets
@@ -13939,10 +13939,10 @@ stratrets.data <- function (x, y)
 #' 
 #' data frame compounded across <y>
 #' @param x = a file vector (strategies)
-#' @param y = an integer (lookback)
+#' @param y = a positive integer (lookback)
 #' @param n = a boolean (sum/compound)
 #' @param w = if T, sector-adjustment is performed
-#' @param h = an integer (delay, only used when <w>)
+#' @param h = a non-negative integer (delay, only used when <w>)
 #' @keywords stratrets.indicator
 #' @export
 #' @family stratrets
@@ -14070,8 +14070,8 @@ stratrets.returns <- function (x)
         x <- map.rname(mat.read(x), rownames(z))
         z <- data.frame(z, x[, c("LatAm", "EurXGB", "PacXJP", 
             "AsiaXJP")], stringsAsFactors = F)
-        x <- max(sapply(z, function(x) find.data(!is.na(x), T)))
-        x <- x:min(sapply(z, function(x) find.data(!is.na(x), 
+        x <- max(sapply(z, function(z) find.data(!is.na(z), T)))
+        x <- x:min(sapply(z, function(z) find.data(!is.na(z), 
             F)))
         z <- z[x, ]
     }
@@ -14149,7 +14149,7 @@ stratrets.subset.Ctry <- function (x, y)
 #' summarizes the multi-period back test
 #' @param fcn = a function (summary)
 #' @param x = a data frame (bin returns)
-#' @param y = an integer (return window in days/months)
+#' @param y = a positive integer (return window in days/months)
 #' @keywords summ.multi
 #' @export
 
@@ -14702,7 +14702,7 @@ txt.parse <- function (x, y)
         x <- strsplit(x, y, fixed = T)
         n <- max(sapply(x, length))
         y <- rep("", n)
-        z <- sapply(x, function(x) c(x, y)[1:n], simplify = "array")
+        z <- sapply(x, function(z) c(z, y)[1:n], simplify = "array")
         if (is.null(dim(z))) 
             z <- as.matrix(z)
         else z <- t(z)
@@ -14900,13 +14900,20 @@ txt.subclass <- function (x, y, n)
 
 txt.subclass.underlying <- function (x, y, n) 
 {
+    z <- x != y
+    if (z & grepl("^ (a|an) .+/.+", y)) {
+        u <- txt.parse(gsub("^ (a|an) ", "", y), "/")
+        u <- split(paste(" a", u), u)
+        z <- all(sapply(u, function(z) txt.subclass.underlying(x, 
+            z, n)))
+    }
     u <- gsub("^ (a|an) ", "", x)
     if (grepl("/", x)) {
         u <- txt.parse(u, "/")
         n <- rbind(n, matrix(rep(n[, "child"], 2), dim(n)[1], 
             2, F, list(1:dim(n)[1], colnames(n))))
         n <- split(n[, "child"], n[, "parent"])
-        n <- sapply(n, function(x) all(is.element(u, x)))
+        n <- sapply(n, function(z) all(is.element(u, z)))
         u <- gsub("^ (a|an) ", "", x)
         u <- paste(c(u, names(n)[n]), collapse = "|")
     }
@@ -14914,11 +14921,37 @@ txt.subclass.underlying <- function (x, y, n)
         u <- c(u, n[is.element(n[, "child"], u), "parent"])
         u <- paste(u, collapse = "|")
     }
-    z <- x != y
-    if (grepl("^ (a|an) ", x)) {
-        u <- paste0("(^ )(a|an)( )(.*/)?(", u, ")(/.*)?$")
-        z <- z & !grepl(u, y)
+    if (z) 
+        if (grepl("^ (a|an) ", x)) {
+            u <- paste0("(^ )(a|an)( )(.*/)?(", u, ")(/.*)?$")
+            z <- z & !grepl(u, y)
+        }
+    z
+}
+
+#' txt.subclass.wrapper
+#' 
+#' functions, arguments and comments
+#' @keywords txt.subclass.wrapper
+#' @export
+#' @family txt
+
+txt.subclass.wrapper <- function () 
+{
+    x <- z <- mat.read(parameters("classif-subclass"), "\t", 
+        NULL)
+    colnames(x) <- c("grandchild", "child")
+    x <- merge(x, z)[, -1]
+    colnames(x) <- colnames(z)
+    w <- !is.element(do.call(paste, x), do.call(paste, z))
+    while (any(w)) {
+        x <- z <- rbind(z, x[w, ])
+        colnames(x) <- c("grandchild", "child")
+        x <- merge(x, z)[, -1]
+        colnames(x) <- colnames(z)
+        w <- !is.element(do.call(paste, x), do.call(paste, z))
     }
+    z <- rbind(z, apply(z, 2, function(z) paste(z, "vector")))
     z
 }
 
@@ -15039,14 +15072,14 @@ utf8.to.quoted.printable <- function (x)
     x <- utf8ToInt(x)
     x <- base.ex.int(x, 64)
     x <- split(x, 1:3)
-    x <- lapply(x, function(x) base.ex.int(x, 16))
-    x <- lapply(x, function(x) c(rep(0, 2 - length(x)), x))
-    x <- lapply(x, function(x) x + 1)
-    x <- lapply(x, function(x) c(x[1], y[x[2]]))
+    x <- lapply(x, function(z) base.ex.int(z, 16))
+    x <- lapply(x, function(z) c(rep(0, 2 - length(z)), z))
+    x <- lapply(x, function(z) z + 1)
+    x <- lapply(x, function(z) c(z[1], y[z[2]]))
     x[[1]][1] <- r[char.to.num(x[[1]][1])]
     x[[2]][1] <- h[char.to.num(x[[2]][1])]
     x[[3]][1] <- h[char.to.num(x[[3]][1])]
-    x <- sapply(x, function(x) paste(x, collapse = ""))
+    x <- sapply(x, function(z) paste(z, collapse = ""))
     z <- paste(x, collapse = "=")
     z
 }
@@ -15194,8 +15227,8 @@ vec.last <- function (x)
 
 vec.max <- function (x, y) 
 {
-    fcn.mat.vec(function(x, y) ifelse(!is.na(x) & !is.na(y) & 
-        x < y, y, x), x, y, T)
+    fcn.mat.vec(function(z, l) ifelse(!is.na(z) & !is.na(l) & 
+        z < l, l, z), x, y, T)
 }
 
 #' vec.min
@@ -15209,14 +15242,14 @@ vec.max <- function (x, y)
 
 vec.min <- function (x, y) 
 {
-    fcn.mat.vec(function(x, y) ifelse(!is.na(x) & !is.na(y) & 
-        x > y, y, x), x, y, T)
+    fcn.mat.vec(function(z, l) ifelse(!is.na(z) & !is.na(l) & 
+        z > l, l, z), x, y, T)
 }
 
 #' vec.named
 #' 
 #' Returns a numeric vector with values <x> and names <y>
-#' @param x = a numeric vector (can be missing)
+#' @param x = a string vector (can be missing)
 #' @param y = a string vector
 #' @keywords vec.named
 #' @export
@@ -15299,7 +15332,7 @@ vec.to.list <- function (x, y = F, n = F)
     else {
         z <- split(x, seq_along(x))
         if (y & n) 
-            names(z) <- sapply(z, function(x) x)
+            names(z) <- sapply(z, function(z) z)
     }
     z
 }
@@ -15363,8 +15396,8 @@ wrap <- function (x)
 #' yyyy.ex.period
 #' 
 #' the year in which the return window ends
-#' @param x = a numeric vector (trade dates)
-#' @param y = an integer (return window in days/months)
+#' @param x = a YYYYMM/flowdate vector (trade dates)
+#' @param y = a positive integer (return window in days/months)
 #' @keywords yyyy.ex.period
 #' @export
 #' @family yyyy

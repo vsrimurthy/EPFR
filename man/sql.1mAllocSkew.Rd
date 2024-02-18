@@ -15,7 +15,7 @@ sql.1mAllocSkew(x, y, n, w, h = "All")
 
 \item{w}{= a boolean (index by HSecurityId/SecurityId)}
 
-\item{h}{= ShareClass filter (one of All/Inst/Retail)}
+\item{h}{= a ShareClass filter (All/Inst/Retail)}
 }
 \description{
 Generates the SQL query to get the data for 1mAllocTrend

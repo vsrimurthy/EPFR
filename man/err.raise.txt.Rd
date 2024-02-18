@@ -7,7 +7,7 @@
 err.raise.txt(x, y, n)
 }
 \arguments{
-\item{x}{= a numeric vector}
+\item{x}{= a string vector}
 
 \item{y}{= a boolean (output many lines/one line)}
 

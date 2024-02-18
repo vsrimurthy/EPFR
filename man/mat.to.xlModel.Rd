@@ -9,9 +9,9 @@ mat.to.xlModel(x, y = 2, n = 5, w = F)
 \arguments{
 \item{x}{= a data frame (indexed by trade open date)}
 
-\item{y}{= an integer (delay in days)}
+\item{y}{= a non-negative integer (delay in days)}
 
-\item{n}{= return horizon in weekdays}
+\item{n}{= a positive integer (return window in weekdays)}
 
 \item{w}{= a boolean (index by data/trade-open date)}
 }

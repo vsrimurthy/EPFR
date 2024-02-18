@@ -13,7 +13,7 @@ sql.1mAllocSkew.underlying(x, y, n, w)
 
 \item{n}{= a string ("" or SQL query)}
 
-\item{w}{= ShareClass filter (one of All/Inst/Retail)}
+\item{w}{= a ShareClass filter (All/Inst/Retail)}
 }
 \description{
 the SQL query to get the data for 1dActWtTrend

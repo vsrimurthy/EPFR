@@ -13,7 +13,7 @@ sql.MonthlyAssetsEnd(x, y = NULL, n = F, w = "All", h = "AssetsEnd")
 
 \item{n}{= a boolean (data are indexed by FundId/HFundId)}
 
-\item{w}{= ShareClass filter (one of All/Inst/Retail)}
+\item{w}{= a ShareClass filter (All/Inst/Retail)}
 
 \item{h}{= a column (name for AssetsEnd like "PortVal")}
 }

@@ -7,9 +7,9 @@
 yyyy.ex.period(x, y)
 }
 \arguments{
-\item{x}{= a numeric vector (trade dates)}
+\item{x}{= a YYYYMM/flowdate vector (trade dates)}
 
-\item{y}{= an integer (return window in days/months)}
+\item{y}{= a positive integer (return window in days/months)}
 }
 \description{
 the year in which the return window ends

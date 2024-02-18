@@ -17,7 +17,7 @@ sql.1dFloMo(x, y, n, w, h, u = "All")
 
 \item{h}{= a breakdown filter vector (e.g. All/GeoId/DomicileId)}
 
-\item{u}{= ShareClass filter (one of All/Inst/Retail)}
+\item{u}{= a ShareClass filter (All/Inst/Retail)}
 }
 \description{
 Generates the SQL query to get the data for 1dFloMo for individual stocks

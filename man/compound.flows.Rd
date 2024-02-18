@@ -9,7 +9,7 @@ compound.flows(x, y, n = F)
 \arguments{
 \item{x}{= a matrix/data frame}
 
-\item{y}{= an integer (number of rows to compound/sum)}
+\item{y}{= a positive integer (number of rows to compound/sum)}
 
 \item{n}{= a boolean (sum/compound)}
 }

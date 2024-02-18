@@ -11,7 +11,7 @@ summ.multi(fcn, x, y)
 
 \item{x}{= a data frame (bin returns)}
 
-\item{y}{= an integer (return window in days/months)}
+\item{y}{= a positive integer (return window in days/months)}
 }
 \description{
 summarizes the multi-period back test

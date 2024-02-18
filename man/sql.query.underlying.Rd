@@ -7,7 +7,7 @@
 sql.query.underlying(x, y, n = T)
 }
 \arguments{
-\item{x}{= a string (update query)}
+\item{x}{= a SQL query vector}
 
 \item{y}{= a connection, the output of odbcDriverConnect}
 

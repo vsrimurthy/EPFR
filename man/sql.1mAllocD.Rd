@@ -21,7 +21,7 @@ sql.1mAllocD(x, y, n, w, h, u = NULL, v = T, g = "All")
 
 \item{v}{= a boolean (chuck/keep securities held by just one fund)}
 
-\item{g}{= ShareClass filter (one of All/Inst/Retail) (x not monthly!)}
+\item{g}{= a ShareClass filter (All/Inst/Retail, x not monthly!)}
 }
 \description{
 SQL query for 1mAllocD

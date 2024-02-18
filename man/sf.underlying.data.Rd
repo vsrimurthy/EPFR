@@ -27,7 +27,7 @@ sf.underlying.data(fcn, x, y, n, w, h, u, v, g, r, s)
 
 \item{r}{= classif file}
 
-\item{s}{= an integer (return window)}
+\item{s}{= a positive integer (return window)}
 }
 \description{
 Gets data needed to back-test a single period

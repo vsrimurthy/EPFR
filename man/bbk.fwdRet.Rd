@@ -11,7 +11,7 @@ bbk.fwdRet(x, y, n, w)
 
 \item{y}{= a matrix/data frame (total return indices)}
 
-\item{n}{= an integer (return window in days)}
+\item{n}{= a positive integer (return window in days)}
 
 \item{w}{= a boolean (returns/spread changes)}
 }

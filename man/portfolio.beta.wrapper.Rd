@@ -11,7 +11,7 @@ portfolio.beta.wrapper(x, y, n)
 
 \item{y}{= a string (benchmark like "ACWorld")}
 
-\item{n}{= an integer (lookback in days)}
+\item{n}{= a positive integer (lookback in days)}
 }
 \description{
 <n> day beta of columns of <x> with respect to benchmark <y>

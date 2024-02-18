@@ -13,7 +13,7 @@ stratrets.beta(x, y, n, w)
 
 \item{n}{= a string (benchmark like "ACWorld")}
 
-\item{w}{= an integer (lookback in days)}
+\item{w}{= a positive integer (lookback in days)}
 }
 \description{
 beta-adjusted indicator

@@ -11,7 +11,7 @@ britten.jones.data(x, y, n, w = NULL)
 
 \item{y}{= a matrix/data frame (total return indices)}
 
-\item{n}{= an integer (return window)}
+\item{n}{= a positive integer (return window)}
 
 \item{w}{= a string (index within which you trade)}
 }

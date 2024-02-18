@@ -9,7 +9,7 @@ ret.ex.idx(x, y, n, w)
 \arguments{
 \item{x}{= a matrix/data frame (total return indices)}
 
-\item{y}{= an integer (return window)}
+\item{y}{= a positive integer (return window)}
 
 \item{n}{= a boolean (label returns by beginning/end of the period)}
 

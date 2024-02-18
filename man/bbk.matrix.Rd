@@ -12,9 +12,9 @@ bbk.matrix(x, y, n, w = 5, h = 5, u = 5, v = F, g = 0, r = 2,
 
 \item{y}{= a matrix/data frame (total return indices)}
 
-\item{n}{= an integer (flow window in days/months)}
+\item{n}{= a positive integer (flow window in days/months)}
 
-\item{w}{= an integer (return window in days/months)}
+\item{w}{= a positive integer (return window in days/months)}
 
 \item{h}{= an integer (number of bins)}
 
@@ -22,9 +22,9 @@ bbk.matrix(x, y, n, w = 5, h = 5, u = 5, v = F, g = 0, r = 2,
 
 \item{v}{= a boolean (sum/compound)}
 
-\item{g}{= an integer (lag in days/months)}
+\item{g}{= a non-negative integer (lag in days/months)}
 
-\item{r}{= an integer (delay in days/months)}
+\item{r}{= a non-negative integer (delay in days/months)}
 
 \item{s}{= a string (index within which you trade)}
 

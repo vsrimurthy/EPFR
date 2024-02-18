@@ -9,7 +9,7 @@ britten.jones.data.stack(x, y, n, w, h)
 \arguments{
 \item{x}{= a matrix/data frame}
 
-\item{y}{= an integer (return window)}
+\item{y}{= a positive integer (return window)}
 
 \item{n}{=}
 

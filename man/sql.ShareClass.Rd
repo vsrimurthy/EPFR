@@ -9,7 +9,7 @@ sql.ShareClass(x, y)
 \arguments{
 \item{x}{= date restriction}
 
-\item{y}{= ShareClass filter (one of All/Inst/Retail)}
+\item{y}{= a ShareClass filter (All/Inst/Retail)}
 }
 \description{
 Generates where clause for share-class filter

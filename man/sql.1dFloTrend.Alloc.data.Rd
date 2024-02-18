@@ -7,7 +7,7 @@
 sql.1dFloTrend.Alloc.data(x, y, n)
 }
 \arguments{
-\item{x}{= a string (SQL statement)}
+\item{x}{= a SQL query}
 
 \item{y}{= a country-code/sector-code vector (indexed by Id)}
 

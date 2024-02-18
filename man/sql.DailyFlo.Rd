@@ -13,7 +13,7 @@ sql.DailyFlo(x, y = T, n = T, w = "All", h = F)
 
 \item{n}{= a boolean (StockFlows/Macro)}
 
-\item{w}{= ShareClass filter (one of All/Inst/Retail)}
+\item{w}{= a ShareClass filter (All/Inst/Retail)}
 
 \item{h}{= a boolean (do/don't report AssetsEnd)}
 }

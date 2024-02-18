@@ -19,7 +19,7 @@ sql.1mFundCt(x, y, n, w, h, u = 0, v = "All")
 
 \item{u}{= an integer (count only that many funds unless zero)}
 
-\item{v}{= ShareClass filter (one of All/Inst/Retail)}
+\item{v}{= a ShareClass filter (All/Inst/Retail)}
 }
 \description{
 Generates FundCt, the ownership breadth measure set forth in #		:	Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"

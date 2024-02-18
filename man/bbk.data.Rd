@@ -11,17 +11,17 @@ bbk.data(x, y, n, w, h, u, v, g, r, s)
 
 \item{y}{= a matrix/data frame (total return indices)}
 
-\item{n}{= an integer (flow window in days/months)}
+\item{n}{= a positive integer (flow window in days/months)}
 
 \item{w}{= a boolean (sum/compound)}
 
-\item{h}{= an integer (lag in days/months)}
+\item{h}{= a non-negative integer (lag in days/months)}
 
-\item{u}{= an integer (delay in days/months)}
+\item{u}{= a non-negative integer (delay in days/months)}
 
-\item{v}{= an integer (0 = Sun, 1 = Mon, etc., the day you trade)}
+\item{v}{= a non-negative integer (0 = Sun, 1 = Mon, etc., the day you trade)}
 
-\item{g}{= an integer (return window in days/months)}
+\item{g}{= a positive integer (return window in days/months)}
 
 \item{r}{= a string (index within which you trade)}
 
