@@ -7,10 +7,10 @@
 fcn.direct.super(x)
 }
 \arguments{
-\item{x}{= a string (function name)}
+\item{x}{= a string vector (function names)}
 }
 \description{
-names of all functions that directly depend on <x>
+all functions directly depending on <x>
 }
 \seealso{
 Other fcn: \code{\link{fcn.all.canonical}},

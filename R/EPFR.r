@@ -2466,15 +2466,22 @@ fcn.all.sub <- function (x)
 
 #' fcn.all.super
 #' 
-#' names of all functions that depend on <x>
+#' all functions depending on <x>
 #' @param x = a string vector (function names)
+#' @param y = a boolean (all/direct)
 #' @keywords fcn.all.super
 #' @export
 #' @family fcn
 
-fcn.all.super <- function (x) 
+fcn.all.super <- function (x, y = T) 
 {
-    fcn.indirect(fcn.direct.super, x)
+    z <- vec.to.list(fcn.list(), T)
+    z <- lapply(z, fcn.direct.sub)
+    z <- mat.ex.list(z, c("sub", "fcn"))
+    if (y) 
+        z <- txt.subclass.bulk(z)
+    z <- z[is.element(z[, "sub"], x), "fcn"]
+    z
 }
 
 #' fcn.args.actual
@@ -2739,26 +2746,23 @@ fcn.dir <- function ()
 
 fcn.direct.sub <- function (x) 
 {
-    z <- all.vars(parse(text = deparse(get(x))), functions = T)
-    z <- intersect(fcn.list(), z)
+    x <- parse(text = deparse(get(x)))
+    z <- setdiff(all.vars(x), fcn.list())
+    z <- setdiff(all.vars(x, functions = T), z)
     z
 }
 
 #' fcn.direct.super
 #' 
-#' names of all functions that directly depend on <x>
-#' @param x = a string (function name)
+#' all functions directly depending on <x>
+#' @param x = a string vector (function names)
 #' @keywords fcn.direct.super
 #' @export
 #' @family fcn
 
 fcn.direct.super <- function (x) 
 {
-    z <- vec.to.list(fcn.list(), T)
-    z <- lapply(z, fcn.direct.sub)
-    z <- sapply(z, function(z) any(is.element(z, x)))
-    z <- names(z)[z]
-    z
+    fcn.all.super(x, F)
 }
 
 #' fcn.expressions.count
@@ -2973,9 +2977,8 @@ fcn.list <- function (x = "*")
 
 fcn.lite <- function () 
 {
-    x <- fcn.list()
-    x <- setdiff(x, fcn.all.super("COMCreate"))
-    x <- setdiff(x, fcn.all.super("odbcDriverConnect"))
+    x <- c("COMCreate", "odbcDriverConnect")
+    x <- setdiff(fcn.list(), fcn.all.super(x))
     x <- vec.to.list(x, T)
     fcn <- function(z) paste(z, "<-", fcn.to.txt(z, T, F))
     x <- sapply(x, fcn)
@@ -3229,6 +3232,7 @@ fcn.pair.comment.wrapper <- function ()
     z <- lapply(z, fcn.direct.sub)
     z <- mat.ex.list(z, c("sub", "fcn"))
     z <- z[z[, "sub"] != z[, "fcn"], c("fcn", "sub")]
+    z <- z[is.element(z[, "sub"], fcn.list()), ]
     for (j in 1:dim(z)[1]) {
         fcn.pair.comment(z[j, "fcn"], z[j, "sub"], x, y)
     }
@@ -14957,6 +14961,31 @@ txt.subclass <- function (x, y, n)
     z
 }
 
+#' txt.subclass.bulk
+#' 
+#' bulks up the map from the first column to the second
+#' @param x = a data frame (2 column)
+#' @keywords txt.subclass.bulk
+#' @export
+#' @family txt
+
+txt.subclass.bulk <- function (x) 
+{
+    z <- x
+    colnames(x) <- c("grandchild", colnames(x)[1])
+    x <- merge(x, z)[, -1]
+    colnames(x) <- colnames(z)
+    w <- !is.element(do.call(paste, x), do.call(paste, z))
+    while (any(w)) {
+        x <- z <- rbind(z, x[w, ])
+        colnames(x) <- c("grandchild", colnames(x)[1])
+        x <- merge(x, z)[, -1]
+        colnames(x) <- colnames(z)
+        w <- !is.element(do.call(paste, x), do.call(paste, z))
+    }
+    z
+}
+
 #' txt.subclass.underlying
 #' 
 #' F/T depending on whether <x> is a subclass of <y>
@@ -15018,19 +15047,8 @@ txt.subclass.underlying <- function (x, y, n)
 
 txt.subclass.wrapper <- function () 
 {
-    x <- z <- mat.read(parameters("classif-subclass"), "\t", 
-        NULL)
-    colnames(x) <- c("grandchild", "child")
-    x <- merge(x, z)[, -1]
-    colnames(x) <- colnames(z)
-    w <- !is.element(do.call(paste, x), do.call(paste, z))
-    while (any(w)) {
-        x <- z <- rbind(z, x[w, ])
-        colnames(x) <- c("grandchild", "child")
-        x <- merge(x, z)[, -1]
-        colnames(x) <- colnames(z)
-        w <- !is.element(do.call(paste, x), do.call(paste, z))
-    }
+    z <- mat.read(parameters("classif-subclass"), "\t", NULL)
+    z <- txt.subclass.bulk(z)
     z <- rbind(z, apply(z, 2, function(z) paste(z, "vector")))
     z
 }

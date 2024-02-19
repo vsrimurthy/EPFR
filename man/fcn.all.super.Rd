@@ -4,13 +4,15 @@
 \alias{fcn.all.super}
 \title{fcn.all.super}
 \usage{
-fcn.all.super(x)
+fcn.all.super(x, y = T)
 }
 \arguments{
 \item{x}{= a string vector (function names)}
+
+\item{y}{= a boolean (all/direct)}
 }
 \description{
-names of all functions that depend on <x>
+all functions depending on <x>
 }
 \seealso{
 Other fcn: \code{\link{fcn.all.canonical}},
