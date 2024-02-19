@@ -2461,7 +2461,7 @@ fcn.all.roxygenize <- function (x)
 
 fcn.all.sub <- function (x) 
 {
-    fcn.indirect(fcn.direct.sub, x)
+    fcn.all.super(x, T, F)
 }
 
 #' fcn.all.super
@@ -2469,18 +2469,20 @@ fcn.all.sub <- function (x)
 #' all functions depending on <x>
 #' @param x = a string vector (function names)
 #' @param y = a boolean (all/direct)
+#' @param n = a boolean (super/sub)
 #' @keywords fcn.all.super
 #' @export
 #' @family fcn
 
-fcn.all.super <- function (x, y = T) 
+fcn.all.super <- function (x, y = T, n = T) 
 {
-    z <- vec.to.list(fcn.list(), T)
-    z <- lapply(z, fcn.direct.sub)
-    z <- mat.ex.list(z, c("sub", "fcn"))
+    z <- fcn.direct.map()
     if (y) 
         z <- txt.subclass.bulk(z)
-    z <- z[is.element(z[, "sub"], x), "fcn"]
+    if (n) 
+        n <- c("sub", "fcn")
+    else n <- c("fcn", "sub")
+    z <- unique(z[is.element(z[, n[1]], x), n[2]])
     z
 }
 
@@ -2736,9 +2738,24 @@ fcn.dir <- function ()
     z
 }
 
+#' fcn.direct.map
+#' 
+#' map from sub to calling functions
+#' @keywords fcn.direct.map
+#' @export
+#' @family fcn
+
+fcn.direct.map <- function () 
+{
+    z <- vec.to.list(fcn.list(), T)
+    z <- lapply(z, fcn.direct.sub)
+    z <- mat.ex.list(z, c("sub", "fcn"))
+    z
+}
+
 #' fcn.direct.sub
 #' 
-#' strings of names of all direct sub-functions
+#' all direct sub-functions
 #' @param x = a string (function name)
 #' @keywords fcn.direct.sub
 #' @export
@@ -3228,11 +3245,10 @@ fcn.pair.comment.wrapper <- function ()
     y <- txt.subclass.wrapper()
     w <- nchar(x[, "arg"]) > 1 & x[, "arg"] != "fcn"
     x <- x[!is.element(x[, "fcn"], x[w, "fcn"]), ]
-    z <- vec.to.list(unique(x[, "fcn"]), T)
-    z <- lapply(z, fcn.direct.sub)
-    z <- mat.ex.list(z, c("sub", "fcn"))
-    z <- z[z[, "sub"] != z[, "fcn"], c("fcn", "sub")]
-    z <- z[is.element(z[, "sub"], fcn.list()), ]
+    z <- fcn.direct.map()[, c("fcn", "sub")]
+    z <- z[z[, "sub"] != z[, "fcn"], ]
+    w <- lapply(z, function(z) is.element(z, x[, "fcn"]))
+    z <- z[Reduce("&", w), ]
     for (j in 1:dim(z)[1]) {
         fcn.pair.comment(z[j, "fcn"], z[j, "sub"], x, y)
     }

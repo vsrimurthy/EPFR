@@ -10,7 +10,7 @@ fcn.direct.sub(x)
 \item{x}{= a string (function name)}
 }
 \description{
-strings of names of all direct sub-functions
+all direct sub-functions
 }
 \seealso{
 Other fcn: \code{\link{fcn.all.canonical}},
@@ -21,6 +21,7 @@ Other fcn: \code{\link{fcn.all.canonical}},
   \code{\link{fcn.canonical}},
   \code{\link{fcn.comments.parse}},
   \code{\link{fcn.dates.parse}}, \code{\link{fcn.date}},
+  \code{\link{fcn.direct.map}},
   \code{\link{fcn.direct.super}}, \code{\link{fcn.dir}},
   \code{\link{fcn.expressions.count}},
   \code{\link{fcn.expressions.to.txt}},

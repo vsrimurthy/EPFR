@@ -4,12 +4,14 @@
 \alias{fcn.all.super}
 \title{fcn.all.super}
 \usage{
-fcn.all.super(x, y = T)
+fcn.all.super(x, y = T, n = T)
 }
 \arguments{
 \item{x}{= a string vector (function names)}
 
 \item{y}{= a boolean (all/direct)}
+
+\item{n}{= a boolean (super/sub)}
 }
 \description{
 all functions depending on <x>
@@ -22,6 +24,7 @@ Other fcn: \code{\link{fcn.all.canonical}},
   \code{\link{fcn.canonical}},
   \code{\link{fcn.comments.parse}},
   \code{\link{fcn.dates.parse}}, \code{\link{fcn.date}},
+  \code{\link{fcn.direct.map}},
   \code{\link{fcn.direct.sub}},
   \code{\link{fcn.direct.super}}, \code{\link{fcn.dir}},
   \code{\link{fcn.expressions.count}},
