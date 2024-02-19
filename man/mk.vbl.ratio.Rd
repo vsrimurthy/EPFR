@@ -9,7 +9,7 @@ mk.vbl.ratio(x, y, n)
 \arguments{
 \item{x}{= a YYYYMM}
 
-\item{y}{= a string vector (numerator and denominator)}
+\item{y}{= a variable vector (numerator and denominator)}
 
 \item{n}{= a StockFlows environment}
 }

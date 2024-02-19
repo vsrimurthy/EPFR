@@ -9,7 +9,7 @@ mat.subset(x, y)
 \arguments{
 \item{x}{= a matrix/data frame}
 
-\item{y}{= a numeric vector}
+\item{y}{= a string vector}
 }
 \description{
 <x> subset to <y>

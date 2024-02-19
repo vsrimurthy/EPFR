@@ -7,7 +7,7 @@
 flowdate.ex.yyyymm(x, y = T)
 }
 \arguments{
-\item{x}{= a numeric vector/YYYYMM (depending on if y is T/F)}
+\item{x}{= a YYYYMM vector}
 
 \item{y}{= a boolean (return last/all flowdates)}
 }

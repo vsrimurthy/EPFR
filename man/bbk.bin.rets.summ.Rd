@@ -9,7 +9,7 @@ bbk.bin.rets.summ(x, y, n = F)
 \arguments{
 \item{x}{= a matrix/data frame (rows indexed by time and columns indexed by bins)}
 
-\item{y}{= number of rows of <x> needed to cover an entire calendar year}
+\item{y}{= a positive integer (number of rows covering a full year)}
 
 \item{n}{= a boolean (report/ignore period count)}
 }

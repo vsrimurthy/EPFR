@@ -9,7 +9,7 @@ position.floPct(x, y, n)
 \arguments{
 \item{x}{= a file (strategy)}
 
-\item{y}{= subset (can be missing)}
+\item{y}{= a string vector (to subset to, can be missing)}
 
 \item{n}{= last publication date}
 }

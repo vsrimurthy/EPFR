@@ -11,7 +11,7 @@ refresh.predictors.weekly(x, y, n, w, h = F)
 
 \item{y}{= query needed to get full history}
 
-\item{n}{= last part of the query that goes after the date restriction}
+\item{n}{= a string (last part of query after date restriction)}
 
 \item{w}{= a connection string}
 

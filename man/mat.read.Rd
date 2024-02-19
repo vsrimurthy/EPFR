@@ -15,7 +15,7 @@ mat.read(x = "C:\\\\temp\\\\write.csv", y, n = 1, w = T, h = "")
 
 \item{w}{= a boolean (there is/isn't a header)}
 
-\item{h}{= the set of quoting characters. Defaults to no quoting altogether}
+\item{h}{= a string vector (quoting characters)}
 }
 \description{
 reads the file into data frame

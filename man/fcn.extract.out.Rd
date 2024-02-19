@@ -7,7 +7,7 @@
 fcn.extract.out(x)
 }
 \arguments{
-\item{x}{= a string vector representing output section of comments}
+\item{x}{= a string vector (output section of comments)}
 }
 \description{
 extracts output
@@ -24,6 +24,7 @@ Other fcn: \code{\link{fcn.all.canonical}},
   \code{\link{fcn.direct.sub}},
   \code{\link{fcn.direct.super}}, \code{\link{fcn.dir}},
   \code{\link{fcn.expressions.count}},
+  \code{\link{fcn.expressions.to.txt}},
   \code{\link{fcn.extract.args}}, \code{\link{fcn.has}},
   \code{\link{fcn.indent.proper}},
   \code{\link{fcn.indirect}}, \code{\link{fcn.lines.code}},
@@ -31,7 +32,9 @@ Other fcn: \code{\link{fcn.all.canonical}},
   \code{\link{fcn.lite}}, \code{\link{fcn.mat.col}},
   \code{\link{fcn.mat.num}}, \code{\link{fcn.mat.vec}},
   \code{\link{fcn.nonNA}}, \code{\link{fcn.num.nonNA}},
-  \code{\link{fcn.order}}, \code{\link{fcn.path}},
+  \code{\link{fcn.order}},
+  \code{\link{fcn.pair.comment.wrapper}},
+  \code{\link{fcn.pair.comment}}, \code{\link{fcn.path}},
   \code{\link{fcn.roxygenize}}, \code{\link{fcn.sho}},
   \code{\link{fcn.simple}}, \code{\link{fcn.to.comments}},
   \code{\link{fcn.to.txt}}, \code{\link{fcn.vec.grp}},

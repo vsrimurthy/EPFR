@@ -7,7 +7,7 @@
 mk.1dFloMo.Ctry.data(x, y, n, w)
 }
 \arguments{
-\item{x}{= a string (SQL statement)}
+\item{x}{= a from clause}
 
 \item{y}{= a string (Flow/AssetsStart/AssetsEnd/PortfolioChange)}
 

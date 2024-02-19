@@ -9,7 +9,7 @@ extract.AnnMn.sf.wrapper(x, y = "AnnMn")
 \arguments{
 \item{x}{= a list (each element a 3D array, items/bins/parameters)}
 
-\item{y}{= a string which must be one of AnnMn/AnnSd/Sharp/HitRate}
+\item{y}{= an item (AnnMn/AnnSd/Sharp/HitRate)}
 }
 \description{
 Subsets to "AnnMn" and re-labels columns

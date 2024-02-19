@@ -9,7 +9,7 @@ sql.1dFloMo.filter(x, y)
 \arguments{
 \item{x}{= factors and filters}
 
-\item{y}{= a breakdown filter (e.g. All/GeoId/DomicileId)}
+\item{y}{= a breakdown filter vector (e.g. All/GeoId/DomicileId)}
 }
 \description{
 implements filters for 1dFloMo

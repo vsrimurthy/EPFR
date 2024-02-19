@@ -11,9 +11,9 @@ bbk.bin.rets.prd.summ(fcn, x, y, n)
 
 \item{x}{= a matrix/data frame (rows indexed by time and columns indexed by bins)}
 
-\item{y}{= a numeric vector corresponding to the rows of <x> that maps each row to a sub-period of interest (e.g. calendar year)}
+\item{y}{= a numeric vector (corresponds to rows of <x>, maps each row to sub-period like calendar year)}
 
-\item{n}{= number of rows of <x> needed to cover an entire calendar year}
+\item{n}{= a positive integer (number of rows covering a full year)}
 }
 \description{
 Summarizes bin excess returns by sub-periods of interest (as defined by <y>)

@@ -9,7 +9,7 @@ extract.AnnMn.sf(x, y)
 \arguments{
 \item{x}{= array (3D items/bins/parameters)}
 
-\item{y}{= a string which must be one of AnnMn/AnnSd/Sharp/HitRate}
+\item{y}{= an item (AnnMn/AnnSd/Sharp/HitRate)}
 }
 \description{
 Subsets to "AnnMn" and re-labels columns

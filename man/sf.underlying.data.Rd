@@ -15,7 +15,7 @@ sf.underlying.data(fcn, x, y, n, w, h, u, v, g, r, s)
 
 \item{n}{= a universe (e.g. "EafeMem" or c("GemMem", 1))}
 
-\item{w}{= a variable (neutrality group)}
+\item{w}{= a string vector (neutrality group)}
 
 \item{h}{= a variable (return)}
 

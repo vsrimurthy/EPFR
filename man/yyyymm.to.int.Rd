@@ -7,7 +7,7 @@
 yyyymm.to.int(x)
 }
 \arguments{
-\item{x}{= a YYYYMM vector}
+\item{x}{= a YYYYMM/flowdate/YYYYMMDD vector}
 }
 \description{
 returns integers

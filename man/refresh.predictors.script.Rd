@@ -9,7 +9,7 @@ refresh.predictors.script(x, y, n, w)
 \arguments{
 \item{x}{= query needed to get full history}
 
-\item{y}{= last part of the query that goes after the date restriction}
+\item{y}{= a string (last part of query after date restriction)}
 
 \item{n}{= a column (corresponds to date in relevant SQL table)}
 

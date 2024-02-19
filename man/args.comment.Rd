@@ -11,7 +11,6 @@ functions, arguments and comments
 }
 \seealso{
 Other args: \code{\link{args.canonical}},
-  \code{\link{args.missing.bad}},
   \code{\link{args.missing}},
   \code{\link{args.rename.body}}, \code{\link{args.rename}}
 }

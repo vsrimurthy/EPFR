@@ -7,7 +7,7 @@
 yyyymmdd.to.AllocMo(x, y = 23)
 }
 \arguments{
-\item{x}{= a YYYYMMDD}
+\item{x}{= a YYYYMMDD vector}
 
 \item{y}{= calendar day allocations are known the next month}
 }

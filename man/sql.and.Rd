@@ -7,7 +7,7 @@
 sql.and(x, y = "and")
 }
 \arguments{
-\item{x}{= a where clause list}
+\item{x}{= a where clause vector}
 
 \item{y}{= string (logical operator to use)}
 }

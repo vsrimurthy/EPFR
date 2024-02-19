@@ -11,7 +11,7 @@ fcn.mat.vec(fcn, x, y, n)
 
 \item{x}{= a numeric vector/matrix/data frame}
 
-\item{y}{= a numeric vector/matrix/data frame}
+\item{y}{= a string vector/matrix/data frame}
 
 \item{n}{= a boolean (apply to columns/rows)}
 }
@@ -30,6 +30,7 @@ Other fcn: \code{\link{fcn.all.canonical}},
   \code{\link{fcn.direct.sub}},
   \code{\link{fcn.direct.super}}, \code{\link{fcn.dir}},
   \code{\link{fcn.expressions.count}},
+  \code{\link{fcn.expressions.to.txt}},
   \code{\link{fcn.extract.args}},
   \code{\link{fcn.extract.out}}, \code{\link{fcn.has}},
   \code{\link{fcn.indent.proper}},
@@ -38,9 +39,11 @@ Other fcn: \code{\link{fcn.all.canonical}},
   \code{\link{fcn.lite}}, \code{\link{fcn.mat.col}},
   \code{\link{fcn.mat.num}}, \code{\link{fcn.nonNA}},
   \code{\link{fcn.num.nonNA}}, \code{\link{fcn.order}},
-  \code{\link{fcn.path}}, \code{\link{fcn.roxygenize}},
-  \code{\link{fcn.sho}}, \code{\link{fcn.simple}},
-  \code{\link{fcn.to.comments}}, \code{\link{fcn.to.txt}},
-  \code{\link{fcn.vec.grp}}, \code{\link{fcn.vec.num}}
+  \code{\link{fcn.pair.comment.wrapper}},
+  \code{\link{fcn.pair.comment}}, \code{\link{fcn.path}},
+  \code{\link{fcn.roxygenize}}, \code{\link{fcn.sho}},
+  \code{\link{fcn.simple}}, \code{\link{fcn.to.comments}},
+  \code{\link{fcn.to.txt}}, \code{\link{fcn.vec.grp}},
+  \code{\link{fcn.vec.num}}
 }
 \keyword{fcn.mat.vec}

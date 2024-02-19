@@ -9,7 +9,7 @@ mk.vbl.diff(x, y, n)
 \arguments{
 \item{x}{= a YYYYMM}
 
-\item{y}{= a string vector (minuend and subtrahend)}
+\item{y}{= a variable vector (minuend and subtrahend)}
 
 \item{n}{= a StockFlows environment}
 }

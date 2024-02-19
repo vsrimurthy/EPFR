@@ -9,7 +9,7 @@ summ.multi(fcn, x, y)
 \arguments{
 \item{fcn}{= a function (summary)}
 
-\item{x}{= a data frame (bin returns)}
+\item{x}{= a matrix/data frame (bin returns)}
 
 \item{y}{= a positive integer (return window in days/months)}
 }

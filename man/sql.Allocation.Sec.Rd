@@ -7,7 +7,7 @@
 sql.Allocation.Sec(x, y = NULL, n = "All")
 }
 \arguments{
-\item{x}{= a where clause list}
+\item{x}{= a where clause vector}
 
 \item{y}{= a column vector (must be in FundHistory!)}
 

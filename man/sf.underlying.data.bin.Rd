@@ -13,7 +13,7 @@ sf.underlying.data.bin(x, y, n, w)
 
 \item{n}{= a numeric vector (weights)}
 
-\item{w}{= a numeric vector (groups)}
+\item{w}{= a string vector (binning group)}
 }
 \description{
 character vector of bin memberships

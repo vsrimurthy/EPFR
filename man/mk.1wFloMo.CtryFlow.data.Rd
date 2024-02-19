@@ -7,7 +7,7 @@
 mk.1wFloMo.CtryFlow.data(x, y, n, w, h, u, v)
 }
 \arguments{
-\item{x}{= a flowdate/month end}
+\item{x}{= a month end/flowdate/YYYYMMDD}
 
 \item{y}{= a filter vector (first element MUST BE FundType)}
 

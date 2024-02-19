@@ -7,7 +7,7 @@
 strat.path(x, y)
 }
 \arguments{
-\item{x}{= a string (strategy name like FX/FloPctCtry)}
+\item{x}{= a string vector (strategy like FX/FloPctCtry)}
 
 \item{y}{= a frequency (e.g. "daily", "weekly" or "monthly")}
 }

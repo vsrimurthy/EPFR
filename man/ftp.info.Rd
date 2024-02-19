@@ -7,7 +7,7 @@
 ftp.info(x, y, n, w)
 }
 \arguments{
-\item{x}{= M/W/D depending on whether flows are monthly/weekly/daily}
+\item{x}{= a frequency (D/W/M)}
 
 \item{y}{= a boolean (Fund/ShareClass)}
 

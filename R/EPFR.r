@@ -6,7 +6,7 @@
 #' @param y = the separator (can be missing)
 #' @param n = a column (contains row names, can be NULL)
 #' @param w = a boolean (there is/isn't a header)
-#' @param h = the set of quoting characters. Defaults to no quoting altogether
+#' @param h = a string vector (quoting characters)
 #' @keywords mat.read
 #' @export
 #' @family mat
@@ -244,46 +244,18 @@ args.comment <- function ()
 #' args.missing
 #' 
 #' arguments that can be missing
+#' @param x = a string (function name)
 #' @keywords args.missing
 #' @export
 #' @family args
 
-args.missing <- function () 
+args.missing <- function (x) 
 {
-    x <- vec.to.list(fcn.list(), T)
-    w <- sapply(x, function(z) any(grepl("if \\(missing\\(", 
-        fcn.to.txt(z, F, T))))
-    x <- x[w]
-    x <- lapply(x, function(z) fcn.to.txt(z, F, T))
-    x <- lapply(x, function(z) z[grepl("if \\(missing\\(", z)])
-    x <- lapply(x, function(z) gsub("^(.*if \\(missing\\()(.+)(\\)\\) .*)$", 
-        "\\2", z))
-    z <- mat.ex.list(x, c("arg", "fcn"))
+    x <- fcn.lines.code(x, F)
+    z <- "^(.*if \\(missing\\()(.)(\\).*)$"
+    x <- x[grepl(z, x)]
+    z <- unique(gsub(z, "\\2", x))
     z
-}
-
-#' args.missing.bad
-#' 
-#' improperly commented arguments that can be missing
-#' @keywords args.missing.bad
-#' @export
-#' @family args
-
-args.missing.bad <- function () 
-{
-    z <- merge(args.comment(), args.missing())
-    w <- !grepl("can be missing\\)$", z[, "comment"])
-    if (any(w)) {
-        z <- z[w, ]
-        x <- args.canonical()
-        x <- vec.named(seq_along(x), x)
-        z <- z[order(map.rname(x, z[, "arg"])), ]
-        z <- z[order(z[, "fcn"]), c("fcn", "arg")]
-    }
-    if (any(w)) {
-        err.raise(do.call(paste, z), T, "Following improperly-commented arguments found")
-    }
-    invisible()
 }
 
 #' args.rename
@@ -545,8 +517,8 @@ bbk <- function (x, y, n = 1, w = 5, h = 5, u = NULL, v = F, g = 0,
 #' Summarizes bin excess returns by sub-periods of interest (as defined by <y>)
 #' @param fcn = a function (summary)
 #' @param x = a matrix/data frame (rows indexed by time and columns indexed by bins)
-#' @param y = a numeric vector corresponding to the rows of <x> that maps each row to a sub-period of interest (e.g. calendar year)
-#' @param n = number of rows of <x> needed to cover an entire calendar year
+#' @param y = a numeric vector (corresponds to rows of <x>, maps each row to sub-period like calendar year)
+#' @param n = a positive integer (number of rows covering a full year)
 #' @keywords bbk.bin.rets.prd.summ
 #' @export
 #' @family bbk
@@ -567,7 +539,7 @@ bbk.bin.rets.prd.summ <- function (fcn, x, y, n)
 #' 
 #' Summarizes bin excess returns arithmetically
 #' @param x = a matrix/data frame (rows indexed by time and columns indexed by bins)
-#' @param y = number of rows of <x> needed to cover an entire calendar year
+#' @param y = a positive integer (number of rows covering a full year)
 #' @param n = a boolean (report/ignore period count)
 #' @keywords bbk.bin.rets.summ
 #' @export
@@ -2370,7 +2342,7 @@ excise.zeroes <- function (x)
 #' 
 #' Subsets to "AnnMn" and re-labels columns
 #' @param x = array (3D items/bins/parameters)
-#' @param y = a string which must be one of AnnMn/AnnSd/Sharp/HitRate
+#' @param y = an item (AnnMn/AnnSd/Sharp/HitRate)
 #' @keywords extract.AnnMn.sf
 #' @export
 #' @family extract
@@ -2385,7 +2357,7 @@ extract.AnnMn.sf <- function (x, y)
 #' 
 #' Subsets to "AnnMn" and re-labels columns
 #' @param x = a list (each element a 3D array, items/bins/parameters)
-#' @param y = a string which must be one of AnnMn/AnnSd/Sharp/HitRate
+#' @param y = an item (AnnMn/AnnSd/Sharp/HitRate)
 #' @keywords extract.AnnMn.sf.wrapper
 #' @export
 #' @family extract
@@ -2530,7 +2502,7 @@ fcn.args.comment <- function (x)
 {
     z <- fcn.comments.parse(fcn.to.comments(x))[["detl.args"]]
     z <- vec.named(gsub("^[^(]+ =", "", z), substring(z, 1, txt.first(z, 
-        " = ") - 1))
+        " =") - 1))
     z
 }
 
@@ -2579,6 +2551,12 @@ fcn.canonical <- function (x)
             if (!z$canonical) 
                 cat(x, "has NON-CANONICAL ARGUMENTS!\n")
         }
+    if (z$canonical) {
+        n <- setdiff(args.missing(x), z$args[z$missing])
+        z$canonical <- length(n) == 0
+        if (!z$canonical) 
+            cat(x, "has ARGUMENTS THAT CAN BE MISSING THAT ARE NOT DECLARED AS SUCH!\n")
+    }
     if (z$canonical) 
         z <- fcn.indent.proper(x)
     else z <- F
@@ -2652,6 +2630,7 @@ fcn.comments.parse <- function (x)
                 z$args <- txt.parse(z$detl.args, " =")[, 1]
         }
     }
+    z$missing <- grepl("[ (]can be missing)", z$detl.args)
     if (z$canonical) {
         if (!grepl("^# Output\t: ", x[1])) {
             cat("Problem with OUTPUT!\n")
@@ -2792,16 +2771,37 @@ fcn.direct.super <- function (x)
 
 fcn.expressions.count <- function (x) 
 {
-    z <- fcn.lines.code(x, F)
-    z <- parse(text = z)
-    z <- length(z)
+    length(body(get(x))) - 1
+}
+
+#' fcn.expressions.to.txt
+#' 
+#' constituent expressions expressed as a string vector
+#' @param x = a string (function name)
+#' @keywords fcn.expressions.to.txt
+#' @export
+#' @family fcn
+
+fcn.expressions.to.txt <- function (x) 
+{
+    x <- body(get(x))
+    z <- NULL
+    for (j in seq_along(x)) {
+        u <- deparse(x[j], width.cutoff = 500)
+        u <- paste(u, collapse = " ")
+        z <- c(z, txt.itrim(u))
+    }
+    u <- "^(.*)(\\(\\))$"
+    z <- z[grepl(u, z)]
+    z <- gsub(u, "\\1", z)
+    z <- gsub("^(\\()(.*)(\\))$", "\\2", z)
     z
 }
 
 #' fcn.extract.args
 #' 
 #' vector of arguments with explanations
-#' @param x = a string vector representing argument section of comments
+#' @param x = a string vector (argument section of comments)
 #' @keywords fcn.extract.args
 #' @export
 #' @family fcn
@@ -2833,7 +2833,7 @@ fcn.extract.args <- function (x)
 #' fcn.extract.out
 #' 
 #' extracts output
-#' @param x = a string vector representing output section of comments
+#' @param x = a string vector (output section of comments)
 #' @keywords fcn.extract.out
 #' @export
 #' @family fcn
@@ -3055,7 +3055,7 @@ fcn.mat.num <- function (fcn, x, y, n)
 #' applies <fcn> to <x> if a numeric vector or the columns/rows of <x> otherwise
 #' @param fcn = a function (vector to vector)
 #' @param x = a numeric vector/matrix/data frame
-#' @param y = a numeric vector/matrix/data frame
+#' @param y = a string vector/matrix/data frame
 #' @param n = a boolean (apply to columns/rows)
 #' @keywords fcn.mat.vec
 #' @export
@@ -3163,6 +3163,75 @@ fcn.order <- function ()
     fcn <- function(z) paste(z, "<-", fcn.to.txt(z, T, F))
     x <- sapply(x, fcn)
     writeLines(x, fcn.path())
+    invisible()
+}
+
+#' fcn.pair.comment
+#' 
+#' comment consitency check
+#' @param x = a string (function name, higher)
+#' @param y = a string (function name, lower)
+#' @param n = a data frame (function name/arg/comment)
+#' @param w = a data frame (sub classes)
+#' @keywords fcn.pair.comment
+#' @export
+#' @family fcn
+
+fcn.pair.comment <- function (x, y, n, w) 
+{
+    v <- fcn.expressions.to.txt(x)
+    u <- grepl(paste0(y, "\\("), v)
+    if (any(u)) 
+        for (r in which(u)) if (txt.left(v[r], 4) != "if (") {
+            z <- txt.bracket(v[r], y)
+            z <- txt.trim(txt.parse.delimit(z))
+            h <- is.element(z, n[n[, 1] == x, "arg"])
+            if (any(h)) 
+                for (foo in which(h)) {
+                  h[foo] <- !any(grepl(paste0("([ \t]|^)", z[foo], 
+                    " <- "), v[2:r - 1]))
+                  h[foo] <- h[foo] & !grepl(paste0("([ \t]|^)", 
+                    z[foo], " <- .*", y, "\\("), v[r])
+                }
+            if (any(h)) {
+                hi <- mat.index(n[n[, 1] == x, 2:3])
+                lo <- n[n[, 1] == y, 3][seq_along(z)]
+                foo <- rep(NA, sum(h))
+                for (m in seq_along(foo)) foo[m] <- txt.subclass(hi[z[h]][m], 
+                  lo[h][m], w)
+                h[h] <- foo
+            }
+            if (any(h)) 
+                for (l in 1:sum(h)) {
+                  cat("\n", x, " --> ", y, ":\n")
+                  cat("\t", hi[z[h]][l], "\n")
+                  cat("\t", lo[h][l], "\n")
+                }
+        }
+    invisible()
+}
+
+#' fcn.pair.comment.wrapper
+#' 
+#' comment consitency check
+#' @keywords fcn.pair.comment.wrapper
+#' @export
+#' @family fcn
+
+fcn.pair.comment.wrapper <- function () 
+{
+    x <- args.comment()
+    x[, "comment"] <- gsub("^([^(]*)( \\(.*)", "\\1", x[, "comment"])
+    y <- txt.subclass.wrapper()
+    w <- nchar(x[, "arg"]) > 1 & x[, "arg"] != "fcn"
+    x <- x[!is.element(x[, "fcn"], x[w, "fcn"]), ]
+    z <- vec.to.list(unique(x[, "fcn"]), T)
+    z <- lapply(z, fcn.direct.sub)
+    z <- mat.ex.list(z, c("sub", "fcn"))
+    z <- z[z[, "sub"] != z[, "fcn"], c("fcn", "sub")]
+    for (j in 1:dim(z)[1]) {
+        fcn.pair.comment(z[j, "fcn"], z[j, "sub"], x, y)
+    }
     invisible()
 }
 
@@ -3665,7 +3734,7 @@ flowdate.ex.int <- function (x)
 #' flowdate.ex.yyyymm
 #' 
 #' last/all trading days daily flow-publication dates in <x>
-#' @param x = a numeric vector/YYYYMM (depending on if y is T/F)
+#' @param x = a YYYYMM vector
 #' @param y = a boolean (return last/all flowdates)
 #' @keywords flowdate.ex.yyyymm
 #' @export
@@ -4027,7 +4096,7 @@ ftp.get <- function (x, y, n, w, h, u = "ftp", v)
 #' ftp.info
 #' 
 #' parameter <n> associated with <x> flows at the <y> level with the <w> filter
-#' @param x = M/W/D depending on whether flows are monthly/weekly/daily
+#' @param x = a frequency (D/W/M)
 #' @param y = a boolean (Fund/ShareClass)
 #' @param n = one of sql.table/date.field/ftp.path
 #' @param w = a filter (e.g. Aggregate/Active/Passive/ETF/Mutual)
@@ -4526,7 +4595,7 @@ html.email <- function (x, y = T)
 #' html.ex.utf8
 #' 
 #' code to represent <x> in html
-#' @param x = a string vector
+#' @param x = a string
 #' @keywords html.ex.utf8
 #' @export
 #' @family html
@@ -5633,7 +5702,7 @@ mat.ex.matrix <- function (x, y = NULL)
 #' 
 #' transforms into a 1/0 matrix of bin memberships if <y> is missing or the values of <y> otherwise
 #' @param x = a numeric vector
-#' @param y = a numeric vector
+#' @param y = a string vector
 #' @param n = a boolean (do/don't append "Q" to column headers)
 #' @keywords mat.ex.vec
 #' @export
@@ -5811,7 +5880,7 @@ mat.sort <- function (x, y, n)
 #' 
 #' <x> subset to <y>
 #' @param x = a matrix/data frame
-#' @param y = a numeric vector
+#' @param y = a string vector
 #' @keywords mat.subset
 #' @export
 #' @family mat
@@ -6113,7 +6182,7 @@ mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E", v = F, g = F)
 #' mk.1dFloMo.Ctry.data
 #' 
 #' formats flow momentum output
-#' @param x = a string (SQL statement)
+#' @param x = a from clause
 #' @param y = a string (Flow/AssetsStart/AssetsEnd/PortfolioChange)
 #' @param n = a string vector (select items)
 #' @param w = a connection string/connection
@@ -6799,7 +6868,7 @@ mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = "W")
 #' mk.1wFloMo.CtryFlow.data
 #' 
 #' data for country-flow computation
-#' @param x = a flowdate/month end
+#' @param x = a month end/flowdate/YYYYMMDD
 #' @param y = a filter vector (first element MUST BE FundType)
 #' @param n = a string vector (Flow/AssetsStart/AssetsEnd/PortfolioChange)
 #' @param w = result object with element MAP
@@ -7399,7 +7468,7 @@ mk.vbl.chg <- function (x, y, n)
 #' 
 #' Computes the difference of the two variables
 #' @param x = a YYYYMM
-#' @param y = a string vector (minuend and subtrahend)
+#' @param y = a variable vector (minuend and subtrahend)
 #' @param n = a StockFlows environment
 #' @keywords mk.vbl.diff
 #' @export
@@ -7450,7 +7519,7 @@ mk.vbl.max <- function (x, y, n)
 #' 
 #' Computes the ratio of the two variables
 #' @param x = a YYYYMM
-#' @param y = a string vector (numerator and denominator)
+#' @param y = a variable vector (numerator and denominator)
 #' @param n = a StockFlows environment
 #' @keywords mk.vbl.ratio
 #' @export
@@ -7510,7 +7579,7 @@ mk.vbl.sum <- function (x, y, n)
 #' 
 #' compounded variable over some trailing window
 #' @param x = a YYYYMM/YYYYMMDD
-#' @param y = a string vector (elements are: #		:	1) variable to fetch (e.g. "AllocMo"/"AllocDiff"/"AllocTrend"/"Ret") #		:	2) number of trailing periods to use (e.g. "11") #		:	3) number of periods to lag (defaults to "0") #		:	4) sub-folder to fetch basic variable from (defaults to "derived") #		:	5) T/F depending on whether the compounded) variable is daily (defaults to F, matters only if <x> is monthly)
+#' @param y = a string vector (elements are: #		:	1) variable to fetch (e.g. "AllocMo"/"AllocDiff"/"AllocTrend"/"Ret") #		:	2) number of trailing periods to use (e.g. "11") #		:	3) number of periods to lag (defaults to "0") #		:	4) sub-folder to fetch basic variable from (defaults to "derived") #		:	5) T/F depending on whether the compounded) variable is daily (defaults to F, matters only if <x> is monthly))
 #' @param n = a StockFlows environment
 #' @keywords mk.vbl.trail.fetch
 #' @export
@@ -7761,7 +7830,7 @@ obj.seq <- function (x, y, n, w, h)
 #' @param x = a matrix/data frame (indicators)
 #' @param y = a matrix/data frame (forward returns)
 #' @param n = a matrix/data frame (daily returns to train the risk model on)
-#' @param w = a numeric vector, the elements of which are: #		:	1) number of trailing days to train the risk model on #		:	2) number of principal components (when 0 raw return matrix is used) #		:	3) number of bins (when 0, indicator is ptiled) #		:	4) forward return window in days or months depending on the row space of <x>
+#' @param w = a numeric vector  (the elements of which are: #		:	1) number of trailing days to train the risk model on #		:	2) number of principal components (when 0 raw return matrix is used) #		:	3) number of bins (when 0, indicator is ptiled) #		:	4) forward return window in days or months depending on the row space of <x>)
 #' @keywords optimal
 #' @export
 
@@ -7990,7 +8059,7 @@ portfolio.residual <- function (x, y)
 #' 
 #' Latest four-week flow percentage
 #' @param x = a file (strategy)
-#' @param y = subset (can be missing)
+#' @param y = a string vector (to subset to, can be missing)
 #' @param n = last publication date
 #' @keywords position.floPct
 #' @export
@@ -8700,7 +8769,7 @@ record.write <- function (x, y, n)
 #' @param fcn = a function (last complete publication period)
 #' @param x = a file (predictors)
 #' @param y = query needed to get full history
-#' @param n = last part of the query that goes after the date restriction
+#' @param n = a string (last part of query after date restriction)
 #' @param w = a connection string
 #' @param h = a boolean (ignore/note data changes)
 #' @param u = a column (corresponds to date in relevant SQL table)
@@ -8767,7 +8836,7 @@ refresh.predictors.append <- function (x, y, n = F, w = F)
 #' refreshes the text file contains flows data from SQL
 #' @param x = a file (predictors)
 #' @param y = query needed to get full history
-#' @param n = last part of the query that goes after the date restriction
+#' @param n = a string (last part of query after date restriction)
 #' @param w = a connection string
 #' @param h = a boolean (ignore/note data changes)
 #' @keywords refresh.predictors.daily
@@ -8784,7 +8853,7 @@ refresh.predictors.daily <- function (x, y, n, w, h = F)
 #' refreshes the text file contains flows data from SQL
 #' @param x = a file (predictors)
 #' @param y = query needed to get full history
-#' @param n = last part of the query that goes after the date restriction
+#' @param n = a string (last part of query after date restriction)
 #' @param w = a connection string
 #' @param h = a boolean (ignore/report the fact last row has changed)
 #' @keywords refresh.predictors.monthly
@@ -8800,7 +8869,7 @@ refresh.predictors.monthly <- function (x, y, n, w, h)
 #' 
 #' generates the SQL script to refresh predictors
 #' @param x = query needed to get full history
-#' @param y = last part of the query that goes after the date restriction
+#' @param y = a string (last part of query after date restriction)
 #' @param n = a column (corresponds to date in relevant SQL table)
 #' @param w = last date for which you already have data
 #' @keywords refresh.predictors.script
@@ -8824,7 +8893,7 @@ refresh.predictors.script <- function (x, y, n, w)
 #' refreshes the text file contains flows data from SQL
 #' @param x = a file (predictors)
 #' @param y = query needed to get full history
-#' @param n = last part of the query that goes after the date restriction
+#' @param n = a string (last part of query after date restriction)
 #' @param w = a connection string
 #' @param h = a boolean (ignore/note data changes)
 #' @keywords refresh.predictors.weekly
@@ -9558,7 +9627,7 @@ sf.subset <- function (x, y, n, w)
 #' @param x = a YYYYMM/flowdate (period for which you want returns)
 #' @param y = a variable (factor for cap weighting)
 #' @param n = a universe (e.g. "EafeMem" or c("GemMem", 1))
-#' @param w = a variable (neutrality group)
+#' @param w = a string vector (neutrality group)
 #' @param h = a variable (return)
 #' @param u = a string (parameter)
 #' @param v = a folder (data)
@@ -9601,7 +9670,7 @@ sf.underlying.data <- function (fcn, x, y, n, w, h, u, v, g, r, s)
 #' @param x = a numeric vector (or vector list)
 #' @param y = an integer vector (if vector, last element T/F for dep/indep binning)
 #' @param n = a numeric vector (weights)
-#' @param w = a numeric vector (groups)
+#' @param w = a string vector (binning group)
 #' @keywords sf.underlying.data.bin
 #' @export
 #' @family sf
@@ -10644,7 +10713,7 @@ sql.1dFloMo.FI <- function (x = "Flow", y)
 #' 
 #' implements filters for 1dFloMo
 #' @param x = factors and filters
-#' @param y = a breakdown filter (e.g. All/GeoId/DomicileId)
+#' @param y = a breakdown filter vector (e.g. All/GeoId/DomicileId)
 #' @keywords sql.1dFloMo.filter
 #' @export
 #' @family sql
@@ -11796,7 +11865,7 @@ sql.Allocation <- function (x, y, n = NULL, w = "All", h, u, v)
 #' sql.Allocation.Sec
 #' 
 #' SQL query for sector allocations for month ending <x>
-#' @param x = a where clause list
+#' @param x = a where clause vector
 #' @param y = a column vector (must be in FundHistory!)
 #' @param n = a filter vector
 #' @keywords sql.Allocation.Sec
@@ -11918,7 +11987,7 @@ sql.Allocations.bulk.Single <- function (x, y, n, w, h)
 #' sql.and
 #' 
 #' and segment of a SQL statement
-#' @param x = a where clause list
+#' @param x = a where clause vector
 #' @param y = string (logical operator to use)
 #' @keywords sql.and
 #' @export
@@ -13818,7 +13887,7 @@ strat.file <- function (x, y)
 #' strat.path
 #' 
 #' Returns the full path to the factor file
-#' @param x = a string (strategy name like FX/FloPctCtry)
+#' @param x = a string vector (strategy like FX/FloPctCtry)
 #' @param y = a frequency (e.g. "daily", "weekly" or "monthly")
 #' @keywords strat.path
 #' @export
@@ -14148,7 +14217,7 @@ stratrets.subset.Ctry <- function (x, y)
 #' 
 #' summarizes the multi-period back test
 #' @param fcn = a function (summary)
-#' @param x = a data frame (bin returns)
+#' @param x = a matrix/data frame (bin returns)
 #' @param y = a positive integer (return window in days/months)
 #' @keywords summ.multi
 #' @export
@@ -14901,11 +14970,22 @@ txt.subclass <- function (x, y, n)
 txt.subclass.underlying <- function (x, y, n) 
 {
     z <- x != y
-    if (z & grepl("^ (a|an) .+/.+", y)) {
+    if (z & grepl("^ (a|an) .+/.+", y) & !grepl("^ (a|an) .+/.+", 
+        x)) {
         u <- txt.parse(gsub("^ (a|an) ", "", y), "/")
         u <- split(paste(" a", u), u)
         z <- all(sapply(u, function(z) txt.subclass.underlying(x, 
             z, n)))
+    }
+    else if (z & grepl("^ (a|an) .+/.+", y) & grepl("^ (a|an) .+/.+", 
+        x)) {
+        u <- txt.parse(gsub("^ (a|an) ", "", y), "/")
+        u <- split(paste(" a", u), u)
+        v <- txt.parse(gsub("^ (a|an) ", "", x), "/")
+        v <- split(paste(" a", v), v)
+        fcn <- function(z) all(sapply(u, function(l) txt.subclass.underlying(z, 
+            l, n)))
+        z <- any(sapply(v, fcn))
     }
     u <- gsub("^ (a|an) ", "", x)
     if (grepl("/", x)) {
@@ -15565,7 +15645,7 @@ yyyymm.to.day <- function (x)
 #' yyyymm.to.int
 #' 
 #' returns integers
-#' @param x = a YYYYMM vector
+#' @param x = a YYYYMM/flowdate/YYYYMMDD vector
 #' @keywords yyyymm.to.int
 #' @export
 #' @family yyyymm
@@ -15774,7 +15854,7 @@ yyyymmdd.seq <- function (x, y, n = 1)
 #' yyyymmdd.to.AllocMo
 #' 
 #' Returns the month for which you need to get allocations Flows as of the 23rd of each month are known by the 24th. By this time allocations from #		:	the previous month are known
-#' @param x = a YYYYMMDD
+#' @param x = a YYYYMMDD vector
 #' @param y = calendar day allocations are known the next month
 #' @keywords yyyymmdd.to.AllocMo
 #' @export

@@ -9,7 +9,7 @@ mat.ex.vec(x, y, n = T)
 \arguments{
 \item{x}{= a numeric vector}
 
-\item{y}{= a numeric vector}
+\item{y}{= a string vector}
 
 \item{n}{= a boolean (do/don't append "Q" to column headers)}
 }
