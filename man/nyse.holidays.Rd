@@ -12,4 +12,7 @@ nyse.holidays(x = "yyyymmdd")
 \description{
 returns full day NYSE holidays from the year 2000 and after
 }
+\seealso{
+Other nyse: \code{\link{nyse.lag}}
+}
 \keyword{nyse.holidays}

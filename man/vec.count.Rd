@@ -7,7 +7,7 @@
 vec.count(x)
 }
 \arguments{
-\item{x}{= a numeric vector}
+\item{x}{= a string vector}
 }
 \description{
 Counts unique instances of <x>

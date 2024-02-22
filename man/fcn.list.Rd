@@ -7,7 +7,7 @@
 fcn.list(x = "*")
 }
 \arguments{
-\item{x}{= pattern you want to see in returned objects}
+\item{x}{= a string (regular expression)}
 }
 \description{
 Returns the names of objects that are or are not functions

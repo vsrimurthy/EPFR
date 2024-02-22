@@ -9,7 +9,7 @@ dir.all.files(x, y)
 \arguments{
 \item{x}{= a folder}
 
-\item{y}{= a regular expression}
+\item{y}{= a string (regular expression)}
 }
 \description{
 Returns all files in the folder including sub-directories

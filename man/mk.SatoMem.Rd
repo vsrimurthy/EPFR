@@ -7,9 +7,9 @@
 mk.SatoMem(x, y, n)
 }
 \arguments{
-\item{x}{= an argument which is never used}
+\item{x}{= a YYYYMM (never used)}
 
-\item{y}{= path to a file containing isin's}
+\item{y}{= a file (containing isin's)}
 
 \item{n}{= a StockFlows environment}
 }

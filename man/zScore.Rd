@@ -7,9 +7,9 @@
 zScore(x)
 }
 \arguments{
-\item{x}{= a numeric vector/matrix/data frame}
+\item{x}{= a matrix/data frame}
 }
 \description{
-Converts <x>, if a numeric vector, or the rows of <x> otherwise, to a zScore
+zScores the rows of <x>
 }
 \keyword{zScore}

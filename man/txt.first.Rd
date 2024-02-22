@@ -9,7 +9,7 @@ txt.first(x, y)
 \arguments{
 \item{x}{= a string vector}
 
-\item{y}{= a regular expression}
+\item{y}{= a string (regular expression)}
 }
 \description{
 first occurrence of pattern <y> in <x> (NA if none)

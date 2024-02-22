@@ -1939,7 +1939,7 @@ decimal.format <- function (x, y)
 #' 
 #' Returns all files in the folder including sub-directories
 #' @param x = a folder
-#' @param y = a regular expression
+#' @param y = a string (regular expression)
 #' @keywords dir.all.files
 #' @export
 #' @family dir
@@ -1958,7 +1958,7 @@ dir.all.files <- function (x, y)
 #' 
 #' rids <x> of files of type <y>
 #' @param x = a file
-#' @param y = a regular expression
+#' @param y = a string (regular expression)
 #' @keywords dir.clear
 #' @export
 #' @family dir
@@ -2867,7 +2867,7 @@ fcn.extract.out <- function (x)
 #' fcn.has
 #' 
 #' Checks all functions are in standard form
-#' @param x = a regular expression
+#' @param x = a string (regular expression)
 #' @keywords fcn.has
 #' @export
 #' @family fcn
@@ -2970,7 +2970,7 @@ fcn.lines.count <- function (x, y = T)
 #' fcn.list
 #' 
 #' Returns the names of objects that are or are not functions
-#' @param x = pattern you want to see in returned objects
+#' @param x = a string (regular expression)
 #' @keywords fcn.list
 #' @export
 #' @family fcn
@@ -5598,8 +5598,7 @@ mat.correl <- function (x, y)
 
 mat.count <- function (x) 
 {
-    fcn <- function(z) sum(!is.na(z))
-    z <- fcn.mat.num(fcn, x, , T)
+    z <- colSums(mat.to.obs(x))
     z <- c(z, round(100 * z/dim(x)[1], 1))
     z <- matrix(z, dim(x)[2], 2, F, list(colnames(x), c("obs", 
         "pct")))
@@ -5809,28 +5808,6 @@ mat.last.to.first <- function (x, y = 1)
     x[, order((1:dim(x)[2] + y - 1)%%dim(x)[2])]
 }
 
-#' mat.periodic
-#' 
-#' returns weekly data
-#' @param fcn = a function (converts vector to a number)
-#' @param x = a matrix/data frame
-#' @param y = an integer
-#' @param n = a boolean (label returns by beginning/end of the period)
-#' @keywords mat.periodic
-#' @export
-#' @family mat
-
-mat.periodic <- function (fcn, x, y, n) 
-{
-    if (n) 
-        z <- (ceiling(1:dim(x)[1]/y) - 1) * y + 1
-    if (!n) 
-        z <- ceiling(1:dim(x)[1]/y) * y
-    z <- rownames(x)[z]
-    z <- pivot.1d(fcn, z, x)
-    z
-}
-
 #' mat.rank
 #' 
 #' ranks <x> if <x> is a numeric vector or the rows of <x> otherwise
@@ -5947,9 +5924,7 @@ mat.to.last.Idx <- function (x)
 
 mat.to.obs <- function (x) 
 {
-    fcn <- function(z) char.to.num(!is.na(z))
-    z <- fcn.mat.vec(fcn, x, , T)
-    z
+    fcn.mat.vec(function(z) char.to.num(!is.na(z)), x, , T)
 }
 
 #' mat.to.xlModel
@@ -6067,12 +6042,9 @@ mat.zScore <- function (x, y, n)
     w <- !is.na(n)
     x <- data.frame(x, y, stringsAsFactors = F)
     x <- fcn.vec.grp(zScore.underlying, x[w, ], n[w])
-    if (any(w) & h) {
+    if (any(w) & h) 
         z[w] <- x
-    }
-    else {
-        z[w, ] <- unlist(x)
-    }
+    else z[w, ] <- unlist(x)
     z
 }
 
@@ -7391,8 +7363,8 @@ mk.Mem <- function (x, y, n)
 #' mk.SatoMem
 #' 
 #' Returns a 1/0 membership vector
-#' @param x = an argument which is never used
-#' @param y = path to a file containing isin's
+#' @param x = a YYYYMM (never used)
+#' @param y = a file (containing isin's)
 #' @param n = a StockFlows environment
 #' @keywords mk.SatoMem
 #' @export
@@ -7402,8 +7374,7 @@ mk.SatoMem <- function (x, y, n)
 {
     n <- n[["classif"]]
     y <- readLines(y)
-    z <- vec.to.list(intersect(c("isin", paste0("isin", 1:5)), 
-        colnames(n)))
+    z <- vec.to.list(colnames(n)[grepl("^isin\\d+", colnames(n))])
     fcn <- function(z) is.element(n[, z], y)
     z <- sapply(z, fcn)
     z <- char.to.num(apply(z, 1, max))
@@ -7779,6 +7750,7 @@ num.exists <- function (x, y)
 #' @param x = either "yyyymmdd" or "reason"
 #' @keywords nyse.holidays
 #' @export
+#' @family nyse
 
 nyse.holidays <- function (x = "yyyymmdd") 
 {
@@ -7786,6 +7758,22 @@ nyse.holidays <- function (x = "yyyymmdd")
     z <- scan(z, what = list(yyyymmdd = "", reason = ""), sep = "\t", 
         quote = "", quiet = T)
     z <- z[[x]]
+    z
+}
+
+#' nyse.lag
+#' 
+#' falls back one non-NYSE holidays
+#' @param x = a flowdate
+#' @keywords nyse.lag
+#' @export
+#' @family nyse
+
+nyse.lag <- function (x) 
+{
+    z <- flowdate.lag(x, 1)
+    x <- nyse.holidays()
+    while (any(z == x)) z <- flowdate.lag(z, 1)
     z
 }
 
@@ -7997,8 +7985,8 @@ pivot <- function (fcn, x, y, n)
 #' 
 #' returns a table, having the same column space of <x>, the rows of which are unique members of <grp> The cells of the table are the summ.fcn of <x> whenever <grp> takes on its respective value
 #' @param fcn = a function (summary)
-#' @param x = a numeric vector (groups)
-#' @param y = a numeric vector/matrix/data frame
+#' @param x = a string vector (groups)
+#' @param y = a string vector/matrix/data frame
 #' @keywords pivot.1d
 #' @export
 
@@ -8068,8 +8056,8 @@ portfolio.beta.wrapper <- function (x, y, n)
 portfolio.residual <- function (x, y) 
 {
     y <- bbk.holidays(y, x)
-    x <- x - rowMeans(x, na.rm = T)
-    y <- y - rowMeans(y, na.rm = T)
+    x <- t(scale(t(x), scale = F))
+    y <- t(scale(t(y), scale = F))
     z <- x - y * rowSums(x * y, na.rm = T)/nonneg(rowSums(y^2, 
         na.rm = T))
     z
@@ -9490,23 +9478,22 @@ sf.daily <- function (x, y, n, w, h, u, v, g = 5, r, s = NULL, b)
         z <- flowdate.seq(yyyymmdd.lag(x, 4), y)
         x <- vec.first(z)
         y <- vec.last(z)
-        z <- unique(day.to.week(flowdate.seq(x, y), s))
-        z <- length(z)
-        if (z%%b != 0) 
-            stop("Lose ", z%%b, " weeks!")
         z <- flowdate.diff(y, x) + 1
     }
     z <- fetch(h, y, z, paste0(v, "\\data"), r)
     colnames(z) <- flowdate.seq(x, y)
-    x <- dim(z)[2] + as.numeric(u[2]) - 1
+    if (length(u) == 1) 
+        u <- c(u, 1)
+    x <- nyse.lag(colnames(z)[1])
+    x <- flowdate.lag(x, as.numeric(u[2]) - 1)
+    x <- flowdate.diff(y, x)
     x <- fetch(u[1], flowdate.lag(y, 1), x, paste0(v, "\\derived"), 
         r)
+    colnames(x) <- flowdate.lag(y, dim(x)[2]:1)
     if (as.numeric(u[2]) > 1) {
         x <- t(compound.flows(t(x), as.numeric(u[2]), grepl("^1dFloMo", 
             u[1])))
     }
-    x <- x[, dim(x)[2] + 1 - seq(dim(z)[2], 1)]
-    colnames(x) <- colnames(z)
     y <- split(colnames(z), yyyymmdd.to.yyyymm(colnames(z)))
     names(y) <- yyyymm.lag(names(y))
     u <- fetch(n, max(names(y)), 1 + length(y), paste0(v, "\\data"), 
@@ -9514,7 +9501,8 @@ sf.daily <- function (x, y, n, w, h, u, v, g = 5, r, s = NULL, b)
     colnames(u) <- yyyymm.lag(max(names(y)), length(y):0)
     for (j in names(y)) z[!is.element(u[, j], 1), y[[j]]] <- NA
     z <- z[, !is.element(colnames(z), nyse.holidays())]
-    x <- x[, colnames(z)]
+    x <- x[, c(nyse.lag(colnames(z)[1]), colnames(z)[-dim(z)[2]])]
+    colnames(x) <- colnames(z)
     x <- t(x)
     z <- t(z)
     if (!is.null(s)) {
@@ -9522,12 +9510,16 @@ sf.daily <- function (x, y, n, w, h, u, v, g = 5, r, s = NULL, b)
         z <- mat.daily.to.weekly(compound, z, s)
     }
     if (b > 1) {
-        x <- mat.periodic(vec.first, x, b, F)
-        z <- mat.periodic(compound, z, b, F)
+        z <- compound.flows(z, b, F)
+        z <- z[b:dim(z)[1], ]
+        x <- x[1:dim(z)[1], ]
+        rownames(x) <- rownames(z)
     }
     x <- bbk.bin.xRet(x, z, g, T, F, r[, w])
-    s <- ifelse(is.null(s), 250, 52)
-    z <- list(summ = bbk.bin.rets.summ(x, s), rets = x)
+    s <- ifelse(is.null(s), 250, 52)/b
+    fcn <- function(z) bbk.bin.rets.summ(z, s)
+    z <- summ.multi(fcn, x, b)
+    z <- list(summ = z, rets = x)
     z
 }
 
@@ -14272,14 +14264,14 @@ today <- function ()
 #' 
 #' t-statistic associated with the regression of each row of <x> on <y>
 #' @param x = a matrix/data frame
-#' @param y = a string vector (corresponds to columns of <x>)
+#' @param y = a numeric vector (corresponds to columns of <x>)
 #' @keywords tstat
 #' @export
 
 tstat <- function (x, y) 
 {
-    x <- x - rowMeans(x)
-    y <- as.matrix(y - mean(y))
+    x <- t(scale(t(x), scale = F))
+    y <- scale(y, scale = F)
     z <- (x %*% y)/crossprod(y)[1, 1]
     n <- x - tcrossprod(z, y)
     n <- rowSums(n^2)/(dim(n)[2] - 2)
@@ -14601,7 +14593,7 @@ txt.expand <- function (x, y, n = "-", w = F)
 #' 
 #' first occurrence of pattern <y> in <x> (NA if none)
 #' @param x = a string vector
-#' @param y = a regular expression
+#' @param y = a string (regular expression)
 #' @keywords txt.first
 #' @export
 #' @family txt
@@ -15237,14 +15229,14 @@ vec.cat <- function (x)
 #' vec.count
 #' 
 #' Counts unique instances of <x>
-#' @param x = a numeric vector
+#' @param x = a string vector
 #' @keywords vec.count
 #' @export
 #' @family vec
 
 vec.count <- function (x) 
 {
-    pivot.1d(sum, x, rep(1, length(x)))
+    pivot.1d(length, x, x)
 }
 
 #' vec.cum
@@ -15998,14 +15990,14 @@ zav <- function (x, y = 0)
 
 #' zScore
 #' 
-#' Converts <x>, if a numeric vector, or the rows of <x> otherwise, to a zScore
-#' @param x = a numeric vector/matrix/data frame
+#' zScores the rows of <x>
+#' @param x = a matrix/data frame
 #' @keywords zScore
 #' @export
 
 zScore <- function (x) 
 {
-    fcn.mat.vec(mat.zScore, x, , F)
+    t(scale(t(x)))
 }
 
 #' zScore.underlying

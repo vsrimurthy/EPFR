@@ -9,7 +9,7 @@ dir.clear(x, y)
 \arguments{
 \item{x}{= a file}
 
-\item{y}{= a regular expression}
+\item{y}{= a string (regular expression)}
 }
 \description{
 rids <x> of files of type <y>
