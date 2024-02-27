@@ -18,7 +18,7 @@ sql.MonthlyAssetsEnd(x, y = NULL, n = F, w = "All", h = "AssetsEnd")
 \item{h}{= a column (name for AssetsEnd like "PortVal")}
 }
 \description{
-Generates the SQL query to get the data for monthly Assets End
+SQL query for monthly Assets End
 }
 \seealso{
 Other sql: \code{\link{sql.1dActWtTrend.Alloc}},

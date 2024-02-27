@@ -20,7 +20,7 @@ sql.1dFloMo(x, y, n, w, h, u = "All")
 \item{u}{= a ShareClass filter (All/Inst/Retail)}
 }
 \description{
-Generates the SQL query to get the data for 1dFloMo for individual stocks
+SQL query for 1dFloMo for individual stocks
 }
 \seealso{
 Other sql: \code{\link{sql.1dActWtTrend.Alloc}},

@@ -16,7 +16,7 @@ sql.MonthlyAlloc(x, y = "All", n = F, w = F)
 \item{w}{= a boolean (do/don't get SecurityId)}
 }
 \description{
-Generates the SQL query to get the data for monthly allocations for StockFlows
+SQL query for monthly allocations for StockFlows
 }
 \seealso{
 Other sql: \code{\link{sql.1dActWtTrend.Alloc}},

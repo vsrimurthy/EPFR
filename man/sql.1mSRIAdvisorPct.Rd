@@ -16,7 +16,7 @@ sql.1mSRIAdvisorPct(x, y, n, w)
 \item{w}{= a boolean (index by HSecurityId/SecurityId)}
 }
 \description{
-Generates the SQL query to get the data for 1mSRIAdvisorPct
+SQL query for 1mSRIAdvisorPct
 }
 \seealso{
 Other sql: \code{\link{sql.1dActWtTrend.Alloc}},

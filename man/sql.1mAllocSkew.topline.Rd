@@ -14,7 +14,7 @@ sql.1mAllocSkew.topline(x, y, n)
 \item{n}{= a boolean (ReportDate must/needn't be a column)}
 }
 \description{
-Generates the SQL query to get the data for 1mAllocTrend
+SQL query for 1mAllocSkew
 }
 \seealso{
 Other sql: \code{\link{sql.1dActWtTrend.Alloc}},

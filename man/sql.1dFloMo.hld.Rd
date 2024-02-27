@@ -11,7 +11,7 @@ sql.1dFloMo.hld(x, y, n = F)
 
 \item{y}{= a string ("" or SQL query)}
 
-\item{n}{= a boolean (ignore/correct rounding error)}
+\item{n}{= a boolean (introduce/correct rounding error)}
 }
 \description{
 Query to insert <x> into flow table

@@ -4,12 +4,14 @@
 \alias{sql.1dFloMo.aum}
 \title{sql.1dFloMo.aum}
 \usage{
-sql.1dFloMo.aum(x, y)
+sql.1dFloMo.aum(x, y, n = F)
 }
 \arguments{
 \item{x}{= a month end}
 
 \item{y}{= a column (name for AssetsEnd like "PortVal")}
+
+\item{n}{= a boolean (introduce/correct rounding error)}
 }
 \description{
 Underlying part of SQL query to get 1dFloMo for individual stocks

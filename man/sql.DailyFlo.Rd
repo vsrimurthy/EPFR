@@ -18,7 +18,7 @@ sql.DailyFlo(x, y = T, n = T, w = "All", h = F)
 \item{h}{= a boolean (do/don't report AssetsEnd)}
 }
 \description{
-Generates the SQL query to get the data for daily Flow
+SQL query for daily Flow
 }
 \seealso{
 Other sql: \code{\link{sql.1dActWtTrend.Alloc}},

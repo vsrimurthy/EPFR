@@ -18,7 +18,7 @@ sql.1mAllocSkew(x, y, n, w, h = "All")
 \item{h}{= a ShareClass filter (All/Inst/Retail)}
 }
 \description{
-Generates the SQL query to get the data for 1mAllocTrend
+SQL query for AllocSkew
 }
 \seealso{
 Other sql: \code{\link{sql.1dActWtTrend.Alloc}},

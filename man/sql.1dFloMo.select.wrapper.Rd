@@ -16,7 +16,7 @@ sql.1dFloMo.select.wrapper(x, y, n, w = F)
 \item{w}{= a boolean (ReportDate is/isn't a column)}
 }
 \description{
-Generates the SQL query to get the data for 1mFloMo for individual stocks
+SQL query for 1mFloMo for individual stocks
 }
 \seealso{
 Other sql: \code{\link{sql.1dActWtTrend.Alloc}},

@@ -10502,7 +10502,7 @@ sql.1dActWtTrend.select <- function (x)
 
 #' sql.1dFloMo
 #' 
-#' Generates the SQL query to get the data for 1dFloMo for individual stocks
+#' SQL query for 1dFloMo for individual stocks
 #' @param x = a flowdate vector
 #' @param y = factors and filters
 #' @param n = DB - any of StockFlows/China/Japan/CSI300/Energy
@@ -10544,18 +10544,23 @@ sql.1dFloMo <- function (x, y, n, w, h, u = "All")
 #' Underlying part of SQL query to get 1dFloMo for individual stocks
 #' @param x = a month end
 #' @param y = a column (name for AssetsEnd like "PortVal")
+#' @param n = a boolean (introduce/correct rounding error)
 #' @keywords sql.1dFloMo.aum
 #' @export
 #' @family sql
 
-sql.1dFloMo.aum <- function (x, y) 
+sql.1dFloMo.aum <- function (x, y, n = F) 
 {
-    z <- sql.unbracket(sql.MonthlyAssetsEnd(wrap(x), , T, , y))
-    z <- c("insert into", paste0("\t#AUM (FundId, ", y, ")"), 
-        z)
-    z <- c(sql.index("#AUM", "FundId"), z)
-    z <- c(paste0("create table #AUM (FundId int not null, ", 
-        y, " float not null)"), z)
+    z <- sql.MonthlyAssetsEnd(wrap(x), , T, , y)
+    if (!n) {
+        z <- sql.unbracket(z)
+        z <- c("insert into", paste0("\t#AUM (FundId, ", y, ")"), 
+            z)
+        z <- c(sql.index("#AUM", "FundId"), z)
+        z <- c(paste0("create table #AUM (FundId int not null, ", 
+            y, " float not null)"), z)
+    }
+    else z <- sql.into(z, "#AUM")
     z
 }
 
@@ -10757,7 +10762,7 @@ sql.1dFloMo.grp <- function (x, y)
 #' Query to insert <x> into flow table
 #' @param x = a month end
 #' @param y = a string ("" or SQL query)
-#' @param n = a boolean (ignore/correct rounding error)
+#' @param n = a boolean (introduce/correct rounding error)
 #' @keywords sql.1dFloMo.hld
 #' @export
 #' @family sql
@@ -10868,7 +10873,7 @@ sql.1dFloMo.select <- function (x)
 
 #' sql.1dFloMo.select.wrapper
 #' 
-#' Generates the SQL query to get the data for 1mFloMo for individual stocks
+#' SQL query for 1mFloMo for individual stocks
 #' @param x = factors and filters
 #' @param y = a boolean (index by HSecurityId/SecurityId)
 #' @param n = a breakdown filter vector (e.g. All/GeoId/DomicileId)
@@ -11391,7 +11396,7 @@ sql.1mAllocD.select <- function (x)
 
 #' sql.1mAllocSkew
 #' 
-#' Generates the SQL query to get the data for 1mAllocTrend
+#' SQL query for AllocSkew
 #' @param x = a YYYYMM
 #' @param y = factors and filters
 #' @param n = DB - any of StockFlows/China/Japan/CSI300/Energy
@@ -11413,7 +11418,7 @@ sql.1mAllocSkew <- function (x, y, n, w, h = "All")
 
 #' sql.1mAllocSkew.topline
 #' 
-#' Generates the SQL query to get the data for 1mAllocTrend
+#' SQL query for 1mAllocSkew
 #' @param x = a variable vector
 #' @param y = a boolean (index by HSecurityId/SecurityId)
 #' @param n = a boolean (ReportDate must/needn't be a column)
@@ -11423,6 +11428,8 @@ sql.1mAllocSkew <- function (x, y, n, w, h = "All")
 
 sql.1mAllocSkew.topline <- function (x, y, n) 
 {
+    if (n & any(x == "AllocSkew")) 
+        stop("Can't run AllocSkew on daily data!")
     z <- h <- ifelse(y, "t2.HSecurityId", "SecurityId")
     if (y | n) {
         z <- c(sql.yyyymmdd("t1.ReportDate", "ReportDate", y), 
@@ -11487,7 +11494,7 @@ sql.1mAllocSkew.underlying <- function (x, y, n, w)
     x <- sql.ShareClass(x, w)
     z <- sql.drop(c("#FLO", "#AUM"))
     z <- c(z, sql.1dFloMo.hld(mo.end, n, !dly))
-    z <- c(z, "", sql.1dFloMo.aum(mo.end, "PortVal"))
+    z <- c(z, "", sql.1dFloMo.aum(mo.end, "PortVal", !dly))
     z <- c(z, "", sql.1mAllocSkew.underlying.basic(x, y, dly))
     z <- paste(z, collapse = "\n")
     z
@@ -11749,7 +11756,7 @@ sql.1mHoldAum <- function (x, y, n, w, h)
 
 #' sql.1mSRIAdvisorPct
 #' 
-#' Generates the SQL query to get the data for 1mSRIAdvisorPct
+#' SQL query for 1mSRIAdvisorPct
 #' @param x = a YYYYMM
 #' @param y = factors and filters
 #' @param n = DB - any of StockFlows/China/Japan/CSI300/Energy
@@ -12368,7 +12375,7 @@ sql.currprior <- function (fcn, x, y, n, w)
 
 #' sql.DailyFlo
 #' 
-#' Generates the SQL query to get the data for daily Flow
+#' SQL query for daily Flow
 #' @param x = a flowdate vector
 #' @param y = a boolean (group by HFundId/FundId)
 #' @param n = a boolean (StockFlows/Macro)
@@ -13165,7 +13172,7 @@ sql.Mo <- function (x, y, n, w)
 
 #' sql.MonthlyAlloc
 #' 
-#' Generates the SQL query to get the data for monthly allocations for StockFlows
+#' SQL query for monthly allocations for StockFlows
 #' @param x = a YYYYMMDD for which you want allocations
 #' @param y = DB - any of StockFlows/China/Japan/CSI300/Energy
 #' @param n = a boolean (SharesHeld/HoldingValue)
@@ -13193,7 +13200,7 @@ sql.MonthlyAlloc <- function (x, y = "All", n = F, w = F)
 
 #' sql.MonthlyAssetsEnd
 #' 
-#' Generates the SQL query to get the data for monthly Assets End
+#' SQL query for monthly Assets End
 #' @param x = a YYYYMMDD or list (where clause)
 #' @param y = a column vector (besides AssetsEnd)
 #' @param n = a boolean (data are indexed by FundId/HFundId)
