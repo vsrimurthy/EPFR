@@ -9773,11 +9773,63 @@ sfpd.ActWtTrend <- function (x, y, n, w, h)
     y <- sfpd.Wt(y)
     y[, "Wt"] <- y[, "Wt"] - y[, "FundWtdExcl0"]
     y <- y[!is.na(y[, "Wt"]), ]
-    if (h == "ActWtDiff") 
-        y[, "Wt"] <- sign(y[, "Wt"])
-    if (h == "ActWtDiff2") 
-        y[, "Flow"] <- sign(y[, "Flow"])
+    if (h == "ActWtDiff") {
+        y[, "Num"] <- y[, "Flow"] * sign(y[, "Wt"])
+        y[, "Den"] <- abs(y[, "Flow"])
+    }
+    else if (h == "ActWtDiff2") {
+        y[, "Num"] <- sign(y[, "Flow"]) * y[, "Wt"]
+        y[, "Den"] <- abs(y[, "Wt"])
+    }
+    else {
+        y[, "Num"] <- y[, "Flow"] * y[, "Wt"]
+        y[, "Den"] <- abs(y[, "Flow"] * y[, "Wt"])
+    }
     z <- sfpd.FloTrend.underlying(y, w, h)
+    z
+}
+
+#' sfpd.AllocMo
+#' 
+#' <w> factor
+#' @param x = a matrix/data frame (holdings)
+#' @param y = a matrix/data frame (prior holdings)
+#' @param n = a matrix/data frame (security history)
+#' @param w = a variable (AllocMo/AllocTrend/AllocDiff)
+#' @keywords sfpd.AllocMo
+#' @export
+#' @family sfpd
+
+sfpd.AllocMo <- function (x, y, n, w) 
+{
+    z <- list(AssetsStart = y[, c("FundId", "PortVal")], AssetsEnd = x[, 
+        c("FundId", "PortVal")])
+    z <- lapply(z, function(z) z[!duplicated(z[, 1]), ])
+    for (l in names(z)) colnames(z[[l]])[2] <- l
+    z <- Reduce(merge, z)
+    x <- sfpd.FloTrend.holdings(x, y, n)
+    x <- merge(x, z)
+    x[, "AssetsEnd"] <- rowMeans(x[, c("AssetsStart", "AssetsEnd")])
+    if (w == "AllocMo") {
+        x[, "Num"] <- x[, "AssetsEnd"] * (x[, "Wt"] - x[, "OldWt"])
+        x[, "Den"] <- x[, "AssetsEnd"] * (x[, "Wt"] + x[, "OldWt"])/2
+    }
+    else if (w == "AllocTrend") {
+        x[, "Num"] <- x[, "AssetsEnd"] * (x[, "Wt"] - x[, "OldWt"])
+        x[, "Den"] <- abs(x[, "Num"])
+    }
+    else if (w == "AllocDiff") {
+        x[, "Num"] <- x[, "AssetsEnd"] * sign(x[, "Wt"] - x[, 
+            "OldWt"])
+        x[, "Den"] <- x[, "AssetsEnd"]
+    }
+    else stop("Bad Factor!")
+    x <- aggregate(x = x[, c("Num", "Den")], by = x["HSecurityId"], 
+        FUN = sum)
+    x[, "Num"] <- x[, "Num"]/nonneg(x[, "Den"])
+    z <- x[, c("HSecurityId", "Num")]
+    colnames(z)[2] <- w
+    z <- z[!is.na(z[, w]), ]
     z
 }
 
@@ -9886,7 +9938,7 @@ sfpd.FloMo.underlying <- function (x, y, n, w, h = NULL)
 #' @param w = a flowdate
 #' @param h = a variable (FloTrend/FloDiff/FloDiff2)
 #' @param u = a matrix/data frame (prior holdings)
-#' @param v = security history file
+#' @param v = a matrix/data frame (security history)
 #' @keywords sfpd.FloTrend
 #' @export
 #' @family sfpd
@@ -9895,31 +9947,48 @@ sfpd.FloTrend <- function (x, y, n, w, h, u, v)
 {
     x <- aggregate(x["Flow"], by = x["HFundId"], FUN = sum)
     x <- merge(x, n)[, c("FundId", "Flow")]
-    y <- merge(sfpd.Wt(y), v)
-    u <- merge(sfpd.Wt(u), v)
-    y <- y[is.element(y[, "SecurityId"], u[, "SecurityId"]), 
-        ]
-    u <- u[is.element(u[, "SecurityId"], y[, "SecurityId"]), 
-        ]
-    y <- y[is.element(y[, "FundId"], u[, "FundId"]), ]
-    u <- u[is.element(u[, "FundId"], y[, "FundId"]), ]
-    u <- u[, c("FundId", "SecurityId", "Wt")]
-    colnames(u) <- c("FundId", "SecurityId", "OldWt")
-    y <- merge(y, u)
-    y[, "Wt"] <- zav(y[, "Wt"])
-    y[, "OldWt"] <- zav(y[, "OldWt"])
-    u <- y[!is.na(y[, "HSecurityId"]), ]
-    u <- u[!duplicated(u[, "SecurityId"]), ]
-    u <- mat.index(u[, c("SecurityId", "HSecurityId")])
-    u <- map.rname(u, y[, "SecurityId"])
-    y[, "HSecurityId"] <- zav(y[, "HSecurityId"], u)
+    y <- sfpd.FloTrend.holdings(y, u, v)
     y[, "Wt"] <- y[, "Wt"] - y[, "OldWt"]
     y <- merge(y, x)
-    if (h == "FloDiff") 
-        y[, "Wt"] <- sign(y[, "Wt"])
-    if (h == "FloDiff2") 
-        y[, "Flow"] <- sign(y[, "Flow"])
+    if (h == "FloDiff") {
+        y[, "Num"] <- y[, "Flow"] * sign(y[, "Wt"])
+        y[, "Den"] <- abs(y[, "Flow"])
+    }
+    else if (h == "FloDiff2") {
+        y[, "Num"] <- sign(y[, "Flow"]) * y[, "Wt"]
+        y[, "Den"] <- abs(y[, "Wt"])
+    }
+    else {
+        y[, "Num"] <- y[, "Flow"] * y[, "Wt"]
+        y[, "Den"] <- abs(y[, "Flow"] * y[, "Wt"])
+    }
     z <- sfpd.FloTrend.underlying(y, w, h)
+    z
+}
+
+#' sfpd.FloTrend.holdings
+#' 
+#' merges old and new holdings
+#' @param x = a matrix/data frame (holdings)
+#' @param y = a matrix/data frame (prior holdings)
+#' @param n = a matrix/data frame (security history)
+#' @keywords sfpd.FloTrend.holdings
+#' @export
+#' @family sfpd
+
+sfpd.FloTrend.holdings <- function (x, y, n) 
+{
+    x <- x[is.element(x[, "FundId"], y[, "FundId"]), ]
+    y <- y[is.element(y[, "FundId"], x[, "FundId"]), ]
+    x <- merge(sfpd.Wt(x), n)
+    y <- merge(sfpd.Wt(y), n)
+    x <- x[is.element(x[, "SecurityId"], y[, "SecurityId"]), 
+        ]
+    y <- y[is.element(y[, "SecurityId"], x[, "SecurityId"]), 
+        ]
+    y <- y[, c("FundId", "SecurityId", "Wt")]
+    colnames(y) <- c("FundId", "SecurityId", "OldWt")
+    z <- merge(x, y)
     z
 }
 
@@ -9935,8 +10004,6 @@ sfpd.FloTrend <- function (x, y, n, w, h, u, v)
 
 sfpd.FloTrend.underlying <- function (x, y, n) 
 {
-    x[, "Num"] <- x[, "Flow"] * x[, "Wt"]
-    x[, "Den"] <- abs(x[, "Num"])
     z <- aggregate(x[, c("Num", "Den")], by = x["HSecurityId"], 
         FUN = sum)
     z[, n] <- z[, "Num"]/nonneg(z[, "Den"])
@@ -11478,13 +11545,16 @@ sql.1mAllocSkew.topline.from <- function (x, y)
 #' @param y = a filter vector
 #' @param n = a string ("" or SQL query)
 #' @param w = a ShareClass filter (All/Inst/Retail)
+#' @param h = a boolean (introduce/correct rounding error, can be missing)
 #' @keywords sql.1mAllocSkew.underlying
 #' @export
 #' @family sql
 
-sql.1mAllocSkew.underlying <- function (x, y, n, w) 
+sql.1mAllocSkew.underlying <- function (x, y, n, w, h) 
 {
     dly <- !yyyymm.exists(x[1])
+    if (missing(h)) 
+        h <- !dly
     if (dly) {
         mo.end <- yyyymmdd.to.AllocMo.unique(x, 26, T)
     }
@@ -11498,8 +11568,8 @@ sql.1mAllocSkew.underlying <- function (x, y, n, w)
     x <- paste("ReportDate", x)
     x <- sql.ShareClass(x, w)
     z <- sql.drop(c("#FLO", "#AUM"))
-    z <- c(z, sql.1dFloMo.hld(mo.end, n, !dly))
-    z <- c(z, "", sql.1dFloMo.aum(mo.end, "PortVal", !dly))
+    z <- c(z, sql.1dFloMo.hld(mo.end, n, h))
+    z <- c(z, "", sql.1dFloMo.aum(mo.end, "PortVal", h))
     z <- c(z, "", sql.1mAllocSkew.underlying.basic(x, y, dly))
     z <- paste(z, collapse = "\n")
     z

@@ -4,7 +4,7 @@
 \alias{sql.1mAllocSkew.underlying}
 \title{sql.1mAllocSkew.underlying}
 \usage{
-sql.1mAllocSkew.underlying(x, y, n, w)
+sql.1mAllocSkew.underlying(x, y, n, w, h)
 }
 \arguments{
 \item{x}{= a YYYYMM/flowdate vector}
@@ -14,6 +14,8 @@ sql.1mAllocSkew.underlying(x, y, n, w)
 \item{n}{= a string ("" or SQL query)}
 
 \item{w}{= a ShareClass filter (All/Inst/Retail)}
+
+\item{h}{= a boolean (introduce/correct rounding error, can be missing)}
 }
 \description{
 the SQL query to get the data for 1dActWtTrend
