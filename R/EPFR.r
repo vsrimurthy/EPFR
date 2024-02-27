@@ -4315,12 +4315,12 @@ ftp.sql.factor <- function (x, y, n, w, h)
     }
     if (all(is.element(x, paste0("Flo", c("Trend", "Diff", "Diff2"))))) {
         z <- sql.1mAllocD(y, c(x, qa.filter.map(n)), w, T, F, 
-            "Flow", F)
+            "Flow", F, "All", F)
     }
     else if (all(is.element(x, paste0("Alloc", c("Trend", "Diff", 
         "Mo"))))) {
         z <- sql.1mAllocD(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
-            w, T, F, "AssetsStart", F)
+            w, T, F, "AssetsStart", F, "All", F)
     }
     else if (all(x == "AllocD")) {
         z <- sql.1mAllocD(yyyymmdd.to.yyyymm(y), c("AllocDA", 
@@ -6717,7 +6717,8 @@ mk.1mAllocMo <- function (x, y, n)
     else if (any(y[1] == paste0("Alloc", c("Mo", "Trend", "Diff")))) {
         if (w != "All") 
             stop("Bad share-class!")
-        z <- sql.1mAllocD(x, y, n$DB, F, F, "AssetsStart", F)
+        z <- sql.1mAllocD(x, y, n$DB, F, F, "AssetsStart", F, 
+            "All", F)
     }
     else if (any(y[1] == c("FwtdEx0", "FwtdIn0", "SwtdEx0", "SwtdIn0"))) {
         if (w != "All") 
@@ -11191,24 +11192,28 @@ sql.1mActWt.underlying <- function (x, y)
 #' @param u = one of AssetsStart/Flow/NULL
 #' @param v = a boolean (chuck/keep securities held by just one fund)
 #' @param g = a ShareClass filter (All/Inst/Retail, x not monthly!)
+#' @param r = a boolean (full outer/inner join)
 #' @keywords sql.1mAllocD
 #' @export
 #' @family sql
 
-sql.1mAllocD <- function (x, y, n, w, h, u = NULL, v = T, g = "All") 
+sql.1mAllocD <- function (x, y, n, w, h, u = NULL, v = T, g = "All", r = T) 
 {
     has.dt <- !yyyymm.exists(x[1])
+    if (r) 
+        r <- "full outer join"
+    else r <- "inner join"
     y <- sql.arguments(y)
     z <- u
     if (has.dt) {
         u <- sql.DailyFlo(wrap(x), , , g)
         x <- yyyymmdd.to.AllocMo.unique(x, 26, F)
-        r <- sql.FundHistory(y$filter, T, "FundId")
-        r <- sql.label(r, "t2 on t2.HFundId = t1.HFundId")
+        l <- sql.FundHistory(y$filter, T, "FundId")
+        l <- sql.label(l, "t2 on t2.HFundId = t1.HFundId")
         y$filter <- "All"
-        u <- c(sql.label(u, "t1"), "inner join", r)
-        r <- c("ReportDate", "FundId", "Flow")
-        u <- sql.label(sql.tbl(r, u), "t3 on t3.FundId = isnull(t1.FundId, t2.FundId)")
+        u <- c(sql.label(u, "t1"), "inner join", l)
+        l <- c("ReportDate", "FundId", "Flow")
+        u <- sql.label(sql.tbl(l, u), "t3 on t3.FundId = isnull(t1.FundId, t2.FundId)")
         u <- c("inner join", u)
         z <- NULL
     }
@@ -11220,8 +11225,8 @@ sql.1mAllocD <- function (x, y, n, w, h, u = NULL, v = T, g = "All")
     if (w) 
         z <- "HSecurityId"
     else z <- "SecurityId"
-    r <- paste0("isnull(t1.", z, ", t2.", z, ")")
-    z <- paste(z, "=", r)
+    l <- paste0("isnull(t1.", z, ", t2.", z, ")")
+    z <- paste(z, "=", l)
     if (has.dt) {
         z <- c(sql.yyyymmdd("ReportDate", , w), z)
     }
@@ -11231,12 +11236,12 @@ sql.1mAllocD <- function (x, y, n, w, h, u = NULL, v = T, g = "All")
     for (i in y$factor) z <- c(z, sql.1mAllocD.select(i))
     u <- c("#OLDHLD t2 on t2.FundId = t1.FundId and t2.SecurityId = t1.SecurityId", 
         u)
-    u <- c("#NEWHLD t1", "full outer join", u)
+    u <- c("#NEWHLD t1", r, u)
     if (has.dt) 
-        has.dt <- paste("ReportDate,", r)
-    else has.dt <- r
+        has.dt <- paste("ReportDate,", l)
+    else has.dt <- l
     if (n == "All" & v) {
-        z <- sql.tbl(z, u, , has.dt, paste0("count(", r, ") > 1"))
+        z <- sql.tbl(z, u, , has.dt, paste0("count(", l, ") > 1"))
     }
     else if (n == "All" & !v) {
         z <- sql.tbl(z, u, , has.dt)
@@ -11247,7 +11252,7 @@ sql.1mAllocD <- function (x, y, n, w, h, u = NULL, v = T, g = "All")
     }
     else {
         z <- sql.tbl(z, u, sql.in("isnull(t1.HSecurityId, t2.HSecurityId)", 
-            sql.RDSuniv(n)), has.dt, paste0("count(", r, ") > 1"))
+            sql.RDSuniv(n)), has.dt, paste0("count(", l, ") > 1"))
     }
     z <- c(h, paste(sql.unbracket(z), collapse = "\n"))
     z

@@ -4,7 +4,7 @@
 \alias{sql.1mAllocD}
 \title{sql.1mAllocD}
 \usage{
-sql.1mAllocD(x, y, n, w, h, u = NULL, v = T, g = "All")
+sql.1mAllocD(x, y, n, w, h, u = NULL, v = T, g = "All", r = T)
 }
 \arguments{
 \item{x}{= a YYYYMM/flowdate vector}
@@ -22,6 +22,8 @@ sql.1mAllocD(x, y, n, w, h, u = NULL, v = T, g = "All")
 \item{v}{= a boolean (chuck/keep securities held by just one fund)}
 
 \item{g}{= a ShareClass filter (All/Inst/Retail, x not monthly!)}
+
+\item{r}{= a boolean (full outer/inner join)}
 }
 \description{
 SQL query for 1mAllocD
