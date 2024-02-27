@@ -9905,7 +9905,7 @@ sfpd.FloTrend <- function (x, y, n, w, h, u, v)
     u <- u[is.element(u[, "FundId"], y[, "FundId"]), ]
     u <- u[, c("FundId", "SecurityId", "Wt")]
     colnames(u) <- c("FundId", "SecurityId", "OldWt")
-    y <- merge(y, u, all = T)
+    y <- merge(y, u)
     y[, "Wt"] <- zav(y[, "Wt"])
     y[, "OldWt"] <- zav(y[, "OldWt"])
     u <- y[!is.na(y[, "HSecurityId"]), ]
