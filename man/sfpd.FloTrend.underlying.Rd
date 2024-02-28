@@ -7,7 +7,7 @@
 sfpd.FloTrend.underlying(x, y, n)
 }
 \arguments{
-\item{x}{= a file}
+\item{x}{= a matrix/data frame}
 
 \item{y}{= a flowdate}
 
@@ -22,6 +22,7 @@ Other sfpd: \code{\link{sfpd.ActWtTrend}},
   \code{\link{sfpd.FloMo.underlying}},
   \code{\link{sfpd.FloMo}},
   \code{\link{sfpd.FloTrend.holdings}},
+  \code{\link{sfpd.FloTrend.parameterize}},
   \code{\link{sfpd.FloTrend}}, \code{\link{sfpd.Flow}},
   \code{\link{sfpd.Holdings}}, \code{\link{sfpd.ION}},
   \code{\link{sfpd.Wt}}, \code{\link{sfpd.filter}}

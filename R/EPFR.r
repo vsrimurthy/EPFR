@@ -9773,18 +9773,6 @@ sfpd.ActWtTrend <- function (x, y, n, w, h)
     y <- sfpd.Wt(y)
     y[, "Wt"] <- y[, "Wt"] - y[, "FundWtdExcl0"]
     y <- y[!is.na(y[, "Wt"]), ]
-    if (h == "ActWtDiff") {
-        y[, "Num"] <- y[, "Flow"] * sign(y[, "Wt"])
-        y[, "Den"] <- abs(y[, "Flow"])
-    }
-    else if (h == "ActWtDiff2") {
-        y[, "Num"] <- sign(y[, "Flow"]) * y[, "Wt"]
-        y[, "Den"] <- abs(y[, "Wt"])
-    }
-    else {
-        y[, "Num"] <- y[, "Flow"] * y[, "Wt"]
-        y[, "Den"] <- abs(y[, "Flow"] * y[, "Wt"])
-    }
     z <- sfpd.FloTrend.underlying(y, w, h)
     z
 }
@@ -9950,18 +9938,6 @@ sfpd.FloTrend <- function (x, y, n, w, h, u, v)
     y <- sfpd.FloTrend.holdings(y, u, v)
     y[, "Wt"] <- y[, "Wt"] - y[, "OldWt"]
     y <- merge(y, x)
-    if (h == "FloDiff") {
-        y[, "Num"] <- y[, "Flow"] * sign(y[, "Wt"])
-        y[, "Den"] <- abs(y[, "Flow"])
-    }
-    else if (h == "FloDiff2") {
-        y[, "Num"] <- sign(y[, "Flow"]) * y[, "Wt"]
-        y[, "Den"] <- abs(y[, "Wt"])
-    }
-    else {
-        y[, "Num"] <- y[, "Flow"] * y[, "Wt"]
-        y[, "Den"] <- abs(y[, "Flow"] * y[, "Wt"])
-    }
     z <- sfpd.FloTrend.underlying(y, w, h)
     z
 }
@@ -9992,10 +9968,38 @@ sfpd.FloTrend.holdings <- function (x, y, n)
     z
 }
 
+#' sfpd.FloTrend.parameterize
+#' 
+#' numerator and denominator to create variable
+#' @param x = a matrix/data frame
+#' @param y = a variable
+#' @keywords sfpd.FloTrend.parameterize
+#' @export
+#' @family sfpd
+
+sfpd.FloTrend.parameterize <- function (x, y) 
+{
+    z <- x
+    if (grepl("Diff$", y)) {
+        z[, "Num"] <- z[, "Flow"] * sign(z[, "Wt"])
+        z[, "Den"] <- abs(z[, "Flow"])
+    }
+    else if (grepl("Diff2$", y)) {
+        z[, "Num"] <- sign(z[, "Flow"]) * z[, "Wt"]
+        z[, "Den"] <- abs(z[, "Wt"])
+    }
+    else if (grepl("Trend$", y)) {
+        z[, "Num"] <- z[, "Flow"] * z[, "Wt"]
+        z[, "Den"] <- abs(z[, "Flow"] * z[, "Wt"])
+    }
+    else stop("Bad factor!")
+    z
+}
+
 #' sfpd.FloTrend.underlying
 #' 
 #' <n> factor
-#' @param x = a file
+#' @param x = a matrix/data frame
 #' @param y = a flowdate
 #' @param n = a variable
 #' @keywords sfpd.FloTrend.underlying
@@ -10004,6 +10008,7 @@ sfpd.FloTrend.holdings <- function (x, y, n)
 
 sfpd.FloTrend.underlying <- function (x, y, n) 
 {
+    x <- sfpd.FloTrend.parameterize(x, n)
     z <- aggregate(x[, c("Num", "Den")], by = x["HSecurityId"], 
         FUN = sum)
     z[, n] <- z[, "Num"]/nonneg(z[, "Den"])
