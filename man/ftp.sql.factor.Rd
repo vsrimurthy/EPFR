@@ -7,7 +7,7 @@
 ftp.sql.factor(x, y, n, w, h)
 }
 \arguments{
-\item{x}{= factor}
+\item{x}{= a variable}
 
 \item{y}{= a flowdate}
 

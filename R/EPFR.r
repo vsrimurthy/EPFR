@@ -4292,7 +4292,7 @@ ftp.rmdir <- function (x, y, n, w, h = "ftp")
 #' ftp.sql.factor
 #' 
 #' SQL code to validate <x> flows at the <y> level
-#' @param x = factor
+#' @param x = a variable
 #' @param y = a flowdate
 #' @param n = a filter (e.g. Aggregate/Active/Passive/ETF/Mutual)
 #' @param w = DB - any of StockFlows/China/Japan/CSI300/Energy
@@ -4304,21 +4304,19 @@ ftp.rmdir <- function (x, y, n, w, h = "ftp")
 ftp.sql.factor <- function (x, y, n, w, h) 
 {
     if (missing(h)) {
-        if (any(x == c("StockM", "StockD", "FwtdEx0", "FwtdIn0", 
-            "SwtdEx0", "SwtdIn0", "FundCtM", "HoldSum", "SharesHeld", 
-            "FundCt"))) {
+        if (any(grepl("^(StockM|StockD|FwtdEx0|FwtdIn0|SwtdEx0|SwtdIn0|FundCtM|HoldSum|SharesHeld|FundCt)$", 
+            x))) {
             h <- "GeoId"
         }
         else {
             h <- "All"
         }
     }
-    if (all(is.element(x, paste0("Flo", c("Trend", "Diff", "Diff2"))))) {
+    if (all(grepl("^(Flo)(Trend|Diff|Diff2)$", x))) {
         z <- sql.1mAllocD(y, c(x, qa.filter.map(n)), w, T, F, 
             "Flow", F, "All", F)
     }
-    else if (all(is.element(x, paste0("Alloc", c("Trend", "Diff", 
-        "Mo"))))) {
+    else if (all(grepl("^(Alloc)(Trend|Diff|Mo)$", x))) {
         z <- sql.1mAllocD(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
             w, T, F, "AssetsStart", F, "All", F)
     }
@@ -4350,8 +4348,8 @@ ftp.sql.factor <- function (x, y, n, w, h)
         z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c("FundCt", 
             qa.filter.map(n)), w, T, h)
     }
-    else if (all(is.element(x, c("FundCt", "Herfindahl", "HoldSum", 
-        "SharesHeld")))) {
+    else if (all(grepl("^(FundCt|Herfindahl|HoldSum|SharesHeld)$", 
+        x))) {
         z <- sql.1mFundCt(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
             w, T, h)
     }
@@ -4387,12 +4385,10 @@ ftp.sql.factor <- function (x, y, n, w, h)
         z <- sql.1mAllocSkew(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
             w, T)
     }
-    else if (all(is.element(x, paste0("ActWt", c("Trend", "Diff", 
-        "Diff2"))))) {
+    else if (all(grepl("^(ActWt)(Trend|Diff|Diff2)$", x))) {
         z <- sql.1mAllocSkew(y, c(x, qa.filter.map(n)), w, T)
     }
-    else if (all(is.element(x, c("FwtdEx0", "FwtdIn0", "SwtdEx0", 
-        "SwtdIn0")))) {
+    else if (all(grepl("^[FS]wtd(In|Ex)0$", x))) {
         z <- sql.TopDownAllocs(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
             w, T, h)
     }
@@ -5522,7 +5518,7 @@ machine.info <- function (x)
 
 map.classif <- function (x, y, n) 
 {
-    z <- vec.to.list(intersect(c(n, paste0(n, 1:50)), colnames(y)))
+    z <- vec.to.list(txt.has(colnames(y), paste0("^", n, "\\d+")))
     fcn <- function(z) char.to.num(map.rname(x, y[, z]))
     z <- avail(sapply(z, fcn))
     z
@@ -6689,7 +6685,7 @@ mk.1mAllocMo <- function (x, y, n)
             stop("Bad share-class!")
         z <- sql.1mSRIAdvisorPct(x, y, n$DB, F)
     }
-    else if (any(y[1] == c("FloDollar", "FloMo"))) {
+    else if (grepl("^Flo(Dollar|Mo)$", y[1])) {
         if (w != "All") 
             stop("Bad share-class!")
         z <- sql.1mHoldAum(x, y, n$DB, F, "All")
@@ -6704,23 +6700,22 @@ mk.1mAllocMo <- function (x, y, n)
             stop("Bad share-class!")
         z <- sql.Dispersion(x, y, n$DB, F)
     }
-    else if (any(y[1] == c("Herfindahl", "FundCt", "HoldSum", 
-        "SharesHeld"))) {
+    else if (grepl("^(FundCt|Herfindahl|HoldSum|SharesHeld)$", 
+        y[1])) {
         z <- sql.1mFundCt(x, y, n$DB, F, "All", 0, w)
     }
-    else if (any(y[1] == c("AllocDInc", "AllocDDec", "AllocDAdd", 
-        "AllocDRem"))) {
+    else if (grepl("^AllocD(Inc|Dec|Add|Rem)$", y[1])) {
         if (w != "All") 
             stop("Bad share-class!")
         z <- sql.1mAllocD(x, y, n$DB, F, F)
     }
-    else if (any(y[1] == paste0("Alloc", c("Mo", "Trend", "Diff")))) {
+    else if (grepl("^Alloc(Diff|Trend|Mo)$", y[1])) {
         if (w != "All") 
             stop("Bad share-class!")
         z <- sql.1mAllocD(x, y, n$DB, F, F, "AssetsStart", F, 
             "All", F)
     }
-    else if (any(y[1] == c("FwtdEx0", "FwtdIn0", "SwtdEx0", "SwtdIn0"))) {
+    else if (grepl("^[FS]wtd(In|Ex)0$", y[1])) {
         if (w != "All") 
             stop("Bad share-class!")
         z <- sql.TopDownAllocs(x, y, n$DB, F, "All")
@@ -7375,7 +7370,7 @@ mk.SatoMem <- function (x, y, n)
 {
     n <- n[["classif"]]
     y <- readLines(y)
-    z <- vec.to.list(colnames(n)[grepl("^isin\\d+", colnames(n))])
+    z <- vec.to.list(txt.has(colnames(n), "^isin\\d+"))
     fcn <- function(z) is.element(n[, z], y)
     z <- sapply(z, fcn)
     z <- char.to.num(apply(z, 1, max))
@@ -10706,8 +10701,8 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
     h <- parameters(paste("classif", classif.type, sep = "-"))
     h <- mat.read(h, sep)
     h <- map.rname(h, z)
-    if (any(x == c("Ctry", "CountryFlow", "LatAm", "APac", "Aux", 
-        "OtherFrontier"))) {
+    if (any(grepl("^(Ctry|CountryFlow|LatAm|APac|Aux|OtherFrontier)$", 
+        x))) {
         z <- vec.named(z, h$CountryId)
     }
     else if (x == "EMDM") {
@@ -14744,6 +14739,20 @@ txt.gunning <- function (x, y, n)
     }
     z <- list(result = 0.4 * (z + 100 * n), complex = x)
     z
+}
+
+#' txt.has
+#' 
+#' subset of <x> based on pattern <y>
+#' @param x = a string vector
+#' @param y = a string (regular expression)
+#' @keywords txt.has
+#' @export
+#' @family txt
+
+txt.has <- function (x, y) 
+{
+    x[grepl(y, x)]
 }
 
 #' txt.hdr
