@@ -9816,6 +9816,38 @@ sfpd.AllocMo <- function (x, y, n, w)
     z
 }
 
+#' sfpd.AllocSkew
+#' 
+#' AllocSkew factor
+#' @param x = a matrix/data frame (holdings)
+#' @param y = a matrix/data frame (fund history)
+#' @keywords sfpd.AllocSkew
+#' @export
+#' @family sfpd
+
+sfpd.AllocSkew <- function (x, y) 
+{
+    z <- y[, c("FundId", "GeographicFocus")]
+    z <- z[order(z[, "GeographicFocus"], decreasing = T), ]
+    z <- z[!duplicated(z[, "FundId"]), ]
+    x <- merge(x, z)
+    z <- aggregate(x = x[c("HoldingValue", "PortVal")], by = x[c("HSecurityId", 
+        "GeographicFocus")], FUN = sum)
+    z[, "FundWtdExcl0"] <- z[, "HoldingValue"]/z[, "PortVal"]
+    z <- z[, !is.element(colnames(z), c("HoldingValue", "PortVal"))]
+    x <- merge(x, z)
+    x[, "HoldingValue"] <- x[, "HoldingValue"]/x[, "PortVal"]
+    x[, "FundWtdExcl0"] <- floor(1e+06 * x[, "FundWtdExcl0"])/1e+06
+    x[, "HoldingValue"] <- x[, "FundWtdExcl0"] - x[, "HoldingValue"]
+    x[, "HoldingValue"] <- round(1e+06 * x[, "HoldingValue"])/1e+06
+    x[, "HoldingValue"] <- x[, "PortVal"] * sign(x[, "HoldingValue"])
+    x <- aggregate(x = x[c("HoldingValue", "PortVal")], by = x["HSecurityId"], 
+        FUN = sum)
+    x[, "HoldingValue"] <- x[, "HoldingValue"]/x[, "PortVal"]
+    z <- x[, colnames(x) != "PortVal"]
+    z
+}
+
 #' sfpd.filter
 #' 
 #' T/F depending on whether records of <x> pass filter <y>
@@ -15478,26 +15510,6 @@ vec.named <- function (x, y)
 vec.read <- function (x, y = ",") 
 {
     as.matrix(mat.read(x, y, , F))[, 1]
-}
-
-#' vec.same
-#' 
-#' T/F depending on whether <x> and <y> are identical
-#' @param x = a numeric vector
-#' @param y = a numeric vector
-#' @keywords vec.same
-#' @export
-#' @family vec
-
-vec.same <- function (x, y) 
-{
-    z <- all(is.na(x) == is.na(y))
-    if (z) {
-        w <- !is.na(x)
-        if (any(w)) 
-            z <- all(abs(x[w] - y[w]) < 1e-06)
-    }
-    z
 }
 
 #' vec.swap

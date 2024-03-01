@@ -23,7 +23,6 @@ Other vec: \code{\link{vec.cat}}, \code{\link{vec.count}},
   \code{\link{vec.lag}}, \code{\link{vec.last}},
   \code{\link{vec.max}}, \code{\link{vec.min}},
   \code{\link{vec.named}}, \code{\link{vec.read}},
-  \code{\link{vec.same}}, \code{\link{vec.swap}},
-  \code{\link{vec.unique}}
+  \code{\link{vec.swap}}, \code{\link{vec.unique}}
 }
 \keyword{vec.to.list}

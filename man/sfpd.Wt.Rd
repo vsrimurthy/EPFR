@@ -14,7 +14,8 @@ computes weight
 }
 \seealso{
 Other sfpd: \code{\link{sfpd.ActWtTrend}},
-  \code{\link{sfpd.AllocMo}}, \code{\link{sfpd.FloDollar}},
+  \code{\link{sfpd.AllocMo}}, \code{\link{sfpd.AllocSkew}},
+  \code{\link{sfpd.FloDollar}},
   \code{\link{sfpd.FloMo.underlying}},
   \code{\link{sfpd.FloMo}},
   \code{\link{sfpd.FloTrend.holdings}},

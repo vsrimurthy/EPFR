@@ -20,7 +20,8 @@ FloMo factor
 }
 \seealso{
 Other sfpd: \code{\link{sfpd.ActWtTrend}},
-  \code{\link{sfpd.AllocMo}}, \code{\link{sfpd.FloDollar}},
+  \code{\link{sfpd.AllocMo}}, \code{\link{sfpd.AllocSkew}},
+  \code{\link{sfpd.FloDollar}},
   \code{\link{sfpd.FloMo.underlying}},
   \code{\link{sfpd.FloTrend.holdings}},
   \code{\link{sfpd.FloTrend.parameterize}},

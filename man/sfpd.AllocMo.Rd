@@ -20,6 +20,7 @@ sfpd.AllocMo(x, y, n, w)
 }
 \seealso{
 Other sfpd: \code{\link{sfpd.ActWtTrend}},
+  \code{\link{sfpd.AllocSkew}},
   \code{\link{sfpd.FloDollar}},
   \code{\link{sfpd.FloMo.underlying}},
   \code{\link{sfpd.FloMo}},
