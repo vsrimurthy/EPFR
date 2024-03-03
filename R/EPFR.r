@@ -6620,9 +6620,8 @@ mk.1mActPas.Ctry <- function (x, y)
     z <- sql.Allocation(v, "Country", "Idx = isnull(Idx, 'N')", 
         c("CB", "E", "UI"), sql.and(z), paste(v[-length(v)], 
             collapse = ", "))
-    z <- c(sql.declare("@floDt", "datetime", yyyymm.to.day(x)), 
-        sql.unbracket(z))
-    z <- sql.query(paste(z, collapse = "\n"), y, F)
+    z <- sql.declare.wrapper("@floDt", yyyymm.to.day(x), z)
+    z <- sql.query(z, y, F)
     z <- map.rname(reshape.wide(z), names(w))
     z <- vec.named(z[, "N"]/nonneg(z[, "Y"]) - 1, w)
     z
@@ -6928,9 +6927,9 @@ mk.1wFloMo.CtryFlow.local <- function (x, y, n, w, h, u = T)
         z <- paste(z, collapse = "\n")
         z <- sql.Flow(r, list(A = "@floDt"), c(y, z, "UI"), "GeographicFocus", 
             !u, "GeographicFocus")
-        z <- c(sql.declare("@floDt", "datetime", j), sql.unbracket(z))
-        rslt[["SCF"]][[j]] <- sql.query.underlying(paste(z, collapse = "\n"), 
-            h$conn, F)
+        z <- sql.declare.wrapper("@floDt", j, z)
+        rslt[["SCF"]][[j]] <- sql.query.underlying(z, h$conn, 
+            F)
     }
     rslt[["CBF"]] <- list()
     v <- c("Domicile", "GeographicFocus")
@@ -6938,9 +6937,9 @@ mk.1wFloMo.CtryFlow.local <- function (x, y, n, w, h, u = T)
     for (j in x) {
         z <- sql.Flow(r, list(A = "@floDt"), c(y, "CB", "UI"), 
             v, !u, paste(v, collapse = ", "))
-        z <- c(sql.declare("@floDt", "datetime", j), sql.unbracket(z))
-        rslt[["CBF"]][[j]] <- sql.query.underlying(paste(z, collapse = "\n"), 
-            h$conn, F)
+        z <- sql.declare.wrapper("@floDt", j, z)
+        rslt[["CBF"]][[j]] <- sql.query.underlying(z, h$conn, 
+            F)
     }
     z <- sql.CtryFlow.Alloc(w$CountryId, y[1], s, "Country", 
         "CB")
@@ -7205,13 +7204,11 @@ mk.beta <- function (x, y, n)
 mk.EigenCentrality <- function (x, y, n) 
 {
     x <- yyyymm.lag(x, 1)
-    x <- sql.declare("@floDt", "datetime", yyyymm.to.day(x))
     z <- sql.and(list(A = "ReportDate = @floDt", B = sql.in("t1.HSecurityId", 
         sql.RDSuniv(n[["DB"]]))))
     h <- c("Holdings t1", "inner join", "SecurityHistory id on id.HSecurityId = t1.HSecurityId")
-    z <- c(x, sql.unbracket(sql.tbl("HFundId, SecurityId", h, 
-        z, "HFundId, SecurityId")))
-    z <- paste(z, collapse = "\n")
+    z <- sql.tbl(c("HFundId", "SecurityId"), h, z, "HFundId, SecurityId")
+    z <- sql.declare.wrapper("@floDt", yyyymm.to.day(x), z)
     x <- sql.query.underlying(z, n$conn, F)
     x <- x[is.element(x[, "SecurityId"], rownames(n$classif)), 
         ]
@@ -7347,12 +7344,10 @@ mk.Mem <- function (x, y, n)
         ")"))
     y <- sql.and(list(A = y, B = "ReportDate = @mo"))
     z <- c("Holdings t1", "inner join", "SecurityHistory t2 on t1.HSecurityId = t2.HSecurityId")
-    z <- sql.unbracket(sql.tbl("SecurityId, Mem = sign(max(HoldingValue))", 
-        z, y, "SecurityId"))
-    z <- paste(c(sql.declare("@mo", "datetime", yyyymm.to.day(x)), 
-        z), collapse = "\n")
-    z <- sql.map.classif(z, n$conn, n$classif)
-    z <- zav(z)
+    z <- sql.tbl("SecurityId, Mem = sign(max(HoldingValue))", 
+        z, y, "SecurityId")
+    z <- sql.declare.wrapper("@mo", yyyymm.to.day(x), z)
+    z <- zav(sql.map.classif(z, n$conn, n$classif))
     z
 }
 
@@ -7643,12 +7638,10 @@ mk.Wt <- function (x, y, n)
     z <- c("Holdings t1", "inner join", sql.label(sql.MonthlyAssetsEnd("@mo"), 
         "t3"), "\ton t1.HFundId = t3.HFundId")
     z <- c(z, "inner join", "SecurityHistory t2 on t1.HSecurityId = t2.HSecurityId")
-    z <- sql.unbracket(sql.tbl("SecurityId, Wt = 100 * HoldingValue/AssetsEnd", 
-        z, y))
-    z <- paste(c(sql.declare("@mo", "datetime", yyyymm.to.day(x)), 
-        z), collapse = "\n")
-    z <- sql.map.classif(z, n$conn, n$classif)
-    z <- zav(z)
+    z <- sql.tbl("SecurityId, Wt = 100 * HoldingValue/AssetsEnd", 
+        z, y)
+    z <- sql.declare.wrapper("@mo", yyyymm.to.day(x), z)
+    z <- zav(sql.map.classif(z, n$conn, n$classif))
     z
 }
 
@@ -10080,9 +10073,8 @@ sfpd.Holdings <- function (x, y)
     z <- c(z, "inner join", sql.label(sql.MonthlyAssetsEnd("@mo"), 
         "t3"), "\ton t3.HFundId = t2.HFundId")
     n <- c("HSecurityId", "t1.FundId", "HoldingValue", "PortVal = AssetsEnd")
-    z <- sql.unbracket(sql.tbl(n, z, "ReportDate = @mo"))
-    z <- paste(c(sql.declare("@mo", "datetime", yyyymm.to.day(x)), 
-        "", z), collapse = "\n")
+    z <- sql.tbl(n, z, "ReportDate = @mo")
+    z <- sql.declare.wrapper("@mo", yyyymm.to.day(x), z)
     y <- sql.connect.wrapper(y)
     z <- sql.query.underlying(z, y$conn, T)
     sql.close(y)
@@ -11729,8 +11721,7 @@ sql.1mChActWt <- function (x, y)
 sql.1mFundCt <- function (x, y, n, w, h, u = 0, v = "All") 
 {
     y <- sql.arguments(y)
-    r <- yyyymm.to.day(x)
-    x <- sql.declare("@dy", "datetime", r)
+    x <- yyyymm.to.day(x)
     v <- sql.ShareClass("ReportDate = @dy", v)
     if (n != "All") 
         n <- list(A = sql.in("h.HSecurityId", sql.RDSuniv(n)))
@@ -11745,7 +11736,7 @@ sql.1mFundCt <- function (x, y, n, w, h, u = 0, v = "All")
         z <- "GeoId = GeographicFocus"
     else z <- sql.breakdown(h)
     if (w) 
-        z <- c(sql.ReportDate(r), z, "HSecurityId")
+        z <- c(sql.ReportDate(x), z, "HSecurityId")
     else z <- c("SecurityId", z)
     for (j in y$factor) {
         if (j == "FundCt") {
@@ -11786,7 +11777,7 @@ sql.1mFundCt <- function (x, y, n, w, h, u = 0, v = "All")
     else {
         z <- sql.tbl(z, r, n, w)
     }
-    z <- paste(c(x, sql.unbracket(z)), collapse = "\n")
+    z <- sql.declare.wrapper("@dy", x, z)
     z
 }
 
@@ -11805,8 +11796,7 @@ sql.1mFundCt <- function (x, y, n, w, h, u = 0, v = "All")
 sql.1mHoldAum <- function (x, y, n, w, h) 
 {
     y <- sql.arguments(y)
-    r <- yyyymm.to.day(x)
-    x <- sql.declare("@dy", "datetime", r)
+    x <- r <- yyyymm.to.day(x)
     if (n != "All") 
         n <- list(A = sql.in("h.HSecurityId", sql.RDSuniv(n)))
     else n <- list()
@@ -11857,7 +11847,7 @@ sql.1mHoldAum <- function (x, y, n, w, h)
     w <- ifelse(w, "HSecurityId", "SecurityId")
     w <- paste(c(w, sql.breakdown(h)), collapse = ", ")
     z <- sql.tbl(z, r, n, w, "sum(HoldingValue/AssetsEnd) > 0")
-    z <- paste(c(x, sql.unbracket(z)), collapse = "\n")
+    z <- sql.declare.wrapper("@dy", x, z)
     z
 }
 
@@ -11883,7 +11873,7 @@ sql.1mSRIAdvisorPct <- function (x, y, n, w)
         "t1")
     h <- sql.tbl("Den = count(distinct AdvisorId)", h, "ReportDate = @floDt")
     z <- c(z, "cross join", sql.label(h, "t2"))
-    h <- sql.declare("@floDt", "datetime", yyyymm.to.day(x))
+    h <- yyyymm.to.day(x)
     if (w) 
         x <- c(sql.ReportDate(x), "t1.HSecurityId")
     else x <- "SecurityId"
@@ -11893,7 +11883,7 @@ sql.1mSRIAdvisorPct <- function (x, y, n, w)
     if (!w) 
         z <- c(z, "inner join", "SecurityHistory id on id.HSecurityId = t1.HSecurityId")
     w <- ifelse(w, "t1.HSecurityId", "SecurityId")
-    z <- paste(c(h, "", sql.unbracket(sql.tbl(x, z, , w))), collapse = "\n")
+    z <- sql.declare.wrapper("@floDt", h, sql.tbl(x, z, , w))
     z
 }
 
@@ -12423,8 +12413,7 @@ sql.CtryFlow.Alloc <- function (x, y, n, w, h)
         c(h, y[1], "UI"), sql.and(u), paste(r[-length(r)], collapse = ", "))
     z <- sql.tbl(r[-1], sql.label(z, "t"), , paste(r[-length(r)][-1], 
         collapse = ", "))
-    z <- c(sql.declare("@floDt", "datetime", n), sql.unbracket(z))
-    z <- paste(z, collapse = "\n")
+    z <- sql.declare.wrapper("@floDt", n, z)
     z
 }
 
@@ -12444,8 +12433,7 @@ sql.CtryFlow.Flow <- function (x, y, n, w, h)
 {
     y <- c(n, paste0(y, " = sum(", y, ")"))
     z <- sql.Flow(y, list(A = "@floDt"), h, n, w, paste(n, collapse = ", "))
-    z <- c(sql.declare("@floDt", "datetime", x), sql.unbracket(z))
-    z <- paste(z, collapse = "\n")
+    z <- sql.declare.wrapper("@floDt", x, z)
     z
 }
 
@@ -12544,6 +12532,22 @@ sql.datediff <- function (x, y, n)
 sql.declare <- function (x, y, n) 
 {
     c(paste("declare", x, y), paste0("set ", x, " = '", n, "'"))
+}
+
+#' sql.declare.wrapper
+#' 
+#' string
+#' @param x = a string (temp variable like @@floDt)
+#' @param y = a string (date argument)
+#' @param n = a string vector (sql query to be unbracketed)
+#' @keywords sql.declare.wrapper
+#' @export
+#' @family sql
+
+sql.declare.wrapper <- function (x, y, n) 
+{
+    paste(c(sql.declare(x, "datetime", y), "", sql.unbracket(n)), 
+        collapse = "\n")
 }
 
 #' sql.delete
@@ -13528,9 +13532,7 @@ sql.SRI <- function (x, y)
     z <- c(z, "inner join", "SecurityHistory id on id.HSecurityId = t1.HSecurityId")
     z <- sql.tbl("SecurityId, Ct = sum(Ct)", z, sql.in("t1.HSecurityId", 
         sql.RDSuniv(y)), "SecurityId")
-    z <- c(sql.declare("@holdDt", "datetime", yyyymm.to.day(x)), 
-        sql.unbracket(z))
-    z <- paste(z, collapse = "\n")
+    z <- sql.declare.wrapper("@holdDt", yyyymm.to.day(x), z)
     z
 }
 
@@ -13881,7 +13883,6 @@ sql.yield.curve.1dFloMo <- function (x, y, n, w)
         collapse = ", "))
     w <- yyyymm.to.day(yyyymmdd.to.AllocMo.unique(flowdate.lag(w, 
         5), 26, F))
-    w <- sql.declare("@date", "datetime", w)
     x <- sql.yield.curve(x, y, n)
     z <- c(sql.label(z, "t1"), "inner join", sql.label(x, "t2 on t2.FundId = t1.FundId"))
     x <- sql.MonthlyAssetsEnd(list(A = "MonthEnding = @date"), 
@@ -13889,7 +13890,7 @@ sql.yield.curve.1dFloMo <- function (x, y, n, w)
     z <- c(z, "inner join", sql.label(x, "t3 on t3.FundId = t1.FundId"))
     x <- c(sql.yyyymmdd("DayEnding"), "grp", sql.1dFloMo.select("FloMo"))
     z <- sql.tbl(x, z, , "DayEnding, grp")
-    z <- paste(c(w, "", sql.unbracket(z)), collapse = "\n")
+    z <- sql.declare.wrapper("@date", w, z)
     z
 }
 
