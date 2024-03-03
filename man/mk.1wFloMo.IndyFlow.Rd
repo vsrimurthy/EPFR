@@ -15,7 +15,7 @@ mk.1wFloMo.IndyFlow(x, y, n, w, h = T)
 
 \item{w}{= a frequency (T/F for daily/weekly or D/W/M)}
 
-\item{h}{= = a boolean (Industry/Sector flows)}
+\item{h}{= a boolean (Industry/Sector flows)}
 }
 \description{
 Industry/Sector flows
@@ -45,6 +45,7 @@ Other mk: \code{\link{mk.1dActWtTrend.Ctry}},
   \code{\link{mk.1wFloMo.CtryFlow.local}},
   \code{\link{mk.1wFloMo.CtryFlow.rslt}},
   \code{\link{mk.1wFloMo.CtryFlow}},
+  \code{\link{mk.1wFloMo.IndyFlow.map}},
   \code{\link{mk.ActWt}}, \code{\link{mk.Alpha.daily}},
   \code{\link{mk.Alpha}}, \code{\link{mk.EigenCentrality}},
   \code{\link{mk.FloBeta}}, \code{\link{mk.Fragility}},

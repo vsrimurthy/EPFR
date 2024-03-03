@@ -6356,9 +6356,7 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
         "#CTRY", "GeographicFocus"))
     z <- c(z, "", sql.Allocations.bulk.EqWtAvg("Allocation", 
         "IndustryId", "#INDY", "GeographicFocus"))
-    foo <- mat.read(parameters("classif-GIgrp"))[, c("IndustryId", 
-        "StyleSector")]
-    foo <- foo[!is.na(foo$StyleSector), ]
+    foo <- mk.1wFloMo.IndyFlow.map(T, F)
     v <- paste0("(", paste(foo[, "StyleSector"], collapse = ", "), 
         ")")
     z <- c(z, "", sql.delete("#INDY", sql.in("FundId", sql.tbl("FundId", 
@@ -6487,9 +6485,7 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h, u = F, v = F)
         "#CTRY", h$Group))
     z <- c(z, "", sql.Allocations.bulk.EqWtAvg("Allocation", 
         "SectorId", "#SEC", h$Group))
-    foo <- mat.read(parameters("classif-GSec"))[, c("SectorId", 
-        "StyleSector")]
-    foo <- foo[!is.na(foo$StyleSector), ]
+    foo <- mk.1wFloMo.IndyFlow.map(F, F)
     g <- paste0("(", paste(foo[, "StyleSector"], collapse = ", "), 
         ")")
     z <- c(z, "", sql.delete("#SEC", sql.in("FundId", sql.tbl("FundId", 
@@ -7025,25 +7021,39 @@ mk.1wFloMo.CtryFlow.rslt <- function (x)
 #' @param y = a string vector (Flow/AssetsStart/AssetsEnd/PortfolioChange)
 #' @param n = a connection string/connection
 #' @param w = a frequency (T/F for daily/weekly or D/W/M)
-#' @param h = = a boolean (Industry/Sector flows)
+#' @param h = a boolean (Industry/Sector flows)
 #' @keywords mk.1wFloMo.IndyFlow
 #' @export
 #' @family mk
 
 mk.1wFloMo.IndyFlow <- function (x, y, n, w, h = T) 
 {
-    if (h) {
-        z <- mat.read(parameters("classif-GIgrp"))
-        z <- list(MAP = z[, c("StyleSector", "IndustryId")])
-    }
-    else {
-        z <- mat.read(parameters("classif-GSec"))
-        z <- list(MAP = z[, c("StyleSector", "SectorId")])
-    }
+    z <- list(MAP = mk.1wFloMo.IndyFlow.map(h, T))
     v <- paste(z$MAP[!is.na(z$MAP[, 1]), 1], collapse = ", ")
     v <- paste0(colnames(z$MAP)[1], " not in (", v, ")")
     z <- mk.1wFloMo.CtryFlow.data(x, "E", y, z, n, w, v)
     z <- mk.1wFloMo.CtryFlow.rslt(z)
+    z
+}
+
+#' mk.1wFloMo.IndyFlow.map
+#' 
+#' Industry/Sector flows
+#' @param x = a boolean (Industry/Sector flows)
+#' @param y = a boolean (forward/reverse map)
+#' @keywords mk.1wFloMo.IndyFlow.map
+#' @export
+#' @family mk
+
+mk.1wFloMo.IndyFlow.map <- function (x, y) 
+{
+    if (x) 
+        x <- c("GIgrp", "IndustryId")
+    else x <- c("GSec", "SectorId")
+    z <- mat.read(parameters(paste0("classif-", x[1])))[, c("StyleSector", 
+        x[2])]
+    if (!y) 
+        z <- z[!is.na(z[, "StyleSector"]), 2:1]
     z
 }
 
