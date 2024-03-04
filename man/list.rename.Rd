@@ -11,7 +11,7 @@ list.rename(x, y, n)
 
 \item{y}{= a string vector (old names)}
 
-\item{n}{= a string vector (new names)}
+\item{n}{= a string vector (new names, can be missing)}
 }
 \description{
 renamed list

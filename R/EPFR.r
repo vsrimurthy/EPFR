@@ -4048,8 +4048,7 @@ ftp.download <- function (x, y, n, w, h, u = "ftp", v)
 {
     w <- as.list(environment())
     w <- w[!sapply(w, is.symbol)]
-    z <- list.rename(w, c("x", "n", "w", "h", "u", "v"), c("x", 
-        "y", "n", "w", "h", "u"))
+    z <- list.rename(w, c("x", "n", "w", "h", "u", "v"))
     z <- do.call(ftp.all.files, z)
     w <- w[!is.element(names(w), c("x", "y"))]
     y <- paste0(y, "\\", dir.parent(z))
@@ -4170,7 +4169,7 @@ ftp.missing <- function (x, y)
 {
     y <- strsplit(y, "")[[1]]
     x <- x[!sapply(x, is.symbol)]
-    x <- list.rename(x, y, c("x", "y", "n", "w", "h"))
+    x <- list.rename(x, y)
     z <- do.call(ftp.missing.underlying, x)
     z
 }
@@ -5347,12 +5346,14 @@ latin.to.arabic <- function (x)
 #' renamed list
 #' @param x = list
 #' @param y = a string vector (old names)
-#' @param n = a string vector (new names)
+#' @param n = a string vector (new names, can be missing)
 #' @keywords list.rename
 #' @export
 
 list.rename <- function (x, y, n) 
 {
+    if (missing(n)) 
+        n <- args.canonical()[seq_along(y)]
     z <- x[is.element(names(x), y)]
     names(z) <- vec.named(n, y)[names(z)]
     z
@@ -6266,12 +6267,7 @@ mk.1dFloMo.CtrySG <- function (x, y, n, w, h, u = "E", v = F)
 mk.1dFloMo.FI <- function (x, y, n, w, h = "All", u = F) 
 {
     h <- c("FundType in ('B', 'M')", h)
-    z <- c("FundType = 'M'", "StyleSector = 130", "StyleSector = 134 and GeographicFocus = 77", 
-        "StyleSector = 137 and GeographicFocus = 77", "StyleSector = 141 and GeographicFocus = 77", 
-        "StyleSector = 185 and GeographicFocus = 77", "StyleSector = 125 and Category = '9'", 
-        "Category = '8'", "GeographicFocus = 31", "GeographicFocus = 30")
-    names(z) <- c("CASH", "FLOATS", "USTRIN", "USTRLT", "USTRST", 
-        "USMUNI", "HYIELD", "WESEUR", "GLOBEM", "GLOFIX")
+    z <- sql.1dFloMo.FI.grp()
     z <- sql.1dFloMo.CtrySG(x, y, z, w, h, u)
     z <- sql.query(z, n)
     z
@@ -6367,11 +6363,7 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
         z <- c(z, "", sql.Allocations.bulk.Single("Allocation", 
             r, "#INDY", "GeographicFocus", v))
     }
-    z <- paste(c(sql.drop(c("#FLO", "#CTRY", "#INDY")), "", z), 
-        collapse = "\n")
-    v <- sql.1dFloMo.Sec.topline("IndustryId", y, "#INDY", w)
-    z <- sql.query(c(z, v), n, F)
-    z <- mk.1dFloMo.Sec.rslt(y, z, s, w, "IndustryId")
+    z <- mk.1dFloMo.Sec.rslt(y, z, s, w, "IndustryId", n)
     z
 }
 
@@ -6501,28 +6493,31 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h, u = F, v = F)
         z <- c(z, "", sql.Allocations.bulk.Single("Allocation", 
             r, "#SEC", h$Group, g))
     }
-    z <- paste(c(sql.drop(c("#FLO", "#CTRY", "#SEC")), "", z), 
-        collapse = "\n")
-    g <- sql.1dFloMo.Sec.topline("SectorId", y, "#SEC", w)
-    z <- sql.query(c(z, g), n, F)
-    z <- mk.1dFloMo.Sec.rslt(y, z, s, w, "SectorId")
+    z <- mk.1dFloMo.Sec.rslt(y, z, s, w, "SectorId", n)
     z
 }
 
 #' mk.1dFloMo.Sec.rslt
 #' 
-#' formats flow momentum output
+#' gets, and formats, flow momentum output
 #' @param x = a string (Flow/AssetsStart/AssetsEnd/PortfolioChange)
 #' @param y = flow momentum output
 #' @param n = a numeric vector (sector codes indexed by SectorId)
 #' @param w = a frequency (T/F for daily/weekly or D/W/M)
-#' @param h = IndustryId/SectorId
+#' @param h = a string (IndustryId/SectorId)
+#' @param u = a connection string/connection
 #' @keywords mk.1dFloMo.Sec.rslt
 #' @export
 #' @family mk
 
-mk.1dFloMo.Sec.rslt <- function (x, y, n, w, h) 
+mk.1dFloMo.Sec.rslt <- function (x, y, n, w, h, u) 
 {
+    if (h == "SectorId") 
+        z <- "#SEC"
+    else z <- "#INDY"
+    y <- paste(c(sql.drop(c("#FLO", "#CTRY", z)), "", y), collapse = "\n")
+    g <- sql.1dFloMo.Sec.topline(h, x, z, w)
+    y <- sql.query(c(y, g), u, F)
     w <- sql.Flow.tbl(w, F)
     y[, h] <- map.rname(n, y[, h])
     y <- y[!is.na(y[, h]), c(h, w, x)]
@@ -10803,12 +10798,7 @@ sql.1dFloMo.CtrySG <- function (x, y, n, w, h, u)
 
 sql.1dFloMo.FI <- function (x = "Flow", y) 
 {
-    z <- c("FundType = 'M'", "StyleSector = 130", "StyleSector = 134 and GeographicFocus = 77", 
-        "StyleSector = 137 and GeographicFocus = 77", "StyleSector = 141 and GeographicFocus = 77", 
-        "StyleSector = 185 and GeographicFocus = 77", "StyleSector = 125 and Category = '9'", 
-        "Category = '8'", "GeographicFocus = 31", "GeographicFocus = 30")
-    names(z) <- c("CASH", "FLOATS", "USTRIN", "USTRLT", "USTRST", 
-        "USMUNI", "HYIELD", "WESEUR", "GLOBEM", "GLOFIX")
+    z <- sql.1dFloMo.FI.grp()
     x <- paste0("case when grp = '", names(z), "' then ", x, 
         " else NULL end")
     x <- paste(names(z), sql.Mo(x, txt.replace(x, "Flow", "AssetsStart"), 
@@ -10825,6 +10815,24 @@ sql.1dFloMo.FI <- function (x = "Flow", y)
         z <- sql.tbl(c(sql.yyyymmdd("DayEnding"), x), z, y, "DayEnding")
     }
     z <- paste(sql.unbracket(z), collapse = "\n")
+    z
+}
+
+#' sql.1dFloMo.FI.grp
+#' 
+#' named vector of fixed-income strategy groupings
+#' @keywords sql.1dFloMo.FI.grp
+#' @export
+#' @family sql
+
+sql.1dFloMo.FI.grp <- function () 
+{
+    z <- c("FundType = 'M'", "StyleSector = 130", "StyleSector = 134 and GeographicFocus = 77", 
+        "StyleSector = 137 and GeographicFocus = 77", "StyleSector = 141 and GeographicFocus = 77", 
+        "StyleSector = 185 and GeographicFocus = 77", "StyleSector = 125 and Category = '9'", 
+        "Category = '8'", "GeographicFocus = 31", "GeographicFocus = 30")
+    names(z) <- c("CASH", "FLOATS", "USTRIN", "USTRLT", "USTRST", 
+        "USMUNI", "HYIELD", "WESEUR", "GLOBEM", "GLOFIX")
     z
 }
 
@@ -10918,7 +10926,7 @@ sql.1dFloMo.Rgn <- function ()
 #' sql.1dFloMo.Sec.topline
 #' 
 #' top line SQL statement for daily/weekly CBE flow momentum
-#' @param x = SectorId/IndustryId
+#' @param x = a string (SectorId/IndustryId)
 #' @param y = a string (Flow/AssetsStart/AssetsEnd/PortfolioChange)
 #' @param n = a temp table
 #' @param w = a frequency (T/F for daily/weekly or D/W/M)
@@ -11971,20 +11979,16 @@ sql.ActWtDiff2 <- function (x)
 
 sql.Allocation <- function (x, y, n = NULL, w = "All", h, u, v) 
 {
+    x <- as.list(environment())
     z <- paste0(y, "Allocations_FromAllocationFlows")
     z <- sql.label(z, paste0("t2 on ", y, "AllocationsHistoryId = [Id]"))
     z <- c(paste0(y, "AllocationsHistory_FromAllocationFlows t1"), 
         "inner join", z)
-    z <- c(z, "inner join", sql.label(sql.FundHistory(w, F, c("FundId", 
-        n)), "t3 on t3.HFundId = t1.HFundId"))
-    z <- list(x = x, y = z)
-    if (!missing(h)) 
-        z[["n"]] <- h
-    if (!missing(u)) 
-        z[["w"]] <- u
-    if (!missing(v)) 
-        z[["h"]] <- v
-    z <- do.call(sql.tbl, z)
+    x[["y"]] <- c(z, "inner join", sql.label(sql.FundHistory(w, 
+        F, c("FundId", n)), "t3 on t3.HFundId = t1.HFundId"))
+    z <- x[!is.element(names(x), c("n", "w"))]
+    z <- do.call(sql.tbl, list.rename(z, c("x", "y", "h", "u", 
+        "v")))
     z
 }
 

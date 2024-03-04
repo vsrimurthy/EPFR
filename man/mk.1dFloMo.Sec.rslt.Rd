@@ -4,7 +4,7 @@
 \alias{mk.1dFloMo.Sec.rslt}
 \title{mk.1dFloMo.Sec.rslt}
 \usage{
-mk.1dFloMo.Sec.rslt(x, y, n, w, h)
+mk.1dFloMo.Sec.rslt(x, y, n, w, h, u)
 }
 \arguments{
 \item{x}{= a string (Flow/AssetsStart/AssetsEnd/PortfolioChange)}
@@ -15,10 +15,12 @@ mk.1dFloMo.Sec.rslt(x, y, n, w, h)
 
 \item{w}{= a frequency (T/F for daily/weekly or D/W/M)}
 
-\item{h}{= IndustryId/SectorId}
+\item{h}{= a string (IndustryId/SectorId)}
+
+\item{u}{= a connection string/connection}
 }
 \description{
-formats flow momentum output
+gets, and formats, flow momentum output
 }
 \seealso{
 Other mk: \code{\link{mk.1dActWtTrend.Ctry}},
