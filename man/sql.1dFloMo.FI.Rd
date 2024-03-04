@@ -7,7 +7,7 @@
 sql.1dFloMo.FI(x = "Flow", y)
 }
 \arguments{
-\item{x}{= a column}
+\item{x}{= a column (Flow/PortfolioChange)}
 
 \item{y}{= a flowdate (can be missing)}
 }
@@ -22,6 +22,7 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.1dFloMo.CountryId.List}},
   \code{\link{sql.1dFloMo.CtrySG}},
   \code{\link{sql.1dFloMo.FI.grp}},
+  \code{\link{sql.1dFloMo.FI.underlying}},
   \code{\link{sql.1dFloMo.Rgn}},
   \code{\link{sql.1dFloMo.Sec.topline}},
   \code{\link{sql.1dFloMo.aum}},

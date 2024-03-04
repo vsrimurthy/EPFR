@@ -6382,10 +6382,10 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
 
 mk.1dFloMo.Rgn <- function (x, y, n, w, h = "E", u = F) 
 {
-    z <- paste("GeographicFocus =", c(4, 24, 43, 46, 76, 77))
+    z <- c("AsiaXJP", "EurXGB", "JP", "LatAm", "UK", "US", "PacxJP")
+    z <- map.rname(vec.ex.filters("macro"), z)
     names(z) <- c("AsiaXJP", "EurXGB", "Japan", "LatAm", "UK", 
-        "USA")
-    z["PacXJP"] <- "GeographicFocus in (55, 6, 80, 35, 66)"
+        "USA", "PacXJP")
     z <- sql.1dFloMo.CtrySG(x, y, z, w, h, u)
     z <- sql.query(z, n)
     z
@@ -10790,7 +10790,7 @@ sql.1dFloMo.CtrySG <- function (x, y, n, w, h, u)
 #' sql.1dFloMo.FI
 #' 
 #' SQL query to get daily 1dFloMo for fixed income
-#' @param x = a column
+#' @param x = a column (Flow/PortfolioChange)
 #' @param y = a flowdate (can be missing)
 #' @keywords sql.1dFloMo.FI
 #' @export
@@ -10798,23 +10798,11 @@ sql.1dFloMo.CtrySG <- function (x, y, n, w, h, u)
 
 sql.1dFloMo.FI <- function (x = "Flow", y) 
 {
-    z <- sql.1dFloMo.FI.grp()
-    x <- paste0("case when grp = '", names(z), "' then ", x, 
-        " else NULL end")
-    x <- paste(names(z), sql.Mo(x, txt.replace(x, "Flow", "AssetsStart"), 
-        NULL, T))
-    z <- sql.case("grp", z, c(names(z), "OTHER"), F)
-    z <- c(sql.label(sql.FundHistory("FundType in ('B', 'M')", 
-        F, z), "t2"))
-    z <- c("DailyData t1", "inner join", z, "\ton t2.HFundId = t1.HFundId")
-    if (missing(y)) {
-        z <- sql.tbl(c(sql.yyyymmdd("DayEnding"), x), z, , "DayEnding")
-    }
-    else {
-        y <- paste("DayEnding >=", wrap(y))
-        z <- sql.tbl(c(sql.yyyymmdd("DayEnding"), x), z, y, "DayEnding")
-    }
-    z <- paste(sql.unbracket(z), collapse = "\n")
+    z <- list.rename(as.list(environment()), c("x", "y"), c("x", 
+        "w"))
+    z[["y"]] <- sql.1dFloMo.FI.grp()
+    z[["n"]] <- "FundType in ('B', 'M')"
+    z <- do.call(sql.1dFloMo.FI.underlying, z)
     z
 }
 
@@ -10827,12 +10815,41 @@ sql.1dFloMo.FI <- function (x = "Flow", y)
 
 sql.1dFloMo.FI.grp <- function () 
 {
-    z <- c("FundType = 'M'", "StyleSector = 130", "StyleSector = 134 and GeographicFocus = 77", 
-        "StyleSector = 137 and GeographicFocus = 77", "StyleSector = 141 and GeographicFocus = 77", 
-        "StyleSector = 185 and GeographicFocus = 77", "StyleSector = 125 and Category = '9'", 
-        "Category = '8'", "GeographicFocus = 31", "GeographicFocus = 30")
-    names(z) <- c("CASH", "FLOATS", "USTRIN", "USTRLT", "USTRST", 
-        "USMUNI", "HYIELD", "WESEUR", "GLOBEM", "GLOFIX")
+    z <- c("M", "FLOATS", "USTRIN", "USTRLT", "USTRST", "USMUNI", 
+        "HYIELD", "WESEUR", "GLOBEM", "GLOFIX")
+    z <- map.rname(vec.ex.filters("macro"), z)
+    names(z)[1] <- "CASH"
+    z
+}
+
+#' sql.1dFloMo.FI.underlying
+#' 
+#' SQL query to get daily 1dFloMo
+#' @param x = a column (Flow/PortfolioChange)
+#' @param y = a string vector (filters & names)
+#' @param n = a filter vector
+#' @param w = a flowdate (can be missing)
+#' @keywords sql.1dFloMo.FI.underlying
+#' @export
+#' @family sql
+
+sql.1dFloMo.FI.underlying <- function (x, y, n, w) 
+{
+    x <- vec.to.list(c(x, "AssetsStart"))
+    x <- lapply(x, function(l) paste0("case when grp = '", names(y), 
+        "' then ", l, " else NULL end"))
+    x <- paste(names(y), sql.Mo(x[[1]], x[[2]], NULL, T))
+    z <- sql.case("grp", y, c(names(y), "OTHER"), F)
+    z <- c(sql.label(sql.FundHistory(n, F, z), "t2"))
+    z <- c("DailyData t1", "inner join", z, "\ton t2.HFundId = t1.HFundId")
+    if (missing(w)) {
+        z <- sql.tbl(c(sql.yyyymmdd("DayEnding"), x), z, , "DayEnding")
+    }
+    else {
+        w <- paste("DayEnding >=", wrap(w))
+        z <- sql.tbl(c(sql.yyyymmdd("DayEnding"), x), z, w, "DayEnding")
+    }
+    z <- paste(sql.unbracket(z), collapse = "\n")
     z
 }
 
@@ -10906,20 +10923,12 @@ sql.1dFloMo.hld <- function (x, y, n = F)
 
 sql.1dFloMo.Rgn <- function () 
 {
-    rgn <- c(4, 24, 43, 46, 55, 76, 77)
-    names(rgn) <- c("AsiaXJP", "EurXGB", "Japan", "LatAm", "PacXJP", 
+    z <- c("AsiaXJP", "EurXGB", "JP", "LatAm", "PacxJP", "UK", 
+        "US")
+    z <- map.rname(vec.ex.filters("macro"), z)
+    names(z) <- c("AsiaXJP", "EurXGB", "Japan", "LatAm", "PacXJP", 
         "UK", "USA")
-    x <- paste0("sum(case when grp = ", rgn, " then AssetsStart else NULL end)")
-    x <- sql.nonneg(x)
-    z <- paste0(names(rgn), " = 100 * sum(case when grp = ", 
-        rgn, " then Flow else NULL end)/", x)
-    z <- c(sql.yyyymmdd("DayEnding"), z)
-    y <- c("HFundId, grp = case when GeographicFocus in (6, 80, 35, 66) then 55 else GeographicFocus end")
-    w <- sql.and(list(A = "FundType = 'E'", B = "Idx = 'N'", 
-        C = sql.in("GeographicFocus", "(4, 24, 43, 46, 55, 76, 77, 6, 80, 35, 66)")))
-    y <- c(sql.label(sql.tbl(y, "FundHistory", w), "t1"), "inner join", 
-        "DailyData t2", "\ton t2.HFundId = t1.HFundId")
-    z <- paste(sql.unbracket(sql.tbl(z, y, , "DayEnding")), collapse = "\n")
+    z <- sql.1dFloMo.FI.underlying("Flow", z, c("E", "Act"))
     z
 }
 
