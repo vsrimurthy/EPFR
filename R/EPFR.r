@@ -1412,20 +1412,15 @@ combinations.to.int <- function (x)
 common.fund.flow.shock <- function (x, y, n) 
 {
     z <- c(sql.declare("@begPrd", "datetime", yyyymm.to.day(yyyymm.lag(x, 
-        n + 1))), "")
+        n + 1))))
     x <- c(z, sql.declare("@endPrd", "datetime", yyyymm.to.day(yyyymm.lag(x, 
         -1))), "")
     z <- c("Flow", "PortfolioChange", "AssetsStart")
-    z <- c("HFundId", "MonthEnding", paste0(z, " = sum(", z, 
-        ")"))
+    z <- paste0(z, " = sum(", z, ")")
+    z <- c("FundId", sql.yyyymmdd("MonthEnding"), z)
     w <- paste("MonthEnding", c("<", ">"), c("@endPrd", "@begPrd"))
     w <- split(w, c("End", "Beg"))
-    z <- sql.tbl(z, "MonthlyData", sql.and(w), "HFundId, MonthEnding")
-    z <- c(sql.label(z, "t1"), "inner join")
-    z <- c(z, sql.label(sql.FundHistory(c("Act", "E", "UI"), 
-        F, "FundId"), "t2 on t2.HFundId = t1.HFundId"))
-    z <- sql.tbl(c("FundId", sql.yyyymmdd("MonthEnding"), "Flow", 
-        "PortfolioChange", "AssetsStart"), z)
+    z <- sql.Flow(z, w, c("Act", "E", "UI"), , "M", "FundId, MonthEnding")
     z <- paste(c(x, sql.unbracket(z)), collapse = "\n")
     z <- sql.query(z, y, F)
     z <- z[!is.na(z[, "AssetsStart"]) & z[, "AssetsStart"] > 
@@ -10772,17 +10767,15 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
 
 sql.1dFloMo.CtrySG <- function (x, y, n, w, h, u) 
 {
-    w <- c(sql.Flow.tbl(w, T), sql.Flow.tbl(w, F))
+    y <- paste0(y, " = sum(", y, ")")
+    y <- c("grp", sql.yyyymmdd(sql.Flow.tbl(w, F)), y)
     z <- sql.case("grp", n, c(names(n), "Other"), F)
-    z <- sql.label(sql.FundHistory(h, F, z), "t1")
-    z <- c(z, "inner join", sql.label(w[1], "t2 on t2.HFundId = t1.HFundId"))
-    y <- c("grp", sql.yyyymmdd(w[2]), paste0(y, " = sum(", y, 
-        ")"))
-    x <- list(A = paste0(w[2], " >= '", x, "'"), B = "not grp = 'Other'")
+    x <- list(A = paste0(sql.Flow.tbl(w, F), " >= '", x, "'"), 
+        B = "not grp = 'Other'")
     if (u) 
         x[["C"]] <- sql.in("SCID", sql.tbl("SCID", "ShareClass", 
             "InstOrRetail = 'Inst'"))
-    z <- sql.tbl(y, z, sql.and(x), paste0(w[2], ", grp"))
+    z <- sql.Flow(y, x, h, z, w, paste0(sql.Flow.tbl(w, F), ", grp"))
     z <- paste(sql.unbracket(z), collapse = "\n")
     z
 }
@@ -10839,15 +10832,14 @@ sql.1dFloMo.FI.underlying <- function (x, y, n, w)
     x <- lapply(x, function(l) paste0("case when grp = '", names(y), 
         "' then ", l, " else NULL end"))
     x <- paste(names(y), sql.Mo(x[[1]], x[[2]], NULL, T))
+    x <- c(sql.yyyymmdd("DayEnding"), x)
     z <- sql.case("grp", y, c(names(y), "OTHER"), F)
-    z <- c(sql.label(sql.FundHistory(n, F, z), "t2"))
-    z <- c("DailyData t1", "inner join", z, "\ton t2.HFundId = t1.HFundId")
     if (missing(w)) {
-        z <- sql.tbl(c(sql.yyyymmdd("DayEnding"), x), z, , "DayEnding")
+        z <- sql.Flow(x, , n, z, "D", "DayEnding")
     }
     else {
         w <- paste("DayEnding >=", wrap(w))
-        z <- sql.tbl(c(sql.yyyymmdd("DayEnding"), x), z, w, "DayEnding")
+        z <- sql.Flow(x, w, n, z, "D", "DayEnding")
     }
     z <- paste(sql.unbracket(z), collapse = "\n")
     z
@@ -12759,7 +12751,7 @@ sql.extra.domicile <- function (x, y, n)
 #' 
 #' SQL query to fetch daily/weekly/monthly flows
 #' @param x = a string vector
-#' @param y = a where clause vector (the first is a flowdate)
+#' @param y = a where clause list (can be missing)
 #' @param n = a filter vector
 #' @param w = a column vector (must be in FundHistory!)
 #' @param h = a frequency (T/F for daily/weekly or D/W/M)
@@ -12774,15 +12766,18 @@ sql.Flow <- function (x, y, n = "All", w = NULL, h = T, u, v)
     z <- sql.label(sql.FundHistory(n, F, c("FundId", w)), "t2")
     z <- c(z, "\ton t2.HFundId = t1.HFundId")
     z <- c(paste(sql.Flow.tbl(h, T), "t1"), "inner join", z)
-    if (length(y[[1]]) == 1) {
-        y[[1]] <- paste(sql.Flow.tbl(h, F), "=", y[[1]])
-    }
-    else {
-        y[[1]] <- paste(y[[1]], collapse = ", ")
-        y[[1]] <- paste0(sql.Flow.tbl(h, F), " in (", y[[1]], 
-            ")")
-    }
-    z <- list(x = x, y = z, n = sql.and(y))
+    z <- list(x = x, y = z)
+    if (!missing(y)) 
+        if (length(y[[1]]) > 1) {
+            y[[1]] <- paste(y[[1]], collapse = ", ")
+            y[[1]] <- paste0(sql.Flow.tbl(h, F), " in (", y[[1]], 
+                ")")
+        }
+        else if (grepl("^(@.*|'.*')$", y[[1]])) {
+            y[[1]] <- paste(sql.Flow.tbl(h, F), "=", y[[1]])
+        }
+    if (!missing(y)) 
+        z[["n"]] = sql.and(y)
     if (!missing(u)) 
         z[["w"]] <- u
     if (!missing(v)) 

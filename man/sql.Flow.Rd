@@ -9,7 +9,7 @@ sql.Flow(x, y, n = "All", w = NULL, h = T, u, v)
 \arguments{
 \item{x}{= a string vector}
 
-\item{y}{= a where clause vector (the first is a flowdate)}
+\item{y}{= a where clause list (can be missing)}
 
 \item{n}{= a filter vector}
 
