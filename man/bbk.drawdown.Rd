@@ -10,7 +10,7 @@ bbk.drawdown(x)
 \item{x}{= a numeric vector}
 }
 \description{
-returns a logical vector identifying the contiguous periods #		:	corresponding to max drawdown
+contiguous periods corresponding to max drawdown
 }
 \seealso{
 Other bbk: \code{\link{bbk.bin.rets.prd.summ}},

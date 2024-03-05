@@ -671,7 +671,7 @@ bbk.data <- function (x, y, n, w, h, u, v, g, r, s)
 
 #' bbk.drawdown
 #' 
-#' returns a logical vector identifying the contiguous periods #		:	corresponding to max drawdown
+#' contiguous periods corresponding to max drawdown
 #' @param x = a numeric vector
 #' @keywords bbk.drawdown
 #' @export
@@ -679,16 +679,18 @@ bbk.data <- function (x, y, n, w, h, u, v, g, r, s)
 
 bbk.drawdown <- function (x) 
 {
-    n <- length(x)
-    x <- c(0, cumsum(zav(x)))
-    z <- list()
-    for (j in 1:n) {
-        w <- diff(x, j)
-        z[[as.character(j)]] <- c(j, order(w)[1] + j, w[order(w)[1]])
-    }
-    z <- t(simplify2array(z))
-    z <- z[order(z[, 3]), ][1, ]
-    z <- is.element(1:n, z[2] - z[1]:1)
+    x <- zav(x)
+    m <- x <= 0
+    m <- cumsum(c(1, diff(m) != 1))
+    x <- as.numeric(pivot.1d(sum, m, x))
+    x <- c(0, cumsum(x))
+    z <- exp(x)
+    z <- as.matrix(z) %*% t(1/z)
+    z <- log(z)
+    z[upper.tri(z)] <- 0
+    n <- order(apply(z, 2, min))[1]
+    z <- order(z[, n])[1]
+    z <- is.element(m, z - seq(z - n, 1))
     z
 }
 
