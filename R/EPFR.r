@@ -680,16 +680,22 @@ bbk.data <- function (x, y, n, w, h, u, v, g, r, s)
 bbk.drawdown <- function (x) 
 {
     x <- zav(x)
-    m <- x <= 0
-    m <- cumsum(c(1, diff(m) != 1))
-    x <- as.numeric(pivot.1d(sum, m, x))
-    x <- c(0, cumsum(x))
-    z <- exp(x)
-    z <- as.matrix(z) %*% t(1/z)
-    z <- log(z)
-    z[upper.tri(z)] <- 0
-    z <- which(z == min(z), arr.ind = T)
-    z <- is.element(m, seq(z[1, 2], z[1, 1] - 1))
+    if (any(x < 0)) {
+        m <- x <= 0
+        m <- cumsum(c(1, diff(m) != 0))
+        x <- as.numeric(pivot.1d(sum, m, x))
+        x <- c(0, cumsum(x))
+        z <- exp(x)
+        z <- as.matrix(z) %*% t(1/z)
+        z <- log(z)
+        z[upper.tri(z)] <- 0
+        z <- which(z == min(z), arr.ind = T)
+        z <- is.element(m, seq(z[1, 2], z[1, 1] - 1))
+    }
+    else {
+        z <- x == min(x)
+        z <- z & !duplicated(z)
+    }
     z
 }
 
@@ -7725,12 +7731,12 @@ num.exists <- function (x, y)
         y <- "^(0|-?[1-9]\\d*)$"
     }
     else if (y == "Q") {
-        y <- "^-?(0|[1-9]\\d*)?(\\.\\d+)?(?<!-0)$"
+        y <- "^(0(\\.\\d+)?|-?[1-9]\\d*(\\.\\d+)?|-0\\.\\d+|-\\.\\d+)$"
     }
     else {
         stop("Unknown number format!")
     }
-    z <- grepl(y, x, perl = T)
+    z <- grepl(y, x)
     z
 }
 
