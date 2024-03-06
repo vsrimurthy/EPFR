@@ -688,9 +688,8 @@ bbk.drawdown <- function (x)
     z <- as.matrix(z) %*% t(1/z)
     z <- log(z)
     z[upper.tri(z)] <- 0
-    n <- order(apply(z, 2, min))[1]
-    z <- order(z[, n])[1]
-    z <- is.element(m, z - seq(z - n, 1))
+    z <- which(z == min(z), arr.ind = T)
+    z <- is.element(m, seq(z[1, 2], z[1, 1] - 1))
     z
 }
 
