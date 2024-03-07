@@ -681,8 +681,7 @@ bbk.drawdown <- function (x)
 {
     x <- zav(x)
     if (any(x < 0)) {
-        m <- x <= 0
-        m <- cumsum(c(1, diff(m) != 0))
+        m <- cumsum(c(1, diff(x <= 0) != 0))
         x <- as.numeric(pivot.1d(sum, m, x))
         x <- c(0, cumsum(x))
         z <- exp(x)
@@ -7731,7 +7730,7 @@ num.exists <- function (x, y)
         y <- "^(0|-?[1-9]\\d*)$"
     }
     else if (y == "Q") {
-        y <- "^(0(\\.\\d+)?|-?[1-9]\\d*(\\.\\d+)?|-0\\.\\d+|-\\.\\d+)$"
+        y <- "^(0|-?[1-9]\\d*(\\.\\d+)?|-?0?\\.\\d+)$"
     }
     else {
         stop("Unknown number format!")
