@@ -680,8 +680,10 @@ bbk.data <- function (x, y, n, w, h, u, v, g, r, s)
 bbk.drawdown <- function (x) 
 {
     x <- zav(x)
-    if (any(x < 0)) {
+    z <- NULL
+    if (any(x < 0)) 
         z <- bbk.drawdown.underlying(cumsum(x))
+    if (!is.null(z)) {
         z <- is.element(seq_along(x), seq(z[2] + 1, z[1]))
     }
     else {
