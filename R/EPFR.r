@@ -880,21 +880,20 @@ bbk.turnover <- function (x)
 bear <- function (x) 
 {
     n <- length(x)
-    z <- bbk.drawdown(x)
-    if (100 * exp(sum(x[z])) < 80) {
-        v <- which(z)[1]
-        if (v > 1) {
-            v <- seq(1, v - 1)
-            z[v] <- bear(x[v])
+    z <- rep(F, n)
+    y <- c(1, n)
+    while (length(y) > 0) {
+        h <- bbk.drawdown(x[y[1]:y[2]])
+        if (100 * exp(sum(x[y[1]:y[2]][h])) < 80) {
+            z[y[1]:y[2]] <- h
+            v <- min((y[1]:y[2])[h])
+            if (v > y[1] + 1) 
+                y <- c(y, y[1], v - 1)
+            v <- max((y[1]:y[2])[h])
+            if (v < y[2] - 1) 
+                y <- c(y, v + 1, y[2])
         }
-        v <- tail(which(z), 1)
-        if (v < n) {
-            v <- seq(v + 1, n)
-            z[v] <- bear(x[v])
-        }
-    }
-    else {
-        z <- rep(F, n)
+        y <- y[-1][-1]
     }
     z
 }
