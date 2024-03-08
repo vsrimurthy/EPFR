@@ -694,7 +694,7 @@ bbk.drawdown <- function (x)
 #' bbk.drawdown.underlying
 #' 
 #' position of trough & peak
-#' @param x = an integer vector
+#' @param x = a numeric vector
 #' @keywords bbk.drawdown.underlying
 #' @export
 #' @family bbk
@@ -725,7 +725,7 @@ bbk.drawdown.underlying <- function (x)
         else z <- fcn(z, n)
         if (h) 
             h <- n[1] < n[2] - 2
-        if (h) {
+        if (h & !is.null(z)) {
             h <- max(x[seq(n[1] + 1, n[2] - 1)])
             h <- h - min(x[seq(n[1] + 1, n[2] - 1)])
             h <- h > diff(x[z])
@@ -882,12 +882,12 @@ bear <- function (x)
     n <- length(x)
     z <- bbk.drawdown(x)
     if (100 * exp(sum(x[z])) < 80) {
-        v <- (1:n)[z][1]
+        v <- which(z)[1]
         if (v > 1) {
             v <- seq(1, v - 1)
             z[v] <- bear(x[v])
         }
-        v <- (1:n)[z][sum(z)]
+        v <- tail(which(z), 1)
         if (v < n) {
             v <- seq(v + 1, n)
             z[v] <- bear(x[v])

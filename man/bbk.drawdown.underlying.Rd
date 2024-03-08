@@ -7,7 +7,7 @@
 bbk.drawdown.underlying(x)
 }
 \arguments{
-\item{x}{= an integer vector}
+\item{x}{= a numeric vector}
 }
 \description{
 position of trough & peak
