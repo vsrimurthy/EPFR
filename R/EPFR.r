@@ -679,8 +679,8 @@ bbk.data <- function (x, y, n, w, h, u, v, g, r, s)
 
 bbk.drawdown <- function (x) 
 {
-    x <- cumsum(zav(x))
-    z <- cummax(x) - rev(cummin(rev(x)))
+    z <- cumsum(zav(x))
+    z <- cummax(z) - rev(cummin(rev(z)))
     z <- z == max(z)
     z <- z & duplicated(z)
     z
@@ -843,7 +843,7 @@ bear <- function (x)
             if (v < y[2] - 1) 
                 y <- c(y, v + 1, y[2])
         }
-        y <- y[-1][-1]
+        y <- tail(y, -2)
     }
     z
 }
@@ -1152,9 +1152,7 @@ britten.jones.data.stack <- function (x, y, n, w, h)
 
 char.ex.int <- function (x) 
 {
-    z <- rawToChar(as.raw(x))
-    z <- strsplit(z, "")[[1]]
-    z
+    strsplit(rawToChar(as.raw(x)), "")[[1]]
 }
 
 #' char.lag
@@ -1255,7 +1253,7 @@ col.ex.int <- function (x)
         h <- x[w]%%26
         h <- ifelse(h == 0, 26, h)
         x[w] <- (x[w] - h)/26
-        z[w] <- paste0(char.ex.int(h + 64), z[w])
+        z[w] <- paste0(LETTERS[h], z[w])
         w <- x > 0
     }
     z
@@ -1697,8 +1695,7 @@ Ctry.msci.index.changes <- function (x, y)
         vec <- vec[-1]
         while (length(vec) > 0) {
             w <- w | (rownames(x) >= vec[1] & rownames(x) < vec[2])
-            vec <- vec[-1]
-            vec <- vec[-1]
+            vec <- tail(vec, -2)
         }
         x[w, i] <- NA
     }
@@ -2899,28 +2896,6 @@ fcn.indent.proper <- function (x)
     z
 }
 
-#' fcn.indirect
-#' 
-#' applies <fcn> recursively
-#' @param fcn = a function
-#' @param x = a string vector (function names)
-#' @keywords fcn.indirect
-#' @export
-#' @family fcn
-
-fcn.indirect <- function (fcn, x) 
-{
-    z <- NULL
-    while (length(x) > 0) {
-        y <- NULL
-        for (j in x) y <- union(y, fcn(j))
-        y <- setdiff(y, x)
-        z <- union(z, y)
-        x <- y
-    }
-    z
-}
-
 #' fcn.lines.code
 #' 
 #' lines of actual code
@@ -3647,17 +3622,12 @@ find.data <- function (x, y = T)
 
 find.gaps <- function (x) 
 {
-    m <- find.data(x, T)
-    n <- find.data(x, F)
-    z <- list(pos = NULL, size = NULL)
-    while (n - m + 1 > sum(x[m:n])) {
-        m <- m + find.data((!x)[m:n], T) - 1
-        gap.size <- find.data(x[m:n], T) - 1
-        z[["pos"]] <- c(z[["pos"]], m)
-        z[["size"]] <- c(z[["size"]], gap.size)
-        m <- m + gap.size
-    }
-    z <- vec.named(z[["size"]], z[["pos"]])
+    w <- cumsum(c(1, diff(x) != 0))
+    z <- vec.named(w[!duplicated(w)], seq_along(x)[!duplicated(w)])
+    z <- vec.named(map.rname(vec.count(w), z), names(z))
+    w <- x[as.numeric(names(z))]
+    w[1] <- w[length(w)] <- T
+    z <- z[!w]
     z
 }
 
@@ -11180,11 +11150,11 @@ sql.1dFundCt <- function (x, y, n, w, h)
     if (n != "All") 
         n <- list(A = sql.in("h.HSecurityId", sql.RDSuniv(n)))
     else n <- list()
-    n[[char.ex.int(length(n) + 65)]] <- paste0("h.ReportDate = '", 
+    n[[LETTERS[length(n) + 1]]] <- paste0("h.ReportDate = '", 
         mo.end, "'")
-    n[[char.ex.int(length(n) + 65)]] <- x
+    n[[LETTERS[length(n) + 1]]] <- x
     if (y$filter != "All") 
-        n[[char.ex.int(length(n) + 65)]] <- sql.FundHistory.sf(y$filter)
+        n[[LETTERS[length(n) + 1]]] <- sql.FundHistory.sf(y$filter)
     if (length(n) == 1) 
         n <- n[[1]]
     else n <- sql.and(n)
@@ -11738,11 +11708,11 @@ sql.1mFundCt <- function (x, y, n, w, h, u = 0, v = "All")
     if (n != "All") 
         n <- list(A = sql.in("h.HSecurityId", sql.RDSuniv(n)))
     else n <- list()
-    n[[char.ex.int(length(n) + 65)]] <- "ReportDate = @dy"
-    for (k in setdiff(y$filter, "All")) n[[char.ex.int(length(n) + 
-        65)]] <- sql.FundHistory.sf(k)
-    n[[char.ex.int(length(n) + 65)]] <- sql.in("his.HFundId", 
-        sql.tbl("HFundId", "MonthlyData", v))
+    n[[LETTERS[length(n) + 1]]] <- "ReportDate = @dy"
+    for (k in setdiff(y$filter, "All")) n[[LETTERS[length(n) + 
+        1]]] <- sql.FundHistory.sf(k)
+    n[[LETTERS[length(n) + 1]]] <- sql.in("his.HFundId", sql.tbl("HFundId", 
+        "MonthlyData", v))
     n <- sql.and(n)
     if (h == "GeoId") 
         z <- "GeoId = GeographicFocus"
@@ -11812,9 +11782,9 @@ sql.1mHoldAum <- function (x, y, n, w, h)
     if (n != "All") 
         n <- list(A = sql.in("h.HSecurityId", sql.RDSuniv(n)))
     else n <- list()
-    n[[char.ex.int(length(n) + 65)]] <- "ReportDate = @dy"
-    for (k in setdiff(y$filter, "All")) n[[char.ex.int(length(n) + 
-        65)]] <- sql.FundHistory.sf(k)
+    n[[LETTERS[length(n) + 1]]] <- "ReportDate = @dy"
+    for (k in setdiff(y$filter, "All")) n[[LETTERS[length(n) + 
+        1]]] <- sql.FundHistory.sf(k)
     n <- sql.and(n)
     if (h == "GeoId") 
         z <- "GeoId = GeographicFocus"
@@ -12002,7 +11972,7 @@ sql.Allocation.Sec <- function (x, y = NULL, n = "All")
     z <- sql.unbracket(sql.Allocation(r, "Sector", y, n, sql.and(x)))
     z <- c("insert into", paste0("\t#SEC (", paste(r, collapse = ", "), 
         ")"), z)
-    x[[char.ex.int(length(x) + 65)]] <- "IndustryId = 20"
+    x[[LETTERS[length(x) + 1]]] <- "IndustryId = 20"
     h <- ifelse(r == "SectorId", "IndustryId", r)
     v <- sql.unbracket(sql.Allocation(h, "Industry", y, n, sql.and(x)))
     z <- c(z, "", "insert into", paste0("\t#SEC (", paste(r, 
@@ -12241,11 +12211,11 @@ sql.Bullish <- function (x, y, n, w)
         ")"))
     h <- list(A = paste0("ReportDate = '", x, "'"))
     if (n != "All") 
-        h[[char.ex.int(length(h) + 65)]] <- sql.in("HSecurityId", 
+        h[[LETTERS[length(h) + 1]]] <- sql.in("HSecurityId", 
             sql.RDSuniv(n))
     if (y$filter != "All") 
-        h[[char.ex.int(length(h) + 65)]] <- sql.in("HFundId", 
-            sql.FundHistory(y$filter, T))
+        h[[LETTERS[length(h) + 1]]] <- sql.in("HFundId", sql.FundHistory(y$filter, 
+            T))
     h <- sql.and(h)
     z <- c(z, sql.unbracket(sql.tbl(cols, "Holdings", h)), "")
     h <- sql.label(sql.MonthlyAssetsEnd(wrap(x), , , , "PortVal"), 
@@ -12869,20 +12839,20 @@ sql.FundHistory.macro <- function (x)
     z <- list()
     for (y in x) {
         if (any(y == names(n))) {
-            z[[char.ex.int(length(z) + 65)]] <- n[y]
+            z[[LETTERS[length(z) + 1]]] <- n[y]
         }
         else if (y == "CB") {
-            z[[char.ex.int(length(z) + 65)]] <- c("(", sql.and(sql.cross.border(F), 
+            z[[LETTERS[length(z) + 1]]] <- c("(", sql.and(sql.cross.border(F), 
                 "or"), ")")
         }
         else if (y == "UI") {
-            z[[char.ex.int(length(z) + 65)]] <- sql.ui()
+            z[[LETTERS[length(z) + 1]]] <- sql.ui()
         }
         else if (y == "Foreign") {
             z <- c(z, sql.Foreign())
         }
         else {
-            z[[char.ex.int(length(z) + 65)]] <- y
+            z[[LETTERS[length(z) + 1]]] <- y
         }
     }
     z
@@ -12902,14 +12872,14 @@ sql.FundHistory.sf <- function (x)
     z <- list()
     for (h in x) {
         if (any(h == names(n))) {
-            z[[char.ex.int(length(z) + 65)]] <- n[h]
+            z[[LETTERS[length(z) + 1]]] <- n[h]
         }
         else if (h == "CBE") {
-            z[[char.ex.int(length(z) + 65)]] <- c("(", sql.and(sql.cross.border(T), 
+            z[[LETTERS[length(z) + 1]]] <- c("(", sql.and(sql.cross.border(T), 
                 "or"), ")")
         }
         else {
-            z[[char.ex.int(length(z) + 65)]] <- h
+            z[[LETTERS[length(z) + 1]]] <- h
         }
     }
     z
@@ -13688,7 +13658,7 @@ sql.TopDownAllocs.underlying <- function (x, y, n, w, h)
     if (n == "All") 
         n <- list()
     else n <- list(A = sql.in("HSecurityId", sql.RDSuniv(n)))
-    n[[char.ex.int(length(n) + 65)]] <- u
+    n[[LETTERS[length(n) + 1]]] <- u
     n <- sql.and(n)
     r <- sql.FundHistory(y$filter, T, c("FundId", sql.breakdown(h)))
     r <- c("inner join", sql.label(r, "t2"), "\ton t2.HFundId = t1.HFundId")
