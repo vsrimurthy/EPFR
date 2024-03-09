@@ -679,62 +679,10 @@ bbk.data <- function (x, y, n, w, h, u, v, g, r, s)
 
 bbk.drawdown <- function (x) 
 {
-    x <- zav(x)
-    z <- NULL
-    if (any(x < 0)) 
-        z <- bbk.drawdown.underlying(cumsum(x))
-    if (!is.null(z)) {
-        z <- is.element(seq_along(x), seq(z[2] + 1, z[1]))
-    }
-    else {
-        z <- x == min(x)
-        z <- z & !duplicated(z)
-    }
-    z
-}
-
-#' bbk.drawdown.underlying
-#' 
-#' position of trough & peak
-#' @param x = a numeric vector
-#' @keywords bbk.drawdown.underlying
-#' @export
-#' @family bbk
-
-bbk.drawdown.underlying <- function (x) 
-{
-    fcn <- function(z, l) {
-        if (!is.null(z)) 
-            if (diff(x[z]) > diff(x[l])) 
-                l <- z
-        l
-    }
-    z <- NULL
-    y <- c(1, length(x))
-    h <- T
-    while (h) {
-        n <- order(x[y[1]:y[2]])
-        n <- n[c(1, 1 + y[2] - y[1])] + y[1] - 1
-        h <- n[1] < n[2]
-        if (h) {
-            if (n[1] > y[1]) 
-                z <- fcn(z, bbk.drawdown.underlying(x[y[1]:n[1]]) + 
-                  y[1] - 1)
-            if (n[2] < y[2]) 
-                z <- fcn(z, bbk.drawdown.underlying(x[n[2]:y[2]]) + 
-                  n[2] - 1)
-        }
-        else z <- fcn(z, n)
-        if (h) 
-            h <- n[1] < n[2] - 2
-        if (h & !is.null(z)) {
-            h <- max(x[seq(n[1] + 1, n[2] - 1)])
-            h <- h - min(x[seq(n[1] + 1, n[2] - 1)])
-            h <- h > diff(x[z])
-        }
-        if (h) 
-            y <- n + c(1, -1)
-    }
+    x <- cumsum(zav(x))
+    z <- cummax(x) - rev(cummin(rev(x)))
+    z <- z == max(z)
+    z <- z & duplicated(z)
     z
 }
 

@@ -16,7 +16,6 @@ contiguous periods corresponding to max drawdown
 Other bbk: \code{\link{bbk.bin.rets.prd.summ}},
   \code{\link{bbk.bin.rets.summ}},
   \code{\link{bbk.bin.xRet}}, \code{\link{bbk.data}},
-  \code{\link{bbk.drawdown.underlying}},
   \code{\link{bbk.fwdRet}}, \code{\link{bbk.holidays}},
   \code{\link{bbk.matrix}}, \code{\link{bbk.summ}},
   \code{\link{bbk.turnover}}, \code{\link{bbk}}

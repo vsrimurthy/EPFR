@@ -25,7 +25,6 @@ Returns equal weight bin returns through time
 \seealso{
 Other bbk: \code{\link{bbk.bin.rets.prd.summ}},
   \code{\link{bbk.bin.rets.summ}}, \code{\link{bbk.data}},
-  \code{\link{bbk.drawdown.underlying}},
   \code{\link{bbk.drawdown}}, \code{\link{bbk.fwdRet}},
   \code{\link{bbk.holidays}}, \code{\link{bbk.matrix}},
   \code{\link{bbk.summ}}, \code{\link{bbk.turnover}},
