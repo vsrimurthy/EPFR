@@ -7,7 +7,7 @@
 ret.to.idx(x)
 }
 \arguments{
-\item{x}{== a file (total return indices)}
+\item{x}{= a file (percentage returns)}
 }
 \description{
 computes a total-return index

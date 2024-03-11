@@ -1626,32 +1626,19 @@ Ctry.info <- function (x, y)
 
 Ctry.msci <- function (x) 
 {
+    z <- c("Developed", "Emerging", "Frontier")
+    names(z) <- c("EAFE", "EM", "Frontier")
+    if (x == "ACWI") 
+        x <- c("EAFE", "EM")
+    if (any(!is.element(x, names(z)))) 
+        stop("Bad Index")
+    x <- z[x]
     z <- parameters("MsciCtryClassification")
-    z <- mat.read(z, "\t", NULL)
-    z <- z[order(z$yyyymm), ]
-    if (x == "ACWI") {
-        rein <- c("Developed", "Emerging")
-    }
-    else if (x == "EAFE") {
-        rein <- "Developed"
-    }
-    else if (x == "EM") {
-        rein <- "Emerging"
-    }
-    else if (x == "Frontier") {
-        rein <- "Frontier"
-    }
-    else stop("Bad Index")
-    raus <- setdiff(c("Developed", "Emerging", "Frontier", "Standalone"), 
-        rein)
-    vec <- as.character(unlist(mat.subset(z, c("From", "To"))))
-    vec <- ifelse(is.element(vec, rein), "in", vec)
-    vec <- ifelse(is.element(vec, raus), "out", vec)
-    z[, c("From", "To")] <- vec
-    z <- z[z$From != z$To, ]
-    z <- mat.subset(z, c("CCode", "To", "yyyymm"))
+    z <- mat.sort(mat.read(z, "\t", NULL), "yyyymm", F)
+    fcn <- function(z) is.element(z, x)
+    z[, c("From", "To")] <- apply(z[, c("From", "To")], 2, fcn)
+    z <- z[z$From != z$To, c("CCode", "To", "yyyymm")]
     colnames(z) <- c("CCODE", "ACTION", "YYYYMM")
-    z$ACTION <- toupper(z$ACTION)
     z
 }
 
@@ -1666,27 +1653,28 @@ Ctry.msci <- function (x)
 
 Ctry.msci.index.changes <- function (x, y) 
 {
-    super.set <- Ctry.msci.members.rng(y, rownames(x)[1], rownames(x)[dim(x)[1]])
+    h <- Ctry.msci.members.rng(y, rownames(x)[1], tail(rownames(x), 
+        1))
     z <- Ctry.msci(y)
     if (nchar(rownames(x)[1]) == 8) 
         z$YYYYMM <- yyyymmdd.ex.yyyymm(z$YYYYMM)
     if (nchar(colnames(x)[1]) == 3) {
         z$CCODE <- Ctry.info(z$CCODE, "Curr")
-        super.set <- Ctry.info(super.set, "Curr")
+        h <- Ctry.info(h, "Curr")
         z <- z[!is.element(z$CCODE, c("USD", "EUR")), ]
     }
     w <- !is.element(z$CCODE, colnames(x))
     if (any(w)) {
-        w2 <- is.element(super.set, z$CCODE[w])
+        w2 <- is.element(h, z$CCODE[w])
         z <- z[!w, ]
         if (any(w2)) 
-            err.raise(super.set[w2], F, "Warning: No data for the following")
+            err.raise(h[w2], F, "Warning: No data for the following")
     }
     u.Ctry <- z$CCODE[!duplicated(z$CCODE)]
     z <- z[order(z$YYYYMM), ]
     for (i in u.Ctry) {
         vec <- z$CCODE == i
-        if (z[vec, "ACTION"][1] == "OUT") 
+        if (!z[vec, "ACTION"][1]) 
             vec <- c("19720809", z[vec, "YYYYMM"])
         else vec <- z[vec, "YYYYMM"]
         if (length(vec)%%2 == 0) 
@@ -1714,42 +1702,31 @@ Ctry.msci.index.changes <- function (x, y)
 
 Ctry.msci.members <- function (x, y) 
 {
+    fcn <- function(z, l, k) if (l) 
+        union(z, k)
+    else setdiff(z, k)
     z <- mat.read(parameters("MsciCtry2016"), ",")
     z <- rownames(z)[is.element(z[, x], 1)]
-    point.in.2016 <- "201603"
     if (nchar(y) == 8) 
-        point.in.2016 <- "20160331"
-    if (y != "") {
+        u <- "20160331"
+    else u <- "201603"
+    if (y != "") 
         x <- Ctry.msci(x)
-        if (nchar(y) == 8) 
-            x$YYYYMM <- yyyymmdd.ex.yyyymm(x$YYYYMM)
+    if (nchar(y) == 8) 
+        x$YYYYMM <- yyyymmdd.ex.yyyymm(x$YYYYMM)
+    if (y != "" & y > u) {
+        w <- x$YYYYMM >= u & x$YYYYMM <= y
+        for (i in which(w)) z <- fcn(z, x[i, "ACTION"], x[i, 
+            "CCODE"])
     }
-    if (y != "" & y > point.in.2016) {
-        w <- x$YYYYMM >= point.in.2016
-        w <- w & x$YYYYMM <= y
-        if (any(w)) {
-            for (i in 1:sum(w)) {
-                if (x[w, "ACTION"][i] == "IN") 
-                  z <- union(z, x[w, "CCODE"][i])
-                if (x[w, "ACTION"][i] == "OUT") 
-                  z <- setdiff(z, x[w, "CCODE"][i])
-            }
-        }
-    }
-    if (y != "" & y < point.in.2016) {
-        w <- x$YYYYMM <= point.in.2016
-        w <- w & x$YYYYMM > y
+    if (y != "" & y < u) {
+        w <- x$YYYYMM <= u & x$YYYYMM > y
         if (any(w)) {
             x <- mat.reverse(x)
             w <- rev(w)
-            x[, "ACTION"] <- ifelse(x[, "ACTION"] == "IN", "OUT", 
-                "IN")
-            for (i in 1:sum(w)) {
-                if (x[w, "ACTION"][i] == "IN") 
-                  z <- union(z, x[w, "CCODE"][i])
-                if (x[w, "ACTION"][i] == "OUT") 
-                  z <- setdiff(z, x[w, "CCODE"][i])
-            }
+            x[, "ACTION"] <- !x[, "ACTION"]
+            for (i in which(w)) z <- fcn(z, x[i, "ACTION"], x[i, 
+                "CCODE"])
         }
     }
     z
@@ -1773,11 +1750,8 @@ Ctry.msci.members.rng <- function (x, y, n)
     x <- Ctry.msci(x)
     if (nchar(y) == 8) 
         x$YYYYMM <- yyyymmdd.ex.yyyymm(x$YYYYMM)
-    w <- x$YYYYMM >= y
-    w <- w & x$YYYYMM <= n
-    w <- w & x$ACTION == "IN"
-    if (any(w)) 
-        z <- union(z, x[w, "CCODE"])
+    z <- union(z, x[x$YYYYMM >= y & x$YYYYMM <= n & x$ACTION, 
+        "CCODE"])
     z
 }
 
@@ -5819,13 +5793,8 @@ mat.rollsum <- function (x, y)
 
 mat.sort <- function (x, y, n) 
 {
-    w <- length(y)
-    while (w > 0) {
-        x <- x[order(x[, y[w]], decreasing = n[w]), ]
-        w <- w - 1
-    }
-    z <- x
-    z
+    x[do.call(order, c(mat.ex.matrix(x)[y], list(decreasing = n))), 
+        ]
 }
 
 #' mat.subset
@@ -8955,7 +8924,7 @@ ret.idx.gaps.fix <- function (x)
 #' ret.to.idx
 #' 
 #' computes a total-return index
-#' @param x == a file (total return indices)
+#' @param x = a file (percentage returns)
 #' @keywords ret.to.idx
 #' @export
 #' @family ret
@@ -8963,17 +8932,16 @@ ret.idx.gaps.fix <- function (x)
 ret.to.idx <- function (x) 
 {
     if (is.null(dim(x))) {
-        z <- x
+        z <- log(1 + x/100)
         w <- !is.na(z)
         n <- find.data(w, T)
         m <- find.data(w, F)
         if (n > 1) 
             n <- n - 1
         z[n] <- 100
-        while (n < m) {
-            n <- n + 1
-            z[n] <- (1 + zav(z[n])/100) * z[n - 1]
-        }
+        if (m > n) 
+            z[seq(n + 1, m)] <- 100 * exp(cumsum(z[seq(n + 1, 
+                m)]))
     }
     else {
         z <- fcn.mat.vec(ret.to.idx, x, , T)
@@ -9200,8 +9168,7 @@ rrw <- function (x, y, n, w, h, u, v, g = NULL, r)
 rrw.factors <- function (x) 
 {
     y <- colnames(x)
-    names(y) <- fcn.vec.num(col.ex.int, 1:dim(x)[2])
-    colnames(x) <- names(y)
+    colnames(x) <- names(y) <- col.ex.int(1:dim(x)[2])
     z <- summary(lm(txt.regr(colnames(x)), x))$coeff[-1, "t value"]
     while (any(z < 0) & any(z > 0)) {
         x <- x[, !is.element(colnames(x), names(z)[order(z)][1])]
@@ -9296,19 +9263,12 @@ scree <- function (x)
 
 seconds.sho <- function (x) 
 {
-    z <- proc.time()[["elapsed"]] - x
-    z <- round(z)
-    z <- base.ex.int(z, 60)
-    n <- length(z)
-    if (n > 3) {
-        z <- c(base.to.int(z[3:n - 2], 60), z[n - 1:0])
-        n <- 3
+    z <- round(proc.time()[["elapsed"]] - x)
+    for (n in 2:3) {
+        z <- c(tail(z, 1)%%60, z)
+        z[n] <- (z[n] - z[1])/60
     }
-    while (n < 3) {
-        z <- c(0, z)
-        n <- n + 1
-    }
-    z <- paste(txt.right(100 + z, 2), collapse = ":")
+    z <- paste(txt.right(100 + z[c(3, 1:2)], 2), collapse = ":")
     z
 }
 
