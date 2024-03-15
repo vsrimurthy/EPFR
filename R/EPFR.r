@@ -454,11 +454,12 @@ avg.wtd <- function (x, y)
 #' Expresses <x> in base <y>
 #' @param x = a non-negative integer
 #' @param y = a positive integer
+#' @param n = a non-negative integer (max digits, 0 = no limit)
 #' @keywords base.ex.int
 #' @export
 #' @family base
 
-base.ex.int <- function (x, y = 26) 
+base.ex.int <- function (x, y = 26, n = 0) 
 {
     if (x == 0) 
         z <- 0
@@ -466,6 +467,11 @@ base.ex.int <- function (x, y = 26)
     while (x > 0) {
         z <- c(x%%y, z)
         x <- (x - z[1])/y
+        n <- n - 1
+        if (n == 1) {
+            z <- c(x, z)
+            x <- 0
+        }
     }
     z
 }
@@ -9264,11 +9270,8 @@ scree <- function (x)
 seconds.sho <- function (x) 
 {
     z <- round(proc.time()[["elapsed"]] - x)
-    for (n in 2:3) {
-        z <- c(tail(z, 1)%%60, z)
-        z[n] <- (z[n] - z[1])/60
-    }
-    z <- paste(txt.right(100 + z[c(3, 1:2)], 2), collapse = ":")
+    z <- tail(c(0, 0, base.ex.int(z, 60, 3)), 3)
+    z <- paste(txt.right(100 + z, 2), collapse = ":")
     z
 }
 
@@ -12070,13 +12073,13 @@ sql.and <- function (x, y = "and")
 
 sql.arguments <- function (x) 
 {
-    filters <- c("All", "Num", "CBE", names(vec.ex.filters("sf")))
-    m <- length(x)
-    while (any(x[m] == filters)) m <- m - 1
-    if (m == length(x)) 
+    w <- c("All", "Num", "CBE", names(vec.ex.filters("sf")))
+    w <- !is.element(x, w)
+    if (all(w)) {
         x <- c(x, "All")
-    w <- seq(1, length(x)) > m
-    z <- list(factor = x[!w], filter = x[w])
+        w <- c(w, F)
+    }
+    z <- split(x, ifelse(w, "factor", "filter"))
     z
 }
 

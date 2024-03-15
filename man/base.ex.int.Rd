@@ -4,12 +4,14 @@
 \alias{base.ex.int}
 \title{base.ex.int}
 \usage{
-base.ex.int(x, y = 26)
+base.ex.int(x, y = 26, n = 0)
 }
 \arguments{
 \item{x}{= a non-negative integer}
 
 \item{y}{= a positive integer}
+
+\item{n}{= a non-negative integer (max digits, 0 = no limit)}
 }
 \description{
 Expresses <x> in base <y>
