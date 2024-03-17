@@ -7,7 +7,7 @@
 base.ex.int(x, y = 26, n = 0)
 }
 \arguments{
-\item{x}{= a non-negative integer}
+\item{x}{= a non-negative integer vector}
 
 \item{y}{= a positive integer}
 

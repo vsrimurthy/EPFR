@@ -452,7 +452,7 @@ avg.wtd <- function (x, y)
 #' base.ex.int
 #' 
 #' Expresses <x> in base <y>
-#' @param x = a non-negative integer
+#' @param x = a non-negative integer vector
 #' @param y = a positive integer
 #' @param n = a non-negative integer (max digits, 0 = no limit)
 #' @keywords base.ex.int
@@ -461,18 +461,19 @@ avg.wtd <- function (x, y)
 
 base.ex.int <- function (x, y = 26, n = 0) 
 {
-    if (x == 0) 
-        z <- 0
-    else z <- NULL
-    while (x > 0) {
-        z <- c(x%%y, z)
-        x <- (x - z[1])/y
-        n <- n - 1
-        if (n == 1) {
-            z <- c(x, z)
-            x <- 0
+    if (n == 0) 
+        n <- floor(log(vec.max(max(x), 1))/log(y)) + 1
+    z <- matrix(0, length(x), n)
+    w <- x > 0
+    if (n > 1) 
+        for (j in n:2) {
+            z[w, j] <- x[w]%%y
+            x[w] <- (x[w] - z[w, j])/y
+            w <- x > 0
         }
-    }
+    z[, 1] <- x
+    if (dim(z)[1] == 1) 
+        z <- t(z)[, 1]
     z
 }
 
@@ -1148,70 +1149,12 @@ britten.jones.data.stack <- function (x, y, n, w, h)
     z
 }
 
-#' char.ex.int
-#' 
-#' the characters whose ascii values correspond to <x>
-#' @param x = a string of integers
-#' @keywords char.ex.int
-#' @export
-#' @family char
-
-char.ex.int <- function (x) 
-{
-    strsplit(rawToChar(as.raw(x)), "")[[1]]
-}
-
-#' char.lag
-#' 
-#' lags <x> by <y>
-#' @param x = a character vector
-#' @param y = an integer vector
-#' @keywords char.lag
-#' @export
-#' @family char
-
-char.lag <- function (x, y) 
-{
-    obj.lag(x, y, char.to.int, char.ex.int)
-}
-
-#' char.seq
-#' 
-#' returns a sequence of ASCII characters between (and including) x and y
-#' @param x = a character
-#' @param y = a character
-#' @param n = a positive integer
-#' @keywords char.seq
-#' @export
-#' @family char
-
-char.seq <- function (x, y, n = 1) 
-{
-    obj.seq(x, y, char.to.int, char.ex.int, n)
-}
-
-#' char.to.int
-#' 
-#' ascii values
-#' @param x = a character vector
-#' @keywords char.to.int
-#' @export
-#' @family char
-
-char.to.int <- function (x) 
-{
-    z <- paste(x, collapse = "")
-    z <- strtoi(charToRaw(z), 16L)
-    z
-}
-
 #' char.to.num
 #' 
 #' coerces to numeric without generating warnings
 #' @param x = a string vector
 #' @keywords char.to.num
 #' @export
-#' @family char
 
 char.to.num <- function (x) 
 {
@@ -1290,7 +1233,7 @@ col.lag <- function (x, y)
 col.to.int <- function (x) 
 {
     z <- lapply(vec.to.list(x), txt.to.char)
-    z <- lapply(z, function(z) char.to.int(z) - 64)
+    z <- lapply(z, function(z) match(z, LETTERS))
     z <- char.to.num(sapply(z, base.to.int))
     z
 }
@@ -2677,9 +2620,8 @@ fcn.dates.parse <- function (x)
         z <- txt.parse(z, "/")[, 1:3]
         z[, 3] <- fix.gaps(char.to.num(z[, 3]))
         z[, 3] <- yyyy.ex.yy(z[, 3])
-        z <- matrix(char.to.num(unlist(z)), dim(z)[1], dim(z)[2], 
-            F, dimnames(z))
-        z <- as.character(colSums(t(z) * 100^c(1, 0, 2)))
+        z <- apply(z, 2, char.to.num)
+        z <- as.character((z %*% 100^c(1, 0, 2))[, 1])
     }
     z
 }
@@ -4454,7 +4396,7 @@ glome.ex.R3 <- function (x, y, n)
     z <- c(z, x * sin(2 * pi * n))
     z <- c(z, x * cos(2 * pi * n))
     if (w > 1) 
-        z <- matrix(z, w, 4, F, list(1:w, char.seq("A", "D")))
+        z <- matrix(z, w, 4, F, list(1:w, LETTERS[1:4]))
     z
 }
 
@@ -5103,12 +5045,12 @@ int.to.prime <- function (x)
 
 isin.exists <- function (x) 
 {
-    charset <- vec.named(0:35, c(0:9, char.seq("A", "Z")))
+    charset <- vec.named(0:35, c(0:9, LETTERS))
     x <- toupper(txt.trim(x))
     z <- grepl("^[A-Z]{2}[0-9A-Z]{9}\\d{1}$", x)
     y <- x[z]
     y <- y[!duplicated(y)]
-    y <- matrix(NA, length(y), 11, F, list(y, char.seq("A", "K")))
+    y <- matrix(NA, length(y), 11, F, list(y, LETTERS[1:11]))
     for (j in 1:dim(y)[2]) y[, j] <- char.to.num(map.rname(charset, 
         substring(rownames(y), j, j)))
     y <- mat.ex.matrix(y)
@@ -15245,9 +15187,9 @@ urn.exact <- function (x, y)
 
 utf8.to.quoted.printable <- function (x) 
 {
-    y <- c(0:9, char.seq("A", "F"))
-    h <- c(8, 9, "A", "B")
-    r <- char.seq("E", "H")
+    y <- c(0:9, LETTERS[1:6])
+    h <- c(8, 9, LETTERS[1:2])
+    r <- LETTERS[5:8]
     x <- utf8ToInt(x)
     x <- base.ex.int(x, 64)
     x <- split(x, 1:3)
