@@ -446,7 +446,7 @@ avg.winsorized <- function (x, y = 100)
 
 avg.wtd <- function (x, y) 
 {
-    z <- fcn.num.nonNA(weighted.mean, x, y, F)
+    fcn.num.nonNA(weighted.mean, x, y, F)
 }
 
 #' base.ex.int
@@ -3883,9 +3883,9 @@ ftp.dir.parse.ftp <- function (x)
 
 ftp.dir.parse.sftp <- function (x) 
 {
-    n <- split(paste0(" ", month.abb, " "), month.abb)
-    n <- avail(lapply(n, function(z) txt.first(x, z)))
-    z <- substring(x, n + 1, nchar(x))
+    n <- paste0("(", paste(month.abb, collapse = "|"), ")")
+    n <- paste0("^((?<! ", n, " ).)* (?=", n, " )")
+    z <- gsub(n, "", x, perl = T)
     z <- data.frame(substring(z, 1, 3), char.to.num(substring(z, 
         5, 6)), substring(z, 7, 12), substring(z, 13, nchar(z)), 
         stringsAsFactors = F)
@@ -3899,7 +3899,7 @@ ftp.dir.parse.sftp <- function (x)
         z[, "size"] <- char.to.num(txt.parse(txt.itrim(y), txt.space(1))[, 
             5])/2^10
     }
-    z$mm <- map.rname(vec.named(1:12, month.abb), z$mm)
+    z$mm <- match(z$mm, month.abb)
     z$yyyy <- ifelse(grepl(":", z$yyyy), yyyymm.to.yyyy(yyyymmdd.to.yyyymm(today())), 
         z$yyyy)
     z$yyyy <- char.to.num(z$yyyy)
