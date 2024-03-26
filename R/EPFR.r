@@ -3886,11 +3886,11 @@ ftp.dir.parse.sftp <- function (x)
     n <- paste0("(", paste(month.abb, collapse = "|"), ")")
     n <- paste0("^((?<! ", n, " ).)* (?=", n, " )")
     z <- gsub(n, "", x, perl = T)
+    y <- txt.left(x, nchar(x) - nchar(z))
     z <- data.frame(substring(z, 1, 3), char.to.num(substring(z, 
         5, 6)), substring(z, 7, 12), substring(z, 13, nchar(z)), 
         stringsAsFactors = F)
     names(z) <- c("mm", "dd", "yyyy", "file")
-    y <- substring(x, 1, n - 1)
     z[, "is.file"] <- grepl("^-", y)
     if (dim(z)[1] == 1) {
         z[, "size"] <- char.to.num(txt.parse(txt.itrim(y), txt.space(1))[5])/2^10
