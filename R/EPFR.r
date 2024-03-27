@@ -6545,6 +6545,11 @@ mk.1mAllocMo <- function (x, y, n)
     if (y[1] == "AllocSkew") {
         z <- sql.1mAllocSkew(x, y, n$DB, F, w)
     }
+    else if (y[1] == "ShsSurp") {
+        if (w != "All") 
+            stop("Bad share-class!")
+        z <- sql.ShsSurp(x, y, n$DB, F)
+    }
     else if (y[1] == "SRIAdvisorPct") {
         if (w != "All") 
             stop("Bad share-class!")
@@ -13397,6 +13402,48 @@ sql.ShareClass <- function (x, y)
         z <- sql.and(list(A = x, B = z))
     }
     else z <- x
+    z
+}
+
+#' sql.ShsSurp
+#' 
+#' SQL query for ShsSurp
+#' @param x = a YYYYMM
+#' @param y = factors and filters
+#' @param n = DB - any of StockFlows/China/Japan/CSI300/Energy
+#' @param w = a boolean (index by HSecurityId/SecurityId)
+#' @keywords sql.ShsSurp
+#' @export
+#' @family sql
+
+sql.ShsSurp <- function (x, y, n, w) 
+{
+    y <- sql.arguments(y)
+    if (length(y$factor) != 1 | y$factor[1] != "ShsSurp") 
+        stop("Bad factor!")
+    if (n != "All") 
+        n <- list(A = sql.in("HSecurityId", sql.RDSuniv(n)))
+    else n <- list()
+    n[[LETTERS[length(n) + 1]]] <- "AssetsEnd > 0"
+    z <- c("SecurityId", "HSecurityId", "SharesHeld = sum(SharesHeld)")
+    z <- c(z, "Flow = sum(Flow * HoldingValue/AssetsEnd)")
+    h <- c("#NEWHLD t1", "inner join", "#NEWAUM t2 on t2.FundId = t1.FundId")
+    z <- sql.tbl(z, h, sql.and(n), "SecurityId, HSecurityId")
+    h <- c(sql.label(z, "t1"), "inner join", "#NEWPRC t2 on t2.SecurityId = t1.SecurityId")
+    z <- c("t1.SecurityId", "HSecurityId", "SharesHeld = SharesHeld - 1000000 * Flow/Stat")
+    z <- sql.tbl(z, h, "Stat > 0")
+    if (w) 
+        w <- c(sql.ReportDate(yyyymm.to.day(x)), "HSecurityId")
+    else w <- "t1.SecurityId"
+    h <- c("SecurityId", "SharesHeld = sum(SharesHeld)")
+    h <- sql.tbl(h, "#OLDHLD", , "SecurityId")
+    h <- sql.label(h, "t2 on t2.SecurityId = t1.SecurityId")
+    h <- c(sql.label(z, "t1"), "inner join", h)
+    z <- c(w, "ShsSurp = 100 * t1.SharesHeld/t2.SharesHeld - 100")
+    z <- sql.tbl(z, h, "t2.SharesHeld > 0")
+    z <- paste(sql.unbracket(z), collapse = "\n")
+    z <- c(paste(sql.1mAllocD.data(x, y$filter, T, F, T, "Flow"), 
+        collapse = "\n"), z)
     z
 }
 
