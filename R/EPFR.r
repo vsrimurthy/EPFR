@@ -9620,7 +9620,8 @@ sf.underlying.summ <- function (x, y)
 
 sfpd.ActWtTrend <- function (x, y, n, w, h) 
 {
-    x <- aggregate(x["Flow"], by = x["HFundId"], FUN = sum)
+    g <- intersect(c("HFundId", "FundId"), names(x))[1]
+    x <- aggregate(x["Flow"], by = x[g], FUN = sum)
     x <- merge(x, n)
     x <- x[, c("FundId", "Flow", "GeographicFocus")]
     y <- merge(x, y)
@@ -9826,7 +9827,8 @@ sfpd.FloMo.underlying <- function (x, y, n, w, h = NULL)
 
 sfpd.FloTrend <- function (x, y, n, w, h, u, v) 
 {
-    x <- aggregate(x["Flow"], by = x["HFundId"], FUN = sum)
+    g <- intersect(c("HFundId", "FundId"), names(x))[1]
+    x <- aggregate(x["Flow"], by = x[g], FUN = sum)
     x <- merge(x, n)[, c("FundId", "Flow")]
     y <- sfpd.FloTrend.holdings(y, u, v)
     y[, "Wt"] <- y[, "Wt"] - y[, "OldWt"]
