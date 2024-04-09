@@ -12835,6 +12835,63 @@ sql.get <- function (fcn, x, y, n, w = NULL)
     z
 }
 
+#' sql.HerdingLSV
+#' 
+#' Generates ingredients of the herding measure set forth in LSV's 1991 #		:	paper "Do institutional investors destabilize stock prices?"
+#' @param x = a YYYYMM
+#' @param y = factors and filters
+#' @param n = DB - any of StockFlows/China/Japan/CSI300/Energy
+#' @param w = a boolean (index by HSecurityId/SecurityId)
+#' @keywords sql.HerdingLSV
+#' @export
+#' @family sql
+
+sql.HerdingLSV <- function (x, y, n, w) 
+{
+    y <- sql.arguments(y)
+    u <- "expPctBuy = avg(case when Flow > 0 then 1.0 else 0.0 end)"
+    u <- sql.tbl(u, "#NEWAUM", sql.in("FundId", sql.tbl("FundId", 
+        "#NEWHLD")))
+    u <- c("cross join", sql.label(u, "t4"))
+    u <- c("inner join", "#NEWAUM t3 on t3.FundId = isnull(t1.FundId, t2.FundId)", 
+        u)
+    z <- sql.1mAllocD.data(x, y$filter, T, F, T, "Flow")
+    h <- paste(z, collapse = "\n")
+    if (w) 
+        z <- "HSecurityId"
+    else z <- "SecurityId"
+    l <- paste0("isnull(t1.", z, ", t2.", z, ")")
+    z <- paste(z, "=", l)
+    if (w) 
+        z <- c(sql.ReportDate(yyyymm.to.day(x)), z)
+    for (i in y$factor) {
+        if (i == "expPctBuy") {
+            z <- c(z, "expPctBuy = avg(expPctBuy)")
+        }
+        else if (i == "B") {
+            z <- c(z, "B = sum(case when isnull(t1.HoldingValue, 0) > isnull(t2.HoldingValue, 0) then 1 else 0 end)")
+        }
+        else if (i == "S") {
+            z <- c(z, "S = sum(case when isnull(t1.HoldingValue, 0) < isnull(t2.HoldingValue, 0) then 1 else 0 end)")
+        }
+        else {
+            stop(paste("Bad factor ", i, "!"))
+        }
+    }
+    u <- c("#OLDHLD t2 on t2.FundId = t1.FundId and t2.SecurityId = t1.SecurityId", 
+        u)
+    u <- c("#NEWHLD t1", "full outer join", u)
+    if (n == "All") {
+        z <- sql.tbl(z, u, , l)
+    }
+    else {
+        z <- sql.tbl(z, u, sql.in("isnull(t1.HSecurityId, t2.HSecurityId)", 
+            sql.RDSuniv(n)), l)
+    }
+    z <- c(h, paste(sql.unbracket(z), collapse = "\n"))
+    z
+}
+
 #' sql.Holdings
 #' 
 #' query to access stock-holdings data
