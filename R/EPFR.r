@@ -11115,10 +11115,7 @@ sql.1dFundCt <- function (x, y, n, w, h, u = F)
         w <- c("flo.ReportDate", "HSecurityId")
     else w <- "SecurityId"
     w <- paste(c(w, sql.breakdown(h)), collapse = ", ")
-    if (u == "") 
-        z <- sql.tbl(z, v, n, w)
-    else z <- sql.tbl(z, v, n, w, u)
-    z <- paste(sql.unbracket(z), collapse = "\n")
+    z <- paste(sql.unbracket(sql.tbl(z, v, n, w, u)), collapse = "\n")
     z
 }
 
@@ -11246,20 +11243,16 @@ sql.1mAllocD <- function (x, y, n, w, h, u = NULL, v = T, g = "All", r = T)
     if (has.dt) 
         has.dt <- paste("ReportDate,", l)
     else has.dt <- l
-    if (n == "All" & v) {
-        z <- sql.tbl(z, u, , has.dt, paste0("count(", l, ") > 1"))
+    if (v) 
+        v <- paste0("count(", l, ") > 1")
+    else v <- ""
+    if (n != "All") {
+        n <- sql.RDSuniv(n)
+        n <- sql.in("isnull(t1.HSecurityId, t2.HSecurityId)", 
+            n)
     }
-    else if (n == "All" & !v) {
-        z <- sql.tbl(z, u, , has.dt)
-    }
-    else if (!v) {
-        z <- sql.tbl(z, u, sql.in("isnull(t1.HSecurityId, t2.HSecurityId)", 
-            sql.RDSuniv(n)), has.dt)
-    }
-    else {
-        z <- sql.tbl(z, u, sql.in("isnull(t1.HSecurityId, t2.HSecurityId)", 
-            sql.RDSuniv(n)), has.dt, paste0("count(", l, ") > 1"))
-    }
+    else n <- ""
+    z <- sql.tbl(z, u, n, has.dt, v)
     z <- c(h, paste(sql.unbracket(z), collapse = "\n"))
     z
 }
@@ -11454,10 +11447,7 @@ sql.1mAllocSkew.topline <- function (x, y, n, w)
     }
     z <- c(z, sapply(vec.to.list(x), sql.1dActWtTrend.select))
     x <- sql.1mAllocSkew.topline.from("#FLO", y)
-    if (w == "") 
-        z <- sql.tbl(z, x, , h)
-    else z <- sql.tbl(z, x, , h, w)
-    z <- paste(sql.unbracket(z), collapse = "\n")
+    z <- paste(sql.unbracket(sql.tbl(z, x, , h, w)), collapse = "\n")
     z
 }
 
@@ -11700,9 +11690,6 @@ sql.1mFundCt <- function (x, y, n, w, h, u = 0, v = "All", g = F)
     }
     else if (u > 0) {
         stop("Can't handle yet!")
-    }
-    else if (g == "") {
-        z <- sql.tbl(z, r, n, w)
     }
     else {
         z <- sql.tbl(z, r, n, w, g)
@@ -13590,11 +13577,13 @@ sql.tbl <- function (x, y, n, w, h, u)
     z <- c("(select", paste0("\t", txt.replace(z, "\n", "\n\t")))
     z <- c(z, "from", sql.tbl.from(y))
     if (!missing(n)) 
-        z <- c(z, "where", paste0("\t", n))
+        if (n != "") 
+            z <- c(z, "where", paste0("\t", n))
     if (!missing(w)) 
         z <- c(z, "group by", paste0("\t", w))
     if (!missing(h)) 
-        z <- c(z, "having", paste0("\t", h))
+        if (h != "") 
+            z <- c(z, "having", paste0("\t", h))
     if (!missing(u)) 
         z <- c(z, "order by", paste0("\t", u))
     z <- c(z, ")")
@@ -13670,7 +13659,7 @@ sql.TopDownAllocs <- function (x, y, n, w, h, u = F)
         u <- ifelse(w, "HSecurityId", "SecurityId")
         u <- paste0("count(", u, ") > 1")
     }
-    else u <- NULL
+    else u <- ""
     if (h == "GeoId") {
         z <- "GeoId = t2.GeographicFocus"
     }
@@ -13697,16 +13686,14 @@ sql.TopDownAllocs <- function (x, y, n, w, h, u = F)
             z <- c(z, sql.TopDownAllocs.items(y$factor))
         }
         y <- sql.TopDownAllocs.items(y$factor, F)
-        if (is.null(u)) 
+        if (u == "") 
             u <- y
         else u <- paste(u, y, sep = " and ")
         z <- sql.tbl(z, r, , g, u)
     }
     else {
         z <- c(z, sql.TopDownAllocs.items(y$factor))
-        if (is.null(u)) 
-            z <- sql.tbl(z, r, , g)
-        else z <- sql.tbl(z, r, , g, u)
+        z <- sql.tbl(z, r, , g, u)
     }
     z <- paste(sql.unbracket(z), collapse = "\n")
     z
