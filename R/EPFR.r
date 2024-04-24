@@ -10493,11 +10493,8 @@ sql.1dFloMo <- function (x, y, n, w, h, u = "All", v = F)
     g <- c(z, sql.1dFloMo.aum(g, "AssetsEnd"))
     z <- sql.1dFloMo.select.wrapper(y, w, h, T)
     grp <- sql.1dFloMo.grp(w, h)
-    if (v) {
-        v <- ifelse(w, "HSecurityId", "SecurityId")
-        v <- paste0("count(", v, ") > 1 and ")
-    }
-    else v <- NULL
+    v <- sql.chuck(ifelse(w, "HSecurityId", "SecurityId"), v, 
+        T)
     v <- paste0(v, "sum(HoldingValue/t3.AssetsEnd) > 0")
     x <- sql.DailyFlo(wrap(x), F, , u, h = T)
     y <- c(sql.label(sql.1dFloMo.filter(y, h), "t0"), "inner join", 
@@ -11106,11 +11103,7 @@ sql.1dFundCt <- function (x, y, n, w, h, u = F)
         v)
     if (!w) 
         v <- c(v, "inner join", "SecurityHistory id on id.HSecurityId = h.HSecurityId")
-    if (u) {
-        u <- ifelse(w, "HSecurityId", "SecurityId")
-        u <- paste0("count(", u, ") > 1")
-    }
-    else u <- ""
+    u <- sql.chuck(ifelse(w, "HSecurityId", "SecurityId"), u)
     if (w) 
         w <- c("flo.ReportDate", "HSecurityId")
     else w <- "SecurityId"
@@ -11243,9 +11236,7 @@ sql.1mAllocD <- function (x, y, n, w, h, u = NULL, v = T, g = "All", r = T)
     if (has.dt) 
         has.dt <- paste("ReportDate,", l)
     else has.dt <- l
-    if (v) 
-        v <- paste0("count(", l, ") > 1")
-    else v <- ""
+    v <- sql.chuck(l, v)
     if (n != "All") {
         n <- sql.RDSuniv(n)
         n <- sql.in("isnull(t1.HSecurityId, t2.HSecurityId)", 
@@ -11437,9 +11428,7 @@ sql.1mAllocSkew.topline <- function (x, y, n, w)
     if (n & any(x == "AllocSkew")) 
         stop("Can't run AllocSkew on daily data!")
     z <- h <- ifelse(y, "t2.HSecurityId", "SecurityId")
-    if (w) 
-        w <- paste0("count(", h, ") > 1")
-    else w <- ""
+    w <- sql.chuck(h, w)
     if (y | n) {
         z <- c(sql.yyyymmdd("t1.ReportDate", "ReportDate", y), 
             z)
@@ -11678,9 +11667,7 @@ sql.1mFundCt <- function (x, y, n, w, h, u = 0, v = "All", g = F)
     if (!w) 
         r <- c(r, "inner join", "SecurityHistory id on id.HSecurityId = h.HSecurityId")
     w <- ifelse(w, "HSecurityId", "SecurityId")
-    if (g) 
-        g <- paste0("count(", w, ") > 1")
-    else g <- ""
+    g <- sql.chuck(w, g)
     w <- paste(c(w, sql.breakdown(h)), collapse = ", ")
     if (u > 0 & h == "All" & g == "") {
         v <- c(w, "HoldingValue")
@@ -11763,9 +11750,7 @@ sql.1mHoldAum <- function (x, y, n, w, h, u = F)
     if (!w) 
         r <- c(r, "inner join", "SecurityHistory id on id.HSecurityId = t1.HSecurityId")
     w <- ifelse(w, "HSecurityId", "SecurityId")
-    if (u) 
-        u <- paste0("count(", w, ") > 1 and ")
-    else u <- NULL
+    u <- sql.chuck(w, u, T)
     u <- paste0(u, "sum(HoldingValue/AssetsEnd) > 0")
     w <- paste(c(w, sql.breakdown(h)), collapse = ", ")
     z <- sql.tbl(z, r, n, w, u)
@@ -12211,6 +12196,26 @@ sql.case <- function (x, y, n, w = T)
     z <- c(paste("when", y, "then", n[seq_along(y)]), paste("else", 
         z, "end"))
     z <- c(paste(x, "= case"), paste0("\t", z))
+    z
+}
+
+#' sql.chuck
+#' 
+#' Ensures two sets of entries
+#' @param x = a string (item to count)
+#' @param y = a boolean (chuck/keep securities held by just one fund)
+#' @param n = a boolean (do/don't append '  and ')
+#' @keywords sql.chuck
+#' @export
+#' @family sql
+
+sql.chuck <- function (x, y, n = F) 
+{
+    z <- ""
+    if (y) 
+        z <- paste0("count(", x, ") > 1")
+    if (n & y) 
+        z <- paste(z, "and ")
     z
 }
 
@@ -13655,11 +13660,7 @@ sql.TopDownAllocs <- function (x, y, n, w, h, u = F)
     g <- ifelse(w, "HSecurityId", "SecurityId")
     if (h != "All") 
         g <- paste(c(paste0("t2.", sql.breakdown(h)), g), collapse = ", ")
-    if (u) {
-        u <- ifelse(w, "HSecurityId", "SecurityId")
-        u <- paste0("count(", u, ") > 1")
-    }
-    else u <- ""
+    u <- sql.chuck(ifelse(w, "HSecurityId", "SecurityId"), u)
     if (h == "GeoId") {
         z <- "GeoId = t2.GeographicFocus"
     }
