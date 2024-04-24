@@ -4,7 +4,7 @@
 \alias{sql.TopDownAllocs}
 \title{sql.TopDownAllocs}
 \usage{
-sql.TopDownAllocs(x, y, n, w, h)
+sql.TopDownAllocs(x, y, n, w, h, u = F)
 }
 \arguments{
 \item{x}{= a YYYYMM}
@@ -16,6 +16,8 @@ sql.TopDownAllocs(x, y, n, w, h)
 \item{w}{= a boolean (index by HSecurityId/SecurityId)}
 
 \item{h}{= a breakdown filter (e.g. All/GeoId/DomicileId)}
+
+\item{u}{= a boolean (chuck/keep securities held by just one fund)}
 }
 \description{
 Generates the SQL query to get Active/Passive Top-Down Allocations
@@ -86,7 +88,6 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.ReportDate}}, \code{\link{sql.SRI}},
   \code{\link{sql.ShareClass}}, \code{\link{sql.ShsSurp}},
   \code{\link{sql.TopDownAllocs.items}},
-  \code{\link{sql.TopDownAllocs.underlying}},
   \code{\link{sql.Trend}}, \code{\link{sql.and}},
   \code{\link{sql.arguments}}, \code{\link{sql.bcp}},
   \code{\link{sql.breakdown}}, \code{\link{sql.case}},

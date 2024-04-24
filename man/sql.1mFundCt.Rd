@@ -4,7 +4,7 @@
 \alias{sql.1mFundCt}
 \title{sql.1mFundCt}
 \usage{
-sql.1mFundCt(x, y, n, w, h, u = 0, v = "All")
+sql.1mFundCt(x, y, n, w, h, u = 0, v = "All", g = F)
 }
 \arguments{
 \item{x}{= a YYYYMM}
@@ -20,6 +20,8 @@ sql.1mFundCt(x, y, n, w, h, u = 0, v = "All")
 \item{u}{= an integer (count only that many funds unless zero)}
 
 \item{v}{= a ShareClass filter (All/Inst/Retail)}
+
+\item{g}{= a boolean (chuck/keep securities held by just one fund)}
 }
 \description{
 Generates FundCt, the ownership breadth measure set forth in #		:	Chen, Hong & Stein (2001)"Breadth of ownership and stock returns"
@@ -89,7 +91,6 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.ReportDate}}, \code{\link{sql.SRI}},
   \code{\link{sql.ShareClass}}, \code{\link{sql.ShsSurp}},
   \code{\link{sql.TopDownAllocs.items}},
-  \code{\link{sql.TopDownAllocs.underlying}},
   \code{\link{sql.TopDownAllocs}}, \code{\link{sql.Trend}},
   \code{\link{sql.and}}, \code{\link{sql.arguments}},
   \code{\link{sql.bcp}}, \code{\link{sql.breakdown}},

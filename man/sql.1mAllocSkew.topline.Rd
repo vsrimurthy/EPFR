@@ -4,7 +4,7 @@
 \alias{sql.1mAllocSkew.topline}
 \title{sql.1mAllocSkew.topline}
 \usage{
-sql.1mAllocSkew.topline(x, y, n)
+sql.1mAllocSkew.topline(x, y, n, w)
 }
 \arguments{
 \item{x}{= a variable vector}
@@ -12,6 +12,8 @@ sql.1mAllocSkew.topline(x, y, n)
 \item{y}{= a boolean (index by HSecurityId/SecurityId)}
 
 \item{n}{= a boolean (ReportDate must/needn't be a column)}
+
+\item{w}{= a boolean (chuck/keep securities held by just one fund)}
 }
 \description{
 SQL query for 1mAllocSkew
@@ -81,7 +83,6 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.ReportDate}}, \code{\link{sql.SRI}},
   \code{\link{sql.ShareClass}}, \code{\link{sql.ShsSurp}},
   \code{\link{sql.TopDownAllocs.items}},
-  \code{\link{sql.TopDownAllocs.underlying}},
   \code{\link{sql.TopDownAllocs}}, \code{\link{sql.Trend}},
   \code{\link{sql.and}}, \code{\link{sql.arguments}},
   \code{\link{sql.bcp}}, \code{\link{sql.breakdown}},

@@ -4,7 +4,7 @@
 \alias{ftp.sql.factor}
 \title{ftp.sql.factor}
 \usage{
-ftp.sql.factor(x, y, n, w, h)
+ftp.sql.factor(x, y, n, w, h, u = F)
 }
 \arguments{
 \item{x}{= a variable}
@@ -16,6 +16,8 @@ ftp.sql.factor(x, y, n, w, h)
 \item{w}{= DB - any of StockFlows/China/Japan/CSI300/Energy}
 
 \item{h}{= a breakdown filter (All/GeoId/DomicileId, can be missing)}
+
+\item{u}{= a boolean (chuck/keep securities held by just one fund)}
 }
 \description{
 SQL code to validate <x> flows at the <y> level
