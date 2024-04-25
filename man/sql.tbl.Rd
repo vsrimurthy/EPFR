@@ -4,7 +4,7 @@
 \alias{sql.tbl}
 \title{sql.tbl}
 \usage{
-sql.tbl(x, y, n, w, h, u)
+sql.tbl(x, y, n = "", w, h = "", u)
 }
 \arguments{
 \item{x}{= a column vector}
