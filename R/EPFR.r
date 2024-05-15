@@ -6014,7 +6014,9 @@ mk.1dActWtTrend.Sec <- function (x, y, n, w = "E")
 
 mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E", v = F, g = F) 
 {
-    s <- yyyymmdd.to.AllocMo.unique(x, 23, F)
+    if (h == "M") 
+        s <- x
+    else s <- yyyymmdd.to.AllocMo.unique(x, 23, F)
     n <- sql.1dFloMo.CountryId.List(n, x)
     if (v) 
         v <- sql.extra.domicile(n, "CountryId", "CountryId")
@@ -6167,7 +6169,9 @@ mk.1dFloMo.FI <- function (x, y, n, w, h = "All", u = F)
 
 mk.1dFloMo.Indy <- function (x, y, n, w, h) 
 {
-    u <- yyyymmdd.to.AllocMo.unique(x, 23, F)
+    if (w == "M") 
+        u <- x
+    else u <- yyyymmdd.to.AllocMo.unique(x, 23, F)
     s <- sql.1dFloMo.CountryId.List("Industry", x)
     if (h == "UK") {
         h <- "GB"
@@ -6287,7 +6291,9 @@ mk.1dFloMo.Rgn <- function (x, y, n, w, h = "E", u = F)
 
 mk.1dFloMo.Sec <- function (x, y, n, w, h, u = F, v = F) 
 {
-    g <- yyyymmdd.to.AllocMo.unique(x, 23, F)
+    if (w == "M") 
+        g <- x
+    else g <- yyyymmdd.to.AllocMo.unique(x, 23, F)
     s <- sql.1dFloMo.CountryId.List("Sector", x)
     r <- vec.ex.filters("sector")
     if (any(h$Region == names(r))) {
@@ -9618,7 +9624,7 @@ sf.underlying.summ <- function (x, y)
 #' @param y = a matrix/data frame (holdings)
 #' @param n = a matrix/data frame (FundHistory)
 #' @param w = a flowdate
-#' @param h = a variable (ActWtTrend/ActWtDiff/ActWtDiff2)
+#' @param h = a variable vector (ActWtTrend/ActWtDiff/ActWtDiff2)
 #' @keywords sfpd.ActWtTrend
 #' @export
 #' @family sfpd
@@ -9823,7 +9829,7 @@ sfpd.FloMo.underlying <- function (x, y, n, w, h = NULL)
 #' @param y = a matrix/data frame (holdings)
 #' @param n = a matrix/data frame (FundHistory)
 #' @param w = a flowdate
-#' @param h = a variable (FloTrend/FloDiff/FloDiff2)
+#' @param h = a variable vector (FloTrend/FloDiff/FloDiff2)
 #' @param u = a matrix/data frame (prior holdings)
 #' @param v = a matrix/data frame (security history)
 #' @keywords sfpd.FloTrend
@@ -9896,25 +9902,44 @@ sfpd.FloTrend.parameterize <- function (x, y)
     z
 }
 
+#' sfpd.FloTrend.parameterize.wrapper
+#' 
+#' create variable
+#' @param x = a matrix/data frame
+#' @param y = a variable
+#' @keywords sfpd.FloTrend.parameterize.wrapper
+#' @export
+#' @family sfpd
+
+sfpd.FloTrend.parameterize.wrapper <- function (x, y) 
+{
+    z <- sfpd.FloTrend.parameterize(x, y)
+    z <- aggregate(z[, c("Num", "Den")], by = z["HSecurityId"], 
+        FUN = sum)
+    z[, y] <- z[, "Num"]/nonneg(z[, "Den"])
+    z <- z[!is.na(z[, y]), c("HSecurityId", y)]
+    z
+}
+
 #' sfpd.FloTrend.underlying
 #' 
 #' <n> factor
 #' @param x = a matrix/data frame
 #' @param y = a flowdate
-#' @param n = a variable
+#' @param n = a variable vector
 #' @keywords sfpd.FloTrend.underlying
 #' @export
 #' @family sfpd
 
 sfpd.FloTrend.underlying <- function (x, y, n) 
 {
-    x <- sfpd.FloTrend.parameterize(x, n)
-    z <- aggregate(x[, c("Num", "Den")], by = x["HSecurityId"], 
-        FUN = sum)
-    z[, n] <- z[, "Num"]/nonneg(z[, "Den"])
-    z[, "ReportDate"] <- yyyymmdd.to.txt(y)
-    z <- z[, c("ReportDate", "HSecurityId", n)]
-    z <- z[!is.na(z[, n]), ]
+    x <- x[, c("HSecurityId", "Flow", "Wt")]
+    x <- lapply(split(n, n), function(z) sfpd.FloTrend.parameterize.wrapper(x, 
+        z))
+    for (j in names(x)) x[[j]][, "ReportDate"] <- yyyymmdd.to.txt(y)
+    z <- lapply(x, mat.last.to.first)
+    if (length(n) == 1) 
+        z <- z[[n]]
     z
 }
 

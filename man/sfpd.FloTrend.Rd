@@ -15,7 +15,7 @@ sfpd.FloTrend(x, y, n, w, h, u, v)
 
 \item{w}{= a flowdate}
 
-\item{h}{= a variable (FloTrend/FloDiff/FloDiff2)}
+\item{h}{= a variable vector (FloTrend/FloDiff/FloDiff2)}
 
 \item{u}{= a matrix/data frame (prior holdings)}
 
@@ -31,6 +31,7 @@ Other sfpd: \code{\link{sfpd.ActWtTrend}},
   \code{\link{sfpd.FloMo.underlying}},
   \code{\link{sfpd.FloMo}},
   \code{\link{sfpd.FloTrend.holdings}},
+  \code{\link{sfpd.FloTrend.parameterize.wrapper}},
   \code{\link{sfpd.FloTrend.parameterize}},
   \code{\link{sfpd.FloTrend.underlying}},
   \code{\link{sfpd.Flow}}, \code{\link{sfpd.Holdings}},

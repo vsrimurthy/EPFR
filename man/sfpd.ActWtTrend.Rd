@@ -15,7 +15,7 @@ sfpd.ActWtTrend(x, y, n, w, h)
 
 \item{w}{= a flowdate}
 
-\item{h}{= a variable (ActWtTrend/ActWtDiff/ActWtDiff2)}
+\item{h}{= a variable vector (ActWtTrend/ActWtDiff/ActWtDiff2)}
 }
 \description{
 <h> factor
@@ -27,6 +27,7 @@ Other sfpd: \code{\link{sfpd.AllocMo}},
   \code{\link{sfpd.FloMo.underlying}},
   \code{\link{sfpd.FloMo}},
   \code{\link{sfpd.FloTrend.holdings}},
+  \code{\link{sfpd.FloTrend.parameterize.wrapper}},
   \code{\link{sfpd.FloTrend.parameterize}},
   \code{\link{sfpd.FloTrend.underlying}},
   \code{\link{sfpd.FloTrend}}, \code{\link{sfpd.Flow}},

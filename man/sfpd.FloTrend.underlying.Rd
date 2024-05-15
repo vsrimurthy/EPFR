@@ -11,7 +11,7 @@ sfpd.FloTrend.underlying(x, y, n)
 
 \item{y}{= a flowdate}
 
-\item{n}{= a variable}
+\item{n}{= a variable vector}
 }
 \description{
 <n> factor
@@ -23,6 +23,7 @@ Other sfpd: \code{\link{sfpd.ActWtTrend}},
   \code{\link{sfpd.FloMo.underlying}},
   \code{\link{sfpd.FloMo}},
   \code{\link{sfpd.FloTrend.holdings}},
+  \code{\link{sfpd.FloTrend.parameterize.wrapper}},
   \code{\link{sfpd.FloTrend.parameterize}},
   \code{\link{sfpd.FloTrend}}, \code{\link{sfpd.Flow}},
   \code{\link{sfpd.Holdings}}, \code{\link{sfpd.ION}},
