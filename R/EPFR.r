@@ -9936,7 +9936,8 @@ sfpd.FloTrend.underlying <- function (x, y, n)
     x <- x[, c("HSecurityId", "Flow", "Wt")]
     x <- lapply(split(n, n), function(z) sfpd.FloTrend.parameterize.wrapper(x, 
         z))
-    for (j in names(x)) x[[j]][, "ReportDate"] <- yyyymmdd.to.txt(y)
+    for (j in names(x)) x[[j]][, "ReportDate"] <- rep(yyyymmdd.to.txt(y), 
+        dim(x[[j]])[1])
     z <- lapply(x, mat.last.to.first)
     if (length(n) == 1) 
         z <- z[[n]]
