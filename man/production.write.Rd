@@ -14,4 +14,7 @@ production.write(x, y)
 \description{
 Writes production output if warranted
 }
+\seealso{
+Other production: \code{\link{production.upload}}
+}
 \keyword{production.write}

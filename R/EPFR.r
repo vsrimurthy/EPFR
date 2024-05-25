@@ -8100,6 +8100,31 @@ product <- function (x)
     exp(sum(log(x)))
 }
 
+#' production.upload
+#' 
+#' uploads <y> to where <x> needs to be delivered
+#' @param x = a string (report name)
+#' @param y = a file
+#' @param n = date for which you sent the report
+#' @keywords production.upload
+#' @export
+#' @family production
+
+production.upload <- function (x, y, n) 
+{
+    h <- mat.read(parameters("classif-uploadPath"), "\t", NULL)
+    w <- which(is.element(h[, "Report"], x))
+    z <- T
+    for (j in w) {
+        cat("Uploading", ftp.file(y), "to", h[j, "path"], "..\n")
+        ftp.del(h[j, "path"], ftp.file(y), u = h[j, "type"])
+        z <- z & ftp.put(h[j, "path"], y, u = h[j, "type"])
+    }
+    if (z) 
+        ftp.record(x, n)
+    invisible()
+}
+
 #' production.write
 #' 
 #' Writes production output if warranted
@@ -8107,6 +8132,7 @@ product <- function (x)
 #' @param y = a file (output)
 #' @keywords production.write
 #' @export
+#' @family production
 
 production.write <- function (x, y) 
 {
