@@ -8114,10 +8114,14 @@ production.upload <- function (x, y, n)
 {
     h <- mat.read(parameters("classif-uploadPath"), "\t", NULL)
     w <- which(is.element(h[, "Report"], x))
+    r <- grepl("YYYYMMDD", y)
+    if (r) 
+        y <- txt.replace(y, "YYYYMMDD", n)
     z <- T
     for (j in w) {
         cat("Uploading", ftp.file(y), "to", h[j, "path"], "..\n")
-        ftp.del(h[j, "path"], ftp.file(y), u = h[j, "type"])
+        if (!r) 
+            ftp.del(h[j, "path"], ftp.file(y), u = h[j, "type"])
         z <- z & ftp.put(h[j, "path"], y, u = h[j, "type"])
     }
     if (z) 
