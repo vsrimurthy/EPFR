@@ -8117,13 +8117,15 @@ production.upload <- function (x, y, n)
     r <- grepl("YYYYMMDD", y)
     if (r) 
         y <- txt.replace(y, "YYYYMMDD", n)
-    z <- T
-    for (j in w) {
-        cat("Uploading", ftp.file(y), "to", h[j, "path"], "..\n")
-        if (!r) 
-            ftp.del(h[j, "path"], ftp.file(y), u = h[j, "type"])
-        z <- z & ftp.put(h[j, "path"], y, u = h[j, "type"])
-    }
+    z <- file.exists(y)
+    if (z) 
+        for (j in w) {
+            cat("Uploading", ftp.file(y), "to", h[j, "path"], 
+                "..\n")
+            if (!r) 
+                ftp.del(h[j, "path"], ftp.file(y), u = h[j, "type"])
+            z <- z & ftp.put(h[j, "path"], y, u = h[j, "type"])
+        }
     if (z) 
         ftp.record(x, n)
     invisible()
