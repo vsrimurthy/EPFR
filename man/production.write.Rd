@@ -15,6 +15,7 @@ production.write(x, y)
 Writes production output if warranted
 }
 \seealso{
-Other production: \code{\link{production.upload}}
+Other production: \code{\link{production.upload.underlying}},
+  \code{\link{production.upload}}
 }
 \keyword{production.write}

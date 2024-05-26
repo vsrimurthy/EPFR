@@ -8113,22 +8113,40 @@ product <- function (x)
 production.upload <- function (x, y, n) 
 {
     h <- mat.read(parameters("classif-uploadPath"), "\t", NULL)
-    w <- which(is.element(h[, "Report"], x))
+    w <- is.element(h[, "Report"], x)
+    h <- lapply(h, function(z) z[w])
     r <- grepl("YYYYMMDD", y)
     if (r) 
         y <- txt.replace(y, "YYYYMMDD", n)
-    z <- file.exists(y)
-    if (z) 
-        for (j in w) {
-            cat("Uploading", ftp.file(y), "to", h[j, "path"], 
-                "..\n")
-            if (!r) 
-                ftp.del(h[j, "path"], ftp.file(y), u = h[j, "type"])
-            z <- z & ftp.put(h[j, "path"], y, u = h[j, "type"])
-        }
+    z <- production.upload.underlying(y, h[["path"]], h[["type"]], 
+        r)
     if (z) 
         ftp.record(x, n)
     invisible()
+}
+
+#' production.upload.underlying
+#' 
+#' uploads <y> to where <x> needs to be delivered
+#' @param x = a file
+#' @param y = a remote folder vector
+#' @param n = a string (ftp/sftp)
+#' @param w = a boolean (don't/do overwrite)
+#' @keywords production.upload.underlying
+#' @export
+#' @family production
+
+production.upload.underlying <- function (x, y, n, w) 
+{
+    z <- file.exists(x)
+    if (z) 
+        for (j in seq_along(y)) {
+            cat("Uploading", ftp.file(x), "to", y[j], "..\n")
+            if (!w) 
+                ftp.del(y[j], ftp.file(x), u = n[j])
+            z <- z & ftp.put(y[j], x, u = n[j])
+        }
+    z
 }
 
 #' production.write

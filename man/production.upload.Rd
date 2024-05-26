@@ -17,6 +17,7 @@ production.upload(x, y, n)
 uploads <y> to where <x> needs to be delivered
 }
 \seealso{
-Other production: \code{\link{production.write}}
+Other production: \code{\link{production.upload.underlying}},
+  \code{\link{production.write}}
 }
 \keyword{production.upload}
