@@ -14212,8 +14212,8 @@ stratrets.data <- function (x, y)
     if (!is.na(h[x, "beta"])) 
         z[["x"]] <- stratrets.beta(z[["x"]], z[["y"]], h[x, "beta"], 
             h[x, "lkbk"])
-    h <- h[, !is.element(colnames(h), c("path", "lkbk", "comp", 
-        "beta", "sec", "sub", "rets"))]
+    h <- h[, c("nBin", "doW", "lag", "delay", "idx")]
+    colnames(h) <- c("h", "u", "g", "r", "s")
     for (j in colnames(h)) if (!is.na(h[x, j])) 
         z[[j]] <- h[x, j]
     z
