@@ -56,8 +56,8 @@ Other mk: \code{\link{mk.1dActWtTrend.Ctry}},
   \code{\link{mk.isin}}, \code{\link{mk.sqlDump}},
   \code{\link{mk.vbl.chg}}, \code{\link{mk.vbl.diff}},
   \code{\link{mk.vbl.lag}}, \code{\link{mk.vbl.max}},
-  \code{\link{mk.vbl.ratio}}, \code{\link{mk.vbl.scale}},
-  \code{\link{mk.vbl.sum}},
+  \code{\link{mk.vbl.ratio}}, \code{\link{mk.vbl.rev}},
+  \code{\link{mk.vbl.scale}}, \code{\link{mk.vbl.sum}},
   \code{\link{mk.vbl.trail.fetch}},
   \code{\link{mk.vbl.trail.sum}}, \code{\link{mk.vbl.vol}}
 }

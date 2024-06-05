@@ -7337,7 +7337,7 @@ mk.SRIMem <- function (x, y, n)
 
 mk.vbl.chg <- function (x, y, n) 
 {
-    z <- fetch(y, x, 2, paste(n$fldr, "data", sep = "\\"), n$classif)
+    z <- fetch(y, x, 2, paste0(n$fldr, "\\data"), n$classif)
     z <- z[, 2] - z[, 1]
     z
 }
@@ -7354,7 +7354,7 @@ mk.vbl.chg <- function (x, y, n)
 
 mk.vbl.diff <- function (x, y, n) 
 {
-    z <- fetch(y, x, 1, paste(n$fldr, "data", sep = "\\"), n$classif)
+    z <- fetch(y, x, 1, paste0(n$fldr, "\\data"), n$classif)
     z <- z[, 1] - z[, 2]
     z
 }
@@ -7388,7 +7388,7 @@ mk.vbl.lag <- function (x, y, n)
 
 mk.vbl.max <- function (x, y, n) 
 {
-    z <- fetch(y, x, 1, paste(n$fldr, "data", sep = "\\"), n$classif)
+    z <- fetch(y, x, 1, paste0(n$fldr, "\\data"), n$classif)
     z <- vec.max(z[, 1], z[, 2])
     z
 }
@@ -7405,8 +7405,24 @@ mk.vbl.max <- function (x, y, n)
 
 mk.vbl.ratio <- function (x, y, n) 
 {
-    z <- fetch(y, x, 1, paste(n$fldr, "data", sep = "\\"), n$classif)
+    z <- fetch(y, x, 1, paste0(n$fldr, "\\data"), n$classif)
     z <- zav(z[, 1])/nonneg(z[, 2])
+    z
+}
+
+#' mk.vbl.rev
+#' 
+#' reverses the variable
+#' @param x = a YYYYMM
+#' @param y = a variable
+#' @param n = a StockFlows environment
+#' @keywords mk.vbl.rev
+#' @export
+#' @family mk
+
+mk.vbl.rev <- function (x, y, n) 
+{
+    z <- -fetch(y, x, 1, paste0(n$fldr, "\\data"), n$classif)
     z
 }
 
@@ -7422,11 +7438,10 @@ mk.vbl.ratio <- function (x, y, n)
 
 mk.vbl.scale <- function (x, y, n) 
 {
-    w <- is.element(fetch(y[3], x, 1, paste(n$fldr, "data", sep = "\\"), 
+    w <- is.element(fetch(y[3], x, 1, paste0(n$fldr, "\\data"), 
         n$classif), 1)
     h <- n$classif[, y[4]]
-    x <- fetch(y[1:2], x, 1, paste(n$fldr, "derived", sep = "\\"), 
-        n$classif)
+    x <- fetch(y[1:2], x, 1, paste0(n$fldr, "\\derived"), n$classif)
     y <- char.to.num(y[5])
     x[w, 2] <- 1 - fcn.vec.grp(ptile, x[w, 2], h[w])/100
     x[w, 2] <- zav(x[w, 2], 0.5)
@@ -7448,7 +7463,7 @@ mk.vbl.scale <- function (x, y, n)
 
 mk.vbl.sum <- function (x, y, n) 
 {
-    z <- fetch(y, x, 1, paste(n$fldr, "data", sep = "\\"), n$classif)
+    z <- fetch(y, x, 1, paste0(n$fldr, "\\data"), n$classif)
     z <- z[, 1] + z[, 2]
     z
 }
