@@ -15388,10 +15388,8 @@ txt.words <- function (x = "All")
 urn.exact <- function (x, y) 
 {
     z <- 1
-    for (i in seq_along(x)) z <- z * factorial(y[i])/(factorial(x[i]) * 
-        factorial(y[i] - x[i]))
-    z <- (z/factorial(sum(y))) * factorial(sum(x)) * factorial(sum(y - 
-        x))
+    for (i in seq_along(x)) z <- z * choose(y[i], x[i])
+    z <- z/choose(sum(y), sum(x))
     z
 }
 
