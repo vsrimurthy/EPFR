@@ -14171,8 +14171,8 @@ stratrets.bbk <- function (x, y)
 {
     cat("\t", x, y, "..\n")
     x <- stratrets.data(x, y)
-    x[["retW"]] <- ifelse(nchar(rownames(x[["x"]])[1]) == 8, 
-        5, 1)
+    x[["w"]] <- ifelse(nchar(rownames(x[["x"]])[1]) == 8, 5, 
+        1)
     z <- do.call(bbk, x)[["rets"]]
     z <- z[order(rownames(z)), ]
     z <- as.matrix(z)[, "TxB"]
