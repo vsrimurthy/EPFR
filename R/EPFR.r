@@ -10043,7 +10043,8 @@ sfpd.Holdings <- function (x, y)
     z <- c("Holdings t1", "inner join", "FundHistory t2 on t2.FundId = t1.FundId")
     z <- c(z, "inner join", sql.label(sql.MonthlyAssetsEnd("@mo"), 
         "t3"), "\ton t3.HFundId = t2.HFundId")
-    n <- c("HSecurityId", "t1.FundId", "HoldingValue", "PortVal = AssetsEnd")
+    n <- c("HSecurityId", "t1.FundId", "HoldingValue", "SharesHeld", 
+        "PortVal = AssetsEnd")
     z <- sql.tbl(n, z, "ReportDate = @mo")
     z <- sql.declare.wrapper("@mo", yyyymm.to.day(x), z)
     y <- sql.connect.wrapper(y)
