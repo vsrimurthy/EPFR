@@ -9112,7 +9112,7 @@ rpt.email <- function (x, y, n, w, h, u, v)
 rpt.email.send <- function (x, y, n, w, h) 
 {
     err.raise(h, T, paste("Emailing the following to", y))
-    if (grepl("\\.html$", h)) {
+    if (length(h) == 1 & grepl("\\.html$", h[1])) {
         z <- txt.ex.file(h)
         h <- ""
     }
