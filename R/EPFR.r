@@ -4467,14 +4467,25 @@ html.email <- function (x, y = T)
     if (missing(x)) 
         x <- today()
     u <- ifelse(y, "morning", "evening")
-    u <- paste("This", u, "the following emails did not go out:")
-    u <- c("The QC process certified", "reports were successfully emailed.", 
+    u <- paste("This", u, "the following external emails did not go out:")
+    u <- c("The QC process certified", "external reports were successfully emailed.", 
         u)
-    u <- c(u, "The QC process was unable to check delivery of the following:")
+    u <- c(u, "The QC process was unable to check the following external deliveries:")
     h <- record.track(x, "emails", y)
     h <- h[h$yyyymmdd != h$target | h$today, ]
-    z <- html.problem.underlying(paste0("<b>", rownames(h), "</b>"), 
-        u, h$yyyymmdd != h$target)
+    w <- mat.read(parameters("classif-recipient"), "\t", NULL)
+    w[, "recipient"] <- as.numeric(grepl("@epfr.com$", w[, 3]))
+    w <- aggregate(w["recipient"], by = w["email"], FUN = mean)
+    w <- zav(map.rname(mat.index(w, "email"), rownames(h)))
+    w <- is.element(w, 1)
+    z <- NULL
+    if (any(!w)) 
+        z <- c(z, html.problem.underlying(paste0("<b>", rownames(h)[!w], 
+            "</b>"), u, (h$yyyymmdd != h$target)[!w]))
+    u <- txt.replace(u, "external", "internal")
+    if (any(w)) 
+        z <- c(z, html.problem.underlying(paste0("<b>", rownames(h)[w], 
+            "</b>"), u, (h$yyyymmdd != h$target)[w]))
     u <- ifelse(y, "morning", "evening")
     u <- paste("This", u, "the following ftp uploads did not happen:")
     u <- c("The QC process certified", "successful uploads.", 
@@ -4484,7 +4495,8 @@ html.email <- function (x, y = T)
     h <- h[h$yyyymmdd != h$target | h$today, ]
     z <- c(z, html.problem.underlying(paste0("<b>", rownames(h), 
         "</b>"), u, h$yyyymmdd != h$target))
-    z <- txt.replace(z, " one reports were ", " one report was ")
+    z <- txt.replace(z, " one external reports were ", " one external report was ")
+    z <- txt.replace(z, " one internal reports were ", " one internal report was ")
     z <- txt.replace(z, " one successful uploads.", " one successful upload.")
     z <- paste(c("Dear All,", z, html.signature()), collapse = "\n")
     y <- ifelse(y, "ReportDeliveryList", "ReportDeliveryAsiaList")
