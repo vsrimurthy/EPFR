@@ -11899,6 +11899,37 @@ sql.1mSRIAdvisorPct <- function (x, y, n, w)
     z
 }
 
+#' sql.1wFlow.Corp
+#' 
+#' Generates the SQL query to get weekly corporate flow ($MM)
+#' @param x = a YYYYMMDD from which flows are to be computed
+#' @keywords sql.1wFlow.Corp
+#' @export
+#' @family sql
+
+sql.1wFlow.Corp <- function (x) 
+{
+    h <- mat.read(parameters("classif-StyleSector"))
+    h <- map.rname(h, c(136, 133, 140, 135, 132, 139, 142, 125))
+    h$Domicile <- ifelse(rownames(h) == 125, "US", NA)
+    z <- vec.named(paste("StyleSector", rownames(h), sep = " = "), 
+        h[, "Abbrv"])
+    z[!is.na(h$Domicile)] <- paste(z[!is.na(h$Domicile)], "Domicile = 'US'", 
+        sep = " and ")
+    names(z)[!is.na(h$Domicile)] <- paste(names(z)[!is.na(h$Domicile)], 
+        "US")
+    z <- paste0("[", names(z), "] = sum(case when ", z, " then Flow else NULL end)")
+    z <- c(sql.yyyymmdd("WeekEnding"), z)
+    y <- list(A = "FundType = 'B'", B = "GeographicFocus = 77")
+    y[["C"]] <- sql.in("StyleSector", paste0("(", paste(rownames(h), 
+        collapse = ", "), ")"))
+    y[["D"]] <- paste0("WeekEnding >= '", x, "'")
+    z <- sql.tbl(z, c("WeeklyData t1", "inner join", "FundHistory t2 on t2.HFundId = t1.HFundId"), 
+        sql.and(y), "WeekEnding")
+    z <- paste(sql.unbracket(z), collapse = "\n")
+    z
+}
+
 #' sql.ActWtDiff2
 #' 
 #' ActWtDiff2 on R1 Materials for positioning
