@@ -5887,17 +5887,18 @@ mat.write <- function (x, y, n = ",", w = T)
         y <- paste(machine.info("temp"), "write.csv", sep = "\\")
     if (is.null(dim(x))) {
         write.table(x, y, sep = n, quote = F, col.names = F, 
-            row.names = w)
+            row.names = w, fileEncoding = "UTF-8")
     }
     else if (dim(x)[1] == 0) {
         cat("No records. Write to", y, "failed ..\n")
     }
     else if (w) {
-        write.table(x, y, sep = n, quote = F, col.names = NA)
+        write.table(x, y, sep = n, quote = F, col.names = NA, 
+            fileEncoding = "UTF-8")
     }
     else {
         write.table(x, y, sep = n, quote = F, col.names = T, 
-            row.names = F)
+            row.names = F, fileEncoding = "UTF-8")
     }
     invisible()
 }
@@ -11895,37 +11896,6 @@ sql.1mSRIAdvisorPct <- function (x, y, n, w)
         z <- c(z, "inner join", "SecurityHistory id on id.HSecurityId = t1.HSecurityId")
     w <- ifelse(w, "t1.HSecurityId", "SecurityId")
     z <- sql.declare.wrapper("@floDt", h, sql.tbl(x, z, , w))
-    z
-}
-
-#' sql.1wFlow.Corp
-#' 
-#' Generates the SQL query to get weekly corporate flow ($MM)
-#' @param x = a YYYYMMDD from which flows are to be computed
-#' @keywords sql.1wFlow.Corp
-#' @export
-#' @family sql
-
-sql.1wFlow.Corp <- function (x) 
-{
-    h <- mat.read(parameters("classif-StyleSector"))
-    h <- map.rname(h, c(136, 133, 140, 135, 132, 139, 142, 125))
-    h$Domicile <- ifelse(rownames(h) == 125, "US", NA)
-    z <- vec.named(paste("StyleSector", rownames(h), sep = " = "), 
-        h[, "Abbrv"])
-    z[!is.na(h$Domicile)] <- paste(z[!is.na(h$Domicile)], "Domicile = 'US'", 
-        sep = " and ")
-    names(z)[!is.na(h$Domicile)] <- paste(names(z)[!is.na(h$Domicile)], 
-        "US")
-    z <- paste0("[", names(z), "] = sum(case when ", z, " then Flow else NULL end)")
-    z <- c(sql.yyyymmdd("WeekEnding"), z)
-    y <- list(A = "FundType = 'B'", B = "GeographicFocus = 77")
-    y[["C"]] <- sql.in("StyleSector", paste0("(", paste(rownames(h), 
-        collapse = ", "), ")"))
-    y[["D"]] <- paste0("WeekEnding >= '", x, "'")
-    z <- sql.tbl(z, c("WeeklyData t1", "inner join", "FundHistory t2 on t2.HFundId = t1.HFundId"), 
-        sql.and(y), "WeekEnding")
-    z <- paste(sql.unbracket(z), collapse = "\n")
     z
 }
 
