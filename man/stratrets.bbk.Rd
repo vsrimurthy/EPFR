@@ -4,12 +4,14 @@
 \alias{stratrets.bbk}
 \title{stratrets.bbk}
 \usage{
-stratrets.bbk(x, y)
+stratrets.bbk(x, y, n)
 }
 \arguments{
-\item{x}{= strategy}
+\item{x}{= a strategy}
 
 \item{y}{= a variable}
+
+\item{n}{= a dataframe of back-test parameters (can be missing)}
 }
 \description{
 named vector of TxB return spreads indexed by BoP

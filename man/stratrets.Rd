@@ -4,10 +4,12 @@
 \alias{stratrets}
 \title{stratrets}
 \usage{
-stratrets(x)
+stratrets(x, y)
 }
 \arguments{
 \item{x}{= a variable}
+
+\item{y}{= dataframe of back-test parameters (can be missing)}
 }
 \description{
 data frame of TxB return spreads

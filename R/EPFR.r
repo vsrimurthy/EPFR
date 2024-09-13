@@ -14146,16 +14146,18 @@ strat.path <- function (x, y)
 #' 
 #' data frame of TxB return spreads
 #' @param x = a variable
+#' @param y = dataframe of back-test parameters (can be missing)
 #' @keywords stratrets
 #' @export
 #' @family stratrets
 
-stratrets <- function (x) 
+stratrets <- function (x, y) 
 {
-    y <- mat.read(parameters("classif-strat"), "\t", NULL)
+    if (missing(y)) 
+        y <- mat.read(parameters("classif-strat"), "\t", NULL)
     y <- y[is.element(y[, "vbl"], x), ]
     z <- vec.to.list(y[, "strat"], T)
-    z <- lapply(z, function(z) stratrets.bbk(z, x))
+    z <- lapply(z, function(z) stratrets.bbk(z, x, y))
     z <- array.ex.list(z, T, T)
     z <- z[order(rownames(z)), y[, "strat"]]
     if (nchar(rownames(z)[1]) == 6) {
@@ -14175,16 +14177,19 @@ stratrets <- function (x)
 #' stratrets.bbk
 #' 
 #' named vector of TxB return spreads indexed by BoP
-#' @param x = strategy
+#' @param x = a strategy
 #' @param y = a variable
+#' @param n = a dataframe of back-test parameters (can be missing)
 #' @keywords stratrets.bbk
 #' @export
 #' @family stratrets
 
-stratrets.bbk <- function (x, y) 
+stratrets.bbk <- function (x, y, n) 
 {
     cat("\t", x, y, "..\n")
-    x <- stratrets.data(x, y)
+    if (missing(n)) 
+        n <- mat.read(parameters("classif-strat"), "\t", NULL)
+    x <- stratrets.data(x, y, n)
     x[["w"]] <- ifelse(nchar(rownames(x[["x"]])[1]) == 8, 5, 
         1)
     z <- do.call(bbk, x)[["rets"]]
@@ -14215,14 +14220,16 @@ stratrets.beta <- function (x, y, n, w)
 #' list object containing arguments needed for function <bbk>
 #' @param x = strategy
 #' @param y = a variable
+#' @param n = dataframe of back-test parameters (can be missing)
 #' @keywords stratrets.data
 #' @export
 #' @family stratrets
 
-stratrets.data <- function (x, y) 
+stratrets.data <- function (x, y, n) 
 {
-    h <- mat.read(parameters("classif-strat"), "\t", NULL)
-    h <- mat.index(h[is.element(h[, "vbl"], y), colnames(h) != 
+    if (missing(n)) 
+        n <- mat.read(parameters("classif-strat"), "\t", NULL)
+    h <- mat.index(n[is.element(n[, "vbl"], y), colnames(n) != 
         "vbl"], "strat")
     if (is.na(h[x, "path"])) {
         z <- mat.read(parameters("classif-strat-multi"), "\t", 

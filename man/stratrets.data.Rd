@@ -4,12 +4,14 @@
 \alias{stratrets.data}
 \title{stratrets.data}
 \usage{
-stratrets.data(x, y)
+stratrets.data(x, y, n)
 }
 \arguments{
 \item{x}{= strategy}
 
 \item{y}{= a variable}
+
+\item{n}{= dataframe of back-test parameters (can be missing)}
 }
 \description{
 list object containing arguments needed for function <bbk>
