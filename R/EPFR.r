@@ -5741,7 +5741,8 @@ mat.reverse <- function (x)
 
 mat.rollsum <- function (x, y) 
 {
-    fcn <- function(z) as.numeric(filter(z, rep(1, y), sides = 1))
+    fcn <- function(z) as.numeric(stats::filter(z, rep(1, y), 
+        sides = 1))
     z <- fcn.mat.vec(fcn, x, , T)
     z
 }
