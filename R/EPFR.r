@@ -8983,8 +8983,8 @@ ret.to.idx <- function (x)
             n <- n - 1
         z[n] <- 100
         if (m > n) 
-            z[seq(n + 1, m)] <- 100 * exp(cumsum(z[seq(n + 1, 
-                m)]))
+            z[seq(n + 1, m)] <- 100 * exp(cumsum(zav(z[seq(n + 
+                1, m)])))
     }
     else {
         z <- fcn.mat.vec(ret.to.idx, x, , T)
