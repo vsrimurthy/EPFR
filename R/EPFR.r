@@ -125,7 +125,10 @@ ftp.dir <- function (x, y, n, w, h = F, u = "ftp", v)
 {
     w <- ftp.missing(as.list(environment()), "ynwuv")
     z <- paste0(w[["ftp"]], x, "/")
-    z <- getURL(z, userpwd = w[["userpwd"]], ftp.use.epsv = w[["epsv"]])
+    z <- tryCatch(getURL(z, userpwd = w[["userpwd"]], ftp.use.epsv = w[["epsv"]]), 
+        error = function(z) {
+            ""
+        })
     if (z != "") {
         z <- txt.parse(z, ifelse(u == "ftp", "\r\n", "\n"))
         if (u == "ftp") 
