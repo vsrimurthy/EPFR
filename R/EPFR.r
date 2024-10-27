@@ -8550,9 +8550,11 @@ quant.info <- function (x, y)
 
 RDS.exists <- function (x) 
 {
-    z <- !is.null(tryCatch(readRDS(x), error = function(z) {
-        NULL
-    }))
+    z <- file.exists(x)
+    if (z) 
+        z <- !is.null(tryCatch(readRDS(x), error = function(z) {
+            NULL
+        }))
     z
 }
 
