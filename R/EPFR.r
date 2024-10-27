@@ -8541,6 +8541,21 @@ quant.info <- function (x, y)
     mat.read(parameters("classif-Quants"), "\t")[x, y]
 }
 
+#' RDS.exists
+#' 
+#' T/F depending on whether <x> can be read
+#' @param x = a file
+#' @keywords RDS.exists
+#' @export
+
+RDS.exists <- function (x) 
+{
+    z <- !is.null(tryCatch(readRDS(x), error = function(z) {
+        NULL
+    }))
+    z
+}
+
 #' read.EPFR
 #' 
 #' reads in the file
