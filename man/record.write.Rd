@@ -19,6 +19,7 @@ updates the record. Returns nothing.
 \seealso{
 Other record: \code{\link{record.exists}},
   \code{\link{record.kill}}, \code{\link{record.read}},
+  \code{\link{record.track.target}},
   \code{\link{record.track}}
 }
 \keyword{record.write}

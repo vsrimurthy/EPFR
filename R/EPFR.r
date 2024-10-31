@@ -4498,6 +4498,17 @@ html.email <- function (x, y = T)
     h <- h[h$yyyymmdd != h$target | h$today, ]
     z <- c(z, html.problem.underlying(paste0("<b>", rownames(h), 
         "</b>"), u, h$yyyymmdd != h$target))
+    if (y) {
+        u <- paste("This morning the following indicators did not update:")
+        u <- c("The QC process certified", "successful indicator updates.", 
+            u)
+        u <- c(u, "The QC process was unable to check updates of the following indicators:")
+        h <- indicator.track(x)
+        h <- h[h$yyyymmdd != h$target | h$today, ]
+        z <- c(z, html.problem.underlying(paste0("<b>", do.call(paste, 
+            h[, c("factor", "freq")]), "</b>"), u, h$yyyymmdd != 
+            h$target))
+    }
     z <- txt.replace(z, " one external reports were ", " one external report was ")
     z <- txt.replace(z, " one internal reports were ", " one internal report was ")
     z <- txt.replace(z, " one successful uploads.", " one successful upload.")
@@ -5008,6 +5019,25 @@ html.tenure <- function (x, y, n)
         z <- paste0("This is not only ", html.and(z[x > 0]), 
             " but also ", html.and(z[x < 0]), ".")
     }
+    z
+}
+
+#' indicator.track
+#' 
+#' writes report for date <x>
+#' @param x = a flowdate
+#' @keywords indicator.track
+#' @export
+
+indicator.track <- function (x) 
+{
+    z <- mat.read(parameters("classif-indicators"), "\t", NULL)
+    z$today <- z$target <- z$yyyymmdd <- rep(NA, dim(z)[1])
+    for (j in 1:dim(z)[1]) {
+        z[j, "yyyymmdd"] <- file.to.last(paste0(fcn.dir(), "\\New Model Concept\\", 
+            z[j, "path"]))
+    }
+    z <- record.track.target(x, z[, colnames(z) != "path"], T)
     z
 }
 
@@ -8704,6 +8734,23 @@ record.track <- function (x, y, n)
         "All")), ]
     z$yyyymmdd <- map.rname(record.read(paste0(y, ".txt")), rownames(z))
     z$today <- z$target <- rep(NA, dim(z)[1])
+    z <- record.track.target(x, z, n)
+    z
+}
+
+#' record.track.target
+#' 
+#' target/today for date <x> and data frame <y>
+#' @param x = a flowdate
+#' @param y = a data frame
+#' @param n = a boolean (regular/Asia process)
+#' @keywords record.track.target
+#' @export
+#' @family record
+
+record.track.target <- function (x, y, n) 
+{
+    z <- y
     w <- z[, "entry"] == "date" & z[, "freq"] == "D"
     z[w, "target"] <- x
     z[w, "today"] <- T
@@ -8722,6 +8769,10 @@ record.track <- function (x, y, n)
     z[w, "target"] <- publish.monthly.last(x, 26)
     z[w, "today"] <- publish.monthly.last(x, 26) > publish.monthly.last(flowdate.lag(x, 
         1), 26)
+    w <- z[, "entry"] == "alloc" & z[, "freq"] == "M"
+    z[w, "target"] <- publish.monthly.last(x, 23)
+    z[w, "today"] <- publish.monthly.last(x, 23) > publish.monthly.last(flowdate.lag(x, 
+        1), 23)
     w <- z[, "entry"] == "FXalloc" & z[, "freq"] == "M"
     z[w, "target"] <- publish.monthly.last(x, 9, 1)
     z[w, "today"] <- publish.monthly.last(x, 9, 1) > publish.monthly.last(flowdate.lag(x, 
