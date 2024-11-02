@@ -4,10 +4,12 @@
 \alias{indicator.track}
 \title{indicator.track}
 \usage{
-indicator.track(x)
+indicator.track(x, y)
 }
 \arguments{
 \item{x}{= a flowdate}
+
+\item{y}{= a boolean (regular/Asia process)}
 }
 \description{
 writes report for date <x>

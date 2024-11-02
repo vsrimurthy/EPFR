@@ -4498,17 +4498,15 @@ html.email <- function (x, y = T)
     h <- h[h$yyyymmdd != h$target | h$today, ]
     z <- c(z, html.problem.underlying(paste0("<b>", rownames(h), 
         "</b>"), u, h$yyyymmdd != h$target))
-    if (y) {
-        u <- paste("This morning the following indicators did not update:")
-        u <- c("The QC process certified", "successful indicator updates.", 
-            u)
-        u <- c(u, "The QC process was unable to check updates of the following indicators:")
-        h <- indicator.track(x)
-        h <- h[h$yyyymmdd != h$target | h$today, ]
-        z <- c(z, html.problem.underlying(paste0("<b>", do.call(paste, 
-            h[, c("factor", "freq")]), "</b>"), u, h$yyyymmdd != 
-            h$target))
-    }
+    u <- paste("This morning the following indicators did not update:")
+    u <- c("The QC process certified", "successful indicator updates.", 
+        u)
+    u <- c(u, "The QC process was unable to check updates of the following indicators:")
+    h <- indicator.track(x, y)
+    h <- h[h$yyyymmdd != h$target | h$today, ]
+    z <- c(z, html.problem.underlying(paste0("<b>", do.call(paste, 
+        h[, c("factor", "freq")]), "</b>"), u, h$yyyymmdd != 
+        h$target))
     z <- txt.replace(z, " one external reports were ", " one external report was ")
     z <- txt.replace(z, " one internal reports were ", " one internal report was ")
     z <- txt.replace(z, " one successful uploads.", " one successful upload.")
@@ -5026,18 +5024,20 @@ html.tenure <- function (x, y, n)
 #' 
 #' writes report for date <x>
 #' @param x = a flowdate
+#' @param y = a boolean (regular/Asia process)
 #' @keywords indicator.track
 #' @export
 
-indicator.track <- function (x) 
+indicator.track <- function (x, y) 
 {
-    z <- mat.read(parameters("classif-indicators"), "\t", NULL)
+    z <- paste0("classif-indicators", ifelse(y, "", "Asia"))
+    z <- mat.read(parameters(z), "\t", NULL)
     z$today <- z$target <- z$yyyymmdd <- rep(NA, dim(z)[1])
     for (j in 1:dim(z)[1]) {
         z[j, "yyyymmdd"] <- file.to.last(paste0(fcn.dir(), "\\New Model Concept\\", 
             z[j, "path"]))
     }
-    z <- record.track.target(x, z[, colnames(z) != "path"], T)
+    z <- record.track.target(x, z[, colnames(z) != "path"], y)
     z
 }
 
