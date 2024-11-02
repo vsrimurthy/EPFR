@@ -23,8 +23,8 @@ Other mat: \code{\link{mat.compound}},
   \code{\link{mat.lag}}, \code{\link{mat.last.to.first}},
   \code{\link{mat.read}}, \code{\link{mat.reverse}},
   \code{\link{mat.rollsum}}, \code{\link{mat.sort}},
-  \code{\link{mat.subset}}, \code{\link{mat.to.last.Idx}},
-  \code{\link{mat.to.obs}}, \code{\link{mat.to.xlModel}},
+  \code{\link{mat.subset}}, \code{\link{mat.to.obs}},
+  \code{\link{mat.to.xlModel}},
   \code{\link{mat.weekly.to.daily}},
   \code{\link{mat.write}}, \code{\link{mat.zScore}}
 }

@@ -3510,8 +3510,10 @@ file.time <- function (x)
 
 file.to.last <- function (x) 
 {
-    z <- mat.read(x, ",")
-    z <- mat.to.last.Idx(z)
+    x <- scan(x, sep = ",", what = "", flush = T, quiet = T)
+    z <- tail(x, 1)
+    cat("Original data had", length(x) - 1, "rows ending at", 
+        z, "..\n")
     if (nchar(z) == 6) 
         z <- yyyymm.to.day(z)
     z
@@ -5818,22 +5820,6 @@ mat.subset <- function (x, y)
     else {
         z <- x[, y]
     }
-    z
-}
-
-#' mat.to.last.Idx
-#' 
-#' the last row index for which we have data
-#' @param x = a matrix/data frame
-#' @keywords mat.to.last.Idx
-#' @export
-#' @family mat
-
-mat.to.last.Idx <- function (x) 
-{
-    z <- rownames(x)[dim(x)[1]]
-    cat("Original data had", dim(x)[1], "rows ending at", z, 
-        "..\n")
     z
 }
 
