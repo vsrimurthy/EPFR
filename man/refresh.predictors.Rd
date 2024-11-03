@@ -4,22 +4,16 @@
 \alias{refresh.predictors}
 \title{refresh.predictors}
 \usage{
-refresh.predictors(fcn, x, y, n, w, h, u)
+refresh.predictors(fcn, x, y, n)
 }
 \arguments{
-\item{fcn}{= a function (last complete publication period)}
+\item{fcn}{= a function to generate new data}
 
 \item{x}{= a file (predictors)}
 
-\item{y}{= query needed to get full history}
+\item{y}{= a boolean (ignore/note data changes)}
 
-\item{n}{= a string (last part of query after date restriction)}
-
-\item{w}{= a connection string}
-
-\item{h}{= a boolean (ignore/note data changes)}
-
-\item{u}{= a column (corresponds to date in relevant SQL table)}
+\item{n}{= last complete publication period}
 }
 \description{
 refreshes the text file contains flows data from SQL

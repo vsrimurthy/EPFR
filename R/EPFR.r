@@ -8795,25 +8795,20 @@ record.write <- function (x, y, n)
 #' refresh.predictors
 #' 
 #' refreshes the text file contains flows data from SQL
-#' @param fcn = a function (last complete publication period)
+#' @param fcn = a function to generate new data
 #' @param x = a file (predictors)
-#' @param y = query needed to get full history
-#' @param n = a string (last part of query after date restriction)
-#' @param w = a connection string
-#' @param h = a boolean (ignore/note data changes)
-#' @param u = a column (corresponds to date in relevant SQL table)
+#' @param y = a boolean (ignore/note data changes)
+#' @param n = last complete publication period
 #' @keywords refresh.predictors
 #' @export
 #' @family refresh
 
-refresh.predictors <- function (fcn, x, y, n, w, h, u) 
+refresh.predictors <- function (fcn, x, y, n) 
 {
-    v <- file.to.last(x)
-    if (v < fcn()) {
-        z <- refresh.predictors.script(y, n, u, v)
-        z <- sql.query(z, w)
+    z <- file.to.last(x)
+    if (z < n) {
         x <- mat.read(x, ",")
-        z <- refresh.predictors.append(x, z, h, F)
+        z <- refresh.predictors.append(x, fcn(n, z, x), y, T)
     }
     else {
         cat("There is no need to update the data ..\n")
@@ -8874,7 +8869,12 @@ refresh.predictors.append <- function (x, y, n = F, w = F)
 
 refresh.predictors.daily <- function (x, y, n, w, h = F) 
 {
-    refresh.predictors(publish.daily.last, x, y, n, w, h, "DayEnding")
+    fcn <- function(z, l, k) {
+        z <- refresh.predictors.script(y, n, "DayEnding", l)
+        mat.index(sql.query(z, w))
+    }
+    z <- refresh.predictors(fcn, x, h, publish.daily.last())
+    z
 }
 
 #' refresh.predictors.monthly
@@ -8891,7 +8891,12 @@ refresh.predictors.daily <- function (x, y, n, w, h = F)
 
 refresh.predictors.monthly <- function (x, y, n, w, h) 
 {
-    refresh.predictors(publish.monthly.last, x, y, n, w, h, "WeightDate")
+    fcn <- function(z, l, k) {
+        z <- refresh.predictors.script(y, n, "WeightDate", l)
+        mat.index(sql.query(z, w))
+    }
+    z <- refresh.predictors(fcn, x, h, publish.monthly.last())
+    z
 }
 
 #' refresh.predictors.script
@@ -8931,7 +8936,12 @@ refresh.predictors.script <- function (x, y, n, w)
 
 refresh.predictors.weekly <- function (x, y, n, w, h = F) 
 {
-    refresh.predictors(publish.weekly.last, x, y, n, w, h, "WeekEnding")
+    fcn <- function(z, l, k) {
+        z <- refresh.predictors.script(y, n, "WeekEnding", l)
+        mat.index(sql.query(z, w))
+    }
+    z <- refresh.predictors(fcn, x, h, publish.weekly.last())
+    z
 }
 
 #' renorm
