@@ -8799,16 +8799,18 @@ record.write <- function (x, y, n)
 #' @param x = a file (predictors)
 #' @param y = a boolean (ignore/note data changes)
 #' @param n = last complete publication period
+#' @param w = auxiliary arguments to <fcn>
 #' @keywords refresh.predictors
 #' @export
 #' @family refresh
 
-refresh.predictors <- function (fcn, x, y, n) 
+refresh.predictors <- function (fcn, x, y, n, w = list()) 
 {
     z <- file.to.last(x)
     if (z < n) {
         x <- mat.read(x, ",")
-        z <- refresh.predictors.append(x, fcn(n, z, x), y, T)
+        z <- do.call(fcn, c(list(z = n, l = z, k = x), w))
+        z <- refresh.predictors.append(x, z, y, T)
     }
     else {
         cat("There is no need to update the data ..\n")

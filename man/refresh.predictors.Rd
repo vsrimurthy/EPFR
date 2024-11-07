@@ -4,7 +4,7 @@
 \alias{refresh.predictors}
 \title{refresh.predictors}
 \usage{
-refresh.predictors(fcn, x, y, n)
+refresh.predictors(fcn, x, y, n, w = list())
 }
 \arguments{
 \item{fcn}{= a function to generate new data}
@@ -14,6 +14,8 @@ refresh.predictors(fcn, x, y, n)
 \item{y}{= a boolean (ignore/note data changes)}
 
 \item{n}{= last complete publication period}
+
+\item{w}{= auxiliary arguments to <fcn>}
 }
 \description{
 refreshes the text file contains flows data from SQL
