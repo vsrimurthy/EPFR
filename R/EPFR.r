@@ -8940,8 +8940,8 @@ refresh.predictors.troika <- function (fcn, x, y, n, w = list())
 {
     z <- file.to.last(x["Result"])
     if (z < n) {
-        x <- mat.read(x["Result"], ",")
-        z <- do.call(fcn, c(list(z = n, l = z, k = x), w))
+        k <- mat.read(x["Result"], ",")
+        z <- do.call(fcn, c(list(z = n, l = z, k = k), w))
         for (j in dimnames(z)[[3]]) {
             w <- mat.read(x[j], ",")
             if (any(!is.element(dimnames(z)[[1]], rownames(w)))) {
@@ -8951,7 +8951,7 @@ refresh.predictors.troika <- function (fcn, x, y, n, w = list())
             }
         }
         z <- 100 * z[, , "Flow"]/nonneg(z[, , "AssetsStart"])
-        z <- refresh.predictors.append(x, mat.ex.matrix(z), y, 
+        z <- refresh.predictors.append(k, mat.ex.matrix(z), y, 
             T)
         production.write(z, x["Result"])
     }
