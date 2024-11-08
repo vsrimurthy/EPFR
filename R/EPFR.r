@@ -8942,7 +8942,7 @@ refresh.predictors.troika <- function (fcn, x, y, n, w = list())
     if (z < n) {
         k <- mat.read(x["Result"], ",")
         z <- do.call(fcn, c(list(z = n, l = z, k = k), w))
-        for (j in dimnames(z)[[3]]) {
+        for (j in intersect(dimnames(z)[[3]], names(x))) {
             w <- mat.read(x[j], ",")
             if (any(!is.element(dimnames(z)[[1]], rownames(w)))) {
                 w <- refresh.predictors.append(w, mat.ex.matrix(z[, 
