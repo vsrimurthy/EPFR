@@ -8797,20 +8797,19 @@ record.write <- function (x, y, n)
 #' refreshes the text file contains flows data from SQL
 #' @param fcn = a function to generate new data
 #' @param x = a file (predictors)
-#' @param y = a boolean (ignore/note data changes)
-#' @param n = last complete publication period
-#' @param w = auxiliary arguments to <fcn>
+#' @param y = last complete publication period
+#' @param n = auxiliary arguments to <fcn>
 #' @keywords refresh.predictors
 #' @export
 #' @family refresh
 
-refresh.predictors <- function (fcn, x, y, n, w = list()) 
+refresh.predictors <- function (fcn, x, y, n = list()) 
 {
     z <- file.to.last(x)
-    if (z < n) {
+    if (z < y) {
         x <- mat.read(x, ",")
-        z <- do.call(fcn, c(list(z = n, l = z, k = x), w))
-        z <- refresh.predictors.append(x, z, y, T)
+        z <- do.call(fcn, c(list(z = y, l = z, k = x), n))
+        z <- refresh.predictors.append(x, z)
     }
     else {
         cat("There is no need to update the data ..\n")
@@ -8824,16 +8823,12 @@ refresh.predictors <- function (fcn, x, y, n, w = list())
 #' Appends new to old data after performing checks
 #' @param x = a matrix/data frame
 #' @param y = a data frame
-#' @param n = a boolean (ignore/note data changes)
-#' @param w = a boolean (are/aren't row names)
 #' @keywords refresh.predictors.append
 #' @export
 #' @family refresh
 
-refresh.predictors.append <- function (x, y, n = F, w = F) 
+refresh.predictors.append <- function (x, y) 
 {
-    if (!w) 
-        y <- mat.index(y)
     if (dim(y)[2] != dim(x)[2]) 
         stop("Problem 3")
     if (any(!is.element(colnames(y), colnames(x)))) 
@@ -8846,7 +8841,7 @@ refresh.predictors.append <- function (x, y, n = F, w = F)
         ]), stringsAsFactors = F)
     m <- correl(m[, 1], m[, 2])
     m <- zav(m)
-    if (!n & m < 0.9) 
+    if (m < 0.9) 
         stop("Problem: Correlation between new and old data is", 
             round(100 * m), "!")
     z <- rbind(x, z[!w, ])
@@ -8864,40 +8859,17 @@ refresh.predictors.append <- function (x, y, n = F, w = F)
 #' @param y = query needed to get full history
 #' @param n = a string (last part of query after date restriction)
 #' @param w = a connection string
-#' @param h = a boolean (ignore/note data changes)
 #' @keywords refresh.predictors.daily
 #' @export
 #' @family refresh
 
-refresh.predictors.daily <- function (x, y, n, w, h = F) 
+refresh.predictors.daily <- function (x, y, n, w) 
 {
     fcn <- function(z, l, k) {
         z <- refresh.predictors.script(y, n, "DayEnding", l)
         mat.index(sql.query(z, w))
     }
-    z <- refresh.predictors(fcn, x, h, publish.daily.last())
-    z
-}
-
-#' refresh.predictors.monthly
-#' 
-#' refreshes the text file contains flows data from SQL
-#' @param x = a file (predictors)
-#' @param y = query needed to get full history
-#' @param n = a string (last part of query after date restriction)
-#' @param w = a connection string
-#' @param h = a boolean (ignore/report the fact last row has changed)
-#' @keywords refresh.predictors.monthly
-#' @export
-#' @family refresh
-
-refresh.predictors.monthly <- function (x, y, n, w, h) 
-{
-    fcn <- function(z, l, k) {
-        z <- refresh.predictors.script(y, n, "WeightDate", l)
-        mat.index(sql.query(z, w))
-    }
-    z <- refresh.predictors(fcn, x, h, publish.monthly.last())
+    z <- refresh.predictors(fcn, x, publish.daily.last())
     z
 }
 
@@ -8929,30 +8901,28 @@ refresh.predictors.script <- function (x, y, n, w)
 #' refreshes the text file contains flows data from SQL
 #' @param fcn = a function to generate new data
 #' @param x = a file vector (Flow/AssetsStart/Result)
-#' @param y = a boolean (ignore/note data changes)
-#' @param n = last complete publication period
-#' @param w = auxiliary arguments to <fcn>
+#' @param y = last complete publication period
+#' @param n = auxiliary arguments to <fcn>
 #' @keywords refresh.predictors.troika
 #' @export
 #' @family refresh
 
-refresh.predictors.troika <- function (fcn, x, y, n, w = list()) 
+refresh.predictors.troika <- function (fcn, x, y, n = list()) 
 {
     z <- file.to.last(x["Result"])
-    if (z < n) {
+    if (z < y) {
         k <- mat.read(x["Result"], ",")
-        z <- do.call(fcn, c(list(z = n, l = z, k = k), w))
+        z <- do.call(fcn, c(list(z = y, l = z, k = k), n))
         for (j in intersect(dimnames(z)[[3]], names(x))) {
             w <- mat.read(x[j], ",")
             if (any(!is.element(dimnames(z)[[1]], rownames(w)))) {
                 w <- refresh.predictors.append(w, mat.ex.matrix(z[, 
-                  , j]), y, T)
+                  , j]))
                 production.write(w, x[j])
             }
         }
         z <- 100 * z[, , "Flow"]/nonneg(z[, , "AssetsStart"])
-        z <- refresh.predictors.append(k, mat.ex.matrix(z), y, 
-            T)
+        z <- refresh.predictors.append(k, mat.ex.matrix(z))
         production.write(z, x["Result"])
     }
     else cat("There is no need to update the data ..\n")
@@ -8966,18 +8936,17 @@ refresh.predictors.troika <- function (fcn, x, y, n, w = list())
 #' @param y = query needed to get full history
 #' @param n = a string (last part of query after date restriction)
 #' @param w = a connection string
-#' @param h = a boolean (ignore/note data changes)
 #' @keywords refresh.predictors.weekly
 #' @export
 #' @family refresh
 
-refresh.predictors.weekly <- function (x, y, n, w, h = F) 
+refresh.predictors.weekly <- function (x, y, n, w) 
 {
     fcn <- function(z, l, k) {
         z <- refresh.predictors.script(y, n, "WeekEnding", l)
         mat.index(sql.query(z, w))
     }
-    z <- refresh.predictors(fcn, x, h, publish.weekly.last())
+    z <- refresh.predictors(fcn, x, publish.weekly.last())
     z
 }
 

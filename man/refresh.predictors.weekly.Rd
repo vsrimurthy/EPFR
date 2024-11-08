@@ -4,7 +4,7 @@
 \alias{refresh.predictors.weekly}
 \title{refresh.predictors.weekly}
 \usage{
-refresh.predictors.weekly(x, y, n, w, h = F)
+refresh.predictors.weekly(x, y, n, w)
 }
 \arguments{
 \item{x}{= a file (predictors)}
@@ -14,8 +14,6 @@ refresh.predictors.weekly(x, y, n, w, h = F)
 \item{n}{= a string (last part of query after date restriction)}
 
 \item{w}{= a connection string}
-
-\item{h}{= a boolean (ignore/note data changes)}
 }
 \description{
 refreshes the text file contains flows data from SQL
@@ -23,7 +21,6 @@ refreshes the text file contains flows data from SQL
 \seealso{
 Other refresh: \code{\link{refresh.predictors.append}},
   \code{\link{refresh.predictors.daily}},
-  \code{\link{refresh.predictors.monthly}},
   \code{\link{refresh.predictors.script}},
   \code{\link{refresh.predictors.troika}},
   \code{\link{refresh.predictors}}

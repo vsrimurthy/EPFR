@@ -4,23 +4,18 @@
 \alias{refresh.predictors.append}
 \title{refresh.predictors.append}
 \usage{
-refresh.predictors.append(x, y, n = F, w = F)
+refresh.predictors.append(x, y)
 }
 \arguments{
 \item{x}{= a matrix/data frame}
 
 \item{y}{= a data frame}
-
-\item{n}{= a boolean (ignore/note data changes)}
-
-\item{w}{= a boolean (are/aren't row names)}
 }
 \description{
 Appends new to old data after performing checks
 }
 \seealso{
 Other refresh: \code{\link{refresh.predictors.daily}},
-  \code{\link{refresh.predictors.monthly}},
   \code{\link{refresh.predictors.script}},
   \code{\link{refresh.predictors.troika}},
   \code{\link{refresh.predictors.weekly}},

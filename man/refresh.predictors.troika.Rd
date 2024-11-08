@@ -4,18 +4,16 @@
 \alias{refresh.predictors.troika}
 \title{refresh.predictors.troika}
 \usage{
-refresh.predictors.troika(fcn, x, y, n, w = list())
+refresh.predictors.troika(fcn, x, y, n = list())
 }
 \arguments{
 \item{fcn}{= a function to generate new data}
 
 \item{x}{= a file vector (Flow/AssetsStart/Result)}
 
-\item{y}{= a boolean (ignore/note data changes)}
+\item{y}{= last complete publication period}
 
-\item{n}{= last complete publication period}
-
-\item{w}{= auxiliary arguments to <fcn>}
+\item{n}{= auxiliary arguments to <fcn>}
 }
 \description{
 refreshes the text file contains flows data from SQL
@@ -23,7 +21,6 @@ refreshes the text file contains flows data from SQL
 \seealso{
 Other refresh: \code{\link{refresh.predictors.append}},
   \code{\link{refresh.predictors.daily}},
-  \code{\link{refresh.predictors.monthly}},
   \code{\link{refresh.predictors.script}},
   \code{\link{refresh.predictors.weekly}},
   \code{\link{refresh.predictors}}

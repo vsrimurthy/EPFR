@@ -4,18 +4,16 @@
 \alias{refresh.predictors}
 \title{refresh.predictors}
 \usage{
-refresh.predictors(fcn, x, y, n, w = list())
+refresh.predictors(fcn, x, y, n = list())
 }
 \arguments{
 \item{fcn}{= a function to generate new data}
 
 \item{x}{= a file (predictors)}
 
-\item{y}{= a boolean (ignore/note data changes)}
+\item{y}{= last complete publication period}
 
-\item{n}{= last complete publication period}
-
-\item{w}{= auxiliary arguments to <fcn>}
+\item{n}{= auxiliary arguments to <fcn>}
 }
 \description{
 refreshes the text file contains flows data from SQL
@@ -23,7 +21,6 @@ refreshes the text file contains flows data from SQL
 \seealso{
 Other refresh: \code{\link{refresh.predictors.append}},
   \code{\link{refresh.predictors.daily}},
-  \code{\link{refresh.predictors.monthly}},
   \code{\link{refresh.predictors.script}},
   \code{\link{refresh.predictors.troika}},
   \code{\link{refresh.predictors.weekly}}
