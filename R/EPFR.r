@@ -8924,6 +8924,41 @@ refresh.predictors.script <- function (x, y, n, w)
     z
 }
 
+#' refresh.predictors.troika
+#' 
+#' refreshes the text file contains flows data from SQL
+#' @param fcn = a function to generate new data
+#' @param x = a file vector (Flow/AssetsStart/Result)
+#' @param y = a boolean (ignore/note data changes)
+#' @param n = last complete publication period
+#' @param w = auxiliary arguments to <fcn>
+#' @keywords refresh.predictors.troika
+#' @export
+#' @family refresh
+
+refresh.predictors.troika <- function (fcn, x, y, n, w = list()) 
+{
+    z <- file.to.last(x["Result"])
+    if (z < n) {
+        x <- mat.read(x["Result"], ",")
+        z <- do.call(fcn, c(list(z = n, l = z, k = x), w))
+        for (j in dimnames(z)[[3]]) {
+            w <- mat.read(x[j], ",")
+            if (any(!is.element(dimnames(z)[[1]], rownames(w)))) {
+                w <- refresh.predictors.append(w, mat.ex.matrix(z[, 
+                  , j]), y, T)
+                production.write(w, x[j])
+            }
+        }
+        z <- 100 * z[, , "Flow"]/nonneg(z[, , "AssetsStart"])
+        z <- refresh.predictors.append(x, mat.ex.matrix(z), y, 
+            T)
+        production.write(z, x["Result"])
+    }
+    else cat("There is no need to update the data ..\n")
+    invisible()
+}
+
 #' refresh.predictors.weekly
 #' 
 #' refreshes the text file contains flows data from SQL
