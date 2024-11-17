@@ -10,6 +10,6 @@ acronymize(x)
 \item{x}{= a string vector}
 }
 \description{
-randomly acronymnizes
+randomly acronymizes
 }
 \keyword{acronymize}

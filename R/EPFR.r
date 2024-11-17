@@ -151,7 +151,7 @@ ftp.dir <- function (x, y, n, w, h = F, u = "ftp", v)
 
 #' acronymize
 #' 
-#' randomly acronymnizes
+#' randomly acronymizes
 #' @param x = a string vector
 #' @keywords acronymize
 #' @export
@@ -492,6 +492,21 @@ base.ex.int <- function (x, y = 26, n = 0)
 base.to.int <- function (x, y = 26) 
 {
     sum(x * y^(rev(seq_along(x)) - 1))
+}
+
+#' base64encode.wrapper
+#' 
+#' file encoded in base 64
+#' @param x = a file
+#' @keywords base64encode.wrapper
+#' @export
+#' @@importFrom base64enc base64encode
+
+base64encode.wrapper <- function (x) 
+{
+    z <- readBin(x, what = "raw", n = file.info(x)$size)
+    z <- base64enc::base64encode(z)
+    z
 }
 
 #' bbk
@@ -2175,6 +2190,54 @@ email.list <- function ()
 email.record <- function (x, y) 
 {
     record.write(x, y, "emails.txt")
+}
+
+#' emailSendGrid
+#' 
+#' emails <x>
+#' @param x = the email address(es) of the recipient(s)
+#' @param y = subject of the email
+#' @param n = text of the email
+#' @param w = a file vector
+#' @param h = a boolean (use html/text)
+#' @param u = the email address(es) being CC'ed
+#' @param v = the email address(es) being BCC'ed
+#' @keywords emailSendGrid
+#' @export
+#' @@importFrom httr POST
+
+emailSendGrid <- function (x, y, n, w = "", h = F, u, v) 
+{
+    r <- quant.info(machine.info("Quant"), "email")
+    s <- readLines(parameters("SendGrid"))
+    if (h) 
+        n <- txt.replace(n, "\n", "")
+    h <- ifelse(h, "html", "plain")
+    z <- paste0("{\"personalizations\":[{\"to\": [{\"email\": \"", 
+        x, "\"}]")
+    if (!missing(u)) 
+        z <- paste0(z, ",\"cc\":[{\"email\":\"", u, "\"}]")
+    if (!missing(v)) 
+        z <- paste0(z, ",\"bcc\":[{\"email\":\"", v, "\"}]")
+    z <- paste0(z, "}]")
+    z <- paste0(z, ",\"from\": {\"email\": \"", r, "\"}")
+    z <- paste0(z, ",\"subject\": \"", y, "\"")
+    z <- paste0(z, ",\"content\": [{\"type\": \"text/", h, "\"")
+    z <- paste0(z, ",\"value\": \"", n, "\"}]")
+    z <- paste0(z, ", \"categories\": [\"production\", \"client-delivery\", \"quant-delivery\"]")
+    if (!missing(w)) 
+        if (length(w) == 1) {
+            y <- base64encode.wrapper(w)
+            w <- ftp.file(w)
+            z <- paste0(z, ", \"attachments\": [{\"content\": \"", 
+                y, "\", \"type\": \"text/plain\", \"filename\": \"", 
+                w, "\"}]")
+        }
+        else stop("Can't handle multiple files!")
+    z <- paste0(z, "}")
+    z <- httr::POST(s[1], body = z, config = httr::add_headers(Authorization = paste("Bearer", 
+        s[2]), `Content-Type` = "application/json"), httr::verbose())
+    invisible()
 }
 
 #' err.raise
@@ -4512,9 +4575,10 @@ html.email <- function (x, y = T)
     z <- txt.replace(z, " one external reports were ", " one external report was ")
     z <- txt.replace(z, " one internal reports were ", " one internal report was ")
     z <- txt.replace(z, " one successful uploads.", " one successful upload.")
-    z <- paste(c("Dear All,", z, html.signature()), collapse = "\n")
+    z <- paste(c("Dear All,", z, html.signature()), collapse = "")
     y <- ifelse(y, "ReportDeliveryList", "ReportDeliveryAsiaList")
-    email(recipient.read(y), "Report Delivery", z, , T)
+    emailSendGrid(recipient.read(y, T), "Report Delivery", z, 
+        , T)
     invisible()
 }
 
@@ -8626,11 +8690,12 @@ recipient.exists <- function (x)
 #' 
 #' vector of recipient tranches
 #' @param x = a string (report name)
+#' @param y = a boolean (SendGrid/regular)
 #' @keywords recipient.read
 #' @export
 #' @family recipient
 
-recipient.read <- function (x) 
+recipient.read <- function (x, y = F) 
 {
     z <- mat.read(parameters("classif-recipient"), "\t", NULL)
     z <- z[is.element(z[, "email"], x), ]
@@ -8638,9 +8703,10 @@ recipient.read <- function (x)
     w <- sapply(z, function(z) any(z == "ALLES"))
     for (j in names(z)[w]) {
         z[[j]] <- setdiff(z[[j]], "ALLES")
-        z[[j]] <- c(z[[j]], recipient.read("ALLES"))
+        z[[j]] <- c(z[[j]], recipient.read("ALLES", y))
     }
-    z <- sapply(z, function(z) paste(z, collapse = "; "))
+    y <- ifelse(y, "\"}, {\"email\": \"", "; ")
+    z <- sapply(z, function(z) paste(z, collapse = y))
     z
 }
 
@@ -9104,11 +9170,12 @@ rgb.diff <- function (x, y)
 #' @param h = a string (recipient email, can be missing)
 #' @param u = a file (log, can be missing)
 #' @param v = a string vector (report names, can be missing)
+#' @param g = a boolean (SendGrid/regular)
 #' @keywords rpt.email
 #' @export
 #' @family rpt
 
-rpt.email <- function (x, y, n, w, h, u, v) 
+rpt.email <- function (x, y, n, w, h, u, v, g = F) 
 {
     if (missing(u)) 
         u <- paste0(x, "Email.log")
@@ -9116,7 +9183,7 @@ rpt.email <- function (x, y, n, w, h, u, v)
         v <- x
     if (missing(h)) {
         if (recipient.exists(x)) {
-            h <- recipient.read(x)
+            h <- recipient.read(x, g)
             if (length(v) > 1 & length(h) > 1) 
                 v <- ifelse(is.element(names(h), v), names(h), 
                   x)
@@ -9165,14 +9232,14 @@ rpt.email <- function (x, y, n, w, h, u, v)
     if (proceed) {
         if (length(h) == length(v)) {
             for (i in seq_along(h)) rpt.email.send(v[i], h[i], 
-                flo.dt, w, out.files[i])
+                flo.dt, w, out.files[i], g)
         }
         else if (length(h) == 1) {
-            rpt.email.send(x, h, flo.dt, w, out.files)
+            rpt.email.send(x, h, flo.dt, w, out.files, g)
         }
         else if (length(v) == 1) {
             for (i in seq_along(h)) rpt.email.send(x, h[i], flo.dt, 
-                w, out.files)
+                w, out.files, g)
         }
         else {
             stop("Can't handle this yet ..\n")
@@ -9192,11 +9259,12 @@ rpt.email <- function (x, y, n, w, h, u, v)
 #' @param n = a flowdate
 #' @param w = a boolean (live/test)
 #' @param h = a file vector
+#' @param u = a boolean (SendGrid/regular)
 #' @keywords rpt.email.send
 #' @export
 #' @family rpt
 
-rpt.email.send <- function (x, y, n, w, h) 
+rpt.email.send <- function (x, y, n, w, h, u) 
 {
     err.raise(h, T, paste("Emailing the following to", y))
     if (length(h) == 1 & grepl("\\.html$", h[1])) {
@@ -9216,8 +9284,11 @@ rpt.email.send <- function (x, y, n, w, h)
         }
         z <- paste0("Dear All,<p>", z, "</p>", html.signature())
     }
+    if (u) 
+        fcn <- emailSendGrid
+    else fcn <- email
     y <- ifelse(w, y, quant.info(machine.info("Quant"), "email"))
-    email(y, paste0("EPFR ", x, ": ", n), z, h, T)
+    fcn(y, paste0("EPFR ", x, ": ", n), z, h, T)
     invisible()
 }
 
@@ -14168,7 +14239,7 @@ strat.email <- function (x, y, n, w = "All")
     z <- paste0("Dear ", w, ",<p>Please find attached the latest")
     z <- paste(z, ifelse(length(x) > 1, "files", "file"), "for the")
     z <- paste(z, y, html.and(x), ifelse(length(x) > 1, "strategies.", 
-        "strategy."), "</p>\n<p>The data in")
+        "strategy."), "</p><p>The data in")
     z <- paste(z, ifelse(length(x) > 1, "these files", "this file"), 
         "are indexed by the period they are as of")
     if (y == "monthly") {
@@ -14183,7 +14254,7 @@ strat.email <- function (x, y, n, w = "All")
         "this file"), "are for a single")
     z <- paste(z, "period only. For multi-period lookbacks aggregate across time.</p>")
     z <- paste0(z, html.signature())
-    email(n, paste("EPFR", txt.name.format(y), html.and(x)), 
+    emailSendGrid(n, paste("EPFR", txt.name.format(y), html.and(x)), 
         z, strat.path(x, y), T)
     invisible()
 }

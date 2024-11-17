@@ -4,7 +4,7 @@
 \alias{rpt.email.send}
 \title{rpt.email.send}
 \usage{
-rpt.email.send(x, y, n, w, h)
+rpt.email.send(x, y, n, w, h, u)
 }
 \arguments{
 \item{x}{= a string (report name)}
@@ -16,6 +16,8 @@ rpt.email.send(x, y, n, w, h)
 \item{w}{= a boolean (live/test)}
 
 \item{h}{= a file vector}
+
+\item{u}{= a boolean (SendGrid/regular)}
 }
 \description{
 emails report
