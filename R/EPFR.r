@@ -9171,12 +9171,11 @@ rgb.diff <- function (x, y)
 #' @param h = a string (recipient email, can be missing)
 #' @param u = a file (log, can be missing)
 #' @param v = a string vector (report names, can be missing)
-#' @param g = a boolean (SendGrid/regular)
 #' @keywords rpt.email
 #' @export
 #' @family rpt
 
-rpt.email <- function (x, y, n, w, h, u, v, g = F) 
+rpt.email <- function (x, y, n, w, h, u, v) 
 {
     if (missing(u)) 
         u <- paste0(x, "Email.log")
@@ -9184,7 +9183,7 @@ rpt.email <- function (x, y, n, w, h, u, v, g = F)
         v <- x
     if (missing(h)) {
         if (recipient.exists(x)) {
-            h <- recipient.read(x, g)
+            h <- recipient.read(x, T)
             if (length(v) > 1 & length(h) > 1) 
                 v <- ifelse(is.element(names(h), v), names(h), 
                   x)
@@ -9233,14 +9232,14 @@ rpt.email <- function (x, y, n, w, h, u, v, g = F)
     if (proceed) {
         if (length(h) == length(v)) {
             for (i in seq_along(h)) rpt.email.send(v[i], h[i], 
-                flo.dt, w, out.files[i], g)
+                flo.dt, w, out.files[i], T)
         }
         else if (length(h) == 1) {
-            rpt.email.send(x, h, flo.dt, w, out.files, g)
+            rpt.email.send(x, h, flo.dt, w, out.files, T)
         }
         else if (length(v) == 1) {
             for (i in seq_along(h)) rpt.email.send(x, h[i], flo.dt, 
-                w, out.files, g)
+                w, out.files, T)
         }
         else {
             stop("Can't handle this yet ..\n")
