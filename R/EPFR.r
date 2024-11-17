@@ -9232,14 +9232,14 @@ rpt.email <- function (x, y, n, w, h, u, v)
     if (proceed) {
         if (length(h) == length(v)) {
             for (i in seq_along(h)) rpt.email.send(v[i], h[i], 
-                flo.dt, w, out.files[i], T)
+                flo.dt, w, out.files[i])
         }
         else if (length(h) == 1) {
-            rpt.email.send(x, h, flo.dt, w, out.files, T)
+            rpt.email.send(x, h, flo.dt, w, out.files)
         }
         else if (length(v) == 1) {
             for (i in seq_along(h)) rpt.email.send(x, h[i], flo.dt, 
-                w, out.files, T)
+                w, out.files)
         }
         else {
             stop("Can't handle this yet ..\n")
@@ -9259,12 +9259,11 @@ rpt.email <- function (x, y, n, w, h, u, v)
 #' @param n = a flowdate
 #' @param w = a boolean (live/test)
 #' @param h = a file vector
-#' @param u = a boolean (SendGrid/regular)
 #' @keywords rpt.email.send
 #' @export
 #' @family rpt
 
-rpt.email.send <- function (x, y, n, w, h, u) 
+rpt.email.send <- function (x, y, n, w, h) 
 {
     err.raise(h, T, paste("Emailing the following to", y))
     if (length(h) == 1 & grepl("\\.html$", h[1])) {
@@ -9284,11 +9283,8 @@ rpt.email.send <- function (x, y, n, w, h, u)
         }
         z <- paste0("Dear All,<p>", z, "</p>", html.signature())
     }
-    if (u) 
-        fcn <- emailSendGrid
-    else fcn <- email
     y <- ifelse(w, y, quant.info(machine.info("Quant"), "email"))
-    fcn(y, paste0("EPFR ", x, ": ", n), z, h, T)
+    emailSendGrid(y, paste0("EPFR ", x, ": ", n), z, h, T)
     invisible()
 }
 
