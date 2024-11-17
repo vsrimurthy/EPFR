@@ -3,8 +3,7 @@ Title: EPFR Quantitative Research Environment
 Version: 2.4.0
 Authors@R: person("Vikram", "Srimurthy", "K.", "Vikram.C.Srimurthy@epfrglobal.com", role = c("aut", "cre"))
 Description: This is the EPFR Quant Research environment.
-Depends: R (>= 3.4.4)
-Imports: RODBC,RDCOMClient,RCurl,httr,base64enc
+Depends: R (>= 3.4.4),RODBC,RDCOMClient,RCurl,httr,base64enc
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

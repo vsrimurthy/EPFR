@@ -4133,7 +4133,6 @@ ftp.missing <- function (x, y)
 #' @keywords ftp.missing.underlying
 #' @export
 #' @family ftp
-#' @@importFrom RCurl getURL
 
 ftp.missing.underlying <- function (x, y, n, w, h) 
 {
@@ -12529,7 +12528,6 @@ sql.connect <- function (x)
 #' @keywords sql.connect.wrapper
 #' @export
 #' @family sql
-#' @@importFrom RODBC odbcDriverConnect
 
 sql.connect.wrapper <- function (x) 
 {
@@ -13272,7 +13270,6 @@ sql.label <- function (x, y)
 #' @keywords sql.map.classif
 #' @export
 #' @family sql
-#' @@importFrom RODBC sqlQuery
 
 sql.map.classif <- function (x, y, n) 
 {
@@ -13630,7 +13627,6 @@ sql.Overweight <- function (x)
 #' @keywords sql.query
 #' @export
 #' @family sql
-#' @@importFrom RODBC sqlQuery
 
 sql.query <- function (x, y, n = T) 
 {
