@@ -2227,11 +2227,13 @@ emailSendGrid <- function (x, y, n, w = "", h = F, u, v)
     z <- paste0(z, ", \"categories\": [\"production\", \"client-delivery\", \"quant-delivery\"]")
     if (!missing(w)) 
         if (length(w) == 1) {
-            y <- base64encode.wrapper(w)
-            w <- ftp.file(w)
-            z <- paste0(z, ", \"attachments\": [{\"content\": \"", 
-                y, "\", \"type\": \"text/plain\", \"filename\": \"", 
-                w, "\"}]")
+            if (file.exists(w)) {
+                y <- base64encode.wrapper(w)
+                w <- ftp.file(w)
+                z <- paste0(z, ", \"attachments\": [{\"content\": \"", 
+                  y, "\", \"type\": \"text/plain\", \"filename\": \"", 
+                  w, "\"}]")
+            }
         }
         else stop("Can't handle multiple files!")
     z <- paste0(z, "}")
