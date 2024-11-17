@@ -506,6 +506,8 @@ base64encode.wrapper <- function (x)
 {
     z <- readBin(x, what = "raw", n = file.info(x)$size)
     z <- base64enc::base64encode(z)
+    z <- paste0("{\"content\": \"", z, "\", \"type\": \"text/plain\", \"filename\": \"", 
+        ftp.file(x), "\"}")
     z
 }
 
@@ -2226,16 +2228,14 @@ emailSendGrid <- function (x, y, n, w = "", h = F, u, v)
     z <- paste0(z, ",\"value\": \"", n, "\"}]")
     z <- paste0(z, ", \"categories\": [\"production\", \"client-delivery\", \"quant-delivery\"]")
     if (!missing(w)) 
-        if (length(w) == 1) {
-            if (file.exists(w)) {
-                y <- base64encode.wrapper(w)
-                w <- ftp.file(w)
-                z <- paste0(z, ", \"attachments\": [{\"content\": \"", 
-                  y, "\", \"type\": \"text/plain\", \"filename\": \"", 
-                  w, "\"}]")
-            }
+        if (any(file.exists(w))) {
+            w <- w[file.exists(w)]
+            w <- split(w, ftp.file(w))
+            w <- lapply(w, base64encode.wrapper)
+            w <- Reduce(c, w)
+            w <- paste(w, collapse = ",")
+            z <- paste0(z, ", \"attachments\": [", w, "]")
         }
-        else stop("Can't handle multiple files!")
     z <- paste0(z, "}")
     z <- httr::POST(s[1], body = z, config = httr::add_headers(Authorization = paste("Bearer", 
         s[2]), `Content-Type` = "application/json"), httr::verbose())
