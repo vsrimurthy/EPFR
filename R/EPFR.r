@@ -2239,9 +2239,16 @@ emailSendGrid <- function (x, y, n, w = "", h = F, u, v)
             z <- paste0(z, ", \"attachments\": [", w, "]")
         }
     z <- paste0(z, "}")
-    z <- httr::POST(s[1], body = z, config = httr::add_headers(Authorization = paste("Bearer", 
+    w <- httr::POST(s[1], body = z, config = httr::add_headers(Authorization = paste("Bearer", 
         s[2]), `Content-Type` = "application/json"), httr::verbose(data_out = F))
-    invisible()
+    z <- is.list(w)
+    if (z) 
+        z <- any(names(w) == "status_code")
+    if (z) 
+        z <- length(w[["status_code"]]) == 1
+    if (z) 
+        z <- is.element(w[["status_code"]], 202)
+    z
 }
 
 #' err.raise
@@ -4583,8 +4590,8 @@ html.email <- function (x, y = T)
     z <- txt.replace(z, " one successful uploads.", " one successful upload.")
     z <- paste(c("Dear All,", z, html.signature()), collapse = "")
     y <- ifelse(y, "ReportDeliveryList", "ReportDeliveryAsiaList")
-    emailSendGrid(recipient.read(y, T), "Report Delivery", z, 
-        , T)
+    z <- emailSendGrid(recipient.read(y, T), "Report Delivery", 
+        z, , T)
     invisible()
 }
 
@@ -9236,20 +9243,22 @@ rpt.email <- function (x, y, n, w, h, u, v)
     }
     if (proceed) {
         if (length(h) == length(v)) {
-            for (i in seq_along(h)) rpt.email.send(v[i], h[i], 
-                flo.dt, w, out.files[i])
+            for (i in seq_along(h)) proceed <- proceed & rpt.email.send(v[i], 
+                h[i], flo.dt, w, out.files[i])
         }
         else if (length(h) == 1) {
-            rpt.email.send(x, h, flo.dt, w, out.files)
+            proceed <- proceed & rpt.email.send(x, h, flo.dt, 
+                w, out.files)
         }
         else if (length(v) == 1) {
-            for (i in seq_along(h)) rpt.email.send(x, h[i], flo.dt, 
-                w, out.files)
+            for (i in seq_along(h)) proceed <- proceed & rpt.email.send(x, 
+                h[i], flo.dt, w, out.files)
         }
         else {
             stop("Can't handle this yet ..\n")
         }
-        email.record(u, flo.dt)
+        if (proceed) 
+            email.record(u, flo.dt)
     }
     if (w) 
         sink()
@@ -9289,8 +9298,9 @@ rpt.email.send <- function (x, y, n, w, h)
         z <- paste0("Dear All,<p>", z, "</p>", html.signature())
     }
     y <- ifelse(w, y, quant.info(machine.info("Quant"), "email"))
-    emailSendGrid(y, paste0("EPFR ", x, ": ", n), z, h, T)
-    invisible()
+    z <- emailSendGrid(y, paste0("EPFR ", x, ": ", n), z, h, 
+        T)
+    z
 }
 
 #' rquaternion
@@ -14252,9 +14262,9 @@ strat.email <- function (x, y, n, w = "All")
         "this file"), "are for a single")
     z <- paste(z, "period only. For multi-period lookbacks aggregate across time.</p>")
     z <- paste0(z, html.signature())
-    emailSendGrid(n, paste("EPFR", txt.name.format(y), html.and(x)), 
+    z <- emailSendGrid(n, paste("EPFR", txt.name.format(y), html.and(x)), 
         z, strat.path(x, y), T)
-    invisible()
+    z
 }
 
 #' strat.file
