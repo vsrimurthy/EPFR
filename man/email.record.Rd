@@ -16,7 +16,6 @@ updates the email record. Returns nothing.
 }
 \seealso{
 Other email: \code{\link{email.exists}},
-  \code{\link{email.kill}}, \code{\link{email.list}},
-  \code{\link{email}}
+  \code{\link{email.kill}}, \code{\link{email.list}}
 }
 \keyword{email.record}

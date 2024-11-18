@@ -14,7 +14,6 @@ deletes entry <x> in the email record. Returns nothing.
 }
 \seealso{
 Other email: \code{\link{email.exists}},
-  \code{\link{email.list}}, \code{\link{email.record}},
-  \code{\link{email}}
+  \code{\link{email.list}}, \code{\link{email.record}}
 }
 \keyword{email.kill}

@@ -72,7 +72,7 @@ sql.query.underlying <- function (x, y, n = T)
     z
 }
 
-#' email
+#' emailSendGrid
 #' 
 #' emails <x>
 #' @param x = the email address(es) of the recipient(s)
@@ -82,28 +82,52 @@ sql.query.underlying <- function (x, y, n = T)
 #' @param h = a boolean (use html/text)
 #' @param u = the email address(es) being CC'ed
 #' @param v = the email address(es) being BCC'ed
-#' @keywords email
+#' @keywords emailSendGrid
 #' @export
-#' @family email
-#' @import RDCOMClient
+#' @import httr
 
-email <- function (x, y, n, w = "", h = F, u, v) 
+emailSendGrid <- function (x, y, n, w = "", h = F, u, v) 
 {
-    z <- COMCreate("Outlook.Application")
-    z <- z$CreateItem(0)
-    z[["To"]] <- x
+    r <- quant.info(machine.info("Quant"), "email")
+    s <- readLines(parameters("SendGrid"))
+    if (h) {
+        n <- txt.replace(n, "\n", "")
+        n <- txt.replace(n, "\\", "\\\\")
+        n <- txt.replace(n, "\"", "\\\"")
+    }
+    h <- ifelse(h, "html", "plain")
+    z <- paste0("{\"personalizations\":[{\"to\": [{\"email\": \"", 
+        x, "\"}]")
     if (!missing(u)) 
-        z[["Cc"]] <- u
+        z <- paste0(z, ",\"cc\":[{\"email\":\"", u, "\"}]")
     if (!missing(v)) 
-        z[["Bcc"]] <- v
-    z[["subject"]] <- y
-    if (h) 
-        z[["HTMLBody"]] <- n
-    else z[["body"]] <- n
-    for (j in w) if (file.exists(j)) 
-        z[["Attachments"]]$Add(j)
-    z$Send()
-    invisible()
+        z <- paste0(z, ",\"bcc\":[{\"email\":\"", v, "\"}]")
+    z <- paste0(z, "}]")
+    z <- paste0(z, ",\"from\": {\"email\": \"", r, "\"}")
+    z <- paste0(z, ",\"subject\": \"", y, "\"")
+    z <- paste0(z, ",\"content\": [{\"type\": \"text/", h, "\"")
+    z <- paste0(z, ",\"value\": \"", n, "\"}]")
+    z <- paste0(z, ", \"categories\": [\"production\", \"client-delivery\", \"quant-delivery\"]")
+    if (!missing(w)) 
+        if (any(file.exists(w))) {
+            w <- w[file.exists(w)]
+            w <- split(w, ftp.file(w))
+            w <- lapply(w, base64encode.wrapper)
+            w <- Reduce(c, w)
+            w <- paste(w, collapse = ",")
+            z <- paste0(z, ", \"attachments\": [", w, "]")
+        }
+    z <- paste0(z, "}")
+    w <- POST(s[1], body = z, config = add_headers(Authorization = paste("Bearer", 
+        s[2]), `Content-Type` = "application/json"), verbose(data_out = F))
+    z <- is.list(w)
+    if (z) 
+        z <- any(names(w) == "status_code")
+    if (z) 
+        z <- length(w[["status_code"]]) == 1
+    if (z) 
+        z <- is.element(w[["status_code"]], 202)
+    z
 }
 
 #' ftp.dir
@@ -146,6 +170,23 @@ ftp.dir <- function (x, y, n, w, h = F, u = "ftp", v)
     else {
         z <- NULL
     }
+    z
+}
+
+#' base64encode.wrapper
+#' 
+#' file encoded in base 64
+#' @param x = a file
+#' @keywords base64encode.wrapper
+#' @export
+#' @import base64enc
+
+base64encode.wrapper <- function (x) 
+{
+    z <- readBin(x, what = "raw", n = file.info(x)$size)
+    z <- base64encode(z)
+    z <- paste0("{\"content\": \"", z, "\", \"type\": \"text/plain\", \"filename\": \"", 
+        ftp.file(x), "\"}")
     z
 }
 
@@ -492,23 +533,6 @@ base.ex.int <- function (x, y = 26, n = 0)
 base.to.int <- function (x, y = 26) 
 {
     sum(x * y^(rev(seq_along(x)) - 1))
-}
-
-#' base64encode.wrapper
-#' 
-#' file encoded in base 64
-#' @param x = a file
-#' @keywords base64encode.wrapper
-#' @export
-#' @@importFrom base64enc base64encode
-
-base64encode.wrapper <- function (x) 
-{
-    z <- readBin(x, what = "raw", n = file.info(x)$size)
-    z <- base64enc::base64encode(z)
-    z <- paste0("{\"content\": \"", z, "\", \"type\": \"text/plain\", \"filename\": \"", 
-        ftp.file(x), "\"}")
-    z
 }
 
 #' bbk
@@ -2194,64 +2218,6 @@ email.record <- function (x, y)
     record.write(x, y, "emails.txt")
 }
 
-#' emailSendGrid
-#' 
-#' emails <x>
-#' @param x = the email address(es) of the recipient(s)
-#' @param y = subject of the email
-#' @param n = text of the email
-#' @param w = a file vector
-#' @param h = a boolean (use html/text)
-#' @param u = the email address(es) being CC'ed
-#' @param v = the email address(es) being BCC'ed
-#' @keywords emailSendGrid
-#' @export
-#' @@importFrom httr POST
-
-emailSendGrid <- function (x, y, n, w = "", h = F, u, v) 
-{
-    r <- quant.info(machine.info("Quant"), "email")
-    s <- readLines(parameters("SendGrid"))
-    if (h) {
-        n <- txt.replace(n, "\n", "")
-        n <- txt.replace(n, "\\", "\\\\")
-        n <- txt.replace(n, "\"", "\\\"")
-    }
-    h <- ifelse(h, "html", "plain")
-    z <- paste0("{\"personalizations\":[{\"to\": [{\"email\": \"", 
-        x, "\"}]")
-    if (!missing(u)) 
-        z <- paste0(z, ",\"cc\":[{\"email\":\"", u, "\"}]")
-    if (!missing(v)) 
-        z <- paste0(z, ",\"bcc\":[{\"email\":\"", v, "\"}]")
-    z <- paste0(z, "}]")
-    z <- paste0(z, ",\"from\": {\"email\": \"", r, "\"}")
-    z <- paste0(z, ",\"subject\": \"", y, "\"")
-    z <- paste0(z, ",\"content\": [{\"type\": \"text/", h, "\"")
-    z <- paste0(z, ",\"value\": \"", n, "\"}]")
-    z <- paste0(z, ", \"categories\": [\"production\", \"client-delivery\", \"quant-delivery\"]")
-    if (!missing(w)) 
-        if (any(file.exists(w))) {
-            w <- w[file.exists(w)]
-            w <- split(w, ftp.file(w))
-            w <- lapply(w, base64encode.wrapper)
-            w <- Reduce(c, w)
-            w <- paste(w, collapse = ",")
-            z <- paste0(z, ", \"attachments\": [", w, "]")
-        }
-    z <- paste0(z, "}")
-    w <- httr::POST(s[1], body = z, config = httr::add_headers(Authorization = paste("Bearer", 
-        s[2]), `Content-Type` = "application/json"), httr::verbose(data_out = F))
-    z <- is.list(w)
-    if (z) 
-        z <- any(names(w) == "status_code")
-    if (z) 
-        z <- length(w[["status_code"]]) == 1
-    if (z) 
-        z <- is.element(w[["status_code"]], 202)
-    z
-}
-
 #' err.raise
 #' 
 #' error message
@@ -2426,8 +2392,9 @@ fcn.all.roxygenize <- function (x)
     y <- vec.named("mat.read", "utils")
     y["stats"] <- "ret.outliers"
     y["RODBC"] <- "sql.query.underlying"
-    y["RDCOMClient"] <- "email"
+    y["httr"] <- "emailSendGrid"
     y["RCurl"] <- "ftp.dir"
+    y["base64enc"] <- "base64encode.wrapper"
     z <- NULL
     for (w in names(y)) z <- c(z, "", fcn.roxygenize(y[w], w, 
         n))
