@@ -12485,7 +12485,6 @@ sql.common <- function (x, y)
 #' @keywords sql.connect
 #' @export
 #' @family sql
-#' @@importFrom RODBC odbcDriverConnect
 
 sql.connect <- function (x) 
 {
