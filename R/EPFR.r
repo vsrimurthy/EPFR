@@ -2214,6 +2214,7 @@ emailSendGrid <- function (x, y, n, w = "", h = F, u, v)
     s <- readLines(parameters("SendGrid"))
     if (h) {
         n <- txt.replace(n, "\n", "")
+        n <- txt.replace(n, "\\", "\\\\")
         n <- txt.replace(n, "\"", "\\\"")
     }
     h <- ifelse(h, "html", "plain")
