@@ -72,7 +72,7 @@ sql.query.underlying <- function (x, y, n = T)
     z
 }
 
-#' emailSendGrid
+#' email
 #' 
 #' emails <x>
 #' @param x = the email address(es) of the recipient(s)
@@ -82,11 +82,12 @@ sql.query.underlying <- function (x, y, n = T)
 #' @param h = a boolean (use html/text)
 #' @param u = the email address(es) being CC'ed
 #' @param v = the email address(es) being BCC'ed
-#' @keywords emailSendGrid
+#' @keywords email
 #' @export
+#' @family email
 #' @import httr
 
-emailSendGrid <- function (x, y, n, w = "", h = F, u, v) 
+email <- function (x, y, n, w = "", h = F, u, v) 
 {
     r <- quant.info(machine.info("Quant"), "email")
     s <- readLines(parameters("SendGrid"))
@@ -2392,7 +2393,7 @@ fcn.all.roxygenize <- function (x)
     y <- vec.named("mat.read", "utils")
     y["stats"] <- "ret.outliers"
     y["RODBC"] <- "sql.query.underlying"
-    y["httr"] <- "emailSendGrid"
+    y["httr"] <- "email"
     y["RCurl"] <- "ftp.dir"
     y["base64enc"] <- "base64encode.wrapper"
     z <- NULL
@@ -4558,8 +4559,7 @@ html.email <- function (x, y = T)
     z <- txt.replace(z, " one successful uploads.", " one successful upload.")
     z <- paste(c("Dear All,", z, html.signature()), collapse = "")
     y <- ifelse(y, "ReportDeliveryList", "ReportDeliveryAsiaList")
-    z <- emailSendGrid(recipient.read(y, T), "Report Delivery", 
-        z, , T)
+    z <- email(recipient.read(y), "Report Delivery", z, , T)
     invisible()
 }
 
@@ -8671,12 +8671,11 @@ recipient.exists <- function (x)
 #' 
 #' vector of recipient tranches
 #' @param x = a string (report name)
-#' @param y = a boolean (SendGrid/regular)
 #' @keywords recipient.read
 #' @export
 #' @family recipient
 
-recipient.read <- function (x, y = F) 
+recipient.read <- function (x) 
 {
     z <- mat.read(parameters("classif-recipient"), "\t", NULL)
     z <- z[is.element(z[, "email"], x), ]
@@ -8684,9 +8683,9 @@ recipient.read <- function (x, y = F)
     w <- sapply(z, function(z) any(z == "ALLES"))
     for (j in names(z)[w]) {
         z[[j]] <- setdiff(z[[j]], "ALLES")
-        z[[j]] <- c(z[[j]], recipient.read("ALLES", y))
+        z[[j]] <- c(z[[j]], recipient.read("ALLES"))
     }
-    y <- ifelse(y, "\"}, {\"email\": \"", "; ")
+    y <- "\"}, {\"email\": \""
     z <- sapply(z, function(z) paste(z, collapse = y))
     z
 }
@@ -9163,7 +9162,7 @@ rpt.email <- function (x, y, n, w, h, u, v)
         v <- x
     if (missing(h)) {
         if (recipient.exists(x)) {
-            h <- recipient.read(x, T)
+            h <- recipient.read(x)
             if (length(v) > 1 & length(h) > 1) 
                 v <- ifelse(is.element(names(h), v), names(h), 
                   x)
@@ -9266,8 +9265,7 @@ rpt.email.send <- function (x, y, n, w, h)
         z <- paste0("Dear All,<p>", z, "</p>", html.signature())
     }
     y <- ifelse(w, y, quant.info(machine.info("Quant"), "email"))
-    z <- emailSendGrid(y, paste0("EPFR ", x, ": ", n), z, h, 
-        T)
+    z <- email(y, paste0("EPFR ", x, ": ", n), z, h, T)
     z
 }
 
@@ -14230,7 +14228,7 @@ strat.email <- function (x, y, n, w = "All")
         "this file"), "are for a single")
     z <- paste(z, "period only. For multi-period lookbacks aggregate across time.</p>")
     z <- paste0(z, html.signature())
-    z <- emailSendGrid(n, paste("EPFR", txt.name.format(y), html.and(x)), 
+    z <- email(n, paste("EPFR", txt.name.format(y), html.and(x)), 
         z, strat.path(x, y), T)
     z
 }

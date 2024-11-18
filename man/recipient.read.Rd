@@ -4,12 +4,10 @@
 \alias{recipient.read}
 \title{recipient.read}
 \usage{
-recipient.read(x, y = F)
+recipient.read(x)
 }
 \arguments{
 \item{x}{= a string (report name)}
-
-\item{y}{= a boolean (SendGrid/regular)}
 }
 \description{
 vector of recipient tranches
