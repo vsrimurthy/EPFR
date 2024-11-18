@@ -2240,7 +2240,7 @@ emailSendGrid <- function (x, y, n, w = "", h = F, u, v)
         }
     z <- paste0(z, "}")
     z <- httr::POST(s[1], body = z, config = httr::add_headers(Authorization = paste("Bearer", 
-        s[2]), `Content-Type` = "application/json"), httr::verbose())
+        s[2]), `Content-Type` = "application/json"), httr::verbose(data_out = F))
     invisible()
 }
 
@@ -4543,7 +4543,8 @@ html.email <- function (x, y = T)
         u)
     u <- c(u, "The QC process was unable to check the following external deliveries:")
     h <- record.track(x, "emails", y)
-    h <- h[h$yyyymmdd != h$target | h$today, ]
+    h <- h[is.na(h$yyyymmdd) | h$yyyymmdd != h$target | h$today, 
+        ]
     w <- mat.read(parameters("classif-recipient"), "\t", NULL)
     w[, "recipient"] <- as.numeric(grepl("@epfr.com$", w[, 3]))
     w <- aggregate(w["recipient"], by = w["email"], FUN = mean)
@@ -4563,7 +4564,8 @@ html.email <- function (x, y = T)
         u)
     u <- c(u, "The QC process was unable to check uploads of the following:")
     h <- record.track(x, "upload", y)
-    h <- h[h$yyyymmdd != h$target | h$today, ]
+    h <- h[is.na(h$yyyymmdd) | h$yyyymmdd != h$target | h$today, 
+        ]
     z <- c(z, html.problem.underlying(paste0("<b>", rownames(h), 
         "</b>"), u, h$yyyymmdd != h$target))
     u <- paste("This morning the following indicators did not update:")
@@ -4571,7 +4573,8 @@ html.email <- function (x, y = T)
         u)
     u <- c(u, "The QC process was unable to check updates of the following indicators:")
     h <- indicator.track(x, y)
-    h <- h[h$yyyymmdd != h$target | h$today, ]
+    h <- h[is.na(h$yyyymmdd) | h$yyyymmdd != h$target | h$today, 
+        ]
     z <- c(z, html.problem.underlying(paste0("<b>", do.call(paste, 
         h[, c("factor", "freq")]), "</b>"), u, h$yyyymmdd != 
         h$target))
