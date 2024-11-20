@@ -8211,10 +8211,13 @@ production.upload <- function (x, y, n)
     r <- grepl("YYYYMMDD", y)
     if (r) 
         y <- txt.replace(y, "YYYYMMDD", n)
-    z <- production.upload.underlying(y, h[["path"]], h[["type"]], 
-        r)
-    if (z) 
-        ftp.record(x, n)
+    if (!ftp.exists(x, n)) {
+        z <- production.upload.underlying(y, h[["path"]], h[["type"]], 
+            r)
+        if (z) 
+            ftp.record(x, n)
+    }
+    else cat("Upload already happened; no need to repeat ..\n")
     invisible()
 }
 
