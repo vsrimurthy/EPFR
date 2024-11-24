@@ -4552,8 +4552,7 @@ html.email <- function (x, y = T)
     h <- h[is.na(h$yyyymmdd) | h$yyyymmdd != h$target | h$today, 
         ]
     z <- c(z, html.problem.underlying(paste0("<b>", do.call(paste, 
-        h[, c("factor", "freq")]), "</b>"), u, h$yyyymmdd != 
-        h$target))
+        h[, c("factor", "freq")]), "</b>"), u, h$yyyymmdd < h$target))
     z <- txt.replace(z, " one external reports were ", " one external report was ")
     z <- txt.replace(z, " one internal reports were ", " one internal report was ")
     z <- txt.replace(z, " one successful uploads.", " one successful upload.")
