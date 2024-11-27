@@ -3481,7 +3481,7 @@ file.bkp <- function (x, y)
         y <- y[w]
         file.kill(y)
         dir.ensure(y)
-        file.copy(x, y)
+        for (j in seq_along(x)) file.copy(x[j], y[j], copy.date = T)
     }
     invisible()
 }
