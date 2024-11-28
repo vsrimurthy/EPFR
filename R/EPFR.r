@@ -112,7 +112,7 @@ email <- function (x, y, n, w = "", h = F, u, v)
     if (!missing(w)) 
         if (any(file.exists(w))) {
             w <- w[file.exists(w)]
-            w <- split(w, ftp.file(w))
+            w <- split(w, basename(w))
             w <- lapply(w, base64encode.wrapper)
             w <- Reduce(c, w)
             w <- paste(w, collapse = ",")
@@ -187,7 +187,7 @@ base64encode.wrapper <- function (x)
     z <- readBin(x, what = "raw", n = file.info(x)$size)
     z <- base64encode(z)
     z <- paste0("{\"content\": \"", z, "\", \"type\": \"text/plain\", \"filename\": \"", 
-        ftp.file(x), "\"}")
+        basename(x), "\"}")
     z
 }
 
@@ -4004,19 +4004,6 @@ ftp.exists <- function (x, y)
     record.exists(x, y, "upload.txt")
 }
 
-#' ftp.file
-#' 
-#' strips out parent directory, returning just the file name
-#' @param x = a file vector
-#' @keywords ftp.file
-#' @export
-#' @family ftp
-
-ftp.file <- function (x) 
-{
-    txt.right(x, nchar(x) - nchar(ftp.parent(x)) - 1)
-}
-
 #' ftp.get
 #' 
 #' file <x> from remote site
@@ -4036,7 +4023,7 @@ ftp.get <- function (x, y, n, w, h, u = "ftp", v)
     w <- ftp.missing(as.list(environment()), "nwhuv")
     z <- getCurlHandle(ftp.use.epsv = w[["epsv"]], userpwd = w[["userpwd"]])
     z <- getBinaryURL(paste0(w[["ftp"]], x), curl = z)
-    writeBin(z, con = paste0(y, "\\", ftp.file(x)))
+    writeBin(z, con = paste0(y, "\\", basename(x)))
     invisible()
 }
 
@@ -4168,7 +4155,7 @@ ftp.put <- function (x, y, n, w, h, u = "ftp", v)
             cat("Trying to upload to", x, "again ..\n")
         z <- getCurlHandle(ftp.use.epsv = w[["epsv"]], userpwd = w[["userpwd"]])
         z <- tryCatch(ftpUpload(y, paste0(w[["ftp"]], x, "/", 
-            ftp.file(y)), curl = z, ftp.create.missing.dirs = T), 
+            basename(y)), curl = z, ftp.create.missing.dirs = T), 
             error = function(z) {
                 NULL
             })
@@ -4353,7 +4340,7 @@ ftp.upload <- function (x, y, n, w, h, u = "ftp", v)
     s <- paste0(x, s)
     x <- rep(F, length(z))
     for (j in seq_along(z)) {
-        cat(ftp.file(z[j]), "")
+        cat(basename(z[j]), "")
         w[["x"]] <- s[j]
         w[["y"]] <- z[j]
         x[j] <- do.call(ftp.put, w)
@@ -4836,7 +4823,7 @@ html.flow.underlying <- function (x)
 
 html.image <- function (x, y) 
 {
-    paste0("<br><img src='cid:", ftp.file(x), "' width= ", y, 
+    paste0("<br><img src='cid:", basename(x), "' width= ", y, 
         "% height= ", y, "%>")
 }
 
@@ -8236,9 +8223,9 @@ production.upload.underlying <- function (x, y, n, w)
     z <- file.exists(x)
     if (z) 
         for (j in seq_along(y)) {
-            cat("Uploading", ftp.file(x), "to", y[j], "..\n")
+            cat("Uploading", basename(x), "to", y[j], "..\n")
             if (!w) 
-                ftp.del(y[j], ftp.file(x), u = n[j])
+                ftp.del(y[j], basename(x), u = n[j])
             z <- z & ftp.put(y[j], x, u = n[j])
         }
     z
@@ -8436,7 +8423,7 @@ qa.mat.read <- function (x, y, n, w, h, u, v)
     z <- as.list(environment())
     z <- z[!sapply(z, is.symbol)]
     do.call(ftp.get, z)
-    x <- paste0(y, "\\", ftp.file(x))
+    x <- paste0(y, "\\", basename(x))
     z <- NULL
     if (file.exists(x)) {
         z <- read.EPFR(x)
