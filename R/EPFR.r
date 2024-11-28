@@ -93,8 +93,7 @@ email <- function (x, y, n, w = "", h = F, u, v)
     s <- readLines(parameters("SendGrid"))
     if (h) {
         n <- txt.replace(n, "\n", "")
-        n <- txt.replace(n, "\\", "\\\\")
-        n <- txt.replace(n, "\"", "\\\"")
+        n <- gsub("([\\\"])", "\\\\\\1", n)
     }
     h <- ifelse(h, "html", "plain")
     z <- paste0("{\"personalizations\":[{\"to\": [{\"email\": \"", 
