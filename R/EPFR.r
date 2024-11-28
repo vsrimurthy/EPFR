@@ -2002,10 +2002,7 @@ dir.parameters <- function (x)
 
 dir.parent <- function (x) 
 {
-    z <- dirname(x)
-    z <- ifelse(z == ".", "", z)
-    z <- txt.replace(z, "/", "\\")
-    z
+    txt.replace(ftp.parent(x), "/", "\\")
 }
 
 #' dir.publications
@@ -4540,8 +4537,7 @@ html.email <- function (x, y = T)
         ]
     z <- c(z, html.problem.underlying(paste0("<b>", do.call(paste, 
         h[, c("factor", "freq")]), "</b>"), u, h$yyyymmdd < h$target))
-    z <- txt.replace(z, " one external reports were ", " one external report was ")
-    z <- txt.replace(z, " one internal reports were ", " one internal report was ")
+    z <- gsub("( one ..ternal report)s were ", "\\1 was ", z)
     z <- txt.replace(z, " one successful uploads.", " one successful upload.")
     z <- paste(c("Dear All,", z, html.signature()), collapse = "")
     y <- ifelse(y, "ReportDeliveryList", "ReportDeliveryAsiaList")
@@ -14963,8 +14959,7 @@ txt.gunning <- function (x, y, n)
 {
     x <- toupper(x)
     x <- txt.replace(x, "-", " ")
-    x <- txt.replace(x, "?", ".")
-    x <- txt.replace(x, "!", ".")
+    x <- gsub("[?!]", ".", x)
     x <- txt.to.char(x)
     x <- x[is.element(x, c(LETTERS, " ", "."))]
     x <- paste(x, collapse = "")
