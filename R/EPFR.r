@@ -15232,21 +15232,6 @@ txt.regr <- function (x, y = T)
     z
 }
 
-#' txt.replace
-#' 
-#' replaces all instances of <y> with <n>
-#' @param x = a string vector
-#' @param y = a string to be swapped out
-#' @param n = a string to replace <y> with
-#' @keywords txt.replace
-#' @export
-#' @family txt
-
-txt.replace <- function (x, y, n) 
-{
-    gsub(y, n, x, fixed = T)
-}
-
 #' txt.reverse
 #' 
 #' reverses the constitutent characters of <x>
