@@ -190,47 +190,6 @@ base64encode.wrapper <- function (x)
     z
 }
 
-#' acronymize
-#' 
-#' randomly acronymizes
-#' @param x = a string vector
-#' @keywords acronymize
-#' @export
-
-acronymize <- function (x) 
-{
-    z <- x
-    m <- int.random(10)
-    n <- int.random(4)
-    if (m + n - 1 <= length(z)) {
-        x <- toupper(txt.left(z[m + 0:n], 1))
-        z[m] <- paste0(paste(x, collapse = "."), ".")
-        for (j in 1:n) z <- z[-(m + 1)]
-        if (m < length(z)) 
-            z <- c(z[1:m], acronymize(z[seq(m + 1, length(z))]))
-    }
-    z
-}
-
-#' acronymize.wrapper
-#' 
-#' randomly acronymnizes
-#' @param x = a string
-#' @keywords acronymize.wrapper
-#' @export
-
-acronymize.wrapper <- function (x) 
-{
-    z <- txt.trim(txt.parse(x, "."))
-    for (j in seq_along(z)) {
-        y <- txt.parse(z[j], " ")
-        y <- acronymize(y)
-        z[j] <- paste(y, collapse = " ")
-    }
-    z <- paste0(paste(z, collapse = ". "), ".")
-    z
-}
-
 #' angle
 #' 
 #' angle ABC
@@ -5477,9 +5436,9 @@ machine.info <- function (x)
 
 map.classif <- function (x, y, n) 
 {
-    z <- vec.to.list(txt.has(colnames(y), paste0("^", n, "\\d+")))
-    fcn <- function(z) char.to.num(map.rname(x, y[, z]))
-    z <- avail(sapply(z, fcn))
+    z <- y[, grepl(paste0("^", n, "\\d+"), colnames(y))]
+    z <- apply(z, 2, function(z) map.rname(x, z))
+    z <- avail(z)
     z
 }
 
@@ -7320,10 +7279,9 @@ mk.SatoMem <- function (x, y, n)
 {
     n <- n[["classif"]]
     y <- readLines(y)
-    z <- vec.to.list(txt.has(colnames(n), "^isin\\d+"))
-    fcn <- function(z) is.element(n[, z], y)
-    z <- sapply(z, fcn)
-    z <- char.to.num(apply(z, 1, max))
+    z <- n[, grepl("^isin\\d+", colnames(n))]
+    z <- apply(z, 1, function(z) any(is.element(z, y)))
+    z <- as.numeric(z)
     z
 }
 
@@ -14995,20 +14953,6 @@ txt.gunning <- function (x, y, n)
     }
     z <- list(result = 0.4 * (z + 100 * n), complex = x)
     z
-}
-
-#' txt.has
-#' 
-#' subset of <x> based on pattern <y>
-#' @param x = a string vector
-#' @param y = a string (regular expression)
-#' @keywords txt.has
-#' @export
-#' @family txt
-
-txt.has <- function (x, y) 
-{
-    x[grepl(y, x)]
 }
 
 #' txt.hdr
