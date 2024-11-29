@@ -92,7 +92,7 @@ email <- function (x, y, n, w = "", h = F, u, v)
     r <- quant.info(machine.info("Quant"), "email")
     s <- readLines(parameters("SendGrid"))
     if (h) {
-        n <- txt.replace(n, "\n", "")
+        n <- gsub("\n", "", n)
         n <- gsub("([\\\"])", "\\\\\\1", n)
     }
     h <- ifelse(h, "html", "plain")
@@ -1901,7 +1901,7 @@ dir.all.files <- function (x, y)
     z <- dir(x, y, recursive = T)
     if (length(z) > 0) {
         z <- paste(x, z, sep = "\\")
-        z <- txt.replace(z, "/", "\\")
+        z <- gsub("/", "\\\\", z)
     }
     z
 }
@@ -2001,7 +2001,7 @@ dir.parameters <- function (x)
 
 dir.parent <- function (x) 
 {
-    txt.replace(ftp.parent(x), "/", "\\")
+    gsub("/", "\\\\", ftp.parent(x))
 }
 
 #' dir.publications
@@ -3208,7 +3208,7 @@ fcn.roxygenize <- function (x, y, n)
 {
     w <- fcn.to.comments(x)
     w <- gsub("([\\%])", "\\\\\\1", w)
-    w <- txt.replace(w, "@", "@@")
+    w <- gsub("@", "@@", w)
     w <- fcn.comments.parse(w)
     z <- c(w$name, "", w$out)
     if (any(names(w) == "args")) 
@@ -4512,7 +4512,7 @@ html.email <- function (x, y = T)
     if (any(!w)) 
         z <- c(z, html.problem.underlying(paste0("<b>", rownames(h)[!w], 
             "</b>"), u, (h$yyyymmdd != h$target)[!w]))
-    u <- txt.replace(u, "external", "internal")
+    u <- gsub("external", "internal", u)
     if (any(w)) 
         z <- c(z, html.problem.underlying(paste0("<b>", rownames(h)[w], 
             "</b>"), u, (h$yyyymmdd != h$target)[w]))
@@ -4536,7 +4536,8 @@ html.email <- function (x, y = T)
     z <- c(z, html.problem.underlying(paste0("<b>", do.call(paste, 
         h[, c("factor", "freq")]), "</b>"), u, h$yyyymmdd < h$target))
     z <- gsub("( one ..ternal report)s were ", "\\1 was ", z)
-    z <- txt.replace(z, " one successful uploads.", " one successful upload.")
+    z <- gsub(" one successful uploads\\.", " one successful upload.", 
+        z)
     z <- paste(c("Dear All,", z, html.signature()), collapse = "")
     y <- ifelse(y, "ReportDeliveryList", "ReportDeliveryAsiaList")
     z <- email(recipient.read(y), "Report Delivery", z, , T)
@@ -5996,7 +5997,7 @@ maturity.bucket <- function (x)
     x <- vec.named(paste("v >=", x, "and v <", c(x[-1], "?")), 
         names(x))
     x[length(x)] <- gsub(".{10}$", "", x[length(x)])
-    z <- txt.replace(x, "v", "datediff(day, @date, BondMaturity)")
+    z <- gsub("v", "datediff(day, @date, BondMaturity)", x)
     z
 }
 
@@ -8190,7 +8191,7 @@ production.upload <- function (x, y, n)
     h <- lapply(h, function(z) z[w])
     r <- grepl("YYYYMMDD", y)
     if (r) 
-        y <- txt.replace(y, "YYYYMMDD", n)
+        y <- gsub("YYYYMMDD", n, y)
     if (!ftp.exists(x, n)) {
         z <- production.upload.underlying(y, h[["path"]], h[["type"]], 
             r)
@@ -8318,7 +8319,7 @@ publications.data <- function (x, y, n, w)
             h <- function(z, l) y(z)
         }
         else {
-            h <- function(z, l) txt.replace(y, "YYYYMMDD", z)
+            h <- function(z, l) gsub("YYYYMMDD", z, y)
         }
         x <- mk.sf.daily(h, x, w, 12, "All")
         for (i in names(x)) mat.write(x[[i]], paste0(n, "\\", 
@@ -13785,7 +13786,7 @@ sql.tbl <- function (x, y, n = "", w, h = "", u)
     m <- length(x)
     z <- c(!grepl("^\t", x[-1]), F)
     z <- paste0(x, ifelse(z, ",", ""))
-    z <- c("(select", paste0("\t", txt.replace(z, "\n", "\n\t")))
+    z <- c("(select", paste0("\t", gsub("\n", "\n\t", z)))
     z <- c(z, "from", sql.tbl.from(y))
     if (n[1] != "" | length(n) != 1) 
         z <- c(z, "where", paste0("\t", n))
@@ -13811,7 +13812,7 @@ sql.tbl.from <- function (x)
 {
     z <- grepl(" join$", x) & !grepl("^\t", c(x[-1], ""))
     z <- ifelse(z, "", "\t")
-    z <- paste0(z, txt.replace(x, "\n", "\n\t"))
+    z <- paste0(z, gsub("\n", "\n\t", x))
     z
 }
 
@@ -14421,7 +14422,7 @@ stratrets.path <- function (x, y, n, w, h)
     else if (y == "E" & n == "Act" & w == "Result" & h == "CB") {
         if (is.element(x, paste0("Sector", c("EM", "JP", "US", 
             "UK", "Eurozone")))) {
-            z <- txt.replace(x, "Sector", "FloPctSector-")
+            z <- gsub("Sector", "FloPctSector-", x)
             z <- strat.path(z, "daily")
         }
     }
@@ -14956,12 +14957,10 @@ txt.first <- function (x, y)
 txt.gunning <- function (x, y, n) 
 {
     x <- toupper(x)
-    x <- txt.replace(x, "-", " ")
+    x <- gsub("-", " ", x)
     x <- gsub("[?!]", ".", x)
-    x <- txt.to.char(x)
-    x <- x[is.element(x, c(LETTERS, " ", "."))]
-    x <- paste(x, collapse = "")
-    x <- txt.replace(x, ".", " . ")
+    x <- gsub("[^A-Z .]", "", x)
+    x <- gsub("\\.", " . ", x)
     x <- txt.itrim(txt.trim(x))
     if (grepl("\\.$", x)) 
         x <- gsub(".$", "", x)
