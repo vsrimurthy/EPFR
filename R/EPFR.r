@@ -4463,7 +4463,8 @@ html.email <- function (x, y = T)
     h <- h[is.na(h$yyyymmdd) | h$yyyymmdd != h$target | h$today, 
         ]
     w <- mat.read(parameters("classif-recipient"), "\t", NULL)
-    w[, "recipient"] <- as.numeric(grepl("@epfr.com$", w[, 3]))
+    w[, "recipient"] <- as.numeric(grepl("(@isimarkets.com$|@epfr.com$)", 
+        w[, 3]))
     w <- aggregate(w["recipient"], by = w["email"], FUN = mean)
     w <- zav(map.rname(mat.index(w, "email"), rownames(h)))
     w <- is.element(w, 1)
