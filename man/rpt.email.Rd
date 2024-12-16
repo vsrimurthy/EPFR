@@ -4,7 +4,7 @@
 \alias{rpt.email}
 \title{rpt.email}
 \usage{
-rpt.email(x, y, n, w, h, u, v)
+rpt.email(x, y, n, w, h, u, v, g = F)
 }
 \arguments{
 \item{x}{= a folder}
@@ -20,6 +20,8 @@ rpt.email(x, y, n, w, h, u, v)
 \item{u}{= a file (log, can be missing)}
 
 \item{v}{= a string vector (report names, can be missing)}
+
+\item{g}{= a boolean (do/don't send error message)}
 }
 \description{
 emails report

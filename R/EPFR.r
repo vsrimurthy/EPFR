@@ -9094,11 +9094,12 @@ rgb.diff <- function (x, y)
 #' @param h = a string (recipient email, can be missing)
 #' @param u = a file (log, can be missing)
 #' @param v = a string vector (report names, can be missing)
+#' @param g = a boolean (do/don't send error message)
 #' @keywords rpt.email
 #' @export
 #' @family rpt
 
-rpt.email <- function (x, y, n, w, h, u, v) 
+rpt.email <- function (x, y, n, w, h, u, v, g = F) 
 {
     if (missing(u)) 
         u <- paste0(x, "Email.log")
@@ -9170,6 +9171,11 @@ rpt.email <- function (x, y, n, w, h, u, v)
         }
         if (proceed) 
             email.record(u, flo.dt)
+        if (!proceed & g) {
+            g <- recipient.read("ReportDeliveryList")
+            g <- email(g, u, paste("There was an issue with the", 
+                u, "report."), , T)
+        }
     }
     if (w) 
         sink()
