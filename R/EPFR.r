@@ -8733,10 +8733,28 @@ record.track.target <- function (x, y, n)
     w <- z[, "entry"] == "flow" & z[, "freq"] == "D"
     z[w, "target"] <- publish.daily.last(flowdate.lag(x, -char.to.num(!n)))
     z[w, "today"] <- T
+    w <- z[, "entry"] == "date" & z[, "freq"] == "W"
+    y <- x
+    while (publish.weekly.last(flowdate.lag(x, -char.to.num(!n))) == 
+        publish.weekly.last(flowdate.lag(y, -char.to.num(!n)))) {
+        y <- flowdate.lag(y, 1)
+    }
+    z[w, "target"] <- flowdate.lag(y, -1)
+    z[w, "today"] <- publish.weekly.last(flowdate.lag(x, -char.to.num(!n))) > 
+        publish.weekly.last(flowdate.lag(x, 1 - char.to.num(!n)))
     w <- z[, "entry"] == "flow" & z[, "freq"] == "W"
     z[w, "target"] <- publish.weekly.last(flowdate.lag(x, -char.to.num(!n)))
     z[w, "today"] <- publish.weekly.last(flowdate.lag(x, -char.to.num(!n))) > 
         publish.weekly.last(flowdate.lag(x, 1 - char.to.num(!n)))
+    w <- z[, "entry"] == "date" & z[, "freq"] == "M"
+    y <- x
+    while (publish.monthly.last(x, 16) == publish.monthly.last(y, 
+        16)) {
+        y <- flowdate.lag(y, 1)
+    }
+    z[w, "target"] <- flowdate.lag(y, -1)
+    z[w, "today"] <- publish.monthly.last(x, 16) > publish.monthly.last(flowdate.lag(x, 
+        1), 16)
     w <- z[, "entry"] == "flow" & z[, "freq"] == "M"
     z[w, "target"] <- publish.monthly.last(x, 16)
     z[w, "today"] <- publish.monthly.last(x, 16) > publish.monthly.last(flowdate.lag(x, 
