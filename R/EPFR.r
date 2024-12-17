@@ -4471,11 +4471,11 @@ html.email <- function (x, y = T)
     z <- NULL
     if (any(!w)) 
         z <- c(z, html.problem.underlying(paste0("<b>", rownames(h)[!w], 
-            "</b>"), u, (h$yyyymmdd != h$target)[!w]))
+            "</b>"), u, (h$yyyymmdd < h$target)[!w]))
     u <- gsub("external", "internal", u)
     if (any(w)) 
         z <- c(z, html.problem.underlying(paste0("<b>", rownames(h)[w], 
-            "</b>"), u, (h$yyyymmdd != h$target)[w]))
+            "</b>"), u, (h$yyyymmdd < h$target)[w]))
     u <- ifelse(y, "morning", "evening")
     u <- paste("This", u, "the following ftp uploads did not happen:")
     u <- c("The QC process certified", "successful uploads.", 
@@ -4485,7 +4485,7 @@ html.email <- function (x, y = T)
     h <- h[is.na(h$yyyymmdd) | h$yyyymmdd != h$target | h$today, 
         ]
     z <- c(z, html.problem.underlying(paste0("<b>", rownames(h), 
-        "</b>"), u, h$yyyymmdd != h$target))
+        "</b>"), u, h$yyyymmdd < h$target))
     u <- paste("This morning the following indicators did not update:")
     u <- c("The QC process certified", "successful indicator updates.", 
         u)
