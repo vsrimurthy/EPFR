@@ -8621,13 +8621,17 @@ recipient.exists <- function (x)
 recipient.read <- function (x) 
 {
     z <- mat.read(parameters("classif-recipient"), "\t", NULL)
+    w <- is.element(z[, "email"], "ALLES")
+    h <- z[w, c("tranche", "recipient")]
+    colnames(h) <- c("recipient", "subrecipient")
+    z <- z[!w, ]
+    z[, "ord"] <- 1:dim(z)[1]
+    z <- merge(z, h, all.x = T)
+    z[, "recipient"] <- ifelse(is.na(z[, "subrecipient"]), z[, 
+        "recipient"], z[, "subrecipient"])
+    z <- z[order(z[, "ord"]), c("email", "tranche", "recipient")]
     z <- z[is.element(z[, "email"], x), ]
     z <- split(z$recipient, z$tranche)
-    w <- sapply(z, function(z) any(z == "ALLES"))
-    for (j in names(z)[w]) {
-        z[[j]] <- setdiff(z[[j]], "ALLES")
-        z[[j]] <- c(z[[j]], recipient.read("ALLES"))
-    }
     y <- "\"}, {\"email\": \""
     z <- sapply(z, function(z) paste(z[!duplicated(tolower(z))], 
         collapse = y))
