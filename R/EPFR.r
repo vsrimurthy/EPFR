@@ -7984,7 +7984,7 @@ portfolio.residual <- function (x, y)
 #' position.floPct
 #' 
 #' Latest four-week flow percentage
-#' @param x = a file (strategy)
+#' @param x = a file (strategy name or path)
 #' @param y = a string vector (to subset to, can be missing)
 #' @param n = last publication date
 #' @keywords position.floPct
@@ -7992,7 +7992,8 @@ portfolio.residual <- function (x, y)
 
 position.floPct <- function (x, y, n) 
 {
-    x <- strat.path(x, "daily")
+    if (!file.exists(x)) 
+        x <- strat.path(x, "daily")
     x <- multi.asset(x)
     if (all(n != rownames(x))) {
         cat("Date", n, "not recognized! No output will be published ..\n")

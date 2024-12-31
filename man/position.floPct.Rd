@@ -7,7 +7,7 @@
 position.floPct(x, y, n)
 }
 \arguments{
-\item{x}{= a file (strategy)}
+\item{x}{= a file (strategy name or path)}
 
 \item{y}{= a string vector (to subset to, can be missing)}
 
