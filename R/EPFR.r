@@ -8842,26 +8842,38 @@ refresh.predictors <- function (fcn, x, y, n = list())
 
 refresh.predictors.append <- function (x, y) 
 {
-    if (dim(y)[2] != dim(x)[2]) 
-        stop("Problem 3")
-    if (any(!is.element(colnames(y), colnames(x)))) 
-        stop("Problem 4")
-    z <- y[, colnames(x)]
-    w <- is.element(rownames(z), rownames(x))
-    if (sum(w) != 1) 
-        stop("Problem 5")
-    m <- data.frame(unlist(z[w, ]), unlist(x[rownames(z)[w], 
-        ]), stringsAsFactors = F)
-    m <- correl(m[, 1], m[, 2])
-    m <- zav(m)
-    if (m < 0.9) 
-        stop("Problem: Correlation between new and old data is", 
-            round(100 * m), "!")
-    z <- rbind(x, z[!w, ])
-    z <- z[order(rownames(z)), ]
-    last.date <- rownames(z)[dim(z)[1]]
-    cat("Final data have", dim(z)[1], "rows ending at", last.date, 
-        "..\n")
+    if (all(is.element(colnames(y), colnames(x)))) {
+        z <- y[, colnames(x)]
+    }
+    else {
+        cat("\n\tProblem: Missing columns in new data!\n")
+        z <- NULL
+    }
+    if (!is.null(z)) {
+        w <- is.element(rownames(z), rownames(x))
+        if (sum(w) != 1) {
+            cat("\n\tProblem: Time overlap of precisely one period not satisfied!\n")
+            z <- NULL
+        }
+    }
+    if (!is.null(z)) {
+        m <- data.frame(unlist(z[w, ]), unlist(x[rownames(z)[w], 
+            ]), stringsAsFactors = F)
+        m <- correl(m[, 1], m[, 2])
+        m <- zav(m)
+        if (m < 0.9) {
+            cat("\n\tProblem: Correlation between new and old data is", 
+                round(100 * m), "!\n")
+            z <- NULL
+        }
+    }
+    if (!is.null(z)) {
+        z <- rbind(x, z[!w, ])
+        z <- z[order(rownames(z)), ]
+        last.date <- rownames(z)[dim(z)[1]]
+        cat("Final data have", dim(z)[1], "rows ending at", last.date, 
+            "..\n")
+    }
     z
 }
 
