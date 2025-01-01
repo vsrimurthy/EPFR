@@ -11284,11 +11284,11 @@ sql.1dFundCt <- function (x, y, n, w, h, u = F)
     if (n != "All") 
         n <- list(A = sql.in("h.HSecurityId", sql.RDSuniv(n)))
     else n <- list()
-    n[[LETTERS[length(n) + 1]]] <- paste0("h.ReportDate = '", 
+    n[[col.ex.int(length(n) + 1)]] <- paste0("h.ReportDate = '", 
         mo.end, "'")
-    n[[LETTERS[length(n) + 1]]] <- x
+    n[[col.ex.int(length(n) + 1)]] <- x
     if (y$filter != "All") 
-        n[[LETTERS[length(n) + 1]]] <- sql.FundHistory.sf(y$filter)
+        n[[col.ex.int(length(n) + 1)]] <- sql.FundHistory.sf(y$filter)
     if (length(n) == 1) 
         n <- n[[1]]
     else n <- sql.and(n)
@@ -11841,10 +11841,10 @@ sql.1mFundCt <- function (x, y, n, w, h, u = 0, v = "All", g = F)
     if (n != "All") 
         n <- list(A = sql.in("h.HSecurityId", sql.RDSuniv(n)))
     else n <- list()
-    n[[LETTERS[length(n) + 1]]] <- "ReportDate = @dy"
-    for (k in setdiff(y$filter, "All")) n[[LETTERS[length(n) + 
-        1]]] <- sql.FundHistory.sf(k)
-    n[[LETTERS[length(n) + 1]]] <- sql.in("his.HFundId", sql.tbl("HFundId", 
+    n[[col.ex.int(length(n) + 1)]] <- "ReportDate = @dy"
+    for (k in setdiff(y$filter, "All")) n[[col.ex.int(length(n) + 
+        1)]] <- sql.FundHistory.sf(k)
+    n[[col.ex.int(length(n) + 1)]] <- sql.in("his.HFundId", sql.tbl("HFundId", 
         "MonthlyData", v))
     n <- sql.and(n)
     if (h == "GeoId") 
@@ -11917,9 +11917,9 @@ sql.1mHoldAum <- function (x, y, n, w, h, u = F)
     if (n != "All") 
         n <- list(A = sql.in("h.HSecurityId", sql.RDSuniv(n)))
     else n <- list()
-    n[[LETTERS[length(n) + 1]]] <- "ReportDate = @dy"
-    for (k in setdiff(y$filter, "All")) n[[LETTERS[length(n) + 
-        1]]] <- sql.FundHistory.sf(k)
+    n[[col.ex.int(length(n) + 1)]] <- "ReportDate = @dy"
+    for (k in setdiff(y$filter, "All")) n[[col.ex.int(length(n) + 
+        1)]] <- sql.FundHistory.sf(k)
     n <- sql.and(n)
     if (h == "GeoId") 
         z <- "GeoId = GeographicFocus"
@@ -12109,7 +12109,7 @@ sql.Allocation.Sec <- function (x, y = NULL, n = "All")
     z <- sql.unbracket(sql.Allocation(r, "Sector", y, n, sql.and(x)))
     z <- c("insert into", paste0("\t#SEC (", paste(r, collapse = ", "), 
         ")"), z)
-    x[[LETTERS[length(x) + 1]]] <- "IndustryId = 20"
+    x[[col.ex.int(length(x) + 1)]] <- "IndustryId = 20"
     h <- ifelse(r == "SectorId", "IndustryId", r)
     v <- sql.unbracket(sql.Allocation(h, "Industry", y, n, sql.and(x)))
     z <- c(z, "", "insert into", paste0("\t#SEC (", paste(r, 
@@ -12348,10 +12348,10 @@ sql.Bullish <- function (x, y, n, w)
         ")"))
     h <- list(A = paste0("ReportDate = '", x, "'"))
     if (n != "All") 
-        h[[LETTERS[length(h) + 1]]] <- sql.in("HSecurityId", 
+        h[[col.ex.int(length(h) + 1)]] <- sql.in("HSecurityId", 
             sql.RDSuniv(n))
     if (y$filter != "All") 
-        h[[LETTERS[length(h) + 1]]] <- sql.in("HFundId", sql.FundHistory(y$filter, 
+        h[[col.ex.int(length(h) + 1)]] <- sql.in("HFundId", sql.FundHistory(y$filter, 
             T))
     h <- sql.and(h)
     z <- c(z, sql.unbracket(sql.tbl(cols, "Holdings", h)), "")
@@ -13029,14 +13029,14 @@ sql.FundHistory.sf <- function (x)
     z <- list()
     for (h in x) {
         if (any(h == names(n))) {
-            z[[LETTERS[length(z) + 1]]] <- n[h]
+            z[[col.ex.int(length(z) + 1)]] <- n[h]
         }
         else if (h == "CBE") {
-            z[[LETTERS[length(z) + 1]]] <- c("(", sql.and(sql.cross.border(T), 
+            z[[col.ex.int(length(z) + 1)]] <- c("(", sql.and(sql.cross.border(T), 
                 "or"), ")")
         }
         else {
-            z[[LETTERS[length(z) + 1]]] <- h
+            z[[col.ex.int(length(z) + 1)]] <- h
         }
     }
     z
@@ -13726,7 +13726,7 @@ sql.ShsSurp <- function (x, y, n, w)
     if (n != "All") 
         n <- list(A = sql.in("HSecurityId", sql.RDSuniv(n)))
     else n <- list()
-    n[[LETTERS[length(n) + 1]]] <- "AssetsEnd > 0"
+    n[[col.ex.int(length(n) + 1)]] <- "AssetsEnd > 0"
     z <- c("SecurityId", "HSecurityId", "SharesHeld = sum(SharesHeld)")
     z <- c(z, "Flow = sum(Flow * HoldingValue/AssetsEnd)")
     h <- c("#NEWHLD t1", "inner join", "#NEWAUM t2 on t2.FundId = t1.FundId")
@@ -13840,7 +13840,7 @@ sql.TopDownAllocs <- function (x, y, n, w, h, u = F)
     if (n == "All") 
         n <- list()
     else n <- list(A = sql.in("HSecurityId", sql.RDSuniv(n)))
-    n[[LETTERS[length(n) + 1]]] <- g
+    n[[col.ex.int(length(n) + 1)]] <- g
     n <- sql.and(n)
     r <- sql.FundHistory(y$filter, T, c("FundId", sql.breakdown(h)))
     r <- c("inner join", sql.label(r, "t2"), "\ton t2.HFundId = t1.HFundId")
