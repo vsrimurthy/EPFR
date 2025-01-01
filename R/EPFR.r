@@ -660,8 +660,11 @@ bbk.data <- function (x, y, n, w, h, u, v, g, r, s)
     if (!ascending(rownames(x))) 
         stop("Flows are crap")
     if (any(yyyymm.lag(rownames(x)[dim(x)[1]], dim(x)[1]:1 - 
-        1, F) != rownames(x))) 
-        stop("Missing flow dates")
+        1, F) != rownames(x))) {
+        err.raise(setdiff(yyyymm.lag(rownames(x)[dim(x)[1]], 
+            dim(x)[1]:1 - 1, F), rownames(x)), T, "Following flow dates are missing")
+        stop("Problem!")
+    }
     if (!ascending(rownames(y))) 
         stop("Returns are crap")
     if (any(yyyymm.lag(rownames(y)[dim(y)[1]], dim(y)[1]:1 - 
