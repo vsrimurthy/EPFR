@@ -14476,10 +14476,10 @@ stratrets.returns <- function (x)
     }
     else if (x == "FX") {
         z <- paste0(fcn.dir(), "\\New Model Concept\\FX\\FloMo\\csv")
-        z <- parameters.ex.file(z, "ExchRates-pseudo.csv")
+        z <- parameters.ex.file(z, "ExchRates.csv")
         z <- 1/mat.read(z)
+        z$CNY <- zav(z$CNH, z$CNY)
         z$USD <- rep(1, dim(z)[1])
-        z[, "XDR"] <- rowMeans(z[, c("USD", "EUR")])
         z <- z/z[, "XDR"]
     }
     else if (x == "Multi") {
