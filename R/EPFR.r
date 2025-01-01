@@ -12994,20 +12994,22 @@ sql.FundHistory.macro <- function (x)
     z <- list()
     for (y in x) {
         if (any(y == names(n))) {
-            z[[LETTERS[length(z) + 1]]] <- n[y]
+            z[[col.ex.int(length(z) + 1)]] <- n[y]
         }
         else if (y == "CB") {
-            z[[LETTERS[length(z) + 1]]] <- c("(", sql.and(sql.cross.border(F), 
+            z[[col.ex.int(length(z) + 1)]] <- c("(", sql.and(sql.cross.border(F), 
                 "or"), ")")
         }
         else if (y == "UI") {
-            z[[LETTERS[length(z) + 1]]] <- sql.ui()
+            z[[col.ex.int(length(z) + 1)]] <- sql.ui()
         }
         else if (y == "Foreign") {
-            z <- c(z, sql.Foreign())
+            h <- sql.Foreign()
+            names(h) <- col.ex.int(length(z) + seq_along(h))
+            z <- c(z, h)
         }
         else {
-            z[[LETTERS[length(z) + 1]]] <- y
+            z[[col.ex.int(length(z) + 1)]] <- y
         }
     }
     z
