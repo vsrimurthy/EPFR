@@ -14473,7 +14473,7 @@ stratrets.returns <- function (x)
     else if (x == "Commodity") {
         z <- paste0(fcn.dir(), "\\New Model Concept\\Commodity\\FloMo\\csv")
         z <- parameters.ex.file(z, "S&P GSCI ER.csv")
-        z <- mat.read(z)[, c("SPGSENP", "SPGSGCP", "SPGSSIP", 
+        z <- mat.read(z)[, c("SPGSENP", "SPGSGCP", "SPGCSIP", 
             "SPGSAGP")]
         colnames(z) <- c("Energy", "Gold", "Silver", "AG")
     }
