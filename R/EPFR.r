@@ -6900,9 +6900,10 @@ mk.1wFloMo.CtryFlow.local <- function (x, y, n, w, h, u = T)
 
 mk.1wFloMo.CtryFlow.rslt <- function (x) 
 {
+    x[["CBA"]] <- as.matrix(zav(x[["CBA"]]))
     fcn <- function(z) {
         z <- zav(map.rname(mat.index(z), colnames(x[["CBA"]])))
-        z <- 0.01 * as.matrix(x[["CBA"]]) %*% as.matrix(z)
+        z <- 0.01 * x[["CBA"]] %*% as.matrix(z)
         z <- map.rname(z, x[["MAP"]][, 2])
         z
     }
