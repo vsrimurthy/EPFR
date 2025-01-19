@@ -6806,12 +6806,12 @@ mk.1wFloMo.CtryFlow.data <- function (x, y, n, w, h, u, v)
 #' @param n = a string vector (Flow/AssetsStart/AssetsEnd/PortfolioChange)
 #' @param w = a string (one of Ctry/LatAm)
 #' @param h = a connection string/connection
-#' @param u = a boolean (weekly/daily)
+#' @param u = a frequency (T/F for daily/weekly or D/W/M)
 #' @keywords mk.1wFloMo.CtryFlow.local
 #' @export
 #' @family mk
 
-mk.1wFloMo.CtryFlow.local <- function (x, y, n, w, h, u = T) 
+mk.1wFloMo.CtryFlow.local <- function (x, y, n, w, h, u = "W") 
 {
     s <- yyyymm.to.day(yyyymmdd.to.AllocMo.unique(x, 23, F))
     h <- sql.connect.wrapper(h)
@@ -6830,7 +6830,7 @@ mk.1wFloMo.CtryFlow.local <- function (x, y, n, w, h, u = T)
             "or"), ")")))
         z <- paste(z, collapse = "\n")
         z <- sql.Flow(r, list(A = "@floDt"), c(y, z, "UI"), "GeographicFocus", 
-            !u, "GeographicFocus")
+            u, "GeographicFocus")
         z <- sql.declare.wrapper("@floDt", j, z)
         rslt[["SCF"]][[j]] <- sql.query.underlying(z, h$conn, 
             F)
@@ -6840,7 +6840,7 @@ mk.1wFloMo.CtryFlow.local <- function (x, y, n, w, h, u = T)
     r <- c(v, paste0(n, " = sum(", n, ")"))
     for (j in x) {
         z <- sql.Flow(r, list(A = "@floDt"), c(y, "CB", "UI"), 
-            v, !u, paste(v, collapse = ", "))
+            v, u, paste(v, collapse = ", "))
         z <- sql.declare.wrapper("@floDt", j, z)
         rslt[["CBF"]][[j]] <- sql.query.underlying(z, h$conn, 
             F)

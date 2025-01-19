@@ -4,7 +4,7 @@
 \alias{mk.1wFloMo.CtryFlow.local}
 \title{mk.1wFloMo.CtryFlow.local}
 \usage{
-mk.1wFloMo.CtryFlow.local(x, y, n, w, h, u = T)
+mk.1wFloMo.CtryFlow.local(x, y, n, w, h, u = "W")
 }
 \arguments{
 \item{x}{= a YYYYMMDD}
@@ -17,7 +17,7 @@ mk.1wFloMo.CtryFlow.local(x, y, n, w, h, u = T)
 
 \item{h}{= a connection string/connection}
 
-\item{u}{= a boolean (weekly/daily)}
+\item{u}{= a frequency (T/F for daily/weekly or D/W/M)}
 }
 \description{
 Country flows using locally-domiciled funds only
