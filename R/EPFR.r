@@ -3510,12 +3510,18 @@ file.time <- function (x)
 
 file.to.last <- function (x) 
 {
-    x <- scan(x, sep = ",", what = "", flush = T, quiet = T)
-    z <- tail(x, 1)
-    cat("Original data had", length(x) - 1, "rows ending at", 
-        z, "..\n")
-    if (nchar(z) == 6) 
-        z <- yyyymm.to.day(z)
+    if (file.exists(x)) {
+        x <- scan(x, sep = ",", what = "", flush = T, quiet = T)
+        z <- tail(x, 1)
+        cat("Original data had", length(x) - 1, "rows ending at", 
+            z, "..\n")
+        if (nchar(z) == 6) 
+            z <- yyyymm.to.day(z)
+    }
+    else {
+        cat("File", x, "does not exist!\n")
+        z <- "10661014"
+    }
     z
 }
 
