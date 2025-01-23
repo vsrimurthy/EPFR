@@ -14544,6 +14544,7 @@ stratrets.subset <- function (x, y)
         y <- gsub("..$", "", y)
         z <- stratrets.subset.Ctry(x, y)
         z <- unique(Ctry.info(z, "Curr"))
+        z <- setdiff(z, "KWD")
         if (is.element(y, "EM")) 
             z <- setdiff(z, c("USD", "EUR"))
     }
