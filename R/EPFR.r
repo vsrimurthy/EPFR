@@ -6747,17 +6747,18 @@ mk.1mFloMo.Ctry <- function (x, y, n, w, h = "E")
 #' @param w = a string (one of Ctry/LatAm)
 #' @param h = a connection string/connection
 #' @param u = a frequency (T/F for daily/weekly or D/W/M)
+#' @param v = a boolean (institutional/all share classes)
 #' @keywords mk.1wFloMo.CtryFlow
 #' @export
 #' @family mk
 
-mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = "W") 
+mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = "W", v = F) 
 {
     w <- sql.1dFloMo.CountryId.List(w)
     w <- Ctry.info(w, c("GeoId", "CountryId"))
     colnames(w)[1] <- "GeographicFocus"
     z <- list(MAP = w)
-    z <- mk.1wFloMo.CtryFlow.data(x, y, n, z, h, u, "CB")
+    z <- mk.1wFloMo.CtryFlow.data(x, y, n, z, h, u, "CB", v)
     z <- mk.1wFloMo.CtryFlow.rslt(z)
     z
 }
@@ -6772,11 +6773,12 @@ mk.1wFloMo.CtryFlow <- function (x, y, n, w, h, u = "W")
 #' @param h = a connection string/connection
 #' @param u = a frequency (T/F for daily/weekly or D/W/M)
 #' @param v = a filter (to define cross-border funds)
+#' @param g = a boolean (institutional/all share classes)
 #' @keywords mk.1wFloMo.CtryFlow.data
 #' @export
 #' @family mk
 
-mk.1wFloMo.CtryFlow.data <- function (x, y, n, w, h, u, v) 
+mk.1wFloMo.CtryFlow.data <- function (x, y, n, w, h, u, v, g) 
 {
     h <- sql.connect.wrapper(h)
     if (u == "M") 
@@ -6786,13 +6788,13 @@ mk.1wFloMo.CtryFlow.data <- function (x, y, n, w, h, u, v)
     z <- paste(w$MAP[!is.na(w$MAP[, 1]), 1], collapse = ", ")
     z <- c(y, paste0(colnames(w$MAP)[1], " in (", z, ")"), "UI")
     w[["SCF"]] <- lapply(w[["SCF"]], function(l) sql.CtryFlow.Flow(l, 
-        n, colnames(w$MAP)[1], u, z))
+        n, colnames(w$MAP)[1], u, z, g))
     w[["SCF"]] <- lapply(w[["SCF"]], function(z) sql.query.underlying(z, 
         h$conn, F))
     w[["CBF"]] <- vec.to.list(x, T)
     z <- c(y, v, "UI")
     w[["CBF"]] <- lapply(w[["CBF"]], function(l) sql.CtryFlow.Flow(l, 
-        n, "GeographicFocus", u, z))
+        n, "GeographicFocus", u, z, g))
     w[["CBF"]] <- lapply(w[["CBF"]], function(z) sql.query.underlying(z, 
         h$conn, F))
     n <- gsub("..$", "", colnames(w$MAP)[2])
@@ -6946,7 +6948,7 @@ mk.1wFloMo.IndyFlow <- function (x, y, n, w, h = T)
     z <- list(MAP = mk.1wFloMo.IndyFlow.map(h, T))
     v <- paste(z$MAP[!is.na(z$MAP[, 1]), 1], collapse = ", ")
     v <- paste0(colnames(z$MAP)[1], " not in (", v, ")")
-    z <- mk.1wFloMo.CtryFlow.data(x, "E", y, z, n, w, v)
+    z <- mk.1wFloMo.CtryFlow.data(x, "E", y, z, n, w, v, F)
     z <- mk.1wFloMo.CtryFlow.rslt(z)
     z
 }
@@ -12568,14 +12570,21 @@ sql.CtryFlow.Alloc <- function (x, y, n, w, h)
 #' @param n = a column vector (must be in FundHistory!)
 #' @param w = a frequency (T/F for daily/weekly or D/W/M)
 #' @param h = a filter vector
+#' @param u = a boolean (institutional/all share classes)
 #' @keywords sql.CtryFlow.Flow
 #' @export
 #' @family sql
 
-sql.CtryFlow.Flow <- function (x, y, n, w, h) 
+sql.CtryFlow.Flow <- function (x, y, n, w, h, u) 
 {
     y <- c(n, paste0(y, " = sum(", y, ")"))
-    z <- sql.Flow(y, list(A = "@floDt"), h, n, w, paste(n, collapse = ", "))
+    if (u) {
+        u <- list(A = "@floDt")
+        u[["B"]] <- sql.in("SCID", sql.tbl("SCID", "ShareClass", 
+            "InstOrRetail = 'Inst'"))
+    }
+    else u <- list(A = "@floDt")
+    z <- sql.Flow(y, u, h, n, w, paste(n, collapse = ", "))
     z <- sql.declare.wrapper("@floDt", x, z)
     z
 }

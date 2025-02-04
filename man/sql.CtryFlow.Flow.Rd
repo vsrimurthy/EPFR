@@ -4,7 +4,7 @@
 \alias{sql.CtryFlow.Flow}
 \title{sql.CtryFlow.Flow}
 \usage{
-sql.CtryFlow.Flow(x, y, n, w, h)
+sql.CtryFlow.Flow(x, y, n, w, h, u)
 }
 \arguments{
 \item{x}{= a YYYYMMDD}
@@ -16,6 +16,8 @@ sql.CtryFlow.Flow(x, y, n, w, h)
 \item{w}{= a frequency (T/F for daily/weekly or D/W/M)}
 
 \item{h}{= a filter vector}
+
+\item{u}{= a boolean (institutional/all share classes)}
 }
 \description{
 SQL query for single-group flows

@@ -4,7 +4,7 @@
 \alias{mk.1wFloMo.CtryFlow.data}
 \title{mk.1wFloMo.CtryFlow.data}
 \usage{
-mk.1wFloMo.CtryFlow.data(x, y, n, w, h, u, v)
+mk.1wFloMo.CtryFlow.data(x, y, n, w, h, u, v, g)
 }
 \arguments{
 \item{x}{= a month end/flowdate/YYYYMMDD}
@@ -20,6 +20,8 @@ mk.1wFloMo.CtryFlow.data(x, y, n, w, h, u, v)
 \item{u}{= a frequency (T/F for daily/weekly or D/W/M)}
 
 \item{v}{= a filter (to define cross-border funds)}
+
+\item{g}{= a boolean (institutional/all share classes)}
 }
 \description{
 data for country-flow computation

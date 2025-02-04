@@ -4,7 +4,7 @@
 \alias{mk.1wFloMo.CtryFlow}
 \title{mk.1wFloMo.CtryFlow}
 \usage{
-mk.1wFloMo.CtryFlow(x, y, n, w, h, u = "W")
+mk.1wFloMo.CtryFlow(x, y, n, w, h, u = "W", v = F)
 }
 \arguments{
 \item{x}{= a flowdate/month end}
@@ -18,6 +18,8 @@ mk.1wFloMo.CtryFlow(x, y, n, w, h, u = "W")
 \item{h}{= a connection string/connection}
 
 \item{u}{= a frequency (T/F for daily/weekly or D/W/M)}
+
+\item{v}{= a boolean (institutional/all share classes)}
 }
 \description{
 Country flows using all funds
