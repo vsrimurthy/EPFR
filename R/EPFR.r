@@ -8780,6 +8780,24 @@ record.track.target <- function (x, y, n)
     z[w, "target"] <- publish.monthly.last(x, 26)
     z[w, "today"] <- publish.monthly.last(x, 26) > publish.monthly.last(flowdate.lag(x, 
         1), 26)
+    w <- z[, "entry"] == "bond" & z[, "freq"] == "M"
+    h <- paste0(fcn.dir(), "\\New Model Concept\\BondFlows\\BondHoldingsPIT")
+    u <- dir(h, "^BondHoldingsPIT-\\d{8}\\.txt$")
+    u <- max(gsub("^BondHoldingsPIT-|\\.txt$", "", u))
+    z[w, "target"] <- rep(u, sum(w))
+    u <- paste0(h, "\\BondHoldingsPIT-", u, ".txt")
+    u <- today() == file.date(u)
+    z[w, "today"] <- rep(u, sum(w))
+    w <- z[, "entry"] == "hedge" & z[, "freq"] == "M"
+    h <- paste0(fcn.dir(), "\\New Model Concept\\HedgeFunds\\raw")
+    u <- dir(h, "^HedgeFundFlowsMonthlyFundLevelAll_\\d{8}\\.txt$")
+    u <- max(gsub("^HedgeFundFlowsMonthlyFundLevelAll_|\\.txt$", 
+        "", u))
+    z[w, "target"] <- rep(u, sum(w))
+    u <- paste0(h, "\\HedgeFundFlowsMonthlyFundLevelAll_", u, 
+        ".txt")
+    u <- today() == file.date(u)
+    z[w, "today"] <- rep(u, sum(w))
     w <- z[, "entry"] == "alloc" & z[, "freq"] == "M"
     z[w, "target"] <- publish.monthly.last(x, 23)
     z[w, "today"] <- publish.monthly.last(x, 23) > publish.monthly.last(flowdate.lag(x, 
