@@ -13,7 +13,7 @@ load.mo.vbl.1obj(fcn, x, y, n, w, h, u)
 
 \item{y}{= a YYYYMM}
 
-\item{n}{= passed down to <mk.fcn>}
+\item{n}{= passed down to <fcn>}
 
 \item{w}{= a string (name to store variable under)}
 

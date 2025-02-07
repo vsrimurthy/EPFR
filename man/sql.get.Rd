@@ -4,7 +4,7 @@
 \alias{sql.get}
 \title{sql.get}
 \usage{
-sql.get(fcn, x, y, n, w = NULL)
+sql.get(fcn, x, y, n, w = NULL, h = T)
 }
 \arguments{
 \item{fcn}{= a fetch function}
@@ -16,6 +16,8 @@ sql.get(fcn, x, y, n, w = NULL)
 \item{n}{= an integer (max queries using same connection)}
 
 \item{w}{= argument passed down to <fcn>}
+
+\item{h}{= a boolean (loud/quiet)}
 }
 \description{
 gets data using <fcn>
@@ -51,7 +53,7 @@ Other sql: \code{\link{sql.1dActWtTrend.Alloc}},
   \code{\link{sql.1mAllocD.data.underlying}},
   \code{\link{sql.1mAllocD.data}},
   \code{\link{sql.1mAllocD.select}},
-  \code{\link{sql.1mAllocD}},
+  \code{\link{sql.1mAllocD}}, \code{\link{sql.1mAllocMo}},
   \code{\link{sql.1mAllocSkew.topline.from}},
   \code{\link{sql.1mAllocSkew.topline}},
   \code{\link{sql.1mAllocSkew.underlying.basic}},

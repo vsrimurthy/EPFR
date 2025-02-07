@@ -5361,7 +5361,7 @@ load.mo.vbl <- function (fcn, x, y, n, w, h, u)
 #' @param fcn = a function
 #' @param x = a YYYYMM
 #' @param y = a YYYYMM
-#' @param n = passed down to <mk.fcn>
+#' @param n = passed down to <fcn>
 #' @param w = a string (name to store variable under)
 #' @param h = the period for which the object is to be made
 #' @param u = a StockFlows environment
@@ -5371,17 +5371,30 @@ load.mo.vbl <- function (fcn, x, y, n, w, h, u)
 
 load.mo.vbl.1obj <- function (fcn, x, y, n, w, h, u) 
 {
-    z <- paste(w, 1:12, sep = ".")
-    z <- matrix(NA, dim(u$classif)[1], length(z), F, list(rownames(u$classif), 
-        z))
-    mm <- 1:12
-    mm <- mm[100 * h + mm >= x]
-    mm <- mm[100 * h + mm <= y]
-    for (i in mm) {
-        cat(i, "")
-        z[, paste(w, i, sep = ".")] <- fcn(as.character(100 * 
-            h + i), n, u)
+    z <- vec.to.list(1:12, T)
+    names(z) <- paste0(w, ".", names(z))
+    z <- lapply(z, function(z) as.character(100 * h + z))
+    x <- yyyymm.seq(x, y)
+    x <- sapply(z, function(z) is.element(z, x))
+    if (any(!x)) 
+        z[!x] <- lapply(z[!x], function(z) rep(NA, dim(u$classif)[1]))
+    for (y in names(z)[x]) {
+        cat(gsub(paste0("^", w, "."), "", y), "")
+        z[[y]] <- fcn(z[[y]], n, u)
     }
+    if (any(sapply(z, length) != dim(u$classif)[1])) {
+        z[x] <- sql.get(function(z, l, k) sql.query.underlying(z, 
+            k, F), z[x], u[["conn"]], 12, , F)
+        fun <- function(z) {
+            z <- mat.index(z, "SecurityId")
+            z <- map.rname(z, rownames(u[["classif"]]))
+            z <- as.numeric(z)
+            z
+        }
+        z[x] <- lapply(z[x], fun)
+    }
+    z <- simplify2array(z)
+    rownames(z) <- rownames(u$classif)
     z <- mat.ex.matrix(z)
     z
 }
@@ -6574,66 +6587,7 @@ mk.1mActPas.Sec <- function (x, y, n)
 
 mk.1mAllocMo <- function (x, y, n) 
 {
-    x <- yyyymm.lag(x, 1)
-    w <- is.element(y, c("Inst", "Retail"))
-    if (any(w)) {
-        w <- y[w][1]
-        y <- setdiff(y, w)
-    }
-    else w <- "All"
-    if (y[1] == "AllocSkew") {
-        z <- sql.1mAllocSkew(x, y, n$DB, F, w)
-    }
-    else if (y[1] == "ShsSurp") {
-        if (w != "All") 
-            stop("Bad share-class!")
-        z <- sql.ShsSurp(x, y, n$DB, F)
-    }
-    else if (y[1] == "SRIAdvisorPct") {
-        if (w != "All") 
-            stop("Bad share-class!")
-        z <- sql.1mSRIAdvisorPct(x, y, n$DB, F)
-    }
-    else if (grepl("^Flo(Dollar|Mo)$", y[1])) {
-        if (w != "All") 
-            stop("Bad share-class!")
-        z <- sql.1mHoldAum(x, y, n$DB, F, "All")
-    }
-    else if (y[1] == "Bullish") {
-        if (w != "All") 
-            stop("Bad share-class!")
-        z <- sql.Bullish(x, y, n$DB, F)
-    }
-    else if (y[1] == "Dispersion") {
-        if (w != "All") 
-            stop("Bad share-class!")
-        z <- sql.Dispersion(x, y, n$DB, F)
-    }
-    else if (grepl("^(FundCt|Herfindahl|HoldSum|SharesHeld)$", 
-        y[1])) {
-        z <- sql.1mFundCt(x, y, n$DB, F, "All", 0, w)
-    }
-    else if (grepl("^AllocD(Inc|Dec|Add|Rem)$", y[1])) {
-        if (w != "All") 
-            stop("Bad share-class!")
-        z <- sql.1mAllocD(x, y, n$DB, F, F)
-    }
-    else if (grepl("^Alloc(Diff|Trend|Mo)$", y[1])) {
-        if (w != "All") 
-            stop("Bad share-class!")
-        z <- sql.1mAllocD(x, y, n$DB, F, F, "AssetsStart", F, 
-            "All", F)
-    }
-    else if (grepl("^[FS]wtd(In|Ex)0$", y[1])) {
-        if (w != "All") 
-            stop("Bad share-class!")
-        z <- sql.TopDownAllocs(x, y, n$DB, F, "All")
-    }
-    else {
-        stop("Bad Factor")
-    }
-    z <- sql.map.classif(z, n$conn, n$classif)
-    z
+    sql.map.classif(sql.1mAllocMo(x, y, n), n$conn, n$classif)
 }
 
 #' mk.1mBullish.Ctry
@@ -11631,6 +11585,79 @@ sql.1mAllocD.select <- function (x)
     z
 }
 
+#' sql.1mAllocMo
+#' 
+#' Returns a flow variable with the same row space as <n>
+#' @param x = a YYYYMM
+#' @param y = factors and filters
+#' @param n = a StockFlows environment
+#' @keywords sql.1mAllocMo
+#' @export
+#' @family sql
+
+sql.1mAllocMo <- function (x, y, n) 
+{
+    x <- yyyymm.lag(x, 1)
+    w <- is.element(y, c("Inst", "Retail"))
+    if (any(w)) {
+        w <- y[w][1]
+        y <- setdiff(y, w)
+    }
+    else w <- "All"
+    if (y[1] == "AllocSkew") {
+        z <- sql.1mAllocSkew(x, y, n$DB, F, w)
+    }
+    else if (y[1] == "ShsSurp") {
+        if (w != "All") 
+            stop("Bad share-class!")
+        z <- sql.ShsSurp(x, y, n$DB, F)
+    }
+    else if (y[1] == "SRIAdvisorPct") {
+        if (w != "All") 
+            stop("Bad share-class!")
+        z <- sql.1mSRIAdvisorPct(x, y, n$DB, F)
+    }
+    else if (grepl("^Flo(Dollar|Mo)$", y[1])) {
+        if (w != "All") 
+            stop("Bad share-class!")
+        z <- sql.1mHoldAum(x, y, n$DB, F, "All")
+    }
+    else if (y[1] == "Bullish") {
+        if (w != "All") 
+            stop("Bad share-class!")
+        z <- sql.Bullish(x, y, n$DB, F)
+    }
+    else if (y[1] == "Dispersion") {
+        if (w != "All") 
+            stop("Bad share-class!")
+        z <- sql.Dispersion(x, y, n$DB, F)
+    }
+    else if (grepl("^(FundCt|Herfindahl|HoldSum|SharesHeld)$", 
+        y[1])) {
+        z <- sql.1mFundCt(x, y, n$DB, F, "All", 0, w)
+    }
+    else if (grepl("^AllocD(Inc|Dec|Add|Rem)$", y[1])) {
+        if (w != "All") 
+            stop("Bad share-class!")
+        z <- sql.1mAllocD(x, y, n$DB, F, F)
+    }
+    else if (grepl("^Alloc(Diff|Trend|Mo)$", y[1])) {
+        if (w != "All") 
+            stop("Bad share-class!")
+        z <- sql.1mAllocD(x, y, n$DB, F, F, "AssetsStart", F, 
+            "All", F)
+    }
+    else if (grepl("^[FS]wtd(In|Ex)0$", y[1])) {
+        if (w != "All") 
+            stop("Bad share-class!")
+        z <- sql.TopDownAllocs(x, y, n$DB, F, "All")
+    }
+    else {
+        stop("Bad Factor")
+    }
+    z
+}
+
 #' sql.1mAllocSkew
 #' 
 #' SQL query for AllocSkew
@@ -13087,17 +13114,19 @@ sql.FundHistory.sf <- function (x)
 #' @param y = a connection string
 #' @param n = an integer (max queries using same connection)
 #' @param w = argument passed down to <fcn>
+#' @param h = a boolean (loud/quiet)
 #' @keywords sql.get
 #' @export
 #' @family sql
 
-sql.get <- function (fcn, x, y, n, w = NULL) 
+sql.get <- function (fcn, x, y, n, w = NULL, h = T) 
 {
     z <- list()
     conn <- sql.connect(y)
     ctr <- 0
     for (j in names(x)) {
-        cat(j, "..\n")
+        if (h) 
+            cat(j, "..\n")
         if (ctr == n) {
             close(conn)
             conn <- sql.connect(y)
