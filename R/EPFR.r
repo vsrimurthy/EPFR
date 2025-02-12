@@ -15803,13 +15803,14 @@ vec.swap <- function (x, y, n)
 
 vec.to.list <- function (x, y = F, n = F) 
 {
-    if (y & !n) {
+    if (!y) {
+        z <- split(x, seq_along(x))
+    }
+    else if (!n) {
         z <- split(x, x)
     }
     else {
-        z <- split(x, seq_along(x))
-        if (y & n) 
-            names(z) <- sapply(z, function(z) z)
+        z <- split(x, factor(x, levels = unique(x)))
     }
     z
 }
