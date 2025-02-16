@@ -5225,21 +5225,20 @@ knapsack.prev <- function (x)
 #' @param y = a string vector (binning group)
 #' @param n = an integer (beg comb)
 #' @param w = an integer (end comb)
-#' @param h = a string (log file, can be missing)
-#' @param u = an integer (sim number, can be missing)
+#' @param h = a list (result object)
+#' @param u = a string (log file, can be missing)
+#' @param v = an integer (sim number, can be missing)
 #' @keywords knapsack.process
 #' @export
 #' @family knapsack
 
-knapsack.process <- function (x, y, n, w, h, u) 
+knapsack.process <- function (x, y, n, w, h, u, v) 
 {
-    g <- !missing(h) & !missing(u)
-    z <- list(comb = knapsack.ex.int(round(n), 10, dim(x)[2] - 
-        1), tgt = 0)
-    z <- list(AnnMn = z, Sharpe = z)
+    z <- h
+    h <- !missing(u) & !missing(v)
     for (j in round(n):round(w)) {
-        v <- knapsack.ex.int(j, 10, dim(x)[2] - 1)
-        r <- as.numeric(x[, -1] %*% v)
+        g <- knapsack.ex.int(j, 10, dim(x)[2] - 1)
+        r <- as.numeric(x[, -1] %*% g)
         r <- fcn.vec.grp(qtl.fast, r, y)
         r <- pivot(mean, x[, 1], y, r)
         r <- r[, 1] - r[, 5]
@@ -5247,17 +5246,17 @@ knapsack.process <- function (x, y, n, w, h, u)
         if (any(r > sapply(z, function(z) z[["tgt"]]))) {
             if (r[1] > z[["AnnMn"]][["tgt"]]) {
                 z[["AnnMn"]][["tgt"]] <- r[1]
-                z[["AnnMn"]][["comb"]] <- v
+                z[["AnnMn"]][["comb"]] <- g
             }
             if (r[2] > z[["Sharpe"]][["tgt"]]) {
                 z[["Sharpe"]][["tgt"]] <- r[2]
-                z[["Sharpe"]][["comb"]] <- v
+                z[["Sharpe"]][["comb"]] <- g
             }
             cat(paste(round(unlist(z), 2), collapse = " "), "\n")
         }
-        if (g & j%%1000 == 0) 
+        if (h & j%%1000 == 0) 
             cat(c(j, sapply(z, function(z) knapsack.to.int(z$comb))), 
-                file = paste0(h, u, ".csv"), sep = "\n")
+                file = paste0(u, v, ".csv"), sep = "\n")
     }
     z
 }

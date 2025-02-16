@@ -4,7 +4,7 @@
 \alias{knapsack.process}
 \title{knapsack.process}
 \usage{
-knapsack.process(x, y, n, w, h, u)
+knapsack.process(x, y, n, w, h, u, v)
 }
 \arguments{
 \item{x}{= a matrix}
@@ -15,9 +15,11 @@ knapsack.process(x, y, n, w, h, u)
 
 \item{w}{= an integer (end comb)}
 
-\item{h}{= a string (log file, can be missing)}
+\item{h}{= a list (result object)}
 
-\item{u}{= an integer (sim number, can be missing)}
+\item{u}{= a string (log file, can be missing)}
+
+\item{v}{= an integer (sim number, can be missing)}
 }
 \description{
 best AnnMn/Sharpe
