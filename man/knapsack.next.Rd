@@ -16,6 +16,7 @@ next way to subdivide <sum(x)> things amongst <length(x)> people
 Other knapsack: \code{\link{knapsack.count}},
   \code{\link{knapsack.ex.int}},
   \code{\link{knapsack.prev}},
+  \code{\link{knapsack.process}},
   \code{\link{knapsack.to.int}}
 }
 \keyword{knapsack.next}

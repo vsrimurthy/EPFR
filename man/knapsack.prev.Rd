@@ -16,6 +16,7 @@ inverse of knapsack.next
 Other knapsack: \code{\link{knapsack.count}},
   \code{\link{knapsack.ex.int}},
   \code{\link{knapsack.next}},
+  \code{\link{knapsack.process}},
   \code{\link{knapsack.to.int}}
 }
 \keyword{knapsack.prev}

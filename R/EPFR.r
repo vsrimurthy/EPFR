@@ -3299,7 +3299,7 @@ fcn.to.txt <- function (x, y = F, n = F)
 #' applies <fcn> to <x> within groups <y>
 #' @param fcn = a function (to be apply within groups)
 #' @param x = a numeric vector/matrix/data frame
-#' @param y = a numeric vector (groups)
+#' @param y = a string vector (groups)
 #' @keywords fcn.vec.grp
 #' @export
 #' @family fcn
@@ -5215,6 +5215,50 @@ knapsack.prev <- function (x)
             1)
     }
     z <- x
+    z
+}
+
+#' knapsack.process
+#' 
+#' best AnnMn/Sharpe
+#' @param x = a matrix
+#' @param y = a string vector (binning group)
+#' @param n = an integer (beg comb)
+#' @param w = an integer (end comb)
+#' @param h = a string (log file, can be missing)
+#' @param u = an integer (sim number, can be missing)
+#' @keywords knapsack.process
+#' @export
+#' @family knapsack
+
+knapsack.process <- function (x, y, n, w, h, u) 
+{
+    g <- !missing(h) & !missing(u)
+    z <- list(comb = knapsack.ex.int(round(n), 10, dim(x)[2] - 
+        1), tgt = 0)
+    z <- list(AnnMn = z, Sharpe = z)
+    for (j in round(n):round(w)) {
+        v <- knapsack.ex.int(j, 10, dim(x)[2] - 1)
+        r <- as.numeric(x[, -1] %*% v)
+        r <- fcn.vec.grp(qtl.fast, r, y)
+        r <- pivot(mean, x[, 1], y, r)
+        r <- r[, 1] - r[, 5]
+        r <- c(52 * mean(r), sqrt(52) * mean(r)/sd(r))
+        if (any(r > sapply(z, function(z) z[["tgt"]]))) {
+            if (r[1] > z[["AnnMn"]][["tgt"]]) {
+                z[["AnnMn"]][["tgt"]] <- r[1]
+                z[["AnnMn"]][["comb"]] <- v
+            }
+            if (r[2] > z[["Sharpe"]][["tgt"]]) {
+                z[["Sharpe"]][["tgt"]] <- r[2]
+                z[["Sharpe"]][["comb"]] <- v
+            }
+            cat(paste(round(unlist(z), 2), collapse = " "), "\n")
+        }
+        if (g & j%%1000 == 0) 
+            cat(c(j, sapply(z, function(z) knapsack.to.int(z$comb))), 
+                file = paste0(h, u, ".csv"), sep = "\n")
+    }
     z
 }
 
@@ -7853,8 +7897,8 @@ permutations.next <- function (x)
 #' returns a table, the rows and columns of which are unique members of rowIdx and colIdx The cells of the table are the <fcn> of <x> whenever <y> and <n> take on their respective values
 #' @param fcn = a function (summary)
 #' @param x = a numeric vector
-#' @param y = a numeric vector (groups)
-#' @param n = a numeric vector (groups)
+#' @param y = a string vector (groups)
+#' @param n = a string vector (groups)
 #' @keywords pivot
 #' @export
 

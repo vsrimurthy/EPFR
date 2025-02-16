@@ -15,6 +15,7 @@ maps each particular way to subdivide <sum(x)> things #		:	amongst <length(x)> p
 \seealso{
 Other knapsack: \code{\link{knapsack.count}},
   \code{\link{knapsack.ex.int}},
-  \code{\link{knapsack.next}}, \code{\link{knapsack.prev}}
+  \code{\link{knapsack.next}}, \code{\link{knapsack.prev}},
+  \code{\link{knapsack.process}}
 }
 \keyword{knapsack.to.int}

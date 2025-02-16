@@ -19,6 +19,7 @@ inverse of knapsack.to.int; returns a vector of length <n>, #		:	the elements of
 \seealso{
 Other knapsack: \code{\link{knapsack.count}},
   \code{\link{knapsack.next}}, \code{\link{knapsack.prev}},
+  \code{\link{knapsack.process}},
   \code{\link{knapsack.to.int}}
 }
 \keyword{knapsack.ex.int}

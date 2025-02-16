@@ -11,7 +11,7 @@ fcn.vec.grp(fcn, x, y)
 
 \item{x}{= a numeric vector/matrix/data frame}
 
-\item{y}{= a numeric vector (groups)}
+\item{y}{= a string vector (groups)}
 }
 \description{
 applies <fcn> to <x> within groups <y>
