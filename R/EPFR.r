@@ -5240,8 +5240,11 @@ knapsack.process <- function (x, y, n, w, h, u, v)
         g <- knapsack.ex.int(j, 10, dim(x)[2] - 1)
         r <- as.numeric(x[, -1] %*% g)
         r <- fcn.vec.grp(qtl.fast, r, y)
-        r <- pivot(mean, x[, 1], y, r)
-        r <- r[, 1] - r[, 5]
+        s <- is.element(r, c(1, 5))
+        r <- aggregate(x = x[s, 1], by = list(row = y[s], col = r[s]), 
+            FUN = mean)
+        r <- pivot.1d(sum, r[, "row"], ifelse(is.element(r[, 
+            "col"], 1), 1, -1) * r[, "x"])
         r <- c(52 * mean(r), sqrt(52) * mean(r)/sd(r))
         if (any(r > sapply(z, function(z) z[["tgt"]]))) {
             if (r[1] > z[["AnnMn"]][["tgt"]]) {
