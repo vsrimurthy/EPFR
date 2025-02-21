@@ -4302,13 +4302,16 @@ ftp.upload <- function (x, y, n, w, h, u = "ftp", v)
     s <- ftp.parent(z)
     s <- txt.right(s, nchar(s) - nchar(y))
     s <- paste0(x, s)
-    x <- rep(F, length(z))
-    for (j in seq_along(z)) {
+    y <- length(z)
+    x <- rep(F, y)
+    j <- 1
+    while (j <= y & ifelse(j == 1, T, x[j - 1])) {
         cat(basename(z[j]), "")
         w[["x"]] <- s[j]
         w[["y"]] <- z[j]
         x[j] <- do.call(ftp.put, w)
         cat(substring(Sys.time(), 12, 16), "\n")
+        j <- j + 1
     }
     if (all(x)) {
         cat("All files successfully uploaded.\n")
