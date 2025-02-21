@@ -4298,6 +4298,7 @@ ftp.upload <- function (x, y, n, w, h, u = "ftp", v)
     w <- as.list(environment())
     w <- w[!sapply(w, is.symbol)]
     z <- dir.all.files(y, "\\.")
+    z <- z[order(file.size(z))]
     s <- ftp.parent(z)
     s <- txt.right(s, nchar(s) - nchar(y))
     s <- paste0(x, s)
