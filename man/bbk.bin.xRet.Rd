@@ -28,6 +28,6 @@ Other bbk: \code{\link{bbk.bin.rets.prd.summ}},
   \code{\link{bbk.drawdown}}, \code{\link{bbk.fwdRet}},
   \code{\link{bbk.holidays}}, \code{\link{bbk.matrix}},
   \code{\link{bbk.summ}}, \code{\link{bbk.turnover}},
-  \code{\link{bbk}}
+  \code{\link{bbk.underlying}}, \code{\link{bbk}}
 }
 \keyword{bbk.bin.xRet}

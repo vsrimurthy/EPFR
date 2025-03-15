@@ -515,8 +515,7 @@ base.to.int <- function (x, y = 26)
 bbk <- function (x, y, n = 1, w = 5, h = 5, u = NULL, v = F, g = 0, 
     r = 2, s = NULL, b = F) 
 {
-    x <- bbk.data(x, y, n, v, g, r, u, w, s, b)
-    z <- lapply(bbk.bin.xRet(x$x, x$fwdRet, h, T, T), mat.reverse)
+    z <- bbk.underlying(x, y, n, w, h, u, v, g, r, s, b, T)
     z <- c(z, bbk.summ(z$rets, z$bins, w, ifelse(is.null(u), 
         1, 5)))
     z
@@ -830,6 +829,35 @@ bbk.turnover <- function (x)
     names(z) <- paste0("Q", names(z))
     z["TxB"] <- z["Q1"] + z["Q5"]
     z["uRet"] <- 0
+    z
+}
+
+#' bbk.underlying
+#' 
+#' standard model output
+#' @param x = a matrix/data frame (predictors)
+#' @param y = a matrix/data frame (total return indices)
+#' @param n = a positive integer (flow window in days/months)
+#' @param w = a positive integer (return window in days/months)
+#' @param h = a positive integer (number of bins)
+#' @param u = a non-negative integer (0 = Sun, 1 = Mon, etc., the day you trade)
+#' @param v = a boolean (sum/compound)
+#' @param g = a non-negative integer (lag in days/months)
+#' @param r = a non-negative integer (delay in days/months)
+#' @param s = a string (index within which you trade)
+#' @param b = a boolean (spread changes/returns)
+#' @param p = a boolean (do/don't provide detail)
+#' @keywords bbk.underlying
+#' @export
+#' @family bbk
+
+bbk.underlying <- function (x, y, n = 1, w = 5, h = 5, u = NULL, v = F, g = 0, 
+    r = 2, s = NULL, b = F, p = F) 
+{
+    x <- bbk.data(x, y, n, v, g, r, u, w, s, b)
+    z <- bbk.bin.xRet(x$x, x$fwdRet, h, T, p)
+    if (p) 
+        z <- lapply(z, mat.reverse)
     z
 }
 
@@ -14412,8 +14440,7 @@ stratrets.bbk <- function (x, y, n)
     x <- stratrets.data(x, y, n)
     x[["w"]] <- ifelse(nchar(rownames(x[["x"]])[1]) == 8, 5, 
         1)
-    z <- do.call(bbk, x)[["rets"]]
-    z <- z[order(rownames(z)), ]
+    z <- do.call(bbk.underlying, x)
     z <- as.matrix(z)[, "TxB"]
     z
 }
