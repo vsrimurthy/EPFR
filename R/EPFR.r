@@ -1493,11 +1493,12 @@ compound.flows <- function (x, y, n = F)
 
 compound.sf <- function (x, y) 
 {
-    if (y) 
-        fcn <- sum
-    else fcn <- compound
     w <- is.na(x[, dim(x)[2]])
-    z <- fcn.mat.num(fcn, zav(x), , F)
+    if (!y) 
+        x <- log(1 + x/100)
+    z <- rowSums(x, na.rm = T)
+    if (!y) 
+        z <- 100 * exp(z) - 100
     z[w] <- NA
     z
 }
