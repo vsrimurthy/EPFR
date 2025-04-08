@@ -8030,32 +8030,40 @@ portfolio.residual <- function (x, y)
 #' Latest four-week flow percentage
 #' @param x = a file (strategy name or path)
 #' @param y = a string vector (to subset to, can be missing)
-#' @param n = last publication date
+#' @param n = last publication date (can be missing)
+#' @param w = an integer (size of lookback window)
+#' @param h = an integer (prior period)
+#' @param u = a boolean (sum/compound)
 #' @keywords position.floPct
 #' @export
 
-position.floPct <- function (x, y, n) 
+position.floPct <- function (x, y, n, w = 20, h = 5, u = F) 
 {
     if (!file.exists(x)) 
         x <- strat.path(x, "daily")
     x <- multi.asset(x)
+    if (missing(n)) 
+        n <- tail(rownames(x), 1)
+    if (u) 
+        fcn <- sum
+    else fcn <- compound
     if (all(n != rownames(x))) {
         cat("Date", n, "not recognized! No output will be published ..\n")
         z <- NULL
     }
     else {
-        if (rownames(x)[dim(x)[1]] != n) {
+        if (tail(rownames(x), 1) != n) {
             cat("Warning: Latest data not being used! Proceeding regardless ..\n")
             x <- x[rownames(x) <= n, ]
         }
         if (missing(y)) 
             y <- colnames(x)
         else x <- mat.subset(x, y)
-        z <- x[dim(x)[1] - 19:0, ]
-        z <- vec.named(mat.compound(t(z)), y)
+        z <- x[dim(x)[1] - w:1 + 1, ]
+        z <- vec.named(apply(z, 2, fcn), y)
         z <- z[order(-z)]
-        x <- x[dim(x)[1] - 19:0 - 5, ]
-        x <- vec.named(mat.compound(t(x)), y)
+        x <- x[dim(x)[1] - w:1 + 1 - h, ]
+        x <- vec.named(apply(x, 2, fcn), y)
         x <- map.rname(x, names(z))
         x <- rank(z) - rank(x)
         y <- vec.named(qtl.eq(z), names(z))
