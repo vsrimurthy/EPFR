@@ -6134,7 +6134,7 @@ mk.1dActWtTrend.Sec <- function (x, y, n, w = "E")
 mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E", v = F, g = F) 
 {
     if (h == "M") 
-        s <- x
+        s <- yyyymmdd.to.yyyymm(x)
     else s <- yyyymmdd.to.AllocMo.unique(x, 23, F)
     n <- sql.1dFloMo.CountryId.List(n, x)
     if (v) 
@@ -15699,7 +15699,7 @@ variance.ratio.test <- function (x, y)
 
 vec.cat <- function (x) 
 {
-    cat(paste(x, collapse = "\n"), "\n")
+    writeLines(as.character(x))
 }
 
 #' vec.count
