@@ -14498,7 +14498,13 @@ stratrets.data <- function (x, y, n)
         0, h[x, "sec"] == 1, h[x, "delay"])
     if (!is.na(h[x, "sub"])) 
         z <- stratrets.subset(z, h[x, "sub"])
-    z <- list(x = z, y = stratrets.returns(h[x, "rets"])[, colnames(z)])
+    z <- list(x = z, y = stratrets.returns(h[x, "rets"]))
+    w <- !is.element(colnames(z[["x"]]), colnames(z[["y"]]))
+    if (any(w)) {
+        err.raise(colnames(z[["x"]])[w], F, "No returns for the following")
+        z[["x"]] <- z[["x"]][, !w]
+    }
+    z[["y"]] <- z[["y"]][, colnames(z[["x"]])]
     if (nchar(rownames(z[["x"]])[1]) == 6) 
         z[["y"]] <- mat.daily.to.monthly(z[["y"]], T)
     if (!is.na(h[x, "beta"])) 
@@ -14607,6 +14613,11 @@ stratrets.returns <- function (x)
     if (x == "Ctry") {
         z <- paste0(fcn.dir(), "\\New Model Concept\\Ctry\\FloMo\\csv")
         z <- parameters.ex.file(z, "OfclMsciTotRetIdx.csv")
+        z <- mat.read(z)
+    }
+    else if (x == "IGBond") {
+        z <- paste0(fcn.dir(), "\\New Model Concept\\Ctry\\FloMo\\csv")
+        z <- parameters.ex.file(z, "IG Bond Indices.csv")
         z <- mat.read(z)
     }
     else if (x == "China") {
