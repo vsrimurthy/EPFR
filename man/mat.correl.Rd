@@ -7,12 +7,12 @@
 mat.correl(x, y)
 }
 \arguments{
-\item{x}{= a numeric vector/matrix/data frame}
+\item{x}{= a matrix/data frame}
 
-\item{y}{= a numeric vector/matrix/data frame}
+\item{y}{= a numeric vector}
 }
 \description{
-Returns the correlation of <x> & <y> if <x> is a numeric vector or those between the rows of <x> and <y> otherwise
+fast correlation of <y> & with columns of <x>
 }
 \seealso{
 Other mat: \code{\link{mat.compound}},

@@ -5591,16 +5591,24 @@ mat.compound <- function (x)
 
 #' mat.correl
 #' 
-#' Returns the correlation of <x> & <y> if <x> is a numeric vector or those between the rows of <x> and <y> otherwise
-#' @param x = a numeric vector/matrix/data frame
-#' @param y = a numeric vector/matrix/data frame
+#' fast correlation of <y> & with columns of <x>
+#' @param x = a matrix/data frame
+#' @param y = a numeric vector
 #' @keywords mat.correl
 #' @export
 #' @family mat
 
 mat.correl <- function (x, y) 
 {
-    fcn.mat.num(correl, x, y, F)
+    y <- rank(y)
+    x <- apply(x, 2, rank)
+    y <- y - (dim(x)[1] + 1)/2
+    x <- x - (dim(x)[1] + 1)/2
+    z <- as.numeric(crossprod(x, y)[, 1])
+    x <- as.numeric(sqrt(colSums(x^2)))
+    y <- sqrt(sum(y^2))
+    z <- z/(y * x)
+    z
 }
 
 #' mat.count
