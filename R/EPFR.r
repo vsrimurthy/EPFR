@@ -72,6 +72,26 @@ sql.query.underlying <- function (x, y, n = T)
     z
 }
 
+#' graph
+#' 
+#' line plot
+#' @param x = a matrix/data frame
+#' @keywords graph
+#' @export
+#' @import graphics
+
+graph <- function (x) 
+{
+    z <- farben(dim(x)[2], T)
+    plot(day.to.date(rownames(x)), x[, 1], type = "l", col = z[1], 
+        xlab = "", ylab = "")
+    for (j in 2:dim(x)[2]) lines(day.to.date(rownames(x)), x[, 
+        j], type = "l", col = z[j])
+    legend("topleft", legend = colnames(x), col = z, lty = rep(1, 
+        dim(x)[2]))
+    invisible()
+}
+
 #' email
 #' 
 #' emails <x>
@@ -2380,6 +2400,7 @@ fcn.all.roxygenize <- function (x)
     y <- vec.named("mat.read", "utils")
     y["stats"] <- "ret.outliers"
     y["RODBC"] <- "sql.query.underlying"
+    y["graphics"] <- "graph"
     y["httr"] <- "email"
     y["RCurl"] <- "ftp.dir"
     y["base64enc"] <- "base64encode.wrapper"
