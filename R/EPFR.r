@@ -84,9 +84,9 @@ graph <- function (x)
 {
     z <- farben(dim(x)[2], T)
     plot(day.to.date(rownames(x)), x[, 1], type = "l", col = z[1], 
-        ylim = c(min(x), max(x)), xlab = "", ylab = "")
+        lwd = 2, ylim = c(min(x), max(x)), xlab = "", ylab = "")
     for (j in 2:dim(x)[2]) lines(day.to.date(rownames(x)), x[, 
-        j], type = "l", col = z[j])
+        j], type = "l", col = z[j], lwd = 2)
     legend("topleft", legend = colnames(x), col = z, lty = rep(1, 
         dim(x)[2]))
     invisible()
