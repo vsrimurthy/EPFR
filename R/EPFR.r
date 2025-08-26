@@ -8338,17 +8338,11 @@ ptile <- function (x)
 #' @param w = a connection string
 #' @keywords publications.data
 #' @export
+#' @family publications
 
 publications.data <- function (x, y, n, w) 
 {
-    h <- dir(n, "\\.csv$")
-    if (length(h) > 0) 
-        h <- h[!is.element(h, paste0(x, ".csv"))]
-    if (length(h) > 0) {
-        err.raise(h, F, paste("Removing the following from", 
-            n))
-        file.kill(paste(n, h, sep = "\\"))
-    }
+    publications.data.kill(x, n, "\\.csv$")
     h <- dir(n, "\\.csv$")
     if (length(h) > 0) {
         h <- gsub(".{4}$", "", h)
@@ -8366,6 +8360,29 @@ publications.data <- function (x, y, n, w)
         x <- mk.sf.daily(h, x, w, 12, "All")
         for (i in names(x)) mat.write(x[[i]], paste0(n, "\\", 
             i, ".csv"), ",")
+    }
+    invisible()
+}
+
+#' publications.data.kill
+#' 
+#' removes stale data
+#' @param x = a flowdate vector
+#' @param y = a folder
+#' @param n = a string (regular expression)
+#' @keywords publications.data.kill
+#' @export
+#' @family publications
+
+publications.data.kill <- function (x, y, n) 
+{
+    h <- dir(y, n)
+    if (length(h) > 0) 
+        h <- h[!is.element(gsub(n, "", h), x)]
+    if (length(h) > 0) {
+        err.raise(h, F, paste("Removing the following from", 
+            y))
+        file.kill(paste0(y, "\\", h))
     }
     invisible()
 }

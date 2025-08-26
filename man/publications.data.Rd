@@ -18,4 +18,7 @@ publications.data(x, y, n, w)
 \description{
 additional data is got and stale data removed
 }
+\seealso{
+Other publications: \code{\link{publications.data.kill}}
+}
 \keyword{publications.data}
