@@ -7000,16 +7000,17 @@ mk.1wFloMo.CtryFlow.rslt <- function (x)
 #' @param n = a connection string/connection
 #' @param w = a frequency (T/F for daily/weekly or D/W/M)
 #' @param h = a boolean (Industry/Sector flows)
+#' @param u = a filter vector (first element MUST BE FundType)
 #' @keywords mk.1wFloMo.IndyFlow
 #' @export
 #' @family mk
 
-mk.1wFloMo.IndyFlow <- function (x, y, n, w, h = T) 
+mk.1wFloMo.IndyFlow <- function (x, y, n, w, h = T, u = "E") 
 {
     z <- list(MAP = mk.1wFloMo.IndyFlow.map(h, T))
     v <- paste(z$MAP[!is.na(z$MAP[, 1]), 1], collapse = ", ")
     v <- paste0(colnames(z$MAP)[1], " not in (", v, ")")
-    z <- mk.1wFloMo.CtryFlow.data(x, "E", y, z, n, w, v, F)
+    z <- mk.1wFloMo.CtryFlow.data(x, u, y, z, n, w, v, F)
     z <- mk.1wFloMo.CtryFlow.rslt(z)
     z
 }

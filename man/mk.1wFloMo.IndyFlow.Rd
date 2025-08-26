@@ -4,7 +4,7 @@
 \alias{mk.1wFloMo.IndyFlow}
 \title{mk.1wFloMo.IndyFlow}
 \usage{
-mk.1wFloMo.IndyFlow(x, y, n, w, h = T)
+mk.1wFloMo.IndyFlow(x, y, n, w, h = T, u = "E")
 }
 \arguments{
 \item{x}{= a YYYYMMDD}
@@ -16,6 +16,8 @@ mk.1wFloMo.IndyFlow(x, y, n, w, h = T)
 \item{w}{= a frequency (T/F for daily/weekly or D/W/M)}
 
 \item{h}{= a boolean (Industry/Sector flows)}
+
+\item{u}{= a filter vector (first element MUST BE FundType)}
 }
 \description{
 Industry/Sector flows
