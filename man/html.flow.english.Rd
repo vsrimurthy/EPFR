@@ -4,7 +4,7 @@
 \alias{html.flow.english}
 \title{html.flow.english}
 \usage{
-html.flow.english(x, y, n, w)
+html.flow.english(x, y, n, w, h = F)
 }
 \arguments{
 \item{x}{= an integer vector}
@@ -14,6 +14,8 @@ html.flow.english(x, y, n, w)
 \item{n}{= line number(s) at which to insert a statement}
 
 \item{w}{= statement(s) to be inserted}
+
+\item{h}{= a frequency (T/F for daily/weekly)}
 }
 \description{
 writes a flow report in English

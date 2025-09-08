@@ -4,10 +4,12 @@
 \alias{html.flow.underlying}
 \title{html.flow.underlying}
 \usage{
-html.flow.underlying(x)
+html.flow.underlying(x, y = F)
 }
 \arguments{
 \item{x}{= a numeric vector (indexed by YYYYMMDD)}
+
+\item{y}{= a frequency (T/F for daily/weekly)}
 }
 \description{
 list object containing the following items: #		:	a) text - dates and text information about flows #		:	b) numbers - numeric summary of the flows

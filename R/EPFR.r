@@ -4590,11 +4590,12 @@ html.ex.utf8 <- function (x)
 #' @param x = a named numeric vector
 #' @param y = a string
 #' @param n = a number representing miscellaneous flows
+#' @param w = a frequency (T/F for daily/weekly)
 #' @keywords html.flow.breakdown
 #' @export
 #' @family html
 
-html.flow.breakdown <- function (x, y, n = 0) 
+html.flow.breakdown <- function (x, y, n = 0, w = F) 
 {
     if (y != "") 
         y <- paste0(" ", y)
@@ -4605,9 +4606,11 @@ html.flow.breakdown <- function (x, y, n = 0)
     h <- sum(x > 0)
     m <- length(x) - h
     x <- paste0(names(x), " ($", int.format(round(abs(x))), " million)")
+    if (w) 
+        w <- "The day's"
+    else w <- "This week's"
     if (h == 0) {
-        z <- paste("This week's", ifelse(u > 0, "inflows", "outflows"), 
-            "were driven by sundry small contributions which overwhelmed", 
+        z <- paste(w, ifelse(u > 0, "inflows", "outflows"), "were driven by sundry small contributions which overwhelmed", 
             ifelse(u > 0, "outflows from", "inflows into"), html.and(x))
     }
     else if (m == 0) {
@@ -4619,12 +4622,11 @@ html.flow.breakdown <- function (x, y, n = 0)
             z <- paste0("outflows ", ifelse(abs(n) > 0, "primarily ", 
                 ""), "came from")
         }
-        z <- paste("This week's", z, html.and(x))
+        z <- paste(w, z, html.and(x))
     }
     else {
-        z <- paste("This week's", ifelse(u > 0, "inflows", "outflows"), 
-            ifelse(abs(n) > 0, "were primarily", "were"), "driven by", 
-            html.and(x[1:h]))
+        z <- paste(w, ifelse(u > 0, "inflows", "outflows"), ifelse(abs(n) > 
+            0, "were primarily", "were"), "driven by", html.and(x[1:h]))
         z <- paste0(z, y, ", but offset by")
         z <- paste(z, ifelse(u > 0, "outflows from", "inflows into"), 
             html.and(x[h + 1:m]))
@@ -4640,62 +4642,71 @@ html.flow.breakdown <- function (x, y, n = 0)
 #' @param y = a string vector
 #' @param n = line number(s) at which to insert a statement
 #' @param w = statement(s) to be inserted
+#' @param h = a frequency (T/F for daily/weekly)
 #' @keywords html.flow.english
 #' @export
 #' @family html
 
-html.flow.english <- function (x, y, n, w) 
+html.flow.english <- function (x, y, n, w, h = F) 
 {
     z <- format(day.to.date(y["date"]), "%B %d %Y")
-    z <- paste("For the week ended", z, "fund flow data from EPFR for", 
-        y["AssetClass"], "($")
+    if (h) 
+        z <- paste("For", z)
+    else z <- paste("For the week ended", z)
+    z <- paste(z, "fund flow data from EPFR for", y["AssetClass"], 
+        "($")
     z <- paste0(z, int.format(x["AUM"]), " million in total assets) reported net")
     z <- paste(z, ifelse(x["last"] > 0, "INFLOWS", "OUTFLOWS"), 
         "of $")
     z <- paste0(z, int.format(abs(x["last"])), " million vs an")
     z <- paste(z, ifelse(x["prior"] > 0, "inflow", "outflow"), 
         "of $")
-    z <- paste0(z, int.format(abs(x["prior"])), " million the prior week")
+    z <- paste0(z, int.format(abs(x["prior"])), " million the prior")
+    z <- paste(z, ifelse(h, "day", "week"))
     if (x["straight"] > 0) {
         u <- paste("This is the", txt.ex.int(x["straight"], T), 
             ifelse(x["straight"] > 4, "straight", "consecutive"))
-        u <- paste(u, "week of", ifelse(x["last"] > 0, "inflows", 
-            "outflows"))
+        u <- paste(u, ifelse(h, "day", "week"), "of")
+        u <- paste(u, ifelse(x["last"] > 0, "inflows", "outflows"))
     }
     else if (x["straight"] == -1) {
-        u <- paste("This is the first week of", ifelse(x["last"] > 
-            0, "inflows,", "outflows,"))
+        u <- paste("This is the first", ifelse(h, "day", "week"), 
+            "of")
+        u <- paste(u, ifelse(x["last"] > 0, "inflows,", "outflows,"))
         u <- paste(u, "the prior one seeing", ifelse(x["last"] > 
             0, "outflows", "inflows"))
     }
     else {
-        u <- paste("This is the first week of", ifelse(x["last"] > 
-            0, "inflows,", "outflows,"))
+        u <- paste("This is the first", ifelse(h, "day", "week"), 
+            "of")
+        u <- paste(u, ifelse(x["last"] > 0, "inflows,", "outflows,"))
         u <- paste(u, "the prior", txt.ex.int(-x["straight"]), 
             "seeing", ifelse(x["last"] > 0, "outflows", "inflows"))
     }
     z <- c(z, u)
     u <- paste(txt.left(y["date"], 4), "YTD has seen")
-    if (x["YtdCountOutWks"] > x["YtdCountInWks"]) {
-        u <- paste(u, txt.ex.int(x["YtdCountOutWks"]), "weeks of outflows and")
-        if (x["YtdCountInWks"] > 0) {
-            u <- paste(u, txt.ex.int(x["YtdCountInWks"]), "of inflows")
+    if (x["YtdCountOutPrds"] > x["YtdCountInPrds"]) {
+        u <- paste(u, txt.ex.int(x["YtdCountOutPrds"]), ifelse(h, 
+            "days", "weeks"), "of outflows and")
+        if (x["YtdCountInPrds"] > 0) {
+            u <- paste(u, txt.ex.int(x["YtdCountInPrds"]), "of inflows")
         }
         else u <- paste(u, "none of inflows")
     }
     else {
-        u <- paste(u, txt.ex.int(x["YtdCountInWks"]), "weeks of inflows and")
-        if (x["YtdCountOutWks"] > 0) {
-            u <- paste(u, txt.ex.int(x["YtdCountOutWks"]), "of outflows")
+        u <- paste(u, txt.ex.int(x["YtdCountInPrds"]), ifelse(h, 
+            "days", "weeks"), "of inflows and")
+        if (x["YtdCountOutPrds"] > 0) {
+            u <- paste(u, txt.ex.int(x["YtdCountOutPrds"]), "of outflows")
         }
         else u <- paste(u, "none of outflows")
     }
-    if (x["YtdCountInWks"] > 0 & x["YtdCountOutWks"] > 0) {
+    if (x["YtdCountInPrds"] > 0 & x["YtdCountOutPrds"] > 0) {
         u <- paste0(u, " (largest inflow $", int.format(x["YtdBigIn"]), 
             " million; largest outflow $", int.format(x["YtdBigOut"]), 
             " million)")
     }
-    else if (x["YtdCountInWks"] > 0) {
+    else if (x["YtdCountInPrds"] > 0) {
         u <- paste0(u, " (largest inflow $", int.format(x["YtdBigIn"]), 
             " million)")
     }
@@ -4704,30 +4715,32 @@ html.flow.english <- function (x, y, n, w)
             " million)")
     }
     z <- c(z, u)
-    u <- paste("For", txt.left(y["PriorYrWeek"], 4), "there were")
-    if (x["PriorYrCountOutWks"] > x["PriorYrCountInWks"]) {
-        u <- paste(u, txt.ex.int(x["PriorYrCountOutWks"]), "weeks of outflows and")
-        if (x["PriorYrCountInWks"] > 0) {
-            u <- paste(u, txt.ex.int(x["PriorYrCountInWks"]), 
+    u <- paste("For", txt.left(y["PriorYrPrd"], 4), "there were")
+    if (x["PriorYrCountOutPrds"] > x["PriorYrCountInPrds"]) {
+        u <- paste(u, txt.ex.int(x["PriorYrCountOutPrds"]), ifelse(h, 
+            "days", "weeks"), "of outflows and")
+        if (x["PriorYrCountInPrds"] > 0) {
+            u <- paste(u, txt.ex.int(x["PriorYrCountInPrds"]), 
                 "of inflows")
         }
         else u <- paste(u, "none of inflows")
     }
     else {
-        u <- paste(u, txt.ex.int(x["PriorYrCountInWks"]), "weeks of inflows and")
-        if (x["PriorYrCountOutWks"] > 0) {
-            u <- paste(u, txt.ex.int(x["PriorYrCountOutWks"]), 
+        u <- paste(u, txt.ex.int(x["PriorYrCountInPrds"]), ifelse(h, 
+            "days", "weeks"), "of inflows and")
+        if (x["PriorYrCountOutPrds"] > 0) {
+            u <- paste(u, txt.ex.int(x["PriorYrCountOutPrds"]), 
                 "of outflows")
         }
         else u <- paste(u, "none of outflows")
     }
-    if (x["PriorYrCountInWks"] > 0 & x["PriorYrCountOutWks"] > 
+    if (x["PriorYrCountInPrds"] > 0 & x["PriorYrCountOutPrds"] > 
         0) {
         u <- paste0(u, " (largest inflow $", int.format(x["PriorYrBigIn"]), 
             " million; largest outflow $", int.format(x["PriorYrBigOut"]), 
             " million)")
     }
-    else if (x["PriorYrCountInWks"] > 0) {
+    else if (x["PriorYrCountInPrds"] > 0) {
         u <- paste0(u, " (largest inflow $", int.format(x["PriorYrBigIn"]), 
             " million)")
     }
@@ -4736,38 +4749,55 @@ html.flow.english <- function (x, y, n, w)
             " million)")
     }
     z <- c(z, u)
-    if (x["FourWeekAvg"] > 0) {
-        u <- paste0("four-week moving average: $", int.format(x["FourWeekAvg"]), 
-            " million inflow (four-week cumulative: $", int.format(x["FourWeekSum"]), 
-            " million inflow)")
+    if (h) {
+        if (x["FiveDayAvg"] > 0) {
+            u <- paste0("weekly moving average: $", int.format(x["FiveDayAvg"]), 
+                " million inflow (weekly cumulative: $", int.format(x["FiveDaySum"]), 
+                " million inflow)")
+        }
+        else {
+            u <- paste0("weekly moving average: $", int.format(-x["FiveDayAvg"]), 
+                " million outflow (weekly cumulative: $", int.format(-x["FiveDaySum"]), 
+                " million outflow)")
+        }
     }
     else {
-        u <- paste0("four-week moving average: $", int.format(-x["FourWeekAvg"]), 
-            " million outflow (four-week cumulative: $", int.format(-x["FourWeekSum"]), 
-            " million outflow)")
+        if (x["FourWeekAvg"] > 0) {
+            u <- paste0("four-week moving average: $", int.format(x["FourWeekAvg"]), 
+                " million inflow (four-week cumulative: $", int.format(x["FourWeekSum"]), 
+                " million inflow)")
+        }
+        else {
+            u <- paste0("four-week moving average: $", int.format(-x["FourWeekAvg"]), 
+                " million outflow (four-week cumulative: $", 
+                int.format(-x["FourWeekSum"]), " million outflow)")
+        }
     }
     z <- c(z, u)
+    h <- ifelse(h, "daily", "weekly")
     u <- paste(txt.left(y["date"], 4), "flow data (through", 
         format(day.to.date(y["date"]), "%B %d"))
     if (x["YtdCumSum"] > 0) {
-        u <- paste0(u, "): $", int.format(x["YtdCumSum"]), " million cumulative INFLOW, or a weekly average inflow of $", 
-            int.format(x["YtdCumAvg"]), " million")
+        u <- paste0(u, "): $", int.format(x["YtdCumSum"]), " million cumulative INFLOW, or a ", 
+            h, " average inflow of $", int.format(x["YtdCumAvg"]), 
+            " million")
     }
     else {
-        u <- paste0(u, "): $", int.format(-x["YtdCumSum"]), " million cumulative OUTFLOW, or a weekly average outflow of $", 
-            int.format(-x["YtdCumAvg"]), " million")
+        u <- paste0(u, "): $", int.format(-x["YtdCumSum"]), " million cumulative OUTFLOW, or a ", 
+            h, " average outflow of $", int.format(-x["YtdCumAvg"]), 
+            " million")
     }
     z <- c(z, u)
-    u <- paste(txt.left(y["PriorYrWeek"], 4), "flow data (through", 
-        format(day.to.date(y["PriorYrWeek"]), "%B %d"))
+    u <- paste(txt.left(y["PriorYrPrd"], 4), "flow data (through", 
+        format(day.to.date(y["PriorYrPrd"]), "%B %d"))
     if (x["PriorYrCumSum"] > 0) {
         u <- paste0(u, "): $", int.format(x["PriorYrCumSum"]), 
-            " million cumulative INFLOW, or a weekly average inflow of $", 
+            " million cumulative INFLOW, or a ", h, " average inflow of $", 
             int.format(x["PriorYrCumAvg"]), " million")
     }
     else {
         u <- paste0(u, "): $", int.format(-x["PriorYrCumSum"]), 
-            " million cumulative OUTFLOW, or a weekly average outflow of $", 
+            " million cumulative OUTFLOW, or a ", h, " average outflow of $", 
             int.format(-x["PriorYrCumAvg"]), " million")
     }
     z <- c(z, u)
@@ -4787,44 +4817,51 @@ html.flow.english <- function (x, y, n, w)
 #' 
 #' list object containing the following items: #		:	a) text - dates and text information about flows #		:	b) numbers - numeric summary of the flows
 #' @param x = a numeric vector (indexed by YYYYMMDD)
+#' @param y = a frequency (T/F for daily/weekly)
 #' @keywords html.flow.underlying
 #' @export
 #' @family html
 
-html.flow.underlying <- function (x) 
+html.flow.underlying <- function (x, y = F) 
 {
     x <- x[order(names(x), decreasing = T)]
     z <- vec.named(x[1:2], c("last", "prior"))
     n <- vec.named(names(x)[1], "date")
-    z["FourWeekAvg"] <- mean(x[1:4])
-    z["FourWeekSum"] <- sum(x[1:4])
-    y <- x > 0
-    z["straight"] <- straight(y)
+    if (y) {
+        z["FiveDayAvg"] <- mean(x[1:5])
+        z["FiveDaySum"] <- sum(x[1:5])
+    }
+    else {
+        z["FourWeekAvg"] <- mean(x[1:4])
+        z["FourWeekSum"] <- sum(x[1:4])
+    }
+    u <- x > 0
+    z["straight"] <- straight(u)
     if (z["straight"] == 1) 
-        z["straight"] <- -straight(y[-1])
-    y <- x[txt.left(names(x), 4) == txt.left(names(x)[1], 4)]
-    z["YtdCountInWks"] <- sum(y > 0)
-    z["YtdCountOutWks"] <- sum(y < 0)
-    z["YtdBigIn"] <- max(y)
-    z["YtdBigOut"] <- -min(y)
-    y <- x[txt.left(names(x), 4) != txt.left(names(x)[1], 4)]
-    y <- y[txt.left(names(y), 4) == txt.left(names(y)[1], 4)]
-    z["PriorYrCountInWks"] <- sum(y > 0)
-    z["PriorYrCountOutWks"] <- sum(y < 0)
-    z["PriorYrBigIn"] <- max(y)
-    z["PriorYrBigOut"] <- -min(y)
-    y <- x[txt.left(names(x), 4) == txt.left(names(x)[1], 4)]
-    z["YtdCumAvg"] <- mean(y)
-    z["YtdCumSum"] <- sum(y)
-    y <- x[txt.left(names(x), 4) != txt.left(names(x)[1], 4)]
-    y <- y[txt.left(names(y), 4) == txt.left(names(y)[1], 4)]
-    y <- y[order(names(y))]
-    y <- y[1:min(sum(txt.left(names(x), 4) == txt.left(names(x)[1], 
-        4)), length(y))]
-    y <- y[order(names(y), decreasing = T)]
-    n["PriorYrWeek"] <- names(y)[1]
-    z["PriorYrCumAvg"] <- mean(y)
-    z["PriorYrCumSum"] <- sum(y)
+        z["straight"] <- -straight(u[-1])
+    u <- x[txt.left(names(x), 4) == txt.left(names(x)[1], 4)]
+    z["YtdCountInPrds"] <- sum(u > 0)
+    z["YtdCountOutPrds"] <- sum(u < 0)
+    z["YtdBigIn"] <- max(u)
+    z["YtdBigOut"] <- -min(u)
+    u <- x[txt.left(names(x), 4) != txt.left(names(x)[1], 4)]
+    u <- u[txt.left(names(u), 4) == txt.left(names(u)[1], 4)]
+    z["PriorYrCountInPrds"] <- sum(u > 0)
+    z["PriorYrCountOutPrds"] <- sum(u < 0)
+    z["PriorYrBigIn"] <- max(u)
+    z["PriorYrBigOut"] <- -min(u)
+    u <- x[txt.left(names(x), 4) == txt.left(names(x)[1], 4)]
+    z["YtdCumAvg"] <- mean(u)
+    z["YtdCumSum"] <- sum(u)
+    u <- x[txt.left(names(x), 4) != txt.left(names(x)[1], 4)]
+    u <- u[txt.left(names(u), 4) == txt.left(names(u)[1], 4)]
+    u <- u[order(names(u))]
+    u <- u[1:min(sum(txt.left(names(x), 4) == txt.left(names(x)[1], 
+        4)), length(u))]
+    u <- u[order(names(u), decreasing = T)]
+    n["PriorYrPrd"] <- names(u)[1]
+    z["PriorYrCumAvg"] <- mean(u)
+    z["PriorYrCumSum"] <- sum(u)
     z <- list(numbers = z, text = n)
     z
 }

@@ -4,7 +4,7 @@
 \alias{html.flow.breakdown}
 \title{html.flow.breakdown}
 \usage{
-html.flow.breakdown(x, y, n = 0)
+html.flow.breakdown(x, y, n = 0, w = F)
 }
 \arguments{
 \item{x}{= a named numeric vector}
@@ -12,6 +12,8 @@ html.flow.breakdown(x, y, n = 0)
 \item{y}{= a string}
 
 \item{n}{= a number representing miscellaneous flows}
+
+\item{w}{= a frequency (T/F for daily/weekly)}
 }
 \description{
 html breaking down flows into constituents
