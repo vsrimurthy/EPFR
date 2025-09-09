@@ -21,6 +21,7 @@ html breaking down flows into constituents
 \seealso{
 Other html: \code{\link{html.and}},
   \code{\link{html.email}}, \code{\link{html.ex.utf8}},
+  \code{\link{html.flow.CountInOut}},
   \code{\link{html.flow.english}},
   \code{\link{html.flow.underlying}},
   \code{\link{html.image}}, \code{\link{html.list}},

@@ -4635,6 +4635,27 @@ html.flow.breakdown <- function (x, y, n = 0, w = F)
     z
 }
 
+#' html.flow.CountInOut
+#' 
+#' list object containing the following items: #		:	a) text - dates and text information about flows #		:	b) numbers - numeric summary of the flows
+#' @param x = a numeric vector (indexed by YYYYMMDD)
+#' @keywords html.flow.CountInOut
+#' @export
+#' @family html
+
+html.flow.CountInOut <- function (x) 
+{
+    x <- x[order(x)]
+    z <- vec.named(sum(x > 0), "CountInPrds")
+    z["CountOutPrds"] <- sum(x < 0)
+    z["BigIn"] <- tail(x, 1)
+    z["BigOut"] <- -x[1]
+    n <- vec.named(tail(names(x), 1), "BigIn")
+    n["BigOut"] <- names(x)[1]
+    z <- list(numbers = z, text = n)
+    z
+}
+
 #' html.flow.english
 #' 
 #' writes a flow report in English
@@ -4703,16 +4724,17 @@ html.flow.english <- function (x, y, n, w, h = F)
     }
     if (x["YtdCountInPrds"] > 0 & x["YtdCountOutPrds"] > 0) {
         u <- paste0(u, " (largest inflow $", int.format(x["YtdBigIn"]), 
-            " million; largest outflow $", int.format(x["YtdBigOut"]), 
-            " million)")
+            " million on ", y["YtdBigIn"], "; largest outflow $", 
+            int.format(x["YtdBigOut"]), " million on ", y["YtdBigOut"], 
+            ")")
     }
     else if (x["YtdCountInPrds"] > 0) {
         u <- paste0(u, " (largest inflow $", int.format(x["YtdBigIn"]), 
-            " million)")
+            " million on ", y["YtdBigIn"], ")")
     }
     else {
         u <- paste0(u, " (largest outflow $", int.format(x["YtdBigOut"]), 
-            " million)")
+            " million on ", y["YtdBigOut"], ")")
     }
     z <- c(z, u)
     u <- paste("For", txt.left(y["PriorYrPrd"], 4), "there were")
@@ -4737,16 +4759,17 @@ html.flow.english <- function (x, y, n, w, h = F)
     if (x["PriorYrCountInPrds"] > 0 & x["PriorYrCountOutPrds"] > 
         0) {
         u <- paste0(u, " (largest inflow $", int.format(x["PriorYrBigIn"]), 
-            " million; largest outflow $", int.format(x["PriorYrBigOut"]), 
-            " million)")
+            " million on ", y["PriorYrBigIn"], "; largest outflow $", 
+            int.format(x["PriorYrBigOut"]), " million on ", y["PriorYrBigOut"], 
+            ")")
     }
     else if (x["PriorYrCountInPrds"] > 0) {
         u <- paste0(u, " (largest inflow $", int.format(x["PriorYrBigIn"]), 
-            " million)")
+            " million on ", y["PriorYrBigIn"], ")")
     }
     else {
         u <- paste0(u, " (largest outflow $", int.format(x["PriorYrBigOut"]), 
-            " million)")
+            " million on ", y["PriorYrBigOut"], ")")
     }
     z <- c(z, u)
     if (h) {
@@ -4840,16 +4863,14 @@ html.flow.underlying <- function (x, y = F)
     if (z["straight"] == 1) 
         z["straight"] <- -straight(u[-1])
     u <- x[txt.left(names(x), 4) == txt.left(names(x)[1], 4)]
-    z["YtdCountInPrds"] <- sum(u > 0)
-    z["YtdCountOutPrds"] <- sum(u < 0)
-    z["YtdBigIn"] <- max(u)
-    z["YtdBigOut"] <- -min(u)
+    u <- html.flow.CountInOut(u)
+    z[paste0("Ytd", names(u[["numbers"]]))] <- u[["numbers"]]
+    n[paste0("Ytd", names(u[["text"]]))] <- u[["text"]]
     u <- x[txt.left(names(x), 4) != txt.left(names(x)[1], 4)]
     u <- u[txt.left(names(u), 4) == txt.left(names(u)[1], 4)]
-    z["PriorYrCountInPrds"] <- sum(u > 0)
-    z["PriorYrCountOutPrds"] <- sum(u < 0)
-    z["PriorYrBigIn"] <- max(u)
-    z["PriorYrBigOut"] <- -min(u)
+    u <- html.flow.CountInOut(u)
+    z[paste0("PriorYr", names(u[["numbers"]]))] <- u[["numbers"]]
+    n[paste0("PriorYr", names(u[["text"]]))] <- u[["text"]]
     u <- x[txt.left(names(x), 4) == txt.left(names(x)[1], 4)]
     z["YtdCumAvg"] <- mean(u)
     z["YtdCumSum"] <- sum(u)

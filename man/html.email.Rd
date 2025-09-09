@@ -17,6 +17,7 @@ writes outgoing email report for <x>
 \seealso{
 Other html: \code{\link{html.and}},
   \code{\link{html.ex.utf8}},
+  \code{\link{html.flow.CountInOut}},
   \code{\link{html.flow.breakdown}},
   \code{\link{html.flow.english}},
   \code{\link{html.flow.underlying}},
