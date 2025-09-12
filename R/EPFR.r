@@ -9073,6 +9073,27 @@ refresh.predictors.daily <- function (x, y, n, w)
     z
 }
 
+#' refresh.predictors.monthly
+#' 
+#' refreshes the text file contains flows data from SQL
+#' @param x = a file (predictors)
+#' @param y = query needed to get full history
+#' @param n = a string (last part of query after date restriction)
+#' @param w = a connection string
+#' @keywords refresh.predictors.monthly
+#' @export
+#' @family refresh
+
+refresh.predictors.monthly <- function (x, y, n, w) 
+{
+    fcn <- function(z, l, k) {
+        z <- refresh.predictors.script(y, n, "MonthEnding", l)
+        mat.index(sql.query(z, w))
+    }
+    z <- refresh.predictors(fcn, x, publish.monthly.last())
+    z
+}
+
 #' refresh.predictors.script
 #' 
 #' generates the SQL script to refresh predictors

@@ -16,6 +16,7 @@ Appends new to old data after performing checks
 }
 \seealso{
 Other refresh: \code{\link{refresh.predictors.daily}},
+  \code{\link{refresh.predictors.monthly}},
   \code{\link{refresh.predictors.script}},
   \code{\link{refresh.predictors.troika}},
   \code{\link{refresh.predictors.weekly}},
