@@ -3469,6 +3469,114 @@ fetch <- function (x, y, n, w, h)
     z
 }
 
+#' ff.frequency
+#' 
+#' D/W/M depending on frequency of the data
+#' @param x = a string vector (row names of indicator file)
+#' @keywords ff.frequency
+#' @export
+#' @family ff
+
+ff.frequency <- function (x) 
+{
+    if (nchar(x[1]) == 6) {
+        z <- "M"
+    }
+    else if (all(day.to.weekday(x) == ifelse(x < "20010919", 
+        5, 3))) {
+        z <- "W"
+    }
+    else {
+        z <- "D"
+    }
+    z
+}
+
+#' ff.publish.last
+#' 
+#' D/W/M depending on frequency of the data
+#' @param x = a frequency (D/W/M)
+#' @keywords ff.publish.last
+#' @export
+#' @family ff
+
+ff.publish.last <- function (x) 
+{
+    if (x == "D") {
+        z <- publish.daily.last()
+    }
+    else if (x == "W") {
+        z <- publish.weekly.last()
+    }
+    else {
+        z <- yyyymmdd.to.yyyymm(publish.monthly.last(, 16))
+    }
+    z
+}
+
+#' ff.refresh.predictors
+#' 
+#' refreshes <x> all the way up to the present
+#' @param x = a file
+#' @param y = a string (Flow/AssetsStart/AssetsEnd/PortfolioChange)
+#' @keywords ff.refresh.predictors
+#' @export
+#' @family ff
+
+ff.refresh.predictors <- function (x, y) 
+{
+    v <- mat.read(x)
+    u <- ff.frequency(rownames(v))
+    r <- tail(rownames(v), 1)
+    if (r < ff.publish.last(u)) {
+        z <- ff.refresh.predictors.sql(v, y, u)
+        z <- sql.query(z, "NEWUI")
+        z <- mat.index(z)
+        z <- refresh.predictors.append(v, z)
+        production.write(z, x)
+    }
+    else cat("There is no need to update the data ..\n")
+    invisible()
+}
+
+#' ff.refresh.predictors.sql
+#' 
+#' SQL query to refresh <x>
+#' @param x = a matrix/data frame
+#' @param y = a string (Flow/AssetsStart/AssetsEnd/PortfolioChange)
+#' @param n = a frequency (D/W/M)
+#' @keywords ff.refresh.predictors.sql
+#' @export
+#' @family ff
+
+ff.refresh.predictors.sql <- function (x, y, n) 
+{
+    z <- vec.to.list(colnames(x), T, T)
+    z <- lapply(z, function(z) txt.parse(z, "-"))
+    z <- lapply(z, function(z) Reduce(c, sql.FundHistory.macro(z)))
+    z <- lapply(z, function(z) paste(z, collapse = " and "))
+    v <- Reduce(function(z, l) paste(z, l, sep = " and "), z)
+    v <- txt.parse(v, " and ")
+    v <- gsub(" in \\(", " = ", v)
+    v <- unique(txt.trim(txt.parse(v, " = ")[, 1]))
+    z <- sapply(z, function(z) paste("sum(case when", z, "then", 
+        y, "else NULL end)"))
+    z <- paste0("[", names(z), "] = ", z)
+    if (n == "M") {
+        z <- c(sql.yyyymm(sql.Flow.tbl(n, F)), z)
+    }
+    else {
+        z <- c(sql.yyyymmdd(sql.Flow.tbl(n, F)), z)
+    }
+    r <- tail(rownames(x), 1)
+    if (n == "M") 
+        r <- yyyymm.to.day(r)
+    r <- paste(sql.Flow.tbl(n, F), ">=", wrap(r))
+    z <- sql.Flow(z, r, "UI", v, n, sql.Flow.tbl(n, F))
+    z <- paste(sql.unbracket(z), collapse = "\n")
+    z
+}
+
 #' file.bkp
 #' 
 #' Copies <x> to <y>
