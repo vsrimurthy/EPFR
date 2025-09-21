@@ -4,14 +4,16 @@
 \alias{ff.refresh.predictors.sql}
 \title{ff.refresh.predictors.sql}
 \usage{
-ff.refresh.predictors.sql(x, y, n)
+ff.refresh.predictors.sql(x, y, n, w = NULL)
 }
 \arguments{
-\item{x}{= a matrix/data frame}
+\item{x}{= a string vector (filters)}
 
 \item{y}{= a string (Flow/AssetsStart/AssetsEnd/PortfolioChange)}
 
 \item{n}{= a frequency (D/W/M)}
+
+\item{w}{= a string (last date)}
 }
 \description{
 SQL query to refresh <x>

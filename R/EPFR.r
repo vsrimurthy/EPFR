@@ -3529,7 +3529,8 @@ ff.refresh.predictors <- function (x, y)
     u <- ff.frequency(rownames(v))
     r <- tail(rownames(v), 1)
     if (r < ff.publish.last(u)) {
-        z <- ff.refresh.predictors.sql(v, y, u)
+        z <- ff.refresh.predictors.sql(colnames(v), y, u, tail(rownames(v), 
+            1))
         z <- sql.query(z, "NEWUI")
         z <- mat.index(z)
         z <- refresh.predictors.append(v, z)
@@ -3542,22 +3543,25 @@ ff.refresh.predictors <- function (x, y)
 #' ff.refresh.predictors.sql
 #' 
 #' SQL query to refresh <x>
-#' @param x = a matrix/data frame
+#' @param x = a string vector (filters)
 #' @param y = a string (Flow/AssetsStart/AssetsEnd/PortfolioChange)
 #' @param n = a frequency (D/W/M)
+#' @param w = a string (last date)
 #' @keywords ff.refresh.predictors.sql
 #' @export
 #' @family ff
 
-ff.refresh.predictors.sql <- function (x, y, n) 
+ff.refresh.predictors.sql <- function (x, y, n, w = NULL) 
 {
-    z <- vec.to.list(colnames(x), T, T)
+    z <- vec.to.list(x, T, T)
     z <- lapply(z, function(z) txt.parse(z, "-"))
     z <- lapply(z, function(z) Reduce(c, sql.FundHistory.macro(z)))
     z <- lapply(z, function(z) paste(z, collapse = " and "))
     v <- Reduce(function(z, l) paste(z, l, sep = " and "), z)
+    v <- gsub(" or ", " and ", v)
     v <- txt.parse(v, " and ")
     v <- gsub(" in \\(", " = ", v)
+    v <- gsub("^\\(", "", v)
     v <- unique(txt.trim(txt.parse(v, " = ")[, 1]))
     z <- sapply(z, function(z) paste("sum(case when", z, "then", 
         y, "else NULL end)"))
@@ -3568,11 +3572,17 @@ ff.refresh.predictors.sql <- function (x, y, n)
     else {
         z <- c(sql.yyyymmdd(sql.Flow.tbl(n, F)), z)
     }
-    r <- tail(rownames(x), 1)
-    if (n == "M") 
-        r <- yyyymm.to.day(r)
-    r <- paste(sql.Flow.tbl(n, F), ">=", wrap(r))
-    z <- sql.Flow(z, r, "UI", v, n, sql.Flow.tbl(n, F))
+    if (!is.null(w)) {
+        if (n == "M") 
+            w <- yyyymm.to.day(w)
+        w <- paste(sql.Flow.tbl(n, F), ">=", wrap(w))
+    }
+    if (!is.null(w)) {
+        z <- sql.Flow(z, w, "UI", v, n, sql.Flow.tbl(n, F))
+    }
+    else {
+        z <- sql.Flow(z, , "UI", v, n, sql.Flow.tbl(n, F))
+    }
     z <- paste(sql.unbracket(z), collapse = "\n")
     z
 }
