@@ -11204,25 +11204,6 @@ sql.1dFloMo.CtrySG <- function (x, y, n, w, h, u)
     z
 }
 
-#' sql.1dFloMo.FI
-#' 
-#' SQL query to get daily 1dFloMo for fixed income
-#' @param x = a column (Flow/PortfolioChange)
-#' @param y = a flowdate (can be missing)
-#' @keywords sql.1dFloMo.FI
-#' @export
-#' @family sql
-
-sql.1dFloMo.FI <- function (x = "Flow", y) 
-{
-    z <- list.rename(as.list(environment()), c("x", "y"), c("x", 
-        "w"))
-    z[["y"]] <- sql.1dFloMo.FI.grp()
-    z[["n"]] <- "FundType in ('B', 'M')"
-    z <- do.call(sql.1dFloMo.FI.underlying, z)
-    z
-}
-
 #' sql.1dFloMo.FI.grp
 #' 
 #' named vector of fixed-income strategy groupings
@@ -11236,36 +11217,6 @@ sql.1dFloMo.FI.grp <- function ()
         "HYIELD", "WESEUR", "GLOBEM", "GLOFIX")
     z <- map.rname(vec.ex.filters("macro"), z)
     names(z)[1] <- "CASH"
-    z
-}
-
-#' sql.1dFloMo.FI.underlying
-#' 
-#' SQL query to get daily 1dFloMo
-#' @param x = a column (Flow/PortfolioChange)
-#' @param y = a string vector (filters & names)
-#' @param n = a filter vector
-#' @param w = a flowdate (can be missing)
-#' @keywords sql.1dFloMo.FI.underlying
-#' @export
-#' @family sql
-
-sql.1dFloMo.FI.underlying <- function (x, y, n, w) 
-{
-    x <- vec.to.list(c(x, "AssetsStart"))
-    x <- lapply(x, function(l) paste0("case when grp = '", names(y), 
-        "' then ", l, " else NULL end"))
-    x <- paste(names(y), sql.Mo(x[[1]], x[[2]], NULL, T))
-    x <- c(sql.yyyymmdd("DayEnding"), x)
-    z <- sql.case("grp", y, c(names(y), "OTHER"), F)
-    if (missing(w)) {
-        z <- sql.Flow(x, , n, z, "D", "DayEnding")
-    }
-    else {
-        w <- paste("DayEnding >=", wrap(w))
-        z <- sql.Flow(x, w, n, z, "D", "DayEnding")
-    }
-    z <- paste(sql.unbracket(z), collapse = "\n")
     z
 }
 
@@ -11327,24 +11278,6 @@ sql.1dFloMo.hld <- function (x, y, n = F)
     if (y[1] != "") 
         z <- c(z, "", sql.delete("#HLD", sql.in("HSecurityId", 
             y, F)))
-    z
-}
-
-#' sql.1dFloMo.Rgn
-#' 
-#' Generates the SQL query to get daily 1dFloMo for regions
-#' @keywords sql.1dFloMo.Rgn
-#' @export
-#' @family sql
-
-sql.1dFloMo.Rgn <- function () 
-{
-    z <- c("AsiaXJP", "EurXGB", "JP", "LatAm", "PacxJP", "UK", 
-        "US")
-    z <- map.rname(vec.ex.filters("macro"), z)
-    names(z) <- c("AsiaXJP", "EurXGB", "Japan", "LatAm", "PacXJP", 
-        "UK", "USA")
-    z <- sql.1dFloMo.FI.underlying("Flow", z, c("E", "Act"))
     z
 }
 
