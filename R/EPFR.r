@@ -3563,9 +3563,20 @@ ff.refresh.predictors.sql <- function (x, y, n, w = NULL)
     v <- gsub(" in \\(", " = ", v)
     v <- gsub("^\\(", "", v)
     v <- unique(txt.trim(txt.parse(v, " = ")[, 1]))
-    z <- sapply(z, function(z) paste("sum(case when", z, "then", 
-        y, "else NULL end)"))
-    z <- paste0("[", names(z), "] = ", z)
+    if (grepl("%$", y)) {
+        y <- c(gsub("%$", "", y), "AssetsStart")
+        y <- vec.to.list(y, T, T)
+        y <- lapply(y, function(y) sapply(z, function(z) paste("case when", 
+            z, "then", y, "else NULL end")))
+        y <- array.ex.list(y, T, T)
+        y <- split(y, factor(x, levels = rownames(y)))
+        y <- sapply(y, function(x) sql.Mo(x[1], x[2], NULL, T))
+    }
+    else {
+        y <- sapply(z, function(z) paste("= sum(case when", z, 
+            "then", y, "else NULL end)"))
+    }
+    z <- paste0("[", names(z), "] ", y)
     if (n == "M") {
         z <- c(sql.yyyymm(sql.Flow.tbl(n, F)), z)
     }
