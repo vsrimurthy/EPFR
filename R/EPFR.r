@@ -3519,18 +3519,19 @@ ff.publish.last <- function (x)
 #' refreshes <x> all the way up to the present
 #' @param x = a file
 #' @param y = a string (Flow/AssetsStart/AssetsEnd/PortfolioChange)
+#' @param n = a filter vector
 #' @keywords ff.refresh.predictors
 #' @export
 #' @family ff
 
-ff.refresh.predictors <- function (x, y) 
+ff.refresh.predictors <- function (x, y, n = NULL) 
 {
     v <- mat.read(x)
     u <- ff.frequency(rownames(v))
     r <- tail(rownames(v), 1)
     if (r < ff.publish.last(u)) {
         z <- ff.refresh.predictors.sql(colnames(v), y, u, tail(rownames(v), 
-            1))
+            1), n)
         z <- sql.query(z, "NEWUI")
         z <- mat.index(z)
         z <- refresh.predictors.append(v, z)
@@ -3547,11 +3548,12 @@ ff.refresh.predictors <- function (x, y)
 #' @param y = a string (Flow/AssetsStart/AssetsEnd/PortfolioChange)
 #' @param n = a frequency (D/W/M)
 #' @param w = a string (last date)
+#' @param h = a filter vector
 #' @keywords ff.refresh.predictors.sql
 #' @export
 #' @family ff
 
-ff.refresh.predictors.sql <- function (x, y, n, w = NULL) 
+ff.refresh.predictors.sql <- function (x, y, n, w = NULL, h = NULL) 
 {
     z <- vec.to.list(x, T, T)
     z <- lapply(z, function(z) txt.parse(z, "-"))
@@ -3588,11 +3590,12 @@ ff.refresh.predictors.sql <- function (x, y, n, w = NULL)
             w <- yyyymm.to.day(w)
         w <- paste(sql.Flow.tbl(n, F), ">=", wrap(w))
     }
+    h <- c(h, "UI")
     if (!is.null(w)) {
-        z <- sql.Flow(z, w, "UI", v, n, sql.Flow.tbl(n, F))
+        z <- sql.Flow(z, w, h, v, n, sql.Flow.tbl(n, F))
     }
     else {
-        z <- sql.Flow(z, , "UI", v, n, sql.Flow.tbl(n, F))
+        z <- sql.Flow(z, , h, v, n, sql.Flow.tbl(n, F))
     }
     z <- paste(sql.unbracket(z), collapse = "\n")
     z

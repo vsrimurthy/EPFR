@@ -4,12 +4,14 @@
 \alias{ff.refresh.predictors}
 \title{ff.refresh.predictors}
 \usage{
-ff.refresh.predictors(x, y)
+ff.refresh.predictors(x, y, n = NULL)
 }
 \arguments{
 \item{x}{= a file}
 
 \item{y}{= a string (Flow/AssetsStart/AssetsEnd/PortfolioChange)}
+
+\item{n}{= a filter vector}
 }
 \description{
 refreshes <x> all the way up to the present

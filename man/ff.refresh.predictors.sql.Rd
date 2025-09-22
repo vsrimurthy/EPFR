@@ -4,7 +4,7 @@
 \alias{ff.refresh.predictors.sql}
 \title{ff.refresh.predictors.sql}
 \usage{
-ff.refresh.predictors.sql(x, y, n, w = NULL)
+ff.refresh.predictors.sql(x, y, n, w = NULL, h = NULL)
 }
 \arguments{
 \item{x}{= a string vector (filters)}
@@ -14,6 +14,8 @@ ff.refresh.predictors.sql(x, y, n, w = NULL)
 \item{n}{= a frequency (D/W/M)}
 
 \item{w}{= a string (last date)}
+
+\item{h}{= a filter vector}
 }
 \description{
 SQL query to refresh <x>
