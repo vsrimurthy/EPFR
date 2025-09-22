@@ -19,7 +19,6 @@ Other refresh: \code{\link{refresh.predictors.daily}},
   \code{\link{refresh.predictors.monthly}},
   \code{\link{refresh.predictors.script}},
   \code{\link{refresh.predictors.troika}},
-  \code{\link{refresh.predictors.weekly}},
   \code{\link{refresh.predictors}}
 }
 \keyword{refresh.predictors.append}

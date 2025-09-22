@@ -4,7 +4,7 @@
 \alias{refresh.predictors.daily}
 \title{refresh.predictors.daily}
 \usage{
-refresh.predictors.daily(x, y, n, w)
+refresh.predictors.daily(x, y, n, w, h = "D")
 }
 \arguments{
 \item{x}{= a file (predictors)}
@@ -14,6 +14,8 @@ refresh.predictors.daily(x, y, n, w)
 \item{n}{= a string (last part of query after date restriction)}
 
 \item{w}{= a connection string}
+
+\item{h}{= a frequency (D/W)}
 }
 \description{
 refreshes the text file contains flows data from SQL
@@ -23,7 +25,6 @@ Other refresh: \code{\link{refresh.predictors.append}},
   \code{\link{refresh.predictors.monthly}},
   \code{\link{refresh.predictors.script}},
   \code{\link{refresh.predictors.troika}},
-  \code{\link{refresh.predictors.weekly}},
   \code{\link{refresh.predictors}}
 }
 \keyword{refresh.predictors.daily}

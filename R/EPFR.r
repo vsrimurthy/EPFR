@@ -9191,17 +9191,19 @@ refresh.predictors.append <- function (x, y)
 #' @param y = query needed to get full history
 #' @param n = a string (last part of query after date restriction)
 #' @param w = a connection string
+#' @param h = a frequency (D/W)
 #' @keywords refresh.predictors.daily
 #' @export
 #' @family refresh
 
-refresh.predictors.daily <- function (x, y, n, w) 
+refresh.predictors.daily <- function (x, y, n, w, h = "D") 
 {
     fcn <- function(z, l, k) {
-        z <- refresh.predictors.script(y, n, "DayEnding", l)
+        z <- refresh.predictors.script(y, n, sql.Flow.tbl(h, 
+            F), l)
         mat.index(sql.query(z, w))
     }
-    z <- refresh.predictors(fcn, x, publish.daily.last())
+    z <- refresh.predictors(fcn, x, ff.publish.last(h))
     z
 }
 
@@ -9219,7 +9221,8 @@ refresh.predictors.daily <- function (x, y, n, w)
 refresh.predictors.monthly <- function (x, y, n, w) 
 {
     fcn <- function(z, l, k) {
-        z <- refresh.predictors.script(y, n, "MonthEnding", l)
+        z <- refresh.predictors.script(y, n, sql.Flow.tbl("M", 
+            F), l)
         mat.index(sql.query(z, w))
     }
     z <- refresh.predictors(fcn, x, publish.monthly.last())
@@ -9280,27 +9283,6 @@ refresh.predictors.troika <- function (fcn, x, y, n = list())
     }
     else cat("There is no need to update the data ..\n")
     invisible()
-}
-
-#' refresh.predictors.weekly
-#' 
-#' refreshes the text file contains flows data from SQL
-#' @param x = a file (predictors)
-#' @param y = query needed to get full history
-#' @param n = a string (last part of query after date restriction)
-#' @param w = a connection string
-#' @keywords refresh.predictors.weekly
-#' @export
-#' @family refresh
-
-refresh.predictors.weekly <- function (x, y, n, w) 
-{
-    fcn <- function(z, l, k) {
-        z <- refresh.predictors.script(y, n, "WeekEnding", l)
-        mat.index(sql.query(z, w))
-    }
-    z <- refresh.predictors(fcn, x, publish.weekly.last())
-    z
 }
 
 #' renorm
