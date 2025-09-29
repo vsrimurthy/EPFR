@@ -13908,7 +13908,7 @@ sql.ShareClass <- function (x, y)
         z <- sql.ShareClass.underlying(y)
         z <- sql.and(list(A = x, B = z))
     }
-    else z <- x
+    else z <- sql.and(x)
     z
 }
 
