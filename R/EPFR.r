@@ -6373,9 +6373,7 @@ mk.1dFloMo.Ctry <- function (x, y, n, w, h, u = "E", v = F, g = F)
     s <- sql.Allocation(c("FundId", "CountryId", "Allocation"), 
         "Country", "Domicile", , sql.and(s))
     if (g) {
-        g <- list(A = wrap(x))
-        g[["B"]] <- sql.in("SCID", sql.tbl("SCID", "ShareClass", 
-            "InstOrRetail = 'Inst'"))
+        g <- list(A = wrap(x), B = sql.ShareClass.underlying("Inst"))
     }
     else g <- list(A = wrap(x))
     r <- c(sql.Flow.tbl(h, F), "FundId", y)
@@ -6425,71 +6423,6 @@ mk.1dFloMo.Ctry.rslt <- function (x, y, n)
     if (length(x) > 1) 
         y <- reshape.long(y, x, "item")
     z <- reshape.wide(y)
-    z
-}
-
-#' mk.1dFloMo.CtrySG
-#' 
-#' SQL query for daily/weekly regional flow momentum
-#' @param x = a flowdate/YYYYMMDD (backtest start)
-#' @param y = a string (Flow/AssetsStart/AssetsEnd/PortfolioChange)
-#' @param n = a string (one of Ctry/FX)
-#' @param w = a connection string/connection
-#' @param h = a frequency (T/F for daily/weekly)
-#' @param u = a filter vector
-#' @param v = a boolean (institutional/all share classes)
-#' @keywords mk.1dFloMo.CtrySG
-#' @export
-#' @family mk
-
-mk.1dFloMo.CtrySG <- function (x, y, n, w, h, u = "E", v = F) 
-{
-    if (n == "Ctry") {
-        z <- as.character(sql.1dFloMo.CountryId.List(n, x))
-        z <- z[!is.na(Ctry.info(z, "GeoId"))]
-        z <- vec.named(z, Ctry.info(z, "GeoId"))
-    }
-    else if (n == "FX") {
-        z <- sql.1dFloMo.CountryId.List(n, x)
-        n <- mat.read(parameters("classif-Ctry"))[, c("CountryId", 
-            "GeoId")]
-        n <- n[is.element(n[, "CountryId"], names(z)) & !is.na(n[, 
-            "GeoId"]), ]
-        z <- z[as.character(n[, "CountryId"])]
-        names(z) <- n[, "GeoId"]
-    }
-    else {
-        stop("Can't handle this ..\n")
-    }
-    z <- split(names(z), z)
-    z <- sapply(z, function(z) if (length(z) == 1) 
-        paste("GeographicFocus =", z)
-    else paste0("GeographicFocus in (", paste(z, collapse = ", "), 
-        ")"))
-    z <- sql.1dFloMo.CtrySG(x, y, z, h, u, v)
-    z <- sql.query(z, w)
-    z
-}
-
-#' mk.1dFloMo.FI
-#' 
-#' SQL query for daily/weekly regional flow momentum
-#' @param x = a flowdate/YYYYMMDD (backtest start)
-#' @param y = a string (Flow/AssetsStart/AssetsEnd/PortfolioChange)
-#' @param n = a connection string/connection
-#' @param w = a frequency (T/F for daily/weekly)
-#' @param h = a filter vector
-#' @param u = a boolean (institutional/all share classes)
-#' @keywords mk.1dFloMo.FI
-#' @export
-#' @family mk
-
-mk.1dFloMo.FI <- function (x, y, n, w, h = "All", u = F) 
-{
-    h <- c("FundType in ('B', 'M')", h)
-    z <- sql.1dFloMo.FI.grp()
-    z <- sql.1dFloMo.CtrySG(x, y, z, w, h, u)
-    z <- sql.query(z, n)
     z
 }
 
@@ -6589,30 +6522,6 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
     z
 }
 
-#' mk.1dFloMo.Rgn
-#' 
-#' SQL query for daily/weekly regional flow momentum
-#' @param x = a flowdate/YYYYMMDD (backtest start)
-#' @param y = a string (Flow/AssetsStart/AssetsEnd/PortfolioChange)
-#' @param n = a connection string/connection
-#' @param w = a frequency (T/F for daily/weekly)
-#' @param h = a filter vector
-#' @param u = a boolean (institutional/all share classes)
-#' @keywords mk.1dFloMo.Rgn
-#' @export
-#' @family mk
-
-mk.1dFloMo.Rgn <- function (x, y, n, w, h = "E", u = F) 
-{
-    z <- c("AsiaXJP", "EurXGB", "JP", "LatAm", "UK", "US", "PacxJP")
-    z <- map.rname(vec.ex.filters("macro"), z)
-    names(z) <- c("AsiaXJP", "EurXGB", "Japan", "LatAm", "UK", 
-        "USA", "PacXJP")
-    z <- sql.1dFloMo.CtrySG(x, y, z, w, h, u)
-    z <- sql.query(z, n)
-    z
-}
-
 #' mk.1dFloMo.Sec
 #' 
 #' SQL query for daily/weekly CBE flow momentum
@@ -6668,9 +6577,7 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h, u = F, v = F)
     g <- sql.delete("#CTRY", g)
     z <- c(z, "", g)
     if (v) {
-        x <- list(A = wrap(x))
-        x[["B"]] <- sql.in("SCID", sql.tbl("SCID", "ShareClass", 
-            "InstOrRetail = 'Inst'"))
+        x <- list(A = wrap(x), B = sql.ShareClass.underlying("Inst"))
     }
     else x <- list(A = wrap(x))
     if (u) {
@@ -11136,50 +11043,6 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
     z
 }
 
-#' sql.1dFloMo.CtrySG
-#' 
-#' SQL query for daily/weekly flow momentum by group
-#' @param x = a flowdate/YYYYMMDD (backtest start)
-#' @param y = a string (Flow/AssetsStart/AssetsEnd/PortfolioChange)
-#' @param n = a string vector (group definitions)
-#' @param w = a frequency (T/F for daily/weekly or D/W/M)
-#' @param h = a filter vector
-#' @param u = a boolean (institutional/all share classes)
-#' @keywords sql.1dFloMo.CtrySG
-#' @export
-#' @family sql
-
-sql.1dFloMo.CtrySG <- function (x, y, n, w, h, u) 
-{
-    y <- paste0(y, " = sum(", y, ")")
-    y <- c("grp", sql.yyyymmdd(sql.Flow.tbl(w, F)), y)
-    z <- sql.case("grp", n, c(names(n), "Other"), F)
-    x <- list(A = paste0(sql.Flow.tbl(w, F), " >= '", x, "'"), 
-        B = "not grp = 'Other'")
-    if (u) 
-        x[["C"]] <- sql.in("SCID", sql.tbl("SCID", "ShareClass", 
-            "InstOrRetail = 'Inst'"))
-    z <- sql.Flow(y, x, h, z, w, paste0(sql.Flow.tbl(w, F), ", grp"))
-    z <- paste(sql.unbracket(z), collapse = "\n")
-    z
-}
-
-#' sql.1dFloMo.FI.grp
-#' 
-#' named vector of fixed-income strategy groupings
-#' @keywords sql.1dFloMo.FI.grp
-#' @export
-#' @family sql
-
-sql.1dFloMo.FI.grp <- function () 
-{
-    z <- c("M", "FLOATS", "USTRIN", "USTRLT", "USTRST", "USMUNI", 
-        "HYIELD", "WESEUR", "GLOBEM", "GLOFIX")
-    z <- map.rname(vec.ex.filters("macro"), z)
-    names(z)[1] <- "CASH"
-    z
-}
-
 #' sql.1dFloMo.filter
 #' 
 #' implements filters for 1dFloMo
@@ -12861,9 +12724,7 @@ sql.CtryFlow.Flow <- function (x, y, n, w, h, u)
 {
     y <- c(n, paste0(y, " = sum(", y, ")"))
     if (u) {
-        u <- list(A = "@floDt")
-        u[["B"]] <- sql.in("SCID", sql.tbl("SCID", "ShareClass", 
-            "InstOrRetail = 'Inst'"))
+        u <- list(A = "@floDt", B = sql.ShareClass.underlying("Inst"))
     }
     else u <- list(A = "@floDt")
     z <- sql.Flow(y, u, h, n, w, paste(n, collapse = ", "))
@@ -13182,11 +13043,17 @@ sql.extra.domicile <- function (x, y, n)
 
 sql.Flow <- function (x, y, n = "All", w = NULL, h = T, u, v) 
 {
+    g <- is.element(n, c("Inst", "Retail"))
+    if (any(g)) {
+        g <- n[g]
+        n <- setdiff(n, g)
+    }
+    else g <- "All"
     z <- sql.label(sql.FundHistory(n, F, c("FundId", w)), "t2")
     z <- c(z, "\ton t2.HFundId = t1.HFundId")
     z <- c(paste(sql.Flow.tbl(h, T), "t1"), "inner join", z)
     z <- list(x = x, y = z)
-    if (!missing(y)) 
+    if (!missing(y)) {
         if (length(y[[1]]) > 1) {
             y[[1]] <- paste(y[[1]], collapse = ", ")
             y[[1]] <- paste0(sql.Flow.tbl(h, F), " in (", y[[1]], 
@@ -13195,8 +13062,11 @@ sql.Flow <- function (x, y, n = "All", w = NULL, h = T, u, v)
         else if (grepl("^(@.*|'.*')$", y[[1]])) {
             y[[1]] <- paste(sql.Flow.tbl(h, F), "=", y[[1]])
         }
-    if (!missing(y)) 
-        z[["n"]] = sql.and(y)
+        z[["n"]] <- sql.ShareClass(y, g)
+    }
+    else if (g != "All") {
+        z[["n"]] <- sql.ShareClass.underlying(g)
+    }
     if (!missing(u)) 
         z[["w"]] <- u
     if (!missing(v)) 
@@ -14002,11 +13872,25 @@ sql.ReportDate <- function (x)
 sql.ShareClass <- function (x, y) 
 {
     if (any(y == c("Inst", "Retail"))) {
-        z <- sql.tbl("SCID", "ShareClass", "InstOrRetail = 'Inst'")
-        z <- sql.in("SCID", z, y == "Inst")
+        z <- sql.ShareClass.underlying(y)
         z <- sql.and(list(A = x, B = z))
     }
     else z <- x
+    z
+}
+
+#' sql.ShareClass.underlying
+#' 
+#' Generates where clause for share-class filter
+#' @param x = a ShareClass filter (Inst/Retail)
+#' @keywords sql.ShareClass.underlying
+#' @export
+#' @family sql
+
+sql.ShareClass.underlying <- function (x) 
+{
+    z <- sql.tbl("SCID", "ShareClass", "InstOrRetail = 'Inst'")
+    z <- sql.in("SCID", z, x == "Inst")
     z
 }
 
