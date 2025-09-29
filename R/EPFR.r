@@ -3492,6 +3492,38 @@ ff.frequency <- function (x)
     z
 }
 
+#' ff.FundHistory
+#' 
+#' additional columns needed from FundHistory
+#' @param x = a string (Flow/AssetsStart/AssetsEnd/PortfolioChange)
+#' @keywords ff.FundHistory
+#' @export
+#' @family ff
+
+ff.FundHistory <- function (x) 
+{
+    if (gsub("%$", "", x) == "SignFlo") 
+        "Bear"
+    else NULL
+}
+
+#' ff.item
+#' 
+#' select statement item
+#' @param x = a string (Flow/AssetsStart/AssetsEnd/PortfolioChange)
+#' @keywords ff.item
+#' @export
+#' @family ff
+
+ff.item <- function (x) 
+{
+    if (x == "SignFlo") {
+        z <- "Flow * case when Bear = 'Y' then -1 else 1 end"
+    }
+    else z <- x
+    z
+}
+
 #' ff.publish.last
 #' 
 #' D/W/M depending on frequency of the data
@@ -3565,18 +3597,19 @@ ff.refresh.predictors.sql <- function (x, y, n, w = NULL, h = NULL)
     v <- gsub(" in \\(", " = ", v)
     v <- gsub("^\\(", "", v)
     v <- unique(txt.trim(txt.parse(v, " = ")[, 1]))
+    v <- union(v, ff.FundHistory(y))
     if (grepl("%$", y)) {
         y <- c(gsub("%$", "", y), "AssetsStart")
         y <- vec.to.list(y, T, T)
         y <- lapply(y, function(y) sapply(z, function(z) paste("case when", 
-            z, "then", y, "else NULL end")))
+            z, "then", ff.item(y), "else NULL end")))
         y <- array.ex.list(y, T, T)
         y <- split(y, factor(x, levels = rownames(y)))
         y <- sapply(y, function(x) sql.Mo(x[1], x[2], NULL, T))
     }
     else {
         y <- sapply(z, function(z) paste("= sum(case when", z, 
-            "then", y, "else NULL end)"))
+            "then", ff.item(y), "else NULL end)"))
     }
     z <- paste0("[", names(z), "] ", y)
     if (n == "M") {

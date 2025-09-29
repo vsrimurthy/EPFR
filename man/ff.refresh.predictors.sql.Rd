@@ -21,7 +21,8 @@ ff.refresh.predictors.sql(x, y, n, w = NULL, h = NULL)
 SQL query to refresh <x>
 }
 \seealso{
-Other ff: \code{\link{ff.frequency}},
+Other ff: \code{\link{ff.FundHistory}},
+  \code{\link{ff.frequency}}, \code{\link{ff.item}},
   \code{\link{ff.publish.last}},
   \code{\link{ff.refresh.predictors}}
 }

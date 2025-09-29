@@ -17,7 +17,8 @@ ff.refresh.predictors(x, y, n = NULL)
 refreshes <x> all the way up to the present
 }
 \seealso{
-Other ff: \code{\link{ff.frequency}},
+Other ff: \code{\link{ff.FundHistory}},
+  \code{\link{ff.frequency}}, \code{\link{ff.item}},
   \code{\link{ff.publish.last}},
   \code{\link{ff.refresh.predictors.sql}}
 }

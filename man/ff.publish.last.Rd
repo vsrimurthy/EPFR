@@ -13,7 +13,8 @@ ff.publish.last(x)
 D/W/M depending on frequency of the data
 }
 \seealso{
-Other ff: \code{\link{ff.frequency}},
+Other ff: \code{\link{ff.FundHistory}},
+  \code{\link{ff.frequency}}, \code{\link{ff.item}},
   \code{\link{ff.refresh.predictors.sql}},
   \code{\link{ff.refresh.predictors}}
 }
