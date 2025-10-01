@@ -3596,6 +3596,8 @@ ff.refresh.predictors.sql <- function (x, y, n, w = NULL, h = NULL)
     v <- txt.parse(v, " and ")
     v <- gsub(" in \\(", " = ", v)
     v <- gsub("^\\(", "", v)
+    v <- gsub("(isnull *\\( *)(.*)(,.*\\))", "\\2", v)
+    v <- gsub("^ *not *", "", v)
     v <- unique(txt.trim(txt.parse(v, " = ")[, 1]))
     v <- union(v, ff.FundHistory(y))
     if (grepl("%$", y)) {
