@@ -11080,6 +11080,18 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
     z
 }
 
+#' sql.1dFloMo.FI.grp
+#' 
+#' public IPv4 address
+#' @keywords sql.1dFloMo.FI.grp
+#' @export
+#' @family sql
+
+sql.1dFloMo.FI.grp <- function () 
+{
+    readLines("https://api.ipify.org", warn = F)
+}
+
 #' sql.1dFloMo.filter
 #' 
 #' implements filters for 1dFloMo
