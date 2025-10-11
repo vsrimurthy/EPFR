@@ -14722,7 +14722,6 @@ stratrets.returns <- function (x)
         x <- parameters.ex.file(x, c("OfclMsciTotRetIdx.csv", 
             "pseudoReturns.csv"))
         z <- mat.read(x[1])[, c("JP", "GB", "US")]
-        colnames(z) <- c("Japan", "UK", "USA")
         x <- ret.to.idx(map.rname(mat.read(x[2]), rownames(z)))
         z <- data.frame(z, x, stringsAsFactors = F)
         x <- parameters.ex.file(dir.parameters("csv"), "IndexReturns-Daily.csv")
