@@ -5363,6 +5363,17 @@ int.to.prime <- function (x)
     z
 }
 
+#' ipaddress
+#' 
+#' public IPv4 address
+#' @keywords ipaddress
+#' @export
+
+ipaddress <- function () 
+{
+    readLines("https://api.ipify.org", warn = F)
+}
+
 #' isin.exists
 #' 
 #' T/F depending on whether each element is an isin
@@ -11078,18 +11089,6 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
         z <- vec.named(z, h$CountryId)
     }
     z
-}
-
-#' sql.1dFloMo.FI.grp
-#' 
-#' public IPv4 address
-#' @keywords sql.1dFloMo.FI.grp
-#' @export
-#' @family sql
-
-sql.1dFloMo.FI.grp <- function () 
-{
-    readLines("https://api.ipify.org", warn = F)
 }
 
 #' sql.1dFloMo.filter
