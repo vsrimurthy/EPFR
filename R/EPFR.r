@@ -11042,7 +11042,7 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
         z <- Ctry.msci.members("ACWI", y)
         classif.type <- "Ctry"
     }
-    else if (x == "FX") {
+    else if (x == "FX" | x == "EXIM") {
         z <- Ctry.msci.members.rng("ACWI", "200704", "300012")
         z <- c(z, "CY", "EE", "LV", "LT", "SK", "SI")
         classif.type <- "Ctry"
@@ -11077,6 +11077,15 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
     }
     else if (x == "FX") {
         z <- vec.named(h$Curr, h$CountryId)
+    }
+    else if (x == "EXIM") {
+        z <- h$Curr
+        z <- ifelse(is.element(z, c("AUD", "BRL", "CAD", "MXN", 
+            "NOK", "NZD")), "EX", z)
+        z <- ifelse(is.element(z, c("CHF", "CNY", "EUR", "GBP", 
+            "INR", "JPY", "SGD", "TRY")), "IM", z)
+        z <- vec.named(z, h$CountryId)
+        z <- z[is.element(z, c("EX", "IM"))]
     }
     else if (x == "Sector") {
         z <- vec.named(z, h$SectorId)
