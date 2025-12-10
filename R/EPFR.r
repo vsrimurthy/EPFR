@@ -4699,6 +4699,8 @@ html.email <- function (x, y = T)
     w <- aggregate(w["recipient"], by = w["email"], FUN = mean)
     w <- zav(map.rname(mat.index(w, "email"), rownames(h)))
     w <- is.element(w, 1)
+    fail <- any(is.na(h$yyyymmdd) | is.na(h$target) | h$yyyymmdd < 
+        h$target)
     z <- NULL
     if (any(!w)) 
         z <- c(z, html.problem.underlying(paste0("<b>", rownames(h)[!w], 
@@ -4715,6 +4717,8 @@ html.email <- function (x, y = T)
     h <- record.track(x, "upload", y)
     h <- h[is.na(h$yyyymmdd) | h$yyyymmdd != h$target | h$today, 
         ]
+    fail <- fail | any(is.na(h$yyyymmdd) | is.na(h$target) | 
+        h$yyyymmdd < h$target)
     z <- c(z, html.problem.underlying(paste0("<b>", rownames(h), 
         "</b>"), u, h$yyyymmdd < h$target))
     u <- paste("This morning the following indicators did not update:")
@@ -4724,11 +4728,18 @@ html.email <- function (x, y = T)
     h <- indicator.track(x, y)
     h <- h[is.na(h$yyyymmdd) | h$yyyymmdd != h$target | h$today, 
         ]
+    fail <- fail | any(is.na(h$yyyymmdd) | is.na(h$target) | 
+        h$yyyymmdd < h$target)
     z <- c(z, html.problem.underlying(paste0("<b>", do.call(paste, 
         h[, c("factor", "freq")]), "</b>"), u, h$yyyymmdd < h$target))
     z <- gsub("( one ..ternal report)s were ", "\\1 was ", z)
     z <- gsub(" one successful uploads\\.", " one successful upload.", 
         z)
+    if (!fail) {
+        fail <- ifelse(y, "Production.txt", "Production1930.txt")
+        fail <- paste0("C:\\temp\\Automation\\", fail)
+        writeLines("Success", fail)
+    }
     z <- paste(c("Dear All,", z, html.signature()), collapse = "")
     y <- ifelse(y, "ReportDeliveryList", "ReportDeliveryAsiaList")
     z <- email(recipient.read(y), "Report Delivery", z, , T)
