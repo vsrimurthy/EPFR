@@ -4,7 +4,7 @@
 \alias{knapsack.process}
 \title{knapsack.process}
 \usage{
-knapsack.process(x, y, n, w, h, u, v)
+knapsack.process(x, y, n, w, h, u, v, g = 52)
 }
 \arguments{
 \item{x}{= a matrix}
@@ -20,6 +20,8 @@ knapsack.process(x, y, n, w, h, u, v)
 \item{u}{= a string (log file, can be missing)}
 
 \item{v}{= an integer (sim number, can be missing)}
+
+\item{g}{= an integer (annualization factor, defaults to 52)}
 }
 \description{
 best AnnMn/Sharpe

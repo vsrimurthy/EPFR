@@ -5530,11 +5530,12 @@ knapsack.prev <- function (x)
 #' @param h = a list (result object)
 #' @param u = a string (log file, can be missing)
 #' @param v = an integer (sim number, can be missing)
+#' @param g = an integer (annualization factor, defaults to 52)
 #' @keywords knapsack.process
 #' @export
 #' @family knapsack
 
-knapsack.process <- function (x, y, n, w, h, u, v) 
+knapsack.process <- function (x, y, n, w, h, u, v, g = 52) 
 {
     z <- h
     h <- !missing(u) & !missing(v)
@@ -5547,7 +5548,7 @@ knapsack.process <- function (x, y, n, w, h, u, v)
             FUN = mean)
         r <- pivot.1d(sum, r[, "row"], ifelse(is.element(r[, 
             "col"], 1), 1, -1) * r[, "x"])
-        r <- c(52 * mean(r), sqrt(52) * mean(r)/sd(r))
+        r <- c(g * mean(r), sqrt(g) * mean(r)/sd(r))
         if (any(r > sapply(z, function(z) z[["tgt"]]))) {
             if (r[1] > z[["AnnMn"]][["tgt"]]) {
                 z[["AnnMn"]][["tgt"]] <- r[1]
