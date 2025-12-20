@@ -2592,12 +2592,8 @@ fcn.comments.parse <- function (x)
                 x <- x[-1]
             }
             z$detl.args <- fcn.extract.args(z$detl.args)
-            if (length(z$detl.args) == 1 & z$detl.args[1] != 
-                "none") {
-                z$args <- txt.parse(z$detl.args, " =")[1]
-            }
-            else if (length(z$detl.args) > 1) 
-                z$args <- txt.parse(z$detl.args, " =")[, 1]
+            if (z$detl.args[1] != "none") 
+                z$args <- gsub(" =.*$", "", z$detl.args)
         }
     }
     z$missing <- grepl("[ (]can be missing)", z$detl.args)
@@ -3228,7 +3224,7 @@ fcn.roxygenize <- function (x, y, n)
     if (!missing(n)) {
         if (any(x == n) | any(txt.left(x, nchar(n) + 1) == paste0(n, 
             "."))) {
-            z <- c(z, paste("@family", txt.parse(x, ".")[1]))
+            z <- c(z, paste("@family", gsub("\\..*$", "", x)))
         }
     }
     if (!missing(y)) {
@@ -3599,7 +3595,7 @@ ff.refresh.predictors.sql <- function (x, y, n, w = NULL, h = NULL)
     v <- gsub(" not *= ", " = ", v)
     v <- gsub("(isnull *\\( *)(.*)(,.*\\))", "\\2", v)
     v <- gsub("^ *not *", "", v)
-    v <- unique(txt.trim(txt.parse(v, " = ")[, 1]))
+    v <- unique(txt.trim(gsub(" = .*$", "", v)))
     v <- union(v, ff.FundHistory(y))
     if (grepl("%$", y)) {
         y <- c(gsub("%$", "", y), "AssetsStart")
@@ -4121,13 +4117,7 @@ ftp.dir.parse.sftp <- function (x)
         stringsAsFactors = F)
     names(z) <- c("mm", "dd", "yyyy", "file")
     z[, "is.file"] <- grepl("^-", y)
-    if (dim(z)[1] == 1) {
-        z[, "size"] <- char.to.num(txt.parse(txt.itrim(y), txt.space(1))[5])/2^10
-    }
-    else {
-        z[, "size"] <- char.to.num(txt.parse(txt.itrim(y), txt.space(1))[, 
-            5])/2^10
-    }
+    z[, "size"] <- char.to.num(gsub("^.* ", "", txt.itrim(txt.trim(y))))/2^10
     z$mm <- match(z$mm, month.abb)
     z$yyyy <- ifelse(grepl(":", z$yyyy), yyyymm.to.yyyy(yyyymmdd.to.yyyymm(today())), 
         z$yyyy)
