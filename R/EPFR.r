@@ -2392,9 +2392,8 @@ fcn.all.canonical <- function ()
 
 fcn.all.roxygenize <- function (x) 
 {
-    n <- fcn.list()
-    n <- txt.parse(n, ".")
-    n <- n[n[, 2] != "", 1]
+    n <- grep("\\.", fcn.list(), value = T)
+    n <- gsub("\\..*$", "", n)
     n <- vec.count(n)
     n <- names(n)[n > 1]
     y <- vec.named("mat.read", "utils")
@@ -16361,9 +16360,7 @@ yyyymmdd.ex.txt <- function (x, y = "/", n = "MDY")
 {
     x <- as.character(x)
     w <- length(x) == 1
-    if (w) 
-        x <- txt.parse(x, " ")[1]
-    else x <- txt.parse(x, " ")[, 1]
+    x <- gsub(" .*$", "", x)
     x <- txt.parse(x, y)
     if (w) 
         x <- matrix(char.to.num(x), 1, 3)
