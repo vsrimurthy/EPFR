@@ -276,7 +276,7 @@ args.missing <- function (x)
 {
     x <- fcn.lines.code(x, F)
     z <- "^(.*if \\(missing\\()(.)(\\).*)$"
-    x <- x[grepl(z, x)]
+    x <- grep(z, x, value = T)
     z <- unique(gsub(z, "\\2", x))
     z
 }
@@ -2769,7 +2769,7 @@ fcn.expressions.to.txt <- function (x)
         z <- c(z, txt.itrim(u))
     }
     u <- "^(.*)(\\(\\))$"
-    z <- z[grepl(u, z)]
+    z <- grep(u, z, value = T)
     z <- gsub(u, "\\1", z)
     z <- gsub("^(\\()(.*)(\\))$", "\\2", z)
     z
