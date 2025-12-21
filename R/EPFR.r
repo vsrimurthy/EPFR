@@ -12535,9 +12535,7 @@ sql.BenchIndex.duplication <- function (x)
 
 sql.breakdown <- function (x) 
 {
-    z <- setdiff(x, "All")
-    z <- ifelse(z == "GeoId", "GeographicFocus", x)
-    z
+    setdiff(ifelse(x == "GeoId", "GeographicFocus", x), "All")
 }
 
 #' sql.Bullish
@@ -14265,12 +14263,7 @@ sql.ui <- function ()
 
 sql.unbracket <- function (x) 
 {
-    n <- length(x)
-    if (!grepl("^\\(", x[1]) | x[n] != ")") 
-        stop("Can't unbracket!")
-    x[1] <- gsub("^.", "", x[1])
-    z <- x[-n]
-    z
+    c(gsub("^\\(", "", x[1]), x[3:length(x) - 1])
 }
 
 #' sql.update
