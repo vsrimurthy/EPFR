@@ -13,8 +13,8 @@ html.and(x)
 <x> stated in a grammatical phrase
 }
 \seealso{
-Other html: \code{\link{html.email}},
-  \code{\link{html.ex.utf8}},
+Other html: \code{\link{html.email.done}},
+  \code{\link{html.email}}, \code{\link{html.ex.utf8}},
   \code{\link{html.flow.CountInOut}},
   \code{\link{html.flow.breakdown}},
   \code{\link{html.flow.english}},

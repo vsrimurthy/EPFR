@@ -4725,13 +4725,27 @@ html.email <- function (x, y = T)
     z <- gsub(" one successful uploads\\.", " one successful upload.", 
         z)
     if (!fail) {
-        fail <- ifelse(y, "Production.txt", "Production1930.txt")
-        fail <- paste0("C:\\temp\\Automation\\", fail)
-        writeLines("Success", fail)
+        fail <- ifelse(y, "Production", "Production1930")
+        html.email.done(fail)
     }
     z <- paste(c("Dear All,", z, html.signature()), collapse = "")
     y <- ifelse(y, "ReportDeliveryList", "ReportDeliveryAsiaList")
     z <- email(recipient.read(y), "Report Delivery", z, , T)
+    invisible()
+}
+
+#' html.email.done
+#' 
+#' signals a successful production run
+#' @param x = a string (process name)
+#' @keywords html.email.done
+#' @export
+#' @family html
+
+html.email.done <- function (x) 
+{
+    writeLines("Success", paste0("C:\\temp\\Automation\\", x, 
+        ".txt"))
     invisible()
 }
 

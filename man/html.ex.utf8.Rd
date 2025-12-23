@@ -14,7 +14,7 @@ code to represent <x> in html
 }
 \seealso{
 Other html: \code{\link{html.and}},
-  \code{\link{html.email}},
+  \code{\link{html.email.done}}, \code{\link{html.email}},
   \code{\link{html.flow.CountInOut}},
   \code{\link{html.flow.breakdown}},
   \code{\link{html.flow.english}},
