@@ -4,10 +4,12 @@
 \alias{html.email.done}
 \title{html.email.done}
 \usage{
-html.email.done(x)
+html.email.done(x, y)
 }
 \arguments{
-\item{x}{= a string (process name)}
+\item{x}{= a flowdate (date bat file invoked)}
+
+\item{y}{= a string (process name)}
 }
 \description{
 signals a successful production run

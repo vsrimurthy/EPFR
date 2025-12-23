@@ -7,7 +7,7 @@
 html.email(x, y = T)
 }
 \arguments{
-\item{x}{= a flowdate (can be missing)}
+\item{x}{= a flowdate  (date bat file invoked, can be missing)}
 
 \item{y}{= a boolean (regular/Asia process)}
 }

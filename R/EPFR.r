@@ -4664,7 +4664,7 @@ html.and <- function (x)
 #' html.email
 #' 
 #' writes outgoing email report for <x>
-#' @param x = a flowdate (can be missing)
+#' @param x = a flowdate  (date bat file invoked, can be missing)
 #' @param y = a boolean (regular/Asia process)
 #' @keywords html.email
 #' @export
@@ -4726,7 +4726,7 @@ html.email <- function (x, y = T)
         z)
     if (!fail) {
         fail <- ifelse(y, "Production", "Production1930")
-        html.email.done(fail)
+        html.email.done(x, fail)
     }
     z <- paste(c("Dear All,", z, html.signature()), collapse = "")
     y <- ifelse(y, "ReportDeliveryList", "ReportDeliveryAsiaList")
@@ -4737,15 +4737,19 @@ html.email <- function (x, y = T)
 #' html.email.done
 #' 
 #' signals a successful production run
-#' @param x = a string (process name)
+#' @param x = a flowdate (date bat file invoked)
+#' @param y = a string (process name)
 #' @keywords html.email.done
 #' @export
 #' @family html
 
-html.email.done <- function (x) 
+html.email.done <- function (x, y) 
 {
-    writeLines("Success", paste0("C:\\temp\\Automation\\", x, 
+    writeLines("Success", paste0("C:\\temp\\Automation\\", y, 
         ".txt"))
+    path <- paste0(dir.parameters("Internal"), "\\ProductionLog\\", 
+        machine.info("Quant"), ".txt")
+    cat(paste(y, x, Sys.time(), "\n"), file = path, append = T)
     invisible()
 }
 
