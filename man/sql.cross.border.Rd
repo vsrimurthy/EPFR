@@ -4,10 +4,7 @@
 \alias{sql.cross.border}
 \title{sql.cross.border}
 \usage{
-sql.cross.border(x)
-}
-\arguments{
-\item{x}{= a boolean (StockFlows/Macro)}
+sql.cross.border()
 }
 \description{
 Returns a list object of cross-border Geo. Foci and their names

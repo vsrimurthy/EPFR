@@ -11061,7 +11061,7 @@ sql.1dFloMo.CountryId.List <- function (x, y = "")
         z <- Ctry.msci.members("ACWI", y)
         classif.type <- "Ctry"
     }
-    else if (x == "FX" | x == "EXIM") {
+    else if (grepl("^(FX|EXIM)$", x)) {
         z <- Ctry.msci.members.rng("ACWI", "200704", "300012")
         z <- c(z, "CY", "EE", "LV", "LT", "SK", "SI")
         classif.type <- "Ctry"
@@ -12736,20 +12736,16 @@ sql.connect.wrapper <- function (x)
 #' sql.cross.border
 #' 
 #' Returns a list object of cross-border Geo. Foci and their names
-#' @param x = a boolean (StockFlows/Macro)
 #' @keywords sql.cross.border
 #' @export
 #' @family sql
 
-sql.cross.border <- function (x) 
+sql.cross.border <- function () 
 {
-    y <- parameters("classif-GeoId")
-    y <- mat.read(y, "\t")
+    y <- mat.read(parameters("classif-GeoId"), "\t")
     y <- y[is.element(y$xBord, 1), ]
-    if (x) 
-        x <- "GeographicFocus"
-    else x <- "GeographicFocus"
-    z <- paste(x, "=", paste(rownames(y), y[, "Name"], sep = "--"))
+    z <- paste0("GeographicFocus = ", rownames(y), " -- ", y[, 
+        "Name"])
     z <- split(z, y[, "Abbrv"])
     z
 }
@@ -13242,7 +13238,7 @@ sql.FundHistory.macro <- function (x)
             z[[col.ex.int(length(z) + 1)]] <- n[y]
         }
         else if (y == "CB") {
-            z[[col.ex.int(length(z) + 1)]] <- c("(", sql.and(sql.cross.border(F), 
+            z[[col.ex.int(length(z) + 1)]] <- c("(", sql.and(sql.cross.border(), 
                 "or"), ")")
         }
         else if (y == "UI") {
@@ -13277,7 +13273,7 @@ sql.FundHistory.sf <- function (x)
             z[[col.ex.int(length(z) + 1)]] <- n[h]
         }
         else if (h == "CBE") {
-            z[[col.ex.int(length(z) + 1)]] <- c("(", sql.and(sql.cross.border(T), 
+            z[[col.ex.int(length(z) + 1)]] <- c("(", sql.and(sql.cross.border(), 
                 "or"), ")")
         }
         else {
