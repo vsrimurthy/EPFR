@@ -12733,23 +12733,6 @@ sql.connect.wrapper <- function (x)
     z
 }
 
-#' sql.cross.border
-#' 
-#' Returns a list object of cross-border Geo. Foci and their names
-#' @keywords sql.cross.border
-#' @export
-#' @family sql
-
-sql.cross.border <- function () 
-{
-    y <- mat.read(parameters("classif-GeoId"), "\t")
-    y <- y[is.element(y$xBord, 1), ]
-    z <- paste0("GeographicFocus = ", rownames(y), " -- ", y[, 
-        "Name"])
-    z <- split(z, y[, "Abbrv"])
-    z
-}
-
 #' sql.CtryFlow.Alloc
 #' 
 #' SQL query for allocations needed in country flows
@@ -13189,7 +13172,7 @@ sql.Foreign <- function ()
     x[, "GeoId"] <- paste("GeographicFocus is not NULL and", 
         x[, "GeoId"])
     z <- split(paste0("not (", x[, "DomicileId"], " and ", x[, 
-        "GeoId"], ")"), rownames(x))
+        "GeoId"], ")"), paste0("Foreign", 1:dim(x)[1]))
     z
 }
 
@@ -13231,28 +13214,16 @@ sql.FundHistory <- function (x, y, n)
 
 sql.FundHistory.macro <- function (x) 
 {
-    n <- vec.ex.filters("macro")
-    z <- list()
-    for (y in x) {
-        if (any(y == names(n))) {
-            z[[col.ex.int(length(z) + 1)]] <- n[y]
-        }
-        else if (y == "CB") {
-            z[[col.ex.int(length(z) + 1)]] <- c("(", sql.and(sql.cross.border(), 
-                "or"), ")")
-        }
-        else if (y == "UI") {
-            z[[col.ex.int(length(z) + 1)]] <- sql.ui()
-        }
-        else if (y == "Foreign") {
-            h <- sql.Foreign()
-            names(h) <- col.ex.int(length(z) + seq_along(h))
-            z <- c(z, h)
-        }
-        else {
-            z[[col.ex.int(length(z) + 1)]] <- y
-        }
+    z <- vec.ex.filters("macro")
+    if (any(x == "Foreign")) {
+        w <- sql.Foreign()
+        z <- c(z, w)
+        x <- c(setdiff(x, "Foreign"), names(w))
     }
+    w <- !is.element(x, names(z))
+    if (any(w)) 
+        z[x[w]] <- x[w]
+    z <- split(as.character(z[x]), x)
     z
 }
 
@@ -13266,20 +13237,11 @@ sql.FundHistory.macro <- function (x)
 
 sql.FundHistory.sf <- function (x) 
 {
-    n <- vec.ex.filters("sf")
-    z <- list()
-    for (h in x) {
-        if (any(h == names(n))) {
-            z[[col.ex.int(length(z) + 1)]] <- n[h]
-        }
-        else if (h == "CBE") {
-            z[[col.ex.int(length(z) + 1)]] <- c("(", sql.and(sql.cross.border(), 
-                "or"), ")")
-        }
-        else {
-            z[[col.ex.int(length(z) + 1)]] <- h
-        }
-    }
+    z <- vec.ex.filters("sf")
+    w <- !is.element(x, names(z))
+    if (any(w)) 
+        z[x[w]] <- x[w]
+    z <- split(as.character(z[x]), x)
     z
 }
 
@@ -14238,32 +14200,6 @@ sql.Trend <- function (x, y = "")
     else if (y == "Den") {
         z <- paste0("= sum(abs(", x, "))")
     }
-    z
-}
-
-#' sql.ui
-#' 
-#' funds to be displayed on the UI
-#' @keywords sql.ui
-#' @export
-#' @family sql
-
-sql.ui <- function () 
-{
-    z <- list()
-    z[["A"]] <- "FundType in ('M', 'A', 'Y', 'B', 'E')"
-    z[["B"]] <- "GeographicFocus not in (0, 18, 48)"
-    z[["C"]] <- "Category >= '1'"
-    z[["D"]] <- "isActive = 'Y'"
-    z <- c("(", sql.and(z), ")")
-    x <- list()
-    x[["A"]] <- "Commodity = 'Y'"
-    x[["B"]] <- "StyleSector in (101, 103)"
-    x[["C"]] <- "FundType in ('Y', 'E')"
-    x[["D"]] <- "isActive = 'Y'"
-    x <- c("(", sql.and(x), ")")
-    z <- list(A = z, B = x)
-    z <- c("(", sql.and(z, "or"), ")")
     z
 }
 
