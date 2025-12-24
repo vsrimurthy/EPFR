@@ -25,7 +25,7 @@ sf.daily(x, y, n, w, h, u, v, g = 5, r, s = NULL, b)
 
 \item{r}{= classif file}
 
-\item{s}{= an integer (NULL for daily or the day you trade, 0 = Sun, 1 = Mon, etc.)}
+\item{s}{= an integer (NULL for daily or the day you trade Mon/Tue/Wed/Thu/Fri)}
 
 \item{b}{= a positive integer (return window in days, can be missing)}
 }

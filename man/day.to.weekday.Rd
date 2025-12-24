@@ -10,7 +10,7 @@ day.to.weekday(x)
 \item{x}{= a string vector}
 }
 \description{
-Converts to 0 = Sun, 1 = Mon, .., 6 = Sat
+Converts to Sun, Mon, .., Sat
 }
 \seealso{
 Other day: \code{\link{day.ex.date}},

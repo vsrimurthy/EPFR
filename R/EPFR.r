@@ -1874,7 +1874,7 @@ day.to.week <- function (x, y)
 
 #' day.to.weekday
 #' 
-#' Converts to 0 = Sun, 1 = Mon, .., 6 = Sat
+#' Converts to Sun, Mon, .., Sat
 #' @param x = a string vector
 #' @keywords day.to.weekday
 #' @export
@@ -1882,7 +1882,7 @@ day.to.week <- function (x, y)
 
 day.to.weekday <- function (x) 
 {
-    as.character(as.POSIXlt(day.to.date(x))$wday)
+    format(day.to.date(x), "%a")
 }
 
 #' decimal.format
@@ -3478,7 +3478,7 @@ ff.frequency <- function (x)
         z <- "M"
     }
     else if (all(day.to.weekday(x) == ifelse(x < "20010919", 
-        5, 3))) {
+        "Fri", "Wed"))) {
         z <- "W"
     }
     else {
@@ -5349,19 +5349,6 @@ int.format <- function (x)
     txt.trim(prettyNum(as.character(x), big.mark = ","))
 }
 
-#' int.random
-#' 
-#' random integer between 1 and <x>
-#' @param x = a positive integer
-#' @keywords int.random
-#' @export
-#' @family int
-
-int.random <- function (x = 5) 
-{
-    order(rnorm(x))[1]
-}
-
 #' int.to.prime
 #' 
 #' prime factors of <x>
@@ -6232,8 +6219,8 @@ mat.to.xlModel <- function (x, y = 2, n = 5, w = F)
     }
     z[, "Close"] <- yyyymm.lag(z[, "Open"], -n)
     if (all(nchar(rownames(x)) == 8)) {
-        if (any(day.to.weekday(z[, "Open"]) != "5") | any(day.to.weekday(z[, 
-            "Close"]) != "5")) {
+        if (any(day.to.weekday(z[, "Open"]) != "Fri") | any(day.to.weekday(z[, 
+            "Close"]) != "Fri")) {
             cat("WARNING: YOU ARE NOT TRADING FRIDAY TO FRIDAY!\n")
         }
     }
@@ -8600,7 +8587,7 @@ publish.weekly.last <- function (x)
 {
     if (missing(x)) 
         x <- today()
-    z <- char.to.num(day.to.weekday(x))
+    z <- as.POSIXlt(day.to.date(x))$wday
     if (any(z == 5:6)) 
         z <- z - 3
     else z <- z + 4
@@ -8974,8 +8961,8 @@ record.track <- function (x, y, n)
 {
     z <- paste0(y, ifelse(n, "", "Asia"))
     z <- mat.read(parameters(paste0("classif-", z)), "\t")
-    z <- z[is.element(z[, "day"], c(format(day.to.date(x), "%a"), 
-        "All")), ]
+    z <- z[is.element(z[, "day"], c(day.to.weekday(x), "All")), 
+        ]
     z$yyyymmdd <- map.rname(record.read(paste0(y, ".txt")), rownames(z))
     z$today <- z$target <- rep(NA, dim(z)[1])
     z <- record.track.target(x, z, n)
@@ -9766,7 +9753,7 @@ sf.bin.nms <- function (x, y)
 #' @param v = a folder (data)
 #' @param g = an integer (number of bins)
 #' @param r = classif file
-#' @param s = an integer (NULL for daily or the day you trade, 0 = Sun, 1 = Mon, etc.)
+#' @param s = an integer (NULL for daily or the day you trade Mon/Tue/Wed/Thu/Fri)
 #' @param b = a positive integer (return window in days, can be missing)
 #' @keywords sf.daily
 #' @export
@@ -9791,9 +9778,9 @@ sf.daily <- function (x, y, n, w, h, u, v, g = 5, r, s = NULL, b)
         if (b%%5 != 0) 
             stop("<b> must be a multiple of 5!")
         b <- b/5
-        if (!is.element(day.to.weekday(x), s)) 
+        if (day.to.weekday(x) != s) 
             stop(x, " is not the end of the week!")
-        if (!is.element(day.to.weekday(y), s)) 
+        if (day.to.weekday(y) != s) 
             stop(y, " is not the end of the week!")
         z <- flowdate.seq(yyyymmdd.lag(x, 4), y)
         x <- vec.first(z)
@@ -15960,22 +15947,6 @@ versionR <- function ()
     version[["version.string"]]
 }
 
-#' weekday.to.name
-#' 
-#' Converts to 0 = Sun, 1 = Mon, .., 6 = Sat
-#' @param x = an integer vector (entries must be 0-6)
-#' @keywords weekday.to.name
-#' @export
-
-weekday.to.name <- function (x) 
-{
-    y <- c("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
-    y <- vec.named(y, 0:6)
-    z <- map.rname(y, x)
-    z <- as.character(z)
-    z
-}
-
 #' wrap
 #' 
 #' <x> wrapped in apostrophes
@@ -16329,7 +16300,7 @@ yyyymmdd.ex.yyyymm <- function (x, y = T)
 
 yyyymmdd.exists <- function (x) 
 {
-    is.element(day.to.weekday(x), 1:5)
+    grepl("^(Mon|Tue|Wed|Thu|Fri)$", day.to.weekday(x))
 }
 
 #' yyyymmdd.lag
