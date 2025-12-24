@@ -8587,11 +8587,8 @@ publish.weekly.last <- function (x)
 {
     if (missing(x)) 
         x <- today()
-    z <- as.POSIXlt(day.to.date(x))$wday
-    if (any(z == 5:6)) 
-        z <- z - 3
-    else z <- z + 4
-    z <- day.lag(x, z)
+    x <- day.to.int(x)
+    z <- day.ex.int(x - 1 - zav(nonneg(x%%7), 7))
     z
 }
 
