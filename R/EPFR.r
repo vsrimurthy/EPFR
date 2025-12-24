@@ -3292,7 +3292,7 @@ fcn.to.comments <- function (x)
         cat(x, "has lines with non-canonical leading characters!\n")
         z <- F
     }
-    comment.delimiter <- paste("#", txt.space(65, "-"))
+    comment.delimiter <- paste("#", strrep("-", 65))
     w <- y == comment.delimiter
     if (z & sum(w) != 2) {
         cat(x, "does not have precisely two comment delimiters!\n")
@@ -15280,7 +15280,7 @@ txt.hdr <- function (x)
     if (n%%2 == 1) 
         x <- paste0(x, " ")
     n <- (100 - n - n%%2)/2
-    z <- paste0(txt.space(n, "*"), x, txt.space(n, "*"))
+    z <- paste0(strrep("*", n), x, strrep("*", n))
     z
 }
 
@@ -15451,7 +15451,7 @@ txt.parse.delimit <- function (x)
 
 txt.prepend <- function (x, y, n) 
 {
-    paste0(txt.space(vec.max(y - nchar(x), 0), n), x)
+    paste0(strrep(n, vec.max(y - nchar(x), 0)), x)
 }
 
 #' txt.regexp
@@ -15514,20 +15514,6 @@ txt.reverse <- function (x)
 txt.right <- function (x, y) 
 {
     substring(x, nchar(x) - y + 1, nchar(x))
-}
-
-#' txt.space
-#' 
-#' returns <x> iterations of <y> pasted together
-#' @param x = an integer vector
-#' @param y = a string
-#' @keywords txt.space
-#' @export
-#' @family txt
-
-txt.space <- function (x, y = " ") 
-{
-    strrep(y, x)
 }
 
 #' txt.subclass
