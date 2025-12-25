@@ -8995,8 +8995,8 @@ record.track.target <- function (x, y, n)
     z[w, "today"] <- publish.weekly.last(flowdate.lag(x, -char.to.num(!n))) > 
         publish.weekly.last(flowdate.lag(x, 1 - char.to.num(!n)))
     w <- z[, "entry"] == "flow" & z[, "freq"] == "W"
-    z[w, "target"] <- publish.weekly.last(flowdate.lag(x, -char.to.num(!n)))
-    z[w, "today"] <- publish.weekly.last(flowdate.lag(x, -char.to.num(!n))) > 
+    z[w, "target"] <- publish.weekly.last(yyyymmdd.lag(x, -char.to.num(!n)))
+    z[w, "today"] <- publish.weekly.last(yyyymmdd.lag(x, -char.to.num(!n))) > 
         publish.weekly.last(flowdate.lag(x, 1 - char.to.num(!n)))
     w <- z[, "entry"] == "date" & z[, "freq"] == "M"
     y <- x
