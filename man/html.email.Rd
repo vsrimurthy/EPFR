@@ -4,10 +4,10 @@
 \alias{html.email}
 \title{html.email}
 \usage{
-html.email(x, y = T)
+html.email(x = today(), y = T)
 }
 \arguments{
-\item{x}{= a flowdate  (date bat file invoked, can be missing)}
+\item{x}{= a flowdate (date bat file invoked)}
 
 \item{y}{= a boolean (regular/Asia process)}
 }

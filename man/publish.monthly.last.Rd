@@ -4,10 +4,10 @@
 \alias{publish.monthly.last}
 \title{publish.monthly.last}
 \usage{
-publish.monthly.last(x, y = 23, n = 0)
+publish.monthly.last(x = today(), y = 23, n = 0)
 }
 \arguments{
-\item{x}{= a YYYYMMDD (can be missing)}
+\item{x}{= a YYYYMMDD (defaults to today)}
 
 \item{y}{= calendar day allocations are known the next month}
 

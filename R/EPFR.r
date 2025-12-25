@@ -3890,7 +3890,7 @@ flowdate.exists <- function (x)
 #' flowdate.lag
 #' 
 #' lags <x> by <y> daily flow-publication dates
-#' @param x = a flowdate vector
+#' @param x = a YYYYMMDD vector
 #' @param y = an integer vector
 #' @keywords flowdate.lag
 #' @export
@@ -4664,16 +4664,14 @@ html.and <- function (x)
 #' html.email
 #' 
 #' writes outgoing email report for <x>
-#' @param x = a flowdate  (date bat file invoked, can be missing)
+#' @param x = a flowdate (date bat file invoked)
 #' @param y = a boolean (regular/Asia process)
 #' @keywords html.email
 #' @export
 #' @family html
 
-html.email <- function (x, y = T) 
+html.email <- function (x = today(), y = T) 
 {
-    if (missing(x)) 
-        x <- today()
     u <- ifelse(y, "morning", "evening")
     u <- paste("This", u, "the following external emails did not go out:")
     u <- c("The QC process certified", "external reports were successfully emailed.", 
@@ -8541,52 +8539,44 @@ publications.data.kill <- function (x, y, n)
 #' publish.daily.last
 #' 
 #' last daily flow-publication date
-#' @param x = a YYYYMMDD (can be missing)
+#' @param x = a YYYYMMDD (defaults to today)
 #' @keywords publish.daily.last
 #' @export
 #' @family publish
 
-publish.daily.last <- function (x) 
+publish.daily.last <- function (x = today()) 
 {
-    if (missing(x)) 
-        x <- today()
-    z <- flowdate.lag(x, 2)
-    z
+    flowdate.lag(x, 2)
 }
 
 #' publish.monthly.last
 #' 
 #' date of last monthly publication
-#' @param x = a YYYYMMDD (can be missing)
+#' @param x = a YYYYMMDD (defaults to today)
 #' @param y = calendar day allocations are known the next month
 #' @param n = an integer
 #' @keywords publish.monthly.last
 #' @export
 #' @family publish
 
-publish.monthly.last <- function (x, y = 23, n = 0) 
+publish.monthly.last <- function (x = today(), y = 23, n = 0) 
 {
-    if (missing(x)) 
-        x <- today()
     z <- yyyymmdd.lag(x, 1)
     z <- yyyymmdd.to.AllocMo(z, y)
-    z <- yyyymm.lag(z, n)
-    z <- yyyymm.to.day(z)
+    z <- yyyymm.to.day(yyyymm.lag(z, n))
     z
 }
 
 #' publish.weekly.last
 #' 
 #' date of last weekly publication
-#' @param x = a YYYYMMDD (can be missing)
+#' @param x = a YYYYMMDD (defaults to today)
 #' @keywords publish.weekly.last
 #' @export
 #' @family publish
 
-publish.weekly.last <- function (x) 
+publish.weekly.last <- function (x = today()) 
 {
-    if (missing(x)) 
-        x <- today()
     x <- day.to.int(x)
     z <- day.ex.int(x - 1 - zav(nonneg(x%%7), 7))
     z

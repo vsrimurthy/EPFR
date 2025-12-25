@@ -4,10 +4,10 @@
 \alias{publish.daily.last}
 \title{publish.daily.last}
 \usage{
-publish.daily.last(x)
+publish.daily.last(x = today())
 }
 \arguments{
-\item{x}{= a YYYYMMDD (can be missing)}
+\item{x}{= a YYYYMMDD (defaults to today)}
 }
 \description{
 last daily flow-publication date

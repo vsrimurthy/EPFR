@@ -4,10 +4,10 @@
 \alias{publish.weekly.last}
 \title{publish.weekly.last}
 \usage{
-publish.weekly.last(x)
+publish.weekly.last(x = today())
 }
 \arguments{
-\item{x}{= a YYYYMMDD (can be missing)}
+\item{x}{= a YYYYMMDD (defaults to today)}
 }
 \description{
 date of last weekly publication
