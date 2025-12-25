@@ -7,7 +7,7 @@
 flowdate.exists(x)
 }
 \arguments{
-\item{x}{= a string vector}
+\item{x}{= a calendar date vector}
 }
 \description{
 returns T if <x> is a daily flow-publication date

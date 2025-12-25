@@ -3876,7 +3876,7 @@ flowdate.ex.yyyymm <- function (x, y = T)
 #' flowdate.exists
 #' 
 #' returns T if <x> is a daily flow-publication date
-#' @param x = a string vector
+#' @param x = a calendar date vector
 #' @keywords flowdate.exists
 #' @export
 #' @family flowdate
@@ -16290,14 +16290,14 @@ yyyymmdd.ex.yyyymm <- function (x, y = T)
 #' yyyymmdd.exists
 #' 
 #' returns T if <x> is a weekday
-#' @param x = a string vector
+#' @param x = a calendar date vector
 #' @keywords yyyymmdd.exists
 #' @export
 #' @family yyyymmdd
 
 yyyymmdd.exists <- function (x) 
 {
-    grepl("^(Mon|Tue|Wed|Thu|Fri)$", day.to.weekday(x))
+    is.element(day.to.int(x)%%7, c(0:1, 4:6))
 }
 
 #' yyyymmdd.lag
