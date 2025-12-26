@@ -45,8 +45,8 @@ mat.read <- function (x = "C:\\temp\\write.csv", y, n = 1, w = T, h = "")
 
 ret.outliers <- function (x, y = 1.5) 
 {
-    mdn <- median(x, na.rm = T)
-    y <- c(1/y, y) * (100 + mdn) - 100
+    z <- median(x, na.rm = T)
+    y <- c(1/y, y) * (100 + z) - 100
     z <- !is.na(x) & x > y[1] & x < y[2]
     z <- ifelse(z, x, NA)
     z
@@ -3709,9 +3709,7 @@ file.mtime.to.time <- function (x)
 
 file.time <- function (x) 
 {
-    z <- file.mtime(x)
-    z <- file.mtime.to.time(z)
-    z
+    file.mtime.to.time(file.mtime(x))
 }
 
 #' file.to.last
@@ -15815,8 +15813,10 @@ vec.last <- function (x)
 
 vec.max <- function (x, y) 
 {
-    fcn.mat.vec(function(z, l) ifelse(!is.na(z) & !is.na(l) & 
-        z < l, l, z), x, y, T)
+    fcn <- function(z, l) ifelse(is.na(z) | (!is.na(l) & z < 
+        l), l, z)
+    z <- fcn.mat.vec(fcn, x, y, T)
+    z
 }
 
 #' vec.min
@@ -15830,8 +15830,10 @@ vec.max <- function (x, y)
 
 vec.min <- function (x, y) 
 {
-    fcn.mat.vec(function(z, l) ifelse(!is.na(z) & !is.na(l) & 
-        z > l, l, z), x, y, T)
+    fcn <- function(z, l) ifelse(is.na(z) | (!is.na(l) & z > 
+        l), l, z)
+    z <- fcn.mat.vec(fcn, x, y, T)
+    z
 }
 
 #' vec.named
@@ -16014,9 +16016,7 @@ yyyymm.diff <- function (x, y)
 yyyymm.ex.int <- function (x) 
 {
     z <- (x - 1)%/%12
-    x <- x - 12 * z
-    z <- 100 * z + x
-    z <- as.character(z)
+    z <- as.character(100 * z + x - 12 * z)
     z <- txt.prepend(z, 6, 0)
     z
 }
@@ -16032,10 +16032,7 @@ yyyymm.ex.int <- function (x)
 
 yyyymm.ex.qtr <- function (x, y = 3) 
 {
-    z <- qtr.to.int(x)
-    z <- yyyymm.ex.int(z * 3)
-    z <- yyyymm.lag(z, 3 - y)
-    z
+    yyyymm.lag(yyyymm.ex.int(qtr.to.int(x) * 3), 3 - y)
 }
 
 #' yyyymm.exists
