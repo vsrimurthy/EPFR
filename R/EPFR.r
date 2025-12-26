@@ -2527,8 +2527,11 @@ fcn.canonical <- function (x)
         if (!z$canonical) 
             cat(x, "has ARGUMENTS THAT CAN BE MISSING THAT ARE NOT DECLARED AS SUCH!\n")
     }
-    if (z$canonical) 
+    if (z$canonical) {
         z <- fcn.indent.proper(x)
+        if (!z) 
+            cat(x, "is IMPROPERLY INDENTED!\n")
+    }
     else z <- F
     z
 }
@@ -16257,20 +16260,20 @@ yyyymmdd.ex.txt <- function (x, y = "/", n = "MDY")
 
 yyyymmdd.ex.yyyymm <- function (x, y = T) 
 {
-    z <- paste0(yyyymm.lag(x, -1), "01")
-    z <- yyyymmdd.ex.day(z)
-    w <- yyyymmdd.to.yyyymm(z) != x
-    if (any(w)) 
-        z[w] <- yyyymm.lag(z[w])
-    if (!y & length(x) > 1) 
-        stop("You can't do this ..\n")
-    if (!y) {
-        x <- paste0(x, "01")
-        x <- yyyymmdd.ex.day(x)
-        if (yyyymmdd.to.yyyymm(x) != yyyymmdd.to.yyyymm(z)) 
-            x <- yyyymm.lag(x, -1)
-        z <- yyyymm.seq(x, z)
+    z <- day.to.int(paste0(yyyymm.lag(x, -1), "01"))
+    w <- z%%7
+    z <- z - ifelse(is.element(w, 3:4), w - 1, 1)
+    if (y) {
+        z <- day.ex.int(z)
     }
+    else if (length(x) == 1) {
+        x <- day.to.int(paste0(x, "01"))
+        w <- x%%7
+        x <- x + ifelse(is.element(w, 2:3), 4 - w, 0)
+        z <- x:z
+        z <- day.ex.int(z[!is.element(z%%7, 2:3)])
+    }
+    else stop("You can't do this ..\n")
     z
 }
 
