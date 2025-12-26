@@ -16204,10 +16204,7 @@ yyyymmdd.diff <- function (x, y)
 
 yyyymmdd.ex.day <- function (x) 
 {
-    z <- day.to.int(x)
-    z <- z - ifelse(is.element(z%%7, 2:3), z%%7 - 1, 0)
-    z <- day.ex.int(z)
-    z
+    yyyymmdd.ex.int(yyyymmdd.to.int(x))
 }
 
 #' yyyymmdd.ex.int
@@ -16260,18 +16257,14 @@ yyyymmdd.ex.txt <- function (x, y = "/", n = "MDY")
 
 yyyymmdd.ex.yyyymm <- function (x, y = T) 
 {
-    z <- day.to.int(paste0(yyyymm.lag(x, -1), "01"))
-    w <- z%%7
-    z <- z - ifelse(is.element(w, 3:4), w - 1, 1)
+    z <- paste0(yyyymm.lag(x, -1), "01")
+    z <- yyyymmdd.to.int(z) - 1
     if (y) {
-        z <- day.ex.int(z)
+        z <- yyyymmdd.ex.int(z)
     }
     else if (length(x) == 1) {
-        x <- day.to.int(paste0(x, "01"))
-        w <- x%%7
-        x <- x + ifelse(is.element(w, 2:3), 4 - w, 0)
-        z <- x:z
-        z <- day.ex.int(z[!is.element(z%%7, 2:3)])
+        x <- yyyymmdd.to.int(paste0(x, "01"))
+        z <- yyyymmdd.ex.int(x:z)
     }
     else stop("You can't do this ..\n")
     z
@@ -16363,7 +16356,7 @@ yyyymmdd.to.AllocMo.unique <- function (x, y, n)
 #' yyyymmdd.to.int
 #' 
 #' number of weekdays after Thursday, January 1, 1970
-#' @param x = a YYYYMMDD vector
+#' @param x = a calendar date vector
 #' @keywords yyyymmdd.to.int
 #' @export
 #' @family yyyymmdd
@@ -16371,7 +16364,7 @@ yyyymmdd.to.AllocMo.unique <- function (x, y, n)
 yyyymmdd.to.int <- function (x) 
 {
     z <- day.to.int(x) + 3
-    z <- z - 2 * (z%/%7) - 3
+    z <- z - 2 * (z%/%7) - 3 - vec.max(z%%7 - 4, 0)
     z
 }
 
