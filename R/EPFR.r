@@ -14772,9 +14772,7 @@ summ.multi <- function (fcn, x, y)
 
 today <- function () 
 {
-    z <- day.ex.date(Sys.Date())
-    while (!flowdate.exists(z)) z <- day.lag(z, 1)
-    z
+    flowdate.ex.int(flowdate.to.int(day.ex.date(Sys.Date())))
 }
 
 #' tstat
@@ -16258,15 +16256,19 @@ yyyymmdd.ex.txt <- function (x, y = "/", n = "MDY")
 yyyymmdd.ex.yyyymm <- function (x, y = T) 
 {
     z <- paste0(yyyymm.lag(x, -1), "01")
-    z <- yyyymmdd.to.int(z) - 1
-    if (y) {
-        z <- yyyymmdd.ex.int(z)
+    z <- yyyymmdd.ex.day(z)
+    w <- yyyymmdd.to.yyyymm(z) != x
+    if (any(w)) 
+        z[w] <- yyyymm.lag(z[w])
+    if (!y & length(x) > 1) 
+        stop("You can't do this ..\n")
+    if (!y) {
+        x <- paste0(x, "01")
+        x <- yyyymmdd.ex.day(x)
+        if (yyyymmdd.to.yyyymm(x) != yyyymmdd.to.yyyymm(z)) 
+            x <- yyyymm.lag(x, -1)
+        z <- yyyymm.seq(x, z)
     }
-    else if (length(x) == 1) {
-        x <- yyyymmdd.to.int(paste0(x, "01"))
-        z <- yyyymmdd.ex.int(x:z)
-    }
-    else stop("You can't do this ..\n")
     z
 }
 
