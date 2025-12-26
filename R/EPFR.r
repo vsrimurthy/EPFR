@@ -3881,8 +3881,7 @@ flowdate.ex.yyyymm <- function (x, y = T)
 
 flowdate.exists <- function (x) 
 {
-    yyyymmdd.exists(x) & !is.element(txt.right(x, 4), c("0101", 
-        "1225"))
+    yyyymmdd.exists(x) & !grepl("(1225|0101)$", x)
 }
 
 #' flowdate.lag
@@ -8568,14 +8567,15 @@ publish.monthly.last <- function (x = today(), y = 23, n = 0)
 #' publish.weekly.last
 #' 
 #' date of last weekly publication
-#' @param x = a YYYYMMDD (defaults to today)
+#' @param x = a calendar date vector (defaults to today)
 #' @keywords publish.weekly.last
 #' @export
 #' @family publish
 
 publish.weekly.last <- function (x = today()) 
 {
-    x <- day.to.int(x)
+    w <- day.to.weekday(x) == "Fri" & grepl("(1226|0102)$", x)
+    x <- day.to.int(x) - as.numeric(w)
     z <- day.ex.int(x - 1 - zav(nonneg(x%%7), 7))
     z
 }

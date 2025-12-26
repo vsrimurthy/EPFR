@@ -7,7 +7,7 @@
 publish.weekly.last(x = today())
 }
 \arguments{
-\item{x}{= a YYYYMMDD (defaults to today)}
+\item{x}{= a calendar date vector (defaults to today)}
 }
 \description{
 date of last weekly publication
