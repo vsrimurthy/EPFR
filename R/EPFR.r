@@ -6521,7 +6521,7 @@ mk.1dFloMo.Indy <- function (x, y, n, w, h)
     v[["B"]] <- paste0("ReportDate = '", yyyymm.to.day(u), "'")
     z <- c("FundId", "GeographicFocus", "Universe = sum(Allocation)")
     z <- sql.Allocation(z, "Country", "GeographicFocus", "E", 
-        sql.and(v), paste(z[-length(z)], collapse = ", "))
+        sql.and(v), paste(head(z, -1), collapse = ", "))
     z <- c("insert into", "\t#CTRY (FundId, GeographicFocus, Universe)", 
         sql.unbracket(z))
     z <- c(sql.index("#CTRY", "FundId"), z)
@@ -6611,7 +6611,7 @@ mk.1dFloMo.Sec <- function (x, y, n, w, h, u = F, v = F)
     r[["B"]] <- paste0("ReportDate = '", yyyymm.to.day(g), "'")
     z <- c("FundId", h$Group, "Universe = sum(Allocation)")
     z <- sql.Allocation(z, "Country", h$Group, "E", sql.and(r), 
-        paste(z[-length(z)], collapse = ", "))
+        paste(head(z, -1), collapse = ", "))
     z <- c("insert into", paste0("\t#CTRY (FundId, ", h$Group, 
         ", Universe)"), sql.unbracket(z))
     z <- c(sql.index("#CTRY", "FundId"), z)
@@ -6792,8 +6792,7 @@ mk.1mActPas.Ctry <- function (x, y)
         ")"))
     z[["B"]] <- paste0("ReportDate = @floDt")
     z <- sql.Allocation(v, "Country", "Idx = isnull(Idx, 'N')", 
-        c("CB", "E", "UI"), sql.and(z), paste(v[-length(v)], 
-            collapse = ", "))
+        c("CB", "E", "UI"), sql.and(z), paste(head(v, -1), collapse = ", "))
     z <- sql.declare.wrapper("@floDt", yyyymm.to.day(x), z)
     z <- sql.query(z, y, F)
     z <- map.rname(reshape.wide(z), names(w))
@@ -6823,7 +6822,7 @@ mk.1mActPas.Sec <- function (x, y, n)
     z <- c(z, "", sql.update("#SEC", "Idx = 'N'", , "Idx is NULL"))
     z <- paste(c(sql.drop("#SEC"), "", z), collapse = "\n")
     v <- c("SectorId", "Idx", "Allocation = avg(Allocation)")
-    v <- sql.tbl(v, "#SEC", , paste(v[-length(v)], collapse = ", "))
+    v <- sql.tbl(v, "#SEC", , paste(head(v, -1), collapse = ", "))
     v <- paste(sql.unbracket(v), collapse = "\n")
     z <- sql.query(c(z, v), y, F)
     z <- map.rname(reshape.wide(z), names(u))
@@ -10839,7 +10838,7 @@ sql.1dActWtTrend.Final <- function (x, y, n)
 {
     r <- c("DayEnding", n, "GeographicFocus", "WtdAvg = sum(Allocation * AUM)/sum(AUM)")
     z <- c("#FLO t1", "inner join", sql.label(x, "t2 on t2.FundId = t1.FundId"))
-    z <- sql.tbl(r, z, , paste(r[-length(r)], collapse = ", "), 
+    z <- sql.tbl(r, z, , paste(head(r, -1), collapse = ", "), 
         "sum(AUM) > 0")
     z <- c(sql.label(z, "t1"), "inner join", "#FLO t2")
     z <- c(z, "\ton t2.GeographicFocus = t1.GeographicFocus and t2.DayEnding = t1.DayEnding")
@@ -11874,7 +11873,7 @@ sql.1mAllocSkew.topline.from <- function (x, y)
     w <- c("ReportDate", "HSecurityId", "GeographicFocus", "FundWtdExcl0 = sum(HoldingValue)/sum(PortVal)")
     z <- c(sql.label(x, "t1"), "inner join", "#HLD t2 on t2.FundId = t1.FundId", 
         "inner join", "#AUM t3 on t3.FundId = t1.FundId")
-    w <- sql.label(sql.tbl(w, z, , paste(w[-length(w)], collapse = ", ")), 
+    w <- sql.label(sql.tbl(w, z, , paste(head(w, -1), collapse = ", ")), 
         "mnW")
     z <- c(sql.label(x, "t1"), "inner join", "#HLD t2 on t2.FundId = t1.FundId", 
         "inner join", "#AUM t3 on t3.FundId = t1.FundId", "inner join")
@@ -12728,8 +12727,8 @@ sql.CtryFlow.Alloc <- function (x, y, n, w, h)
         u[["B"]] <- paste0(w, "Id in (", paste(x[!is.na(x)], 
             collapse = ", "), ")")
     z <- sql.Allocation(r, w, c("Advisor", "GeographicFocus"), 
-        c(h, y[1], "UI"), sql.and(u), paste(r[-length(r)], collapse = ", "))
-    z <- sql.tbl(r[-1], sql.label(z, "t"), , paste(r[-length(r)][-1], 
+        c(h, y[1], "UI"), sql.and(u), paste(head(r, -1), collapse = ", "))
+    z <- sql.tbl(r[-1], sql.label(z, "t"), , paste(head(r, -1)[-1], 
         collapse = ", "))
     z <- sql.declare.wrapper("@floDt", n, z)
     z
@@ -16261,8 +16260,7 @@ yyyymmdd.ex.yyyymm <- function (x, y = T)
     }
     else if (length(x) == 1) {
         z <- paste0(yyyymm.lag(x, -(0:1)), "01")
-        z <- day.seq(z[1], z[2])
-        z <- z[-length(z)]
+        z <- head(day.seq(z[1], z[2]), -1)
         z <- z[yyyymmdd.exists(z)]
     }
     else stop("You can't do this ..\n")
