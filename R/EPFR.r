@@ -16255,20 +16255,17 @@ yyyymmdd.ex.txt <- function (x, y = "/", n = "MDY")
 
 yyyymmdd.ex.yyyymm <- function (x, y = T) 
 {
-    z <- paste0(yyyymm.lag(x, -1), "01")
-    z <- yyyymmdd.ex.day(z)
-    w <- yyyymmdd.to.yyyymm(z) != x
-    if (any(w)) 
-        z[w] <- yyyymm.lag(z[w])
-    if (!y & length(x) > 1) 
-        stop("You can't do this ..\n")
-    if (!y) {
-        x <- paste0(x, "01")
-        x <- yyyymmdd.ex.day(x)
-        if (yyyymmdd.to.yyyymm(x) != yyyymmdd.to.yyyymm(z)) 
-            x <- yyyymm.lag(x, -1)
-        z <- yyyymm.seq(x, z)
+    if (y) {
+        z <- paste0(yyyymm.lag(x, -1), "01")
+        z <- yyyymmdd.ex.day(day.lag(z, 1))
     }
+    else if (length(x) == 1) {
+        z <- paste0(yyyymm.lag(x, -(0:1)), "01")
+        z <- day.seq(z[1], z[2])
+        z <- z[-length(z)]
+        z <- z[yyyymmdd.exists(z)]
+    }
+    else stop("You can't do this ..\n")
     z
 }
 
