@@ -960,8 +960,8 @@ binomial.trial <- function (x, y, n, w)
 
 bond.curve.expand <- function (x) 
 {
-    approx(char.to.num(names(x)), char.to.num(x), 1:char.to.num(names(x)[length(x)]), 
-        method = "constant", f = 1, rule = 2)$y
+    approx(char.to.num(names(x)), char.to.num(x), 1:char.to.num(tail(names(x), 
+        1)), method = "constant", f = 1, rule = 2)$y
 }
 
 #' bond.price
@@ -3311,7 +3311,7 @@ fcn.to.comments <- function (x)
         z <- F
     }
     if (z & length(y) - w[2] > 2) {
-        z <- is.element(y[length(y) - 1], c("\tz", "\tinvisible()"))
+        z <- is.element(tail(y, 2)[1], c("\tz", "\tinvisible()"))
         if (!z) 
             cat(x, "returns a non-canonical variable!\n")
     }
@@ -3849,7 +3849,7 @@ flowdate.ex.int <- function (x)
     }
     w <- !flowdate.exists(yyyymmdd.ex.int(z)) & z > 0
     while (any(w)) {
-        h <- z[length(z)] + 1:sum(w)
+        h <- tail(z, 1) + 1:sum(w)
         z <- c(z[!w], h)
         w <- c(rep(F, sum(!w)), !flowdate.exists(yyyymmdd.ex.int(h)))
     }
@@ -3931,7 +3931,7 @@ flowdate.to.int <- function (x)
 {
     z <- unique(c("1970", yyyymm.to.yyyy(yyyymmdd.to.yyyymm(x))))
     z <- char.to.num(z)[order(z)]
-    z <- seq(z[1], z[length(z)])
+    z <- z[1]:tail(z, 1)
     z <- txt.expand(z, c("0101", "1225"), "")
     z <- z[yyyymmdd.exists(z)]
     z <- vec.named(seq_along(z), z)
@@ -6327,7 +6327,7 @@ maturity.bucket <- function (x)
     x <- x[order(x)]
     x <- vec.named(paste("v >=", x, "and v <", c(x[-1], "?")), 
         names(x))
-    x[length(x)] <- gsub(".{10}$", "", x[length(x)])
+    x[length(x)] <- gsub(".{10}$", "", tail(x, 1))
     z <- gsub("v", "datediff(day, @date, BondMaturity)", x)
     z
 }
@@ -14187,7 +14187,7 @@ sql.Trend <- function (x, y = "")
 
 sql.unbracket <- function (x) 
 {
-    c(gsub("^\\(", "", x[1]), x[3:length(x) - 1])
+    c(gsub("^\\(", "", x[1]), head(x[-1], -1))
 }
 
 #' sql.update
