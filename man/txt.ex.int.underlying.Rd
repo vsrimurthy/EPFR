@@ -4,18 +4,16 @@
 \alias{txt.ex.int.underlying}
 \title{txt.ex.int.underlying}
 \usage{
-txt.ex.int.underlying(x, y, n, w, h)
+txt.ex.int.underlying(x, y, n, w)
 }
 \arguments{
 \item{x}{= an integer vector}
 
-\item{y}{= a string vector (odds & ends)}
+\item{y}{= a string vector (units, odds & ends)}
 
-\item{n}{= a string vector (units)}
+\item{n}{= a string vector (tens)}
 
-\item{w}{= a string vector (tens)}
-
-\item{h}{= a string vector (tens ordinal)}
+\item{w}{= a string vector (tens ordinal)}
 }
 \description{
 string vector describing <x> in words

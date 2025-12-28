@@ -294,8 +294,8 @@ args.rename <- function (fcn, x = T)
 {
     z <- fcn
     y <- fcn.args.actual(z)
-    x <- args.canonical(x)
-    x <- vec.named(x[seq_along(y)], y)
+    x <- args.canonical(x)[seq_along(y)]
+    x <- vec.named(x, y)
     body(z) <- args.rename.body(body(z), x)
     x <- vec.to.list(x, T, T)
     formals(z) <- lapply(x, function(z) bquote())
@@ -843,7 +843,7 @@ bbk.turnover <- function (x)
     x <- zav(x)
     new <- x[-1, ]
     old <- x[-dim(x)[1], ]
-    z <- vec.named(rep(NA, length(z)), z)
+    z <- vec.named(, z)
     for (i in names(z)) z[i] <- mean(nameTo(old == i, new == 
         i), na.rm = T)
     names(z) <- paste0("Q", names(z))
@@ -5386,14 +5386,14 @@ ipaddress <- function ()
 
 isin.exists <- function (x) 
 {
-    charset <- vec.named(0:35, c(0:9, LETTERS))
+    charset <- c(0:9, LETTERS)
     x <- toupper(txt.trim(x))
     z <- grepl("^[A-Z]{2}[0-9A-Z]{9}\\d{1}$", x)
     y <- x[z]
     y <- y[!duplicated(y)]
     y <- matrix(NA, length(y), 11, F, list(y, LETTERS[1:11]))
-    for (j in 1:dim(y)[2]) y[, j] <- char.to.num(map.rname(charset, 
-        substring(rownames(y), j, j)))
+    for (j in 1:dim(y)[2]) y[, j] <- match(substring(rownames(y), 
+        j, j), charset) - 1
     y <- mat.ex.matrix(y)
     y <- vec.named(do.call(paste0, y), rownames(y))
     y <- split(y, names(y))
@@ -5818,23 +5818,19 @@ map.classif <- function (x, y, n)
 map.rname <- function (x, y) 
 {
     if (is.null(dim(x))) {
-        z <- vec.named(, y)
-        w <- is.element(y, names(x))
-        if (any(w)) 
-            z[w] <- x[names(z)[w]]
+        z <- vec.named(x[match(y, names(x))], y)
+    }
+    else if (dim(x)[2] == 1) {
+        z <- matrix(x[match(y, rownames(x)), 1], length(y), 1, 
+            F, list(y, colnames(x)))
+    }
+    else if (length(y) == 1 & is.matrix(x)) {
+        z <- matrix(x[match(y, rownames(x)), ], 1, dim(x)[2], 
+            T, list(y, colnames(x)))
     }
     else {
-        w <- !is.element(y, rownames(x))
-        if (any(w)) {
-            y.loc <- matrix(NA, sum(w), dim(x)[2], F, list(y[w], 
-                colnames(x)))
-            x <- rbind(x, y.loc)
-        }
-        if (dim(x)[2] == 1) {
-            z <- matrix(x[as.character(y), 1], length(y), 1, 
-                F, list(y, colnames(x)))
-        }
-        else z <- x[as.character(y), ]
+        z <- x[match(y, rownames(x)), ]
+        rownames(z) <- y
     }
     z
 }
@@ -13115,14 +13111,12 @@ sql.Flow.tbl <- function (x, y)
     if (is.logical(x)) 
         x <- ifelse(x, "D", "W")
     if (y) {
-        z <- vec.named(c("DailyData", "WeeklyData", "MonthlyData"), 
-            c("D", "W", "M"))
+        z <- c("DailyData", "WeeklyData", "MonthlyData")
     }
     else {
-        z <- vec.named(c("DayEnding", "WeekEnding", "MonthEnding"), 
-            c("D", "W", "M"))
+        z <- c("DayEnding", "WeekEnding", "MonthEnding")
     }
-    z <- as.character(z[x])
+    z <- z[match(x, txt.left(z, 1))]
     z
 }
 
@@ -14954,14 +14948,13 @@ txt.ex.int <- function (x, y = F)
 
 txt.ex.int.cardinal <- function (x) 
 {
-    y <- vec.named(c("zero", "ten", "eleven", "twelve", "thirteen", 
-        "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", 
-        "nineteen"), c(0, 10:19))
-    n <- vec.named(c("one", "two", "three", "four", "five", "six", 
-        "seven", "eight", "nine"), 1:9)
-    w <- vec.named(c("twenty", "thirty", "forty", "fifty", "sixty", 
-        "seventy", "eighty", "ninety"), 2:9)
-    z <- txt.ex.int.underlying(x, y, n, w, w)
+    y <- c("ten", "eleven", "twelve", "thirteen", "fourteen", 
+        "fifteen", "sixteen", "seventeen", "eighteen", "nineteen")
+    n <- c("zero", "one", "two", "three", "four", "five", "six", 
+        "seven", "eight", "nine")
+    w <- c("twenty", "thirty", "forty", "fifty", "sixty", "seventy", 
+        "eighty", "ninety")
+    z <- txt.ex.int.underlying(x, c(n, y), w, w)
     z
 }
 
@@ -14999,17 +14992,16 @@ txt.ex.int.cardinal.wrapper <- function (x)
 
 txt.ex.int.ordinal <- function (x) 
 {
-    y <- vec.named(c("tenth", "eleventh", "twelfth", "thirteenth", 
-        "fourteenth", "fifteenth", "sixteenth", "seventeenth", 
-        "eighteenth", "nineteenth"), 10:19)
-    n <- vec.named(c("first", "second", "third", "fourth", "fifth", 
-        "sixth", "seventh", "eighth", "ninth"), 1:9)
-    w <- vec.named(c("twenty", "thirty", "forty", "fifty", "sixty", 
-        "seventy", "eighty", "ninety"), 2:9)
-    h <- vec.named(c("twentieth", "thirtieth", "fortieth", "fiftieth", 
-        "sixtieth", "seventieth", "eightieth", "ninetieth"), 
-        2:9)
-    z <- txt.ex.int.underlying(x, y, n, w, h)
+    y <- c("tenth", "eleventh", "twelfth", "thirteenth", "fourteenth", 
+        "fifteenth", "sixteenth", "seventeenth", "eighteenth", 
+        "nineteenth")
+    n <- c("", "first", "second", "third", "fourth", "fifth", 
+        "sixth", "seventh", "eighth", "ninth")
+    w <- c("twenty", "thirty", "forty", "fifty", "sixty", "seventy", 
+        "eighty", "ninety")
+    h <- c("twentieth", "thirtieth", "fortieth", "fiftieth", 
+        "sixtieth", "seventieth", "eightieth", "ninetieth")
+    z <- txt.ex.int.underlying(x, c(n, y), w, h)
     z
 }
 
@@ -15041,26 +15033,23 @@ txt.ex.int.ordinal.wrapper <- function (x)
 #' 
 #' string vector describing <x> in words
 #' @param x = an integer vector
-#' @param y = a string vector (odds & ends)
-#' @param n = a string vector (units)
-#' @param w = a string vector (tens)
-#' @param h = a string vector (tens ordinal)
+#' @param y = a string vector (units, odds & ends)
+#' @param n = a string vector (tens)
+#' @param w = a string vector (tens ordinal)
 #' @keywords txt.ex.int.underlying
 #' @export
 #' @family txt
 
-txt.ex.int.underlying <- function (x, y, n, w, h) 
+txt.ex.int.underlying <- function (x, y, n, w) 
 {
     z <- ifelse(x%/%100 > 0, x, NA)
-    z <- ifelse(is.element(x, names(y)), y[as.character(x)], 
-        z)
-    y <- is.na(z)
-    z <- ifelse(is.element(x%%10, names(n)) & y, map.rname(n, 
-        x%%10), z)
-    y <- y & !is.element(x, 1:9)
-    z <- ifelse(y & !is.na(z), paste(map.rname(w, (x%/%10)%%10), 
-        z, sep = "-"), z)
-    z <- ifelse(y & is.na(z), map.rname(h, (x%/%10)%%10), z)
+    r <- is.element(x, seq_along(y) - 1)
+    z[r] <- y[x[r] + 1]
+    r <- x%%10 == 0 & is.na(z)
+    z[r] <- w[(x[r]%/%10)%%10 - 1]
+    r <- is.na(z)
+    z[r] <- paste0(n[(x[r]%/%10)%%10 - 1], "-", y[x[r]%%10 + 
+        1])
     z
 }
 
