@@ -8721,8 +8721,7 @@ qtr.ex.int <- function (x)
 {
     z <- (x - 1)%/%4
     x <- x - 4 * z
-    z <- paste(z, x, sep = "Q")
-    z <- txt.prepend(z, 6, 0)
+    z <- paste0(sprintf("%04d", z), "Q", x)
     z
 }
 
@@ -15343,21 +15342,6 @@ txt.parse.delimit <- function (x)
     z
 }
 
-#' txt.prepend
-#' 
-#' adds <n> <y> times to the beginning of <x>
-#' @param x = a string vector
-#' @param y = number of times to add <n>
-#' @param n = a string (prefix)
-#' @keywords txt.prepend
-#' @export
-#' @family txt
-
-txt.prepend <- function (x, y, n) 
-{
-    paste0(strrep(n, vec.max(y - nchar(x), 0)), x)
-}
-
 #' txt.regexp
 #' 
 #' converts <x> to a regular expression by padding certain characters with \\\\
@@ -16016,8 +16000,8 @@ yyyymm.diff <- function (x, y)
 yyyymm.ex.int <- function (x) 
 {
     z <- (x - 1)%/%12
-    z <- as.character(100 * z + x - 12 * z)
-    z <- txt.prepend(z, 6, 0)
+    z <- paste0(sprintf("%04d", z), sprintf("%02d", x - 12 * 
+        z))
     z
 }
 
