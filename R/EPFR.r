@@ -2344,7 +2344,7 @@ farben <- function (x, y)
     h <- mat.read(parameters("classif-colours"))
     if (!y) {
         v <- rownames(h)
-        h <- map.rname(h, h$border)
+        h <- h[match(h[, "border"], rownames(h)), ]
         rownames(h) <- v
     }
     h <- h[, c("R", "G", "B")]
