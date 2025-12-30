@@ -1565,13 +1565,11 @@ cpt.RgnSec <- function (x, y)
     y <- Ctry.to.CtryGrp(y)
     z <- GSec.to.GSgrp(x)
     z <- ifelse(is.element(z, "Cyc"), x, z)
-    vec <- c(seq(15, 25, 5), "Def", "Fin")
-    vec <- txt.expand(vec, c("Pac", "Oth"), , T)
-    vec <- vec.named(c(seq(1, 9, 2), 1 + seq(1, 9, 2)), vec)
-    vec["45-Pac"] <- vec["45-Oth"] <- 11
+    h <- c(seq(15, 25, 5), 45, "Def", "Fin")
+    h <- txt.expand(h, c("Pac", "Oth"))
+    h <- list(code = h, id = c(1:6, 11, 11, 7:10))
     z <- paste(z, y, sep = "-")
-    z <- map.rname(vec, z)
-    z <- char.to.num(z)
+    z <- h[["id"]][match(z, h[["code"]])]
     z
 }
 
@@ -1589,22 +1587,18 @@ cpt.RgnSecJP <- function (x, y)
     y <- ifelse(is.element(y, c("US", "CA")), "NoAm", Ctry.to.CtryGrp(y))
     z <- GSec.to.GSgrp(x)
     z <- ifelse(is.element(z, "Cyc"), x, z)
-    vec <- c(seq(15, 25, 5), "Def", "Fin")
-    vec <- txt.expand(vec, c("Pac", "NoAm", "Oth"), , T)
-    x <- NULL
-    for (j in 1:3) x <- c(x, seq(j, by = 3, length.out = 5))
-    vec <- vec.named(x, vec)
-    vec[paste("45", c("Pac", "NoAm", "Oth"), sep = "-")] <- length(vec) + 
-        1
+    h <- c(seq(15, 25, 5), 45, "Def", "Fin")
+    h <- txt.expand(h, c("NoAm", "Pac", "Oth"))
+    h <- list(code = h, id = c(2:1, 3, 5:4, 6, 8:7, 9, rep(16, 
+        3), 11:10, 12, 14:13, 15))
     z <- paste(z, y, sep = "-")
-    z <- map.rname(vec, z)
-    z <- char.to.num(z)
+    z <- h[["id"]][match(z, h[["code"]])]
     z
 }
 
 #' Ctry.info
 #' 
-#' handles the addition and removal of countries from an index
+#' looks up information from classif-Ctry
 #' @param x = a country code vector
 #' @param y = a string (column in classif-Ctry)
 #' @keywords Ctry.info
@@ -1615,9 +1609,7 @@ cpt.RgnSecJP <- function (x, y)
 
 Ctry.info <- function (x, y) 
 {
-    z <- mat.read(parameters("classif-ctry"), ",")
-    z <- map.rname(z, x)[, y]
-    z
+    mat.read(parameters("classif-Ctry"), ",")[x, y]
 }
 
 #' Ctry.msci
@@ -1769,10 +1761,8 @@ Ctry.msci.members.rng <- function (x, y, n)
 
 Ctry.to.CtryGrp <- function (x) 
 {
-    z <- c("JP", "AU", "NZ", "HK", "SG", "CN", "KR", "TW", "PH", 
-        "ID", "TH", "MY", "KY", "BM")
-    z <- ifelse(is.element(x, z), "Pac", "Oth")
-    z
+    ifelse(grepl("^(JP|AU|NZ|HK|SG|CN|KR|TW|PH|ID|TH|MY|KY|BM)$", 
+        x), "Pac", "Oth")
 }
 
 #' day.ex.date
@@ -10994,64 +10984,63 @@ sql.1dFloMo.aum <- function (x, y, n = F)
 
 sql.1dFloMo.CountryId.List <- function (x, y = "") 
 {
-    classif.type <- x
+    h <- x
     sep <- ","
     if (x == "Ctry") {
         z <- Ctry.msci.members.rng("ACWI", "200704", "300012")
-        classif.type <- "Ctry"
+        h <- "Ctry"
     }
     else if (x == "Aux") {
         z <- c("BG", "EE", "GH", "KE", "KZ", "LT", "UA", "NG", 
             "RO", "RS", "SI", "LK")
-        classif.type <- "Ctry"
+        h <- "Ctry"
     }
     else if (x == "OtherFrontier") {
         z <- c("BH", "HR", "LB", "MU", "OM", "TN", "TT", "BD", 
             "CI", "IS")
-        classif.type <- "Ctry"
+        h <- "Ctry"
     }
     else if (x == "APac") {
         z <- c("AU", "CN", "ID", "IN", "JP", "MY", "PH", "SG", 
             "TW", "NZ", "HK", "PK", "BD", "LK", "VN", "PG", "KH", 
             "MM", "MN", "KR", "TH")
-        classif.type <- "Ctry"
+        h <- "Ctry"
     }
     else if (x == "LatAm") {
         z <- mat.read(parameters("classif-Ctry"))
         z <- rownames(z)[is.element(z$EpfrRgn, "Latin America")]
-        classif.type <- "Ctry"
+        h <- "Ctry"
     }
     else if (x == "CountryFlow") {
         z <- mat.read(parameters("classif-Ctry"))
         z <- rownames(z)[!is.na(z$CountryId)]
-        classif.type <- "Ctry"
+        h <- "Ctry"
     }
     else if (x == "EMDM") {
         z <- Ctry.msci.members("ACWI", y)
-        classif.type <- "Ctry"
+        h <- "Ctry"
     }
     else if (grepl("^(FX|EXIM)$", x)) {
         z <- Ctry.msci.members.rng("ACWI", "200704", "300012")
         z <- c(z, "CY", "EE", "LV", "LT", "SK", "SI")
-        classif.type <- "Ctry"
+        h <- "Ctry"
     }
     else if (x == "Sector") {
         z <- rownames(mat.read(parameters("classif-GSec"), "\t"))
-        classif.type <- "GSec"
+        h <- "GSec"
         sep <- "\t"
     }
     else if (x == "Industry") {
         z <- rownames(mat.read(parameters("classif-GIgrp"), "\t"))
-        classif.type <- "GIgrp"
+        h <- "GIgrp"
         sep <- "\t"
     }
     else if (nchar(x) == 2) {
         z <- x
-        classif.type <- "Ctry"
+        h <- "Ctry"
     }
-    h <- parameters(paste("classif", classif.type, sep = "-"))
-    h <- mat.read(h, sep)
-    h <- map.rname(h, z)
+    h <- parameters(paste0("classif-", h))
+    h <- map.rname(mat.read(h, sep), z)
     if (any(grepl("^(Ctry|CountryFlow|LatAm|APac|Aux|OtherFrontier)$", 
         x))) {
         z <- vec.named(z, h$CountryId)

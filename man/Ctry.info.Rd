@@ -12,7 +12,7 @@ Ctry.info(x, y)
 \item{y}{= a string (column in classif-Ctry)}
 }
 \description{
-handles the addition and removal of countries from an index
+looks up information from classif-Ctry
 }
 \examples{
 Ctry.info("PK", "CtryNm")
