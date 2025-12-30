@@ -842,7 +842,7 @@ bbk.turnover <- function (x)
     z <- vec.unique(x)
     x <- zav(x)
     new <- x[-1, ]
-    old <- x[-dim(x)[1], ]
+    old <- head(x, -1)
     z <- vec.named(, z)
     for (i in names(z)) z[i] <- mean(nameTo(old == i, new == 
         i), na.rm = T)
@@ -2460,9 +2460,9 @@ fcn.args.actual <- function (x)
 
 fcn.args.comment <- function (x) 
 {
-    z <- fcn.comments.parse(fcn.to.comments(x))[["detl.args"]]
-    z <- vec.named(gsub("^[^(]+ =", "", z), substring(z, 1, txt.first(z, 
-        " =") - 1))
+    x <- fcn.comments.parse(fcn.to.comments(x))[["detl.args"]]
+    z <- gsub("^[^(]+ =", "", x)
+    names(z) <- gsub("^([^(]+) =.*", "\\1", x)
     z
 }
 
@@ -5611,8 +5611,8 @@ list.rename <- function (x, y, n)
 {
     if (missing(n)) 
         n <- args.canonical()[seq_along(y)]
-    z <- x[is.element(names(x), y)]
-    names(z) <- vec.named(n, y)[names(z)]
+    z <- x[match(y, names(x))]
+    names(z) <- n
     z
 }
 
@@ -9788,7 +9788,7 @@ sf.daily <- function (x, y, n, w, h, u, v, g = 5, r, s = NULL, b)
     if (b > 1) {
         z <- compound.flows(z, b, F)
         z <- z[b:dim(z)[1], ]
-        x <- x[1:dim(z)[1], ]
+        x <- head(x, dim(z)[1])
         rownames(x) <- rownames(z)
     }
     x <- bbk.bin.xRet(x, z, g, T, F, r[, w])
@@ -15075,20 +15075,6 @@ txt.expand <- function (x, y, n = "-", w = F)
     z[["sep"]] <- n
     z <- do.call(paste, z)
     z
-}
-
-#' txt.first
-#' 
-#' first occurrence of pattern <y> in <x> (NA if none)
-#' @param x = a string vector
-#' @param y = a string (regular expression)
-#' @keywords txt.first
-#' @export
-#' @family txt
-
-txt.first <- function (x, y) 
-{
-    nonneg(char.to.num(regexpr(y, x)))
 }
 
 #' txt.gunning
