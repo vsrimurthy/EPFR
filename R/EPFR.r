@@ -3761,9 +3761,8 @@ find.data <- function (x, y = T)
 find.gaps <- function (x) 
 {
     w <- cumsum(c(1, diff(x) != 0))
-    z <- vec.named(w[!duplicated(w)], seq_along(x)[!duplicated(w)])
-    z <- vec.named(map.rname(vec.count(w), z), names(z))
-    w <- x[as.numeric(names(z))]
+    z <- vec.named(vec.count(w), which(!duplicated(w)))
+    w <- x[!duplicated(w)]
     w[1] <- w[length(w)] <- T
     z <- z[!w]
     z
@@ -6780,8 +6779,8 @@ mk.1mActPas.Ctry <- function (x, y)
     z <- sql.Allocation(v, "Country", "Idx = isnull(Idx, 'N')", 
         c("CB", "E", "UI"), sql.and(z), paste(head(v, -1), collapse = ", "))
     z <- sql.declare.wrapper("@floDt", yyyymm.to.day(x), z)
-    z <- sql.query(z, y, F)
-    z <- map.rname(reshape.wide(z), names(w))
+    z <- reshape.wide(sql.query(z, y, F))
+    z <- z[match(names(w), rownames(z)), ]
     z <- vec.named(z[, "N"]/nonneg(z[, "Y"]) - 1, w)
     z
 }
@@ -6810,8 +6809,8 @@ mk.1mActPas.Sec <- function (x, y, n)
     v <- c("SectorId", "Idx", "Allocation = avg(Allocation)")
     v <- sql.tbl(v, "#SEC", , paste(head(v, -1), collapse = ", "))
     v <- paste(sql.unbracket(v), collapse = "\n")
-    z <- sql.query(c(z, v), y, F)
-    z <- map.rname(reshape.wide(z), names(u))
+    z <- reshape.wide(sql.query(c(z, v), y, F))
+    z <- z[match(names(u), rownames(z)), ]
     z <- vec.named(z[, "N"]/nonneg(z[, "Y"]) - 1, u)
     z
 }
@@ -8192,7 +8191,7 @@ portfolio.residual <- function (x, y)
 #' position.floPct
 #' 
 #' Latest four-week flow percentage
-#' @param x = a file (strategy name or path)
+#' @param x = a file vector (strategy name or path)
 #' @param y = a string vector (to subset to, can be missing)
 #' @param n = last publication date (can be missing)
 #' @param w = an integer (size of lookback window)
@@ -8203,7 +8202,7 @@ portfolio.residual <- function (x, y)
 
 position.floPct <- function (x, y, n, w = 20, h = 5, u = F) 
 {
-    if (!file.exists(x)) 
+    if (any(!file.exists(x))) 
         x <- strat.path(x, "daily")
     x <- multi.asset(x)
     if (missing(n)) 
@@ -8223,12 +8222,10 @@ position.floPct <- function (x, y, n, w = 20, h = 5, u = F)
         if (missing(y)) 
             y <- colnames(x)
         else x <- mat.subset(x, y)
-        z <- x[dim(x)[1] - w:1 + 1, ]
-        z <- vec.named(apply(z, 2, fcn), y)
+        z <- vec.named(apply(tail(x, w), 2, fcn), y)
         z <- z[order(-z)]
         x <- x[dim(x)[1] - w:1 + 1 - h, ]
-        x <- vec.named(apply(x, 2, fcn), y)
-        x <- map.rname(x, names(z))
+        x <- apply(x[, match(names(z), y)], 2, fcn)
         x <- rank(z) - rank(x)
         y <- vec.named(qtl.eq(z), names(z))
         y <- mat.ex.vec(y, z)
