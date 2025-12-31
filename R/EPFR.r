@@ -5819,7 +5819,8 @@ map.rname <- function (x, y)
     }
     else {
         z <- x[match(y, rownames(x)), ]
-        rownames(z) <- y
+        if (is.matrix(x) | all(!duplicated(y))) 
+            rownames(z) <- y
     }
     z
 }
