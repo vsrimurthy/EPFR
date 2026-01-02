@@ -5611,8 +5611,8 @@ list.rename <- function (x, y, n)
 {
     if (missing(n)) 
         n <- args.canonical()[seq_along(y)]
-    z <- x[match(y, names(x))]
-    names(z) <- n
+    z <- x[is.element(names(x), y)]
+    names(z) <- n[match(names(z), y)]
     z
 }
 
