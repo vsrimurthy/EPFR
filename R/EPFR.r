@@ -15219,8 +15219,7 @@ txt.levenshtein <- function (x, y)
 
 txt.na <- function () 
 {
-    c("#N/A", "NA", "N/A", "NULL", "<NA>", "--", "#N/A N/A", 
-        "#VALUE!")
+    readLines(parameters("classif-na"))
 }
 
 #' txt.name.format
