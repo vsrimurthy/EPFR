@@ -8953,67 +8953,93 @@ record.track.target <- function (x, y, n)
 {
     z <- y
     w <- z[, "entry"] == "date" & z[, "freq"] == "D"
-    z[w, "target"] <- x
-    z[w, "today"] <- T
+    if (any(w)) {
+        z[w, "target"] <- x
+        z[w, "today"] <- T
+    }
     w <- z[, "entry"] == "flow" & z[, "freq"] == "D"
-    z[w, "target"] <- publish.daily.last(flowdate.lag(x, -char.to.num(!n)))
-    z[w, "today"] <- T
+    if (any(w)) {
+        z[w, "target"] <- publish.daily.last(flowdate.lag(x, 
+            -char.to.num(!n)))
+        z[w, "today"] <- T
+    }
     w <- z[, "entry"] == "date" & z[, "freq"] == "W"
-    y <- x
-    while (publish.weekly.last(flowdate.lag(x, -char.to.num(!n))) == 
-        publish.weekly.last(flowdate.lag(y, -char.to.num(!n)))) {
-        y <- flowdate.lag(y, 1)
+    if (any(w)) {
+        y <- x
+        while (publish.weekly.last(flowdate.lag(x, -char.to.num(!n))) == 
+            publish.weekly.last(flowdate.lag(y, -char.to.num(!n)))) {
+            y <- flowdate.lag(y, 1)
+        }
+        z[w, "target"] <- flowdate.lag(y, -1)
+        z[w, "today"] <- publish.weekly.last(flowdate.lag(x, 
+            -char.to.num(!n))) > publish.weekly.last(flowdate.lag(x, 
+            1 - char.to.num(!n)))
     }
-    z[w, "target"] <- flowdate.lag(y, -1)
-    z[w, "today"] <- publish.weekly.last(flowdate.lag(x, -char.to.num(!n))) > 
-        publish.weekly.last(flowdate.lag(x, 1 - char.to.num(!n)))
     w <- z[, "entry"] == "flow" & z[, "freq"] == "W"
-    z[w, "target"] <- publish.weekly.last(yyyymmdd.lag(x, -char.to.num(!n)))
-    z[w, "today"] <- publish.weekly.last(yyyymmdd.lag(x, -char.to.num(!n))) > 
-        publish.weekly.last(flowdate.lag(x, 1 - char.to.num(!n)))
-    w <- z[, "entry"] == "date" & z[, "freq"] == "M"
-    y <- x
-    while (publish.monthly.last(x, 16) == publish.monthly.last(y, 
-        16)) {
-        y <- flowdate.lag(y, 1)
+    if (any(w)) {
+        z[w, "target"] <- publish.weekly.last(yyyymmdd.lag(x, 
+            -char.to.num(!n)))
+        z[w, "today"] <- publish.weekly.last(yyyymmdd.lag(x, 
+            -char.to.num(!n))) > publish.weekly.last(flowdate.lag(x, 
+            1 - char.to.num(!n)))
     }
-    z[w, "target"] <- flowdate.lag(y, -1)
-    z[w, "today"] <- publish.monthly.last(x, 16) > publish.monthly.last(flowdate.lag(x, 
-        1), 16)
+    w <- z[, "entry"] == "date" & z[, "freq"] == "M"
+    if (any(w)) {
+        y <- x
+        while (publish.monthly.last(x, 16) == publish.monthly.last(y, 
+            16)) {
+            y <- flowdate.lag(y, 1)
+        }
+        z[w, "target"] <- flowdate.lag(y, -1)
+        z[w, "today"] <- publish.monthly.last(x, 16) > publish.monthly.last(flowdate.lag(x, 
+            1), 16)
+    }
     w <- z[, "entry"] == "flow" & z[, "freq"] == "M"
-    z[w, "target"] <- publish.monthly.last(x, 16)
-    z[w, "today"] <- publish.monthly.last(x, 16) > publish.monthly.last(flowdate.lag(x, 
-        1), 16)
+    if (any(w)) {
+        z[w, "target"] <- publish.monthly.last(x, 16)
+        z[w, "today"] <- publish.monthly.last(x, 16) > publish.monthly.last(flowdate.lag(x, 
+            1), 16)
+    }
     w <- z[, "entry"] == "hold" & z[, "freq"] == "M"
-    z[w, "target"] <- publish.monthly.last(x, 26)
-    z[w, "today"] <- publish.monthly.last(x, 26) > publish.monthly.last(flowdate.lag(x, 
-        1), 26)
+    if (any(w)) {
+        z[w, "target"] <- publish.monthly.last(x, 26)
+        z[w, "today"] <- publish.monthly.last(x, 26) > publish.monthly.last(flowdate.lag(x, 
+            1), 26)
+    }
     w <- z[, "entry"] == "bond" & z[, "freq"] == "M"
-    h <- paste0(fcn.dir(), "\\New Model Concept\\BondFlows\\BondHoldingsPIT")
-    u <- dir(h, "^BondHoldingsPIT-\\d{8}\\.txt$")
-    u <- max(gsub("^BondHoldingsPIT-|\\.txt$", "", u))
-    z[w, "target"] <- rep(u, sum(w))
-    u <- paste0(h, "\\BondHoldingsPIT-", u, ".txt")
-    u <- today() == file.date(u)
-    z[w, "today"] <- rep(u, sum(w))
+    if (any(w)) {
+        h <- paste0(fcn.dir(), "\\New Model Concept\\BondFlows\\BondHoldingsPIT")
+        u <- dir(h, "^BondHoldingsPIT-\\d{8}\\.txt$")
+        u <- max(gsub("^BondHoldingsPIT-|\\.txt$", "", u))
+        z[w, "target"] <- rep(u, sum(w))
+        u <- paste0(h, "\\BondHoldingsPIT-", u, ".txt")
+        u <- today() == file.date(u)
+        z[w, "today"] <- rep(u, sum(w))
+    }
     w <- z[, "entry"] == "hedge" & z[, "freq"] == "M"
-    h <- paste0(fcn.dir(), "\\New Model Concept\\HedgeFunds\\raw")
-    u <- dir(h, "^HedgeFundFlowsMonthlyFundLevelAll_\\d{8}\\.txt$")
-    u <- max(gsub("^HedgeFundFlowsMonthlyFundLevelAll_|\\.txt$", 
-        "", u))
-    z[w, "target"] <- rep(u, sum(w))
-    u <- paste0(h, "\\HedgeFundFlowsMonthlyFundLevelAll_", u, 
-        ".txt")
-    u <- today() == file.date(u)
-    z[w, "today"] <- rep(u, sum(w))
+    if (any(w)) {
+        h <- paste0(fcn.dir(), "\\New Model Concept\\HedgeFunds\\raw")
+        u <- dir(h, "^HedgeFundFlowsMonthlyFundLevelAll_\\d{8}\\.txt$")
+        u <- max(gsub("^HedgeFundFlowsMonthlyFundLevelAll_|\\.txt$", 
+            "", u))
+        z[w, "target"] <- rep(u, sum(w))
+        u <- paste0(h, "\\HedgeFundFlowsMonthlyFundLevelAll_", 
+            u, ".txt")
+        u <- today() == file.date(u)
+        z[w, "today"] <- rep(u, sum(w))
+    }
     w <- z[, "entry"] == "alloc" & z[, "freq"] == "M"
-    z[w, "target"] <- publish.monthly.last(x, 23)
-    z[w, "today"] <- publish.monthly.last(x, 23) > publish.monthly.last(flowdate.lag(x, 
-        1), 23)
+    if (any(w)) {
+        z[w, "target"] <- publish.monthly.last(x, 23)
+        z[w, "today"] <- publish.monthly.last(x, 23) > publish.monthly.last(flowdate.lag(x, 
+            1), 23)
+    }
     w <- z[, "entry"] == "FXalloc" & z[, "freq"] == "M"
-    z[w, "target"] <- publish.monthly.last(x, 9, 1)
-    z[w, "today"] <- publish.monthly.last(x, 9, 1) > publish.monthly.last(flowdate.lag(x, 
-        1), 9, 1)
+    if (any(w)) {
+        z[w, "target"] <- publish.monthly.last(x, 9, 1)
+        z[w, "today"] <- publish.monthly.last(x, 9, 1) > publish.monthly.last(flowdate.lag(x, 
+            1), 9, 1)
+    }
     z
 }
 
