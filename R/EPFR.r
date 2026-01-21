@@ -1921,7 +1921,7 @@ dir.clear <- function (x, y)
     cat("Ridding folder", x, "of", y, "files ..\n")
     z <- dir(x, y)
     if (length(x) > 0) 
-        file.kill(paste(x, z, sep = "\\"))
+        unlink(paste(x, z, sep = "\\"))
     invisible()
 }
 
@@ -3643,7 +3643,7 @@ file.bkp <- function (x, y)
     if (any(w)) {
         x <- x[w]
         y <- y[w]
-        file.kill(y)
+        unlink(y)
         dir.ensure(y)
         for (j in seq_along(x)) file.copy(x[j], y[j], copy.date = T)
     }
@@ -3663,20 +3663,6 @@ file.date <- function (x)
     z <- file.mtime(x)
     z <- day.ex.date(z)
     z
-}
-
-#' file.kill
-#' 
-#' Deletes designated files
-#' @param x = a file vector
-#' @keywords file.kill
-#' @export
-#' @family file
-
-file.kill <- function (x) 
-{
-    unlink(x)
-    invisible()
 }
 
 #' file.mtime.to.time
@@ -8514,7 +8500,7 @@ publications.data.kill <- function (x, y, n)
     if (length(h) > 0) {
         err.raise(h, F, paste("Removing the following from", 
             y))
-        file.kill(paste0(y, "\\", h))
+        unlink(paste0(y, "\\", h))
     }
     invisible()
 }
@@ -8604,7 +8590,7 @@ qa.mat.read <- function (x, y, n, w, h, u, v)
     if (file.exists(x)) {
         z <- read.EPFR(x)
         Sys.sleep(1)
-        file.kill(x)
+        unlink(x)
     }
     z
 }
@@ -9397,7 +9383,7 @@ rpt.email <- function (x, y, n, w, h, u, v, g = F)
     fldr <- paste0("C:\\temp\\Automation\\R\\", x)
     u <- paste(fldr, u, sep = "\\")
     if (w) {
-        file.kill(u)
+        unlink(u)
         sink(file = u, append = FALSE, type = c("output", "message"), 
             split = FALSE)
     }

@@ -14,7 +14,7 @@ the last YYYYMMDD or the last day of the YYYYMM for which we have data
 }
 \seealso{
 Other file: \code{\link{file.bkp}},
-  \code{\link{file.date}}, \code{\link{file.kill}},
+  \code{\link{file.date}},
   \code{\link{file.mtime.to.time}}, \code{\link{file.time}}
 }
 \keyword{file.to.last}
