@@ -3129,7 +3129,7 @@ fcn.pair.comment <- function (x, y, n, w)
     v <- fcn.expressions.to.txt(x)
     u <- grepl(paste0(y, "\\("), v)
     if (any(u)) 
-        for (r in which(u)) if (txt.left(v[r], 4) != "if (") {
+        for (r in which(u)) if (substring(v[r], 1, 4) != "if (") {
             z <- txt.bracket(v[r], y)
             z <- txt.trim(txt.parse.delimit(z))
             h <- is.element(z, n[n[, 1] == x, "arg"])
@@ -3215,8 +3215,8 @@ fcn.roxygenize <- function (x, y, n)
         z <- c(z, paste("@param", w$detl.args))
     z <- c(z, paste("@keywords", w$name), "@export")
     if (!missing(n)) {
-        if (any(x == n) | any(txt.left(x, nchar(n) + 1) == paste0(n, 
-            "."))) {
+        if (any(x == n) | any(substring(x, 1, nchar(n) + 1) == 
+            paste0(n, "."))) {
             z <- c(z, paste("@family", gsub("\\..*$", "", x)))
         }
     }
@@ -15913,7 +15913,7 @@ wrap <- function (x)
 
 yyyy.ex.period <- function (x, y) 
 {
-    txt.left(yyyymm.lag(x, -y), 4)
+    substring(yyyymm.lag(x, -y), 1, 4)
 }
 
 #' yyyy.ex.yy
