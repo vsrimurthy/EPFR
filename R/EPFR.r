@@ -4504,6 +4504,30 @@ ftp.upload <- function (x, y, n, w, h, u = "ftp", v)
     invisible()
 }
 
+#' ftpQuant.write
+#' 
+#' angle ABC
+#' @param x = a string (report name, can be missing)
+#' @keywords ftpQuant.write
+#' @export
+
+ftpQuant.write <- function (x) 
+{
+    z <- paste("Quant = ", wrap(machine.info("Quant")))
+    if (missing(x)) {
+        x <- "set Report = Quant"
+    }
+    else {
+        x <- paste0("set Report = '", x, "'")
+    }
+    x <- paste("update ftpQuant", x, "where", z)
+    x <- sql.query(x, "NEWQT2W", F)
+    z <- sql.tbl("Report", "ftpQuant", z)
+    z <- paste(sql.unbracket(z), collapse = "\n")
+    z <- sql.query(z, "NEWQT2", F)[1, 1]
+    z
+}
+
 #' fwd.probs
 #' 
 #' probability that forward return is positive given predictor is positive
@@ -8353,10 +8377,17 @@ production.upload <- function (x, y, n)
     if (r) 
         y <- gsub("YYYYMMDD", n, y)
     if (!ftp.exists(x, n)) {
-        z <- production.upload.underlying(y, h[["path"]], h[["type"]], 
-            r)
-        if (z) 
-            ftp.record(x, n)
+        while (x != ftpQuant.write(x)) {
+            cat("Waiting for other ftp process ..\n")
+            Sys.sleep(300)
+        }
+        if (!ftp.exists(x, n)) {
+            z <- production.upload.underlying(y, h[["path"]], 
+                h[["type"]], r)
+            if (z) 
+                ftp.record(x, n)
+        }
+        z <- ftpQuant.write()
     }
     else cat("Upload already happened; no need to repeat ..\n")
     invisible()
