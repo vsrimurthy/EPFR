@@ -9,7 +9,7 @@ sql.1mChActWt(x, y)
 \arguments{
 \item{x}{= a YYYYMM}
 
-\item{y}{= a string vector (FundId and BenchIndexId)}
+\item{y}{= a string vector (FundId and BenchIndex)}
 }
 \description{
 SQL query to get the following active weights: #		:	a) EqlChAct = equal weight average change in active weight #		:	b) BegChAct = beginning-of-period-asset weighted change in active weight #		:	c) EndChAct = end-of-period-asset weighted change in active weight #		:	d) BegPosChAct = beginning-of-period-asset weighted change in active weight (positive flows only) #		:	e) EndPosChAct = end-of-period-asset weighted change in active weight (positive flows only) #		:	f) BegNegChAct = beginning-of-period-asset weighted change in active weight (negative flows only) #		:	g) EndNegChAct = end-of-period-asset weighted change in active weight (negative flows only)

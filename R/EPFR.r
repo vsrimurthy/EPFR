@@ -4506,7 +4506,7 @@ ftp.upload <- function (x, y, n, w, h, u = "ftp", v)
 
 #' ftpQuant.write
 #' 
-#' angle ABC
+#' writes to ftpQuant table
 #' @param x = a string (report name, can be missing)
 #' @keywords ftpQuant.write
 #' @export
@@ -11484,7 +11484,7 @@ sql.1dFundCt <- function (x, y, n, w, h, u = F)
 #' 
 #' SQL query to get the following active weights: #		:	a) EqlAct = equal weight average (incl 0) less the benchmark #		:	b) CapAct = fund weight average (incl 0) less the benchmark #		:	c) PosAct = fund weight average (incl 0) less the benchmark (positive flows only) #		:	d) NegAct = fund weight average (incl 0) less the benchmark (negative flows only)
 #' @param x = a YYYYMM
-#' @param y = a string vector (FundId and BenchIndexId)
+#' @param y = a string vector (FundId and BenchIndex)
 #' @keywords sql.1mActWt
 #' @export
 #' @family sql
@@ -11531,7 +11531,7 @@ sql.1mActWt.underlying <- function (x, y)
     w <- list(A = paste("datediff(month, ReportDate, @allocDt) =", 
         x))
     w[["B"]] <- sql.in("HFundId", sql.tbl("HFundId", "FundHistory", 
-        "BenchIndexId = @bmkId"))
+        "BenchIndex = @bmkId"))
     w[["C"]] <- sql.in("HFundId", sql.Holdings(paste("datediff(month, ReportDate, @allocDt) =", 
         x), "HFundId"))
     w <- paste0("\t", sql.MonthlyAssetsEnd(w, "Flow"))
@@ -12018,7 +12018,7 @@ sql.1mBullish.Final <- function (x, y)
 #' 
 #' SQL query to get the following active weights: #		:	a) EqlChAct = equal weight average change in active weight #		:	b) BegChAct = beginning-of-period-asset weighted change in active weight #		:	c) EndChAct = end-of-period-asset weighted change in active weight #		:	d) BegPosChAct = beginning-of-period-asset weighted change in active weight (positive flows only) #		:	e) EndPosChAct = end-of-period-asset weighted change in active weight (positive flows only) #		:	f) BegNegChAct = beginning-of-period-asset weighted change in active weight (negative flows only) #		:	g) EndNegChAct = end-of-period-asset weighted change in active weight (negative flows only)
 #' @param x = a YYYYMM
-#' @param y = a string vector (FundId and BenchIndexId)
+#' @param y = a string vector (FundId and BenchIndex)
 #' @keywords sql.1mChActWt
 #' @export
 #' @family sql
@@ -12587,14 +12587,13 @@ sql.Bullish <- function (x, y, n, w)
     z <- c(z, sql.update("#HLD", "HoldingValue = 100 * HoldingValue/PortVal", 
         h, "#HLD.HFundId = t.HFundId"))
     h <- c("Pas", "HFundId in (select HFundId from #HLD)")
-    h <- sql.FundHistory(h, T, "BenchIndexId")
-    h <- c(sql.label(h, "t1"), "inner join")
-    h <- c(h, sql.label(sql.tbl("BenchIndexId, nFunds = count(HFundId)", 
-        h, , "BenchIndexId"), "t2"))
-    h <- c(h, "\ton t2.BenchIndexId = t1.BenchIndexId", "inner join", 
+    h <- sql.label(sql.FundHistory(h, T, "BenchIndex"), "t1")
+    h <- c(h, "inner join", sql.label(sql.tbl("BenchIndex, nFunds = count(HFundId)", 
+        h, , "BenchIndex"), "t2"))
+    h <- c(h, "\ton t2.BenchIndex = t1.BenchIndex", "inner join", 
         "#HLD t3 on t3.HFundId = t1.HFundId")
-    u <- "t1.BenchIndexId, t3.HSecurityId, BmkWt = sum(HoldingValue)/nFunds"
-    h <- sql.tbl(u, h, , "t1.BenchIndexId, t3.HSecurityId, nFunds")
+    u <- "t1.BenchIndex, t3.HSecurityId, BmkWt = sum(HoldingValue)/nFunds"
+    h <- sql.tbl(u, h, , "t1.BenchIndex, t3.HSecurityId, nFunds")
     z <- c(z, "", sql.into(h, "#BMK"), "")
     z <- c(z, sql.delete("#HLD", sql.in("HFundId", sql.FundHistory("Pas", 
         T))))
@@ -12609,7 +12608,7 @@ sql.Bullish <- function (x, y, n, w)
         h <- c(h, "inner join", "SecurityHistory id on id.HSecurityId = t1.HSecurityId")
     h <- c(h, "cross join", sql.label(sql.tbl("FundCt = count(distinct HFundId)", 
         "#HLD"), "t4"), "left join")
-    h <- c(h, "#BMK t3 on t3.BenchIndexId = t2.BenchIndexId and t3.HSecurityId = t1.HSecurityId")
+    h <- c(h, "#BMK t3 on t3.BenchIndex = t2.BenchIndex and t3.HSecurityId = t1.HSecurityId")
     w <- paste0(ifelse(w, "t1.HSecurityId", "SecurityId"), ", FundCt")
     z <- c(paste(z, collapse = "\n"), paste(sql.unbracket(sql.tbl(x, 
         h, , w)), collapse = "\n"))
@@ -12946,20 +12945,20 @@ sql.Dispersion <- function (x, y, n, w)
 {
     x <- yyyymm.to.day(x)
     z <- sql.drop(c("#HLD", "#BMK"))
-    z <- c(z, "", "create table #BMK (BenchIndexId int not null, HSecurityId int not null, HoldingValue float not null)")
-    z <- c(z, sql.index("#BMK", "BenchIndexId, HSecurityId"))
+    z <- c(z, "", "create table #BMK (BenchIndex int not null, HSecurityId int not null, HoldingValue float not null)")
+    z <- c(z, sql.index("#BMK", "BenchIndex, HSecurityId"))
     u <- sql.and(list(A = paste0("ReportDate = '", x, "'"), B = "not isnull(Idx, 'N') = 'N'"))
     h <- "Holdings t1 inner join FundHistory t2 on t2.HFundId = t1.HFundId"
-    h <- sql.tbl("BenchIndexId, HSecurityId, HoldingValue = sum(HoldingValue)", 
-        h, u, "BenchIndexId, HSecurityId", "sum(HoldingValue) > 0")
+    h <- sql.tbl("BenchIndex, HSecurityId, HoldingValue = sum(HoldingValue)", 
+        h, u, "BenchIndex, HSecurityId", "sum(HoldingValue) > 0")
     z <- c(z, "insert into #BMK", sql.unbracket(h))
-    h <- sql.label(sql.tbl("BenchIndexId, AUM = sum(HoldingValue)", 
-        "#BMK", , "BenchIndexId", "sum(HoldingValue) > 0"), "t")
+    h <- sql.label(sql.tbl("BenchIndex, AUM = sum(HoldingValue)", 
+        "#BMK", , "BenchIndex", "sum(HoldingValue) > 0"), "t")
     z <- c(z, "", sql.update("#BMK", "HoldingValue = HoldingValue/AUM", 
-        h, "#BMK.BenchIndexId = t.BenchIndexId"))
+        h, "#BMK.BenchIndex = t.BenchIndex"))
     z <- c(z, "", "create table #HLD (HFundId int not null, HSecurityId int not null, HoldingValue float not null)")
     z <- c(z, sql.index("#HLD", "HFundId, HSecurityId"))
-    u <- sql.in("BenchIndexId", sql.tbl("BenchIndexId", "#BMK"))
+    u <- sql.in("BenchIndex", sql.tbl("BenchIndex", "#BMK"))
     u <- sql.and(list(A = paste0("ReportDate = '", x, "'"), B = "isnull(Idx, 'N') = 'N'", 
         C = u, D = "HoldingValue > 0"))
     h <- "Holdings t1 inner join FundHistory t2 on t2.HFundId = t1.HFundId"
@@ -12970,14 +12969,14 @@ sql.Dispersion <- function (x, y, n, w)
         "#HLD", , "HFundId", "sum(HoldingValue) > 0"), "t")
     z <- c(z, "", sql.update("#HLD", "HoldingValue = HoldingValue/AUM", 
         h, "#HLD.HFundId = t.HFundId"))
-    h <- c("FundHistory t1", "inner join", "#BMK t2 on t2.BenchIndexId = t1.BenchIndexId")
+    h <- c("FundHistory t1", "inner join", "#BMK t2 on t2.BenchIndex = t1.BenchIndex")
     u <- "#HLD.HFundId = t1.HFundId and #HLD.HSecurityId = t2.HSecurityId"
     z <- c(z, "", sql.update("#HLD", "HoldingValue = #HLD.HoldingValue - t2.HoldingValue", 
         h, u))
     u <- sql.tbl("HFundId, HSecurityId", "#HLD t", "t1.HFundId = t.HFundId and t2.HSecurityId = t.HSecurityId")
     u <- sql.and(list(A = sql.exists(u, F), B = sql.in("t1.HFundId", 
         sql.tbl("HFundId", "#HLD"))))
-    h <- c("FundHistory t1", "inner join", "#BMK t2 on t2.BenchIndexId = t1.BenchIndexId")
+    h <- c("FundHistory t1", "inner join", "#BMK t2 on t2.BenchIndex = t1.BenchIndex")
     h <- sql.tbl("HFundId, HSecurityId, -HoldingValue", h, u)
     z <- c(z, "", "insert into #HLD", sql.unbracket(h))
     if (n != "All") 

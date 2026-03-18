@@ -10,6 +10,6 @@ ftpQuant.write(x)
 \item{x}{= a string (report name, can be missing)}
 }
 \description{
-angle ABC
+writes to ftpQuant table
 }
 \keyword{ftpQuant.write}

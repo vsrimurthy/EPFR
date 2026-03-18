@@ -9,7 +9,7 @@ sql.1mActWt(x, y)
 \arguments{
 \item{x}{= a YYYYMM}
 
-\item{y}{= a string vector (FundId and BenchIndexId)}
+\item{y}{= a string vector (FundId and BenchIndex)}
 }
 \description{
 SQL query to get the following active weights: #		:	a) EqlAct = equal weight average (incl 0) less the benchmark #		:	b) CapAct = fund weight average (incl 0) less the benchmark #		:	c) PosAct = fund weight average (incl 0) less the benchmark (positive flows only) #		:	d) NegAct = fund weight average (incl 0) less the benchmark (negative flows only)
