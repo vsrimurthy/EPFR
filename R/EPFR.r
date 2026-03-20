@@ -7607,7 +7607,7 @@ mk.vbl.diff <- function (x, y, n)
 
 mk.vbl.lag <- function (x, y, n) 
 {
-    x <- yyyymm.lag(x, char.to.num(y[2]))
+    x <- yyyymm.lag(x, char.to.num(y[2]), F)
     z <- fetch(y[1], x, 1, paste(n$fldr, y[3], sep = "\\"), n$classif)
     z
 }
