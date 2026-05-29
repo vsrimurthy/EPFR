@@ -9448,7 +9448,7 @@ rpt.email <- function (x, y, n, w, h, u, v, g = F)
         proceed <- F
     }
     if (proceed) {
-        if (length(h) == length(v)) {
+        if (length(h) == length(v) & length(h) == length(out.files)) {
             for (i in seq_along(h)) proceed <- proceed & rpt.email.send(v[i], 
                 h[i], flo.dt, w, out.files[i])
         }
