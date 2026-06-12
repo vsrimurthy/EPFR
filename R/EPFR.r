@@ -4372,7 +4372,11 @@ ftp.sql.factor <- function (x, y, n, w, h, u = F)
             h <- "All"
         }
     }
-    if (all(grepl("^(Flo)(Trend|Diff|Diff2)$", x))) {
+    if (all(grepl("^ShsSurp$", x))) {
+        z <- sql.ShsSurp(yyyymmdd.to.yyyymm(y), c(x, qa.filter.map(n)), 
+            "All", T)
+    }
+    else if (all(grepl("^(Flo)(Trend|Diff|Diff2)$", x))) {
         z <- sql.1mAllocD(y, c(x, qa.filter.map(n)), w, T, F, 
             "Flow", u, "All", F)
     }
