@@ -5535,8 +5535,8 @@ knapsack.process <- function (x, y, n, w, h, u, v, g = 52)
     z <- h
     h <- !missing(u) & !missing(v)
     for (j in round(n):round(w)) {
-        g <- knapsack.ex.int(j, 10, dim(x)[2] - 1)
-        r <- as.numeric(x[, -1] %*% g)
+        b <- knapsack.ex.int(j, 10, dim(x)[2] - 1)
+        r <- as.numeric(x[, -1] %*% b)
         r <- fcn.vec.grp(qtl.fast, r, y)
         s <- is.element(r, c(1, 5))
         r <- aggregate(x = x[s, 1], by = list(row = y[s], col = r[s]), 
