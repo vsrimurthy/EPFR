@@ -5547,11 +5547,11 @@ knapsack.process <- function (x, y, n, w, h, u, v, g = 52)
         if (any(r > sapply(z, function(z) z[["tgt"]]))) {
             if (r[1] > z[["AnnMn"]][["tgt"]]) {
                 z[["AnnMn"]][["tgt"]] <- r[1]
-                z[["AnnMn"]][["comb"]] <- g
+                z[["AnnMn"]][["comb"]] <- b
             }
             if (r[2] > z[["Sharpe"]][["tgt"]]) {
                 z[["Sharpe"]][["tgt"]] <- r[2]
-                z[["Sharpe"]][["comb"]] <- g
+                z[["Sharpe"]][["comb"]] <- b
             }
             cat(paste(round(unlist(z), 2), collapse = " "), "\n")
         }
