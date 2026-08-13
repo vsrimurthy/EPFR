@@ -6916,37 +6916,6 @@ mk.1mBullish.Sec <- function (x, y, n)
     z
 }
 
-#' mk.1mFloMo.Ctry
-#' 
-#' SQL query for monthly CBE flow momentum
-#' @param x = a YYYYMM
-#' @param y = a string (Flow/AssetsStart/AssetsEnd/PortfolioChange)
-#' @param n = a string (one of Ctry/FX/Sector)
-#' @param w = a connection string/connection
-#' @param h = a filter vector
-#' @keywords mk.1mFloMo.Ctry
-#' @export
-#' @family mk
-
-mk.1mFloMo.Ctry <- function (x, y, n, w, h = "E") 
-{
-    n <- sql.1dFloMo.CountryId.List(n)
-    v <- list(A = paste0("ReportDate = '", yyyymm.to.day(yyyymm.lag(x)), 
-        "'"))
-    v[["B"]] <- paste0("CountryId in (", paste(names(n), collapse = ", "), 
-        ")")
-    v <- sql.Allocation(c("FundId", "CountryId", "Allocation"), 
-        "Country", , , sql.and(v))
-    r <- c("MonthEnding", "FundId", y)
-    z <- sql.Flow(r, wrap(yyyymm.to.day(x)), c("CB", h, "UI"), 
-        , "M")
-    z <- c(sql.label(z, "t1"), "inner join", sql.label(v, "t2"), 
-        "\ton t2.FundId = t1.FundId")
-    z <- mk.1dFloMo.Ctry.data(z, y, r, w)
-    z <- mk.1dFloMo.Ctry.rslt(y, z, n)
-    z
-}
-
 #' mk.1wFloMo.CtryFlow
 #' 
 #' Country flows using all funds
