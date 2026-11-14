@@ -8993,6 +8993,18 @@ record.track.target <- function (x, y, n)
         z[w, "today"] <- publish.monthly.last(x, 26) > publish.monthly.last(flowdate.lag(x, 
             1), 26)
     }
+    fcn <- function(x) {
+        l <- yyyymmdd.to.yyyymm(x)
+        z <- flowdate.ex.yyyymm(l, F)
+        z <- z[z > paste0(l, "03")][1]
+        z <- yyyymm.lag(l, 2 + as.numeric(x <= z))
+        yyyymm.to.day(z)
+    }
+    w <- z[, "entry"] == "csca" & z[, "freq"] == "M"
+    if (any(w)) {
+        z[w, "target"] <- fcn(x)
+        z[w, "today"] <- fcn(x) > fcn(flowdate.lag(x, 1))
+    }
     w <- z[, "entry"] == "bond" & z[, "freq"] == "M"
     if (any(w)) {
         h <- paste0(fcn.dir(), "\\New Model Concept\\BondFlows\\BondHoldingsPIT")
