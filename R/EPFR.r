@@ -4681,8 +4681,8 @@ html.email <- function (x = today(), y = T)
         u)
     u <- c(u, "The QC process was unable to check the following external deliveries:")
     h <- record.track(x, "emails", y)
-    h <- h[is.na(h$yyyymmdd) | h$yyyymmdd != h$target | h$today, 
-        ]
+    v <- h <- h[is.na(h$yyyymmdd) | h$yyyymmdd != h$target | 
+        h$today, ]
     w <- mat.read(parameters("classif-recipient"), "\t", NULL)
     w[, "recipient"] <- as.numeric(grepl("@(isimarkets|epfr).com$", 
         w[, 3]))
@@ -4711,6 +4711,19 @@ html.email <- function (x = today(), y = T)
         h$yyyymmdd < h$target)
     z <- c(z, html.problem.underlying(paste0("<b>", rownames(h), 
         "</b>"), u, h$yyyymmdd < h$target))
+    h[, "action"] <- rep("ftp", dim(h)[1])
+    v[, "action"] <- rep("email", dim(v)[1])
+    v <- rbind(v, h)
+    path <- paste0(dir.parameters("Internal"), "\\ProductionLog\\Detail\\", 
+        machine.info("Quant"), ".txt")
+    if (fail) {
+        h <- is.na(v$yyyymmdd) | is.na(v$target) | v$yyyymmdd < 
+            v$target
+        mat.write(v[h, ], path, "\t")
+    }
+    else {
+        unlink(path)
+    }
     u <- paste("This morning the following indicators did not update:")
     u <- c("The QC process certified", "successful indicator updates.", 
         u)
