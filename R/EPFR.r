@@ -4719,10 +4719,13 @@ html.email <- function (x = today(), y = T)
     if (fail) {
         h <- is.na(v$yyyymmdd) | is.na(v$target) | v$yyyymmdd < 
             v$target
-        mat.write(v[h, ], path, "\t")
-    }
-    else {
-        unlink(path)
+        if (file.exists(path)) {
+            write.table(v[h, ], path, append = T, sep = "\t", 
+                quote = F, col.names = F, fileEncoding = "UTF-8")
+        }
+        else {
+            mat.write(v[h, ], path, "\t")
+        }
     }
     u <- paste("This morning the following indicators did not update:")
     u <- c("The QC process certified", "successful indicator updates.", 
