@@ -4,7 +4,7 @@
 \alias{mat.write}
 \title{mat.write}
 \usage{
-mat.write(x, y, n = ",", w = T)
+mat.write(x, y, n = ",", w = T, h = F)
 }
 \arguments{
 \item{x}{= a numeric vector/matrix/data frame}
@@ -14,6 +14,8 @@ mat.write(x, y, n = ",", w = T)
 \item{n}{= the separator}
 
 \item{w}{= a boolean (do/don't write row names)}
+
+\item{h}{= a boolean (do/don't append)}
 }
 \description{
 Writes <x> as a <n>-separated file to <y>

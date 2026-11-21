@@ -4719,13 +4719,7 @@ html.email <- function (x = today(), y = T)
     if (fail) {
         h <- is.na(v$yyyymmdd) | is.na(v$target) | v$yyyymmdd < 
             v$target
-        if (file.exists(path)) {
-            write.table(v[h, ], path, append = T, sep = "\t", 
-                quote = F, col.names = F, fileEncoding = "UTF-8")
-        }
-        else {
-            mat.write(v[h, ], path, "\t")
-        }
+        mat.write(v[h, ], path, "\t", T, file.exists(path))
     }
     u <- paste("This morning the following indicators did not update:")
     u <- c("The QC process certified", "successful indicator updates.", 
@@ -6270,20 +6264,25 @@ mat.weekly.to.daily <- function (x)
 #' @param y = a file (output, can be missing)
 #' @param n = the separator
 #' @param w = a boolean (do/don't write row names)
+#' @param h = a boolean (do/don't append)
 #' @keywords mat.write
 #' @export
 #' @family mat
 
-mat.write <- function (x, y, n = ",", w = T) 
+mat.write <- function (x, y, n = ",", w = T, h = F) 
 {
     if (missing(y)) 
         y <- paste(machine.info("temp"), "write.csv", sep = "\\")
     if (is.null(dim(x))) {
         write.table(x, y, sep = n, quote = F, col.names = F, 
-            row.names = w, fileEncoding = "UTF-8")
+            row.names = w, fileEncoding = "UTF-8", append = h)
     }
     else if (dim(x)[1] == 0) {
         cat("No records. Write to", y, "failed ..\n")
+    }
+    else if (h) {
+        write.table(x, y, sep = n, quote = F, col.names = F, 
+            fileEncoding = "UTF-8", row.names = w, append = T)
     }
     else if (w) {
         write.table(x, y, sep = n, quote = F, col.names = NA, 
@@ -6291,7 +6290,7 @@ mat.write <- function (x, y, n = ",", w = T)
     }
     else {
         write.table(x, y, sep = n, quote = F, col.names = T, 
-            row.names = F, fileEncoding = "UTF-8")
+            fileEncoding = "UTF-8", row.names = F)
     }
     invisible()
 }
